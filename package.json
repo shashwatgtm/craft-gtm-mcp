@@ -1,0 +1,50 @@
+{
+  "name": "@shashwatgtmalpha/craft-gtm-mcp",
+  "version": "1.0.0",
+  "description": "CRAFT GTM MCP Server - 8 Strategic GTM Execution Tools: PMF Assessment, Launch Planning, Customer Research, Retention, Partnerships, Crisis Response, Competitive Intel",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "craft-gtm-mcp": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "mcp",
+    "mcp-server",
+    "craft-framework",
+    "gtm-strategy",
+    "product-market-fit",
+    "launch-planning",
+    "retention",
+    "partnerships",
+    "competitive-intelligence",
+    "b2b-marketing",
+    "anthropic"
+  ],
+  "author": "Shashwat Ghosh <shashwat@hyperplays.in>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shashwatah/craft-gtm-mcp.git"
+  },
+  "homepage": "https://gtmexpert.com",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "files": [
+    "dist/**/*",
+    "README.md",
+    "LICENSE"
+  ]
+}
