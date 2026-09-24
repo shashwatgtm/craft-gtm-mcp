@@ -1,0 +1,59 @@
+# CRAFT GTM MCP connector
+
+> CRAFT GTM gives Claude eight planning tools for B2B go-to-market work: a product-market fit scorecard, launch plans, customer interview guides, retention playbooks, partner programs, crisis playbooks, competitive battle cards and a CRAFT review of any GTM document. Every tool turns the details you give it into a structured plan.
+
+- MCP server URL (Streamable HTTP, no sign-in, read-only tools): https://craft-gtm-mcp.netlify.app/mcp
+- Setup and tools: https://craft-gtm-mcp.netlify.app/
+- Privacy policy: https://craft-gtm-mcp.netlify.app/privacy.html
+- Local npm package: @shashwatgtmalpha/craft-gtm-mcp
+- Source code: https://github.com/shashwatgtm/craft-gtm-mcp
+- Built by: Shashwat Ghosh, Helix GTM Consulting (https://www.gtmexpert.com)
+
+## Tools
+
+- PMF Scorecard (pmf_scorecard): Generate a Product-Market Fit scorecard. Parses the metrics you provide (MRR, churn, NPS, CAC, LTV, retention, activation and similar) and scores each dimension against built-in benchmark ranges.
+- Launch Commander (launch_commander): Generate a context-aware launch plan. Have a date? Get a detailed timeline. Still planning? Enter 'TBD' or 'Q2 2025' for a flexible plan.
+- Customer Interview Kit (customer_interview_kit): Generate interview guides that ADAPT based on interview type, industry, and product complexity. Includes synthesis templates.
+- Retention Playbook (retention_playbook): Generate retention strategies. Has DISCOVERY MODE - if you don't know WHY people churn, get a churn analysis framework first.
+- Partner Architect (partner_architect): Design partner programs that ADAPT based on partner model type. Different structures for resellers vs referrals vs integrations vs affiliates.
+- Crisis Planner (crisis_planner): Generate crisis playbooks. Know your risks? Get specific playbooks. Not sure what to plan for? We'll suggest the top crises for your industry.
+- Competitive Intel (competitive_intel): Generate battle cards. If you know your strengths/weaknesses, get complete battle cards. If you only know competitors and win/loss stories, we'll derive your positioning.
+- CRAFT GTM Analyzer (craft_gtm_analyzer): Analyze a GTM document against the CRAFT framework. Parses the content, identifies gaps, scores each dimension and suggests sections to add.
+
+## Questions and answers
+
+### What is CRAFT GTM?
+
+CRAFT GTM gives Claude eight planning tools for B2B go-to-market work: a product-market fit scorecard, launch plans, customer interview guides, retention playbooks, partner programs, crisis playbooks, competitive battle cards and a CRAFT review of any GTM document. Every tool turns the details you give it into a structured plan.
+
+### How do I connect CRAFT GTM to Claude?
+
+In Claude, open Customize, then Connectors, then Add custom connector. Name it CRAFT GTM, paste the server URL https://craft-gtm-mcp.netlify.app/mcp, choose no sign-in and select Add. In Claude Code run: claude mcp add --transport http craft-gtm https://craft-gtm-mcp.netlify.app/mcp
+
+### Does CRAFT GTM need an account, and what does it cost?
+
+No account or sign-in is needed, and there is no charge. The server is public and every tool is read-only.
+
+### Which tools does CRAFT GTM include?
+
+8 tools: PMF Scorecard, Launch Commander, Customer Interview Kit, Retention Playbook, Partner Architect, Crisis Planner, Competitive Intel, CRAFT GTM Analyzer.
+
+### What data does CRAFT GTM keep?
+
+None. Each call is answered from the inputs you give it, and the server stores and logs nothing. Netlify, the host, keeps its own request logs. See the privacy policy.
+
+### Can I run CRAFT GTM on my own computer?
+
+Yes. Run npx -y @shashwatgtmalpha/craft-gtm-mcp to use the same tools locally over stdio; nothing is sent to us.
+
+### Who built CRAFT GTM?
+
+Shashwat Ghosh, founder of Helix GTM Consulting, a GTM Alpha consultant, AI GTM expert and fractional CMO with 24+ years in B2B and 10+ years of fractional experience.
+
+## Other connectors by Helix GTM Consulting
+
+- GTM Alpha: https://gtmalpha.netlify.app/integration
+- CRAFT Content: https://craft-content-mcp.netlify.app/
+- IMPACT: https://impact-mcp.netlify.app/
+- ICP Intelligence: https://icp-intelligence-mcp.netlify.app/
+- Revenue Enablement: https://revenue-enablement-mcp.netlify.app/
