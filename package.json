@@ -1,50 +1,48 @@
 {
   "name": "@shashwatgtmalpha/craft-gtm-mcp",
-  "version": "1.0.0",
-  "description": "CRAFT GTM MCP Server - 8 Strategic GTM Execution Tools: PMF Assessment, Launch Planning, Customer Research, Retention, Partnerships, Crisis Response, Competitive Intel",
+  "version": "2.0.1",
+  "mcpName": "io.github.shashwatgtm/craft-gtm-mcp",
+  "description": "CRAFT GTM Framework MCP Server - Complete redesign with intelligent analysis, metric parsing, and context-aware outputs",
   "main": "dist/index.js",
-  "types": "dist/index.d.ts",
   "bin": {
-    "craft-gtm-mcp": "dist/index.js"
+    "craft-gtm-mcp": "./dist/index.js"
   },
+  "type": "module",
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
+    "dev": "tsc -w",
     "prepublishOnly": "npm run build"
   },
   "keywords": [
     "mcp",
-    "mcp-server",
-    "craft-framework",
-    "gtm-strategy",
+    "gtm",
+    "go-to-market",
     "product-market-fit",
-    "launch-planning",
-    "retention",
-    "partnerships",
-    "competitive-intelligence",
-    "b2b-marketing",
-    "anthropic"
+    "marketing",
+    "strategy",
+    "claude",
+    "anthropic",
+    "ai-tools"
   ],
-  "author": "Shashwat Ghosh <shashwat@hyperplays.in>",
+  "author": "Shashwat Ghosh <shashwat@helixgtm.com>",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/shashwatah/craft-gtm-mcp.git"
+    "url": "https://github.com/shashwatgtm/craft-gtm-mcp"
   },
-  "homepage": "https://gtmexpert.com",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0"
   },
   "devDependencies": {
-    "@types/node": "^20.0.0",
-    "typescript": "^5.0.0"
+    "@types/node": "^20.10.0",
+    "typescript": "^5.3.0"
   },
   "engines": {
     "node": ">=18.0.0"
   },
   "files": [
     "dist/**/*",
-    "README.md",
-    "LICENSE"
+    "README.md"
   ]
 }

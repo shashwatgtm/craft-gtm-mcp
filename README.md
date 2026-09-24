@@ -1,115 +1,91 @@
-# CRAFT GTM MCP Server
+# @shashwatgtmalpha/craft-gtm-mcp v2.0.0
 
-**8 Strategic GTM Execution Tools** powered by the CRAFT Framework.
+🚀 **CRAFT GTM Framework MCP Server** - A complete redesign with intelligent analysis, metric parsing, and context-aware outputs.
 
-Created by [Shashwat Ghosh](https://gtmexpert.com) | Top 30 PLG Creator Worldwide
+## What's New in v2.0.0
 
----
+This is a **major redesign** addressing all critical issues from v1.x:
 
-## 🎯 What is CRAFT GTM?
+| Issue | v1.x | v2.0.0 |
+|-------|------|--------|
+| PMF Scorecard | Blank `___` outputs | **Actually parses and scores your metrics** |
+| Launch Commander | Same 12-week template for all | **Adapts to launch type, team size, budget** |
+| Retention Playbook | Generic health scores | **Parses churn reasons, creates specific interventions** |
+| Competitive Intel | `[Research]` placeholders | **Uses your competitor data, generates battle cards** |
+| CRAFT Analyzer | Blank scorecard output | **Actually analyzes documents, finds gaps** |
 
-CRAFT GTM provides strategic GTM tools for **founders, CMOs, and strategy leaders** who need comprehensive frameworks for:
+## Installation
 
-- Product-Market Fit Assessment
-- Launch Planning & Execution
-- Customer Research
-- Retention Strategy
-- Partner Programs
-- Crisis Management
-- Competitive Intelligence
+```bash
+npm install -g @shashwatgtmalpha/craft-gtm-mcp
+```
 
-**Typical use:** Quarterly planning, major initiatives, strategy development (1+ hour deep work)
-
----
-
-## 🛠️ Tools Included
-
-| Tool | Purpose | Output |
-|------|---------|--------|
-| `pmf_scorecard` | Assess Product-Market Fit | 5-dimension scorecard (0-100), gap analysis, 90-day plan |
-| `launch_commander` | Plan product launches | 12-week timeline, RACI matrix, contingency plans |
-| `customer_interview_kit` | Research customers | Interview scripts, question bank, synthesis templates |
-| `retention_playbook` | Reduce churn | Health score model, intervention playbooks, alerts |
-| `partner_architect` | Build partner programs | 4-tier structure, economics, enablement curriculum |
-| `crisis_planner` | Prepare for crises | Severity levels, response templates, playbooks |
-| `competitive_intel` | Win competitive deals | Battle cards, feature matrix, objection handlers |
-| `craft_gtm_analyzer` | Improve strategy docs | CRAFT score, gap analysis, recommendations |
-
----
-
-## 📦 Installation
-
-### Claude Desktop
-
-Add to your `claude_desktop_config.json`:
+Or add to your Claude Desktop config:
 
 ```json
 {
   "mcpServers": {
     "craft-gtm": {
       "command": "npx",
-      "args": ["-y", "@shashwatah/craft-gtm-mcp"]
+      "args": ["-y", "@shashwatgtmalpha/craft-gtm-mcp"]
     }
   }
 }
 ```
 
-### Manual Installation
+## Tools Overview
 
-```bash
-npm install -g @shashwatah/craft-gtm-mcp
-craft-gtm-mcp
+### 1. 📊 `pmf_scorecard` - Product-Market Fit Analysis
+**Now with real metric parsing and scoring!**
+
+Input your metrics in natural language:
+```
+MRR: $50K, Churn: 3%, NPS: 45, CAC: $500, LTV: $3000, Retention: 92%
 ```
 
----
+Output: Auto-scored dimensions against industry benchmarks (Enterprise SaaS, SMB, Consumer, Fintech, etc.)
 
-## 💡 Example Usage
+### 2. 🚀 `launch_commander` - Context-Aware Launch Plans
+**Different plans for different launches!**
 
-### PMF Assessment
-```
-"Assess PMF for our product [name] targeting [market].
-Current metrics: $50K MRR, 8% monthly churn, NPS 35, 6 months in market.
-Customer feedback: Users love feature X but struggle with onboarding."
-```
+| Launch Type | Plan Duration | Complexity |
+|-------------|---------------|------------|
+| Major Release | 12 weeks | Full channel activation |
+| Feature Launch | 6 weeks | Focused channels |
+| Beta Launch | 4 weeks | Limited audience |
+| Product Update | 2 weeks | Existing customers |
+| Market Expansion | 10 weeks | Localization focus |
 
-### Launch Planning
-```
-"Create a launch plan for [feature] launching [date].
-Target: Enterprise IT managers in healthcare.
-Goals: 500 signups, 50 demos, 10 closed deals in 30 days."
-```
+### 3. 🎙️ `customer_interview_kit` - Adaptive Interview Guides
+**Industry-specific questions with synthesis templates**
 
-### Retention Strategy
-```
-"Build a retention playbook for our SMB segment.
-Current churn: 5% monthly. Main reasons: Poor onboarding, missing integrations.
-CS team: 2 people, using Intercom."
-```
+### 4. 🔄 `retention_playbook` - Churn-Specific Interventions
+**Parses your churn reasons and creates specific playbooks!**
 
----
+### 5. 🤝 `partner_architect` - Model-Specific Partner Programs
+**Different structures for different partner types!**
 
-## 🔗 Related
+### 6. 🚨 `crisis_planner` - Crisis-Specific Playbooks
+**Different protocols for different crises!**
 
-- **[CRAFT Content MCP](https://github.com/anthropics/craft-content-mcp)** - 8 content creation tools (case studies, newsletters, webinars)
-- **[IMPACT MCP](https://github.com/shashwatgtm/impact-mcp)** - Positioning framework
-- **[EPIC MCP](https://github.com/shashwatgtm/epic-mcp)** - GTM strategy framework
+### 7. ⚔️ `competitive_intel` - Actual Battle Cards
+**No more `[Research]` placeholders!**
 
----
+### 8. 📋 `craft_gtm_analyzer` - Real Document Analysis
+**Actually analyzes your documents!**
 
-## 📚 The CRAFT Framework
+## Design Principles (v2.0)
 
-**C**haracter - Who executes this?
-**R**esult - What's the desired outcome?
-**A**rtifact - What gets produced?
-**F**rame - What's the context?
-**T**imeline - What are the steps?
+1. **No blank outputs** - Every `___` or `[Define]` replaced with generated content
+2. **Context-aware** - Outputs adapt based on inputs provided
+3. **Discovery mode** - If info missing, tools ask smart questions
+4. **Actionable outputs** - Ready-to-use, not templates to fill
+5. **Progressive enhancement** - More input = richer output
 
----
+## Author
 
-## 📄 License
+**Shashwat Ghosh** - [Helix GTM Consulting](https://helixgtm.com)
 
-MIT License - Created by Shashwat Ghosh
+## License
 
----
-
-*Part of the GTM Alpha Toolkit | [gtmexpert.com](https://gtmexpert.com)*
+MIT
