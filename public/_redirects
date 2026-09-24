@@ -1,0 +1,25 @@
+# Old address: pages redirect to the gtmhelix.com address. /mcp and /api/* are NOT listed, so they keep answering directly.
+# These rules sit at the top because Netlify applies the first match.
+https://craft-gtm-mcp.netlify.app/  https://craft-gtm.gtmhelix.com/  301!
+https://craft-gtm-mcp.netlify.app/tools/pmf-scorecard/  https://craft-gtm.gtmhelix.com/tools/pmf-scorecard/  301!
+https://craft-gtm-mcp.netlify.app/tools/launch-commander/  https://craft-gtm.gtmhelix.com/tools/launch-commander/  301!
+https://craft-gtm-mcp.netlify.app/tools/customer-interview-kit/  https://craft-gtm.gtmhelix.com/tools/customer-interview-kit/  301!
+https://craft-gtm-mcp.netlify.app/tools/retention-playbook/  https://craft-gtm.gtmhelix.com/tools/retention-playbook/  301!
+https://craft-gtm-mcp.netlify.app/tools/partner-architect/  https://craft-gtm.gtmhelix.com/tools/partner-architect/  301!
+https://craft-gtm-mcp.netlify.app/tools/crisis-planner/  https://craft-gtm.gtmhelix.com/tools/crisis-planner/  301!
+https://craft-gtm-mcp.netlify.app/tools/competitive-intel/  https://craft-gtm.gtmhelix.com/tools/competitive-intel/  301!
+https://craft-gtm-mcp.netlify.app/tools/craft-gtm-analyzer/  https://craft-gtm.gtmhelix.com/tools/craft-gtm-analyzer/  301!
+https://craft-gtm-mcp.netlify.app/connect/  https://craft-gtm.gtmhelix.com/connect/  301!
+https://craft-gtm-mcp.netlify.app/docs/  https://craft-gtm.gtmhelix.com/docs/  301!
+https://craft-gtm-mcp.netlify.app/faq/  https://craft-gtm.gtmhelix.com/faq/  301!
+https://craft-gtm-mcp.netlify.app/privacy/  https://craft-gtm.gtmhelix.com/privacy/  301!
+https://craft-gtm-mcp.netlify.app/index.html  https://craft-gtm.gtmhelix.com/index.html  301!
+https://craft-gtm-mcp.netlify.app/privacy  https://craft-gtm.gtmhelix.com/privacy/  301!
+https://craft-gtm-mcp.netlify.app/privacy.html  https://craft-gtm.gtmhelix.com/privacy/  301!
+https://craft-gtm-mcp.netlify.app/sitemap.xml  https://craft-gtm.gtmhelix.com/sitemap.xml  301!
+https://craft-gtm-mcp.netlify.app/llms.txt  https://craft-gtm.gtmhelix.com/llms.txt  301!
+
+# Old page address on the new site
+/privacy.html  /privacy/  301!
+/privacy  /privacy/  301!
+

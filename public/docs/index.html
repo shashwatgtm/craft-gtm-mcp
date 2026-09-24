@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CRAFT GTM Docs: MCP Server and REST API | Helix GTM</title>
+<meta name="description" content="How to call the 8 CRAFT GTM tools over MCP or REST: addresses, limits, errors and every input field, generated from the server&#x27;s own schemas.">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="author" content="Shashwat Ghosh, Helix GTM Consulting">
+<link rel="canonical" href="https://craft-gtm.gtmhelix.com/docs/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="CRAFT GTM by Helix GTM Consulting">
+<meta property="og:title" content="CRAFT GTM Docs: MCP Server and REST API | Helix GTM">
+<meta property="og:description" content="How to call the 8 CRAFT GTM tools over MCP or REST: addresses, limits, errors and every input field, generated from the server&#x27;s own schemas.">
+<meta property="og:url" content="https://craft-gtm.gtmhelix.com/docs/">
+<meta property="og:image" content="https://craft-gtm.gtmhelix.com/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="CRAFT GTM by Helix GTM Consulting">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="CRAFT GTM Docs: MCP Server and REST API | Helix GTM">
+<meta name="twitter:description" content="How to call the 8 CRAFT GTM tools over MCP or REST: addresses, limits, errors and every input field, generated from the server&#x27;s own schemas.">
+<meta name="twitter:image" content="https://craft-gtm.gtmhelix.com/og.png">
+<meta name="twitter:creator" content="@Shashwat_Ghosh">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/brand.css">
+<link rel="stylesheet" href="/assets/app.css">
+<script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@graph": [
+  {
+   "@type": "Organization",
+   "@id": "https://www.gtmexpert.com/#org",
+   "name": "Helix GTM Consulting",
+   "alternateName": [
+    "GTMExpert",
+    "Helix GTM"
+   ],
+   "url": "https://www.gtmexpert.com",
+   "foundingDate": "2016",
+   "founder": {
+    "@id": "https://www.gtmexpert.com/#shashwat"
+   },
+   "sameAs": [
+    "https://github.com/shashwatgtm"
+   ]
+  },
+  {
+   "@type": "Person",
+   "@id": "https://www.gtmexpert.com/#shashwat",
+   "name": "Shashwat Ghosh",
+   "jobTitle": "GTM Alpha Consultant, AI GTM Expert and Fractional CMO",
+   "description": "Founder of Helix GTM Consulting, with 24+ years in B2B and 10+ years of fractional experience. Creator of the EPIC, IMPACT and CRAFT frameworks.",
+   "worksFor": {
+    "@id": "https://www.gtmexpert.com/#org"
+   },
+   "url": "https://www.gtmexpert.com",
+   "award": [
+    "B2B Marketer of the Year 2020, Fintech (CMO Asia)",
+    "LinkedIn Top Product Marketing Voice, #10 India and #52 Worldwide (2024)"
+   ],
+   "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "Bengaluru",
+    "addressRegion": "Karnataka",
+    "addressCountry": "IN"
+   },
+   "sameAs": [
+    "https://www.linkedin.com/in/shashwatghosh-ai-b2b-gtm-fractionalcmo/",
+    "https://x.com/Shashwat_Ghosh",
+    "https://github.com/shashwatgtm"
+   ]
+  },
+  {
+   "@type": "WebSite",
+   "@id": "https://craft-gtm.gtmhelix.com/#site",
+   "url": "https://craft-gtm.gtmhelix.com/",
+   "name": "CRAFT GTM by Helix GTM Consulting",
+   "publisher": {
+    "@id": "https://www.gtmexpert.com/#org"
+   },
+   "inLanguage": "en"
+  },
+  {
+   "@type": "WebPage",
+   "@id": "https://craft-gtm.gtmhelix.com/docs/#page",
+   "url": "https://craft-gtm.gtmhelix.com/docs/",
+   "name": "CRAFT GTM Docs: MCP Server and REST API | Helix GTM",
+   "description": "How to call the 8 CRAFT GTM tools over MCP or REST: addresses, limits, errors and every input field, generated from the server's own schemas.",
+   "isPartOf": {
+    "@id": "https://craft-gtm.gtmhelix.com/#site"
+   },
+   "about": {
+    "@id": "https://craft-gtm.gtmhelix.com/#app"
+   },
+   "dateModified": "2026-09-25",
+   "inLanguage": "en",
+   "primaryImageOfPage": "https://craft-gtm.gtmhelix.com/og.png"
+  },
+  {
+   "@type": "BreadcrumbList",
+   "@id": "https://craft-gtm.gtmhelix.com/docs/#breadcrumbs",
+   "itemListElement": [
+    {
+     "@type": "ListItem",
+     "position": 1,
+     "name": "Home",
+     "item": "https://craft-gtm.gtmhelix.com/"
+    },
+    {
+     "@type": "ListItem",
+     "position": 2,
+     "name": "Docs",
+     "item": "https://craft-gtm.gtmhelix.com/docs/"
+    }
+   ]
+  }
+ ]
+}
+</script>
+</head>
+<body>
+<a class="hx-skip" href="#main">Skip to content</a>
+<header class="hx-header">
+        <div class="hx-wrap hx-header-row">
+            <a class="hx-lockup" href="https://gtmalpha.gtmhelix.com/" aria-label="GTM Alpha home"><span class="hx-alpha" aria-hidden="true">&#945;</span><span class="hx-wordmark">GTM Alpha</span></a>
+            <nav class="hx-nav" aria-label="Main">
+                <a href="https://gtmalpha.gtmhelix.com/#features">Features</a>
+                <a href="https://gtmalpha.gtmhelix.com/#epic">EPIC Framework</a>
+                <a href="https://gtmalpha.gtmhelix.com/integration">Integration</a>
+                <a href="https://gtmalpha.gtmhelix.com/pricing">Pricing</a>
+                <a href="https://gtmalpha.gtmhelix.com/api-docs">API Docs</a>
+                <a href="https://gtmalpha.gtmhelix.com/consultation">Consultation</a>
+                <a href="https://gtmalpha.gtmhelix.com/#about">About Shashwat</a>
+                <a href="https://gtmexpert.com/" class="hx-cta">GTMExpert.com</a>
+            </nav>
+        </div>
+    </header>
+<nav class="hx-subnav" aria-label="CRAFT GTM"><div class="hx-wrap hx-subnav-row"><span class="hx-subnav-name">CRAFT GTM</span><div class="hx-subnav-links"><a href="/">Home</a><a href="/#tools">Tools</a><a href="/connect/">Connect</a><a href="/docs/" class="is-active" aria-current="page">Docs</a><a href="/faq/">FAQ</a><a href="/privacy/">Privacy</a><a href="https://tools.gtmhelix.com/" class="hx-subnav-hub">All tools and plugins</a></div></div></nav>
+<section class="hx-hero">
+  <div class="hx-wrap"><div class="hx-hero-inner">
+    <span class="hx-eyebrow">CRAFT GTM · documentation</span>
+    <h1>CRAFT GTM documentation</h1>
+    <p class="hx-lead">The MCP address, the REST API behind the web forms, and every field of all 8 tools.</p>
+  </div></div>
+</section>
+<main id="main" class="hx-body">
+
+<section class="hx-section" aria-labelledby="mcp-h">
+  <h2 id="mcp-h">MCP server</h2>
+  <ul class="hx-prose">
+    <li>Address: <code>https://craft-gtm.gtmhelix.com/mcp</code> (Streamable HTTP, stateless, JSON responses). GET returns 405 by design.</li>
+    <li>Authentication: none. Every tool is marked read-only (<code>readOnlyHint: true</code>, <code>destructiveHint: false</code>) and has a title.</li>
+    <li>Rate limit: 300 requests per minute per IP address. Server: <code>craft-gtm-mcp</code> version 2.1.0.</li>
+    <li>Local use: <code>npx -y @shashwatgtmalpha/craft-gtm-mcp</code> runs the same tools over stdio.</li>
+  </ul>
+</section>
+
+<section class="hx-section" aria-labelledby="rest-h">
+  <h2 id="rest-h">REST API (used by the web forms)</h2>
+  <p class="hx-prose">Send <code>POST https://craft-gtm.gtmhelix.com/api/tools/&lt;tool name&gt;</code> with a JSON body <code>{"input": {...}}</code>. The answer is JSON: <code>{"ok": true, "tool": "...", "title": "...", "text": "..."}</code>, where <code>text</code> is the same Markdown the MCP tool returns. The endpoint calls the same server code as the MCP address.</p>
+  <pre class="hx-code-block">curl -s -X POST https://craft-gtm.gtmhelix.com/api/tools/pmf_scorecard \
+  -H "Content-Type: application/json" \
+  -d '{&quot;input&quot;: {&quot;product&quot;: &quot;ClinicFlow, scheduling software for clinics&quot;, &quot;target_market&quot;: &quot;smb_saas&quot;, &quot;current_metrics&quot;: &quot;MRR: $40K, Churn: 4%, NPS: 38, CAC: $600, LTV: $4200, Retention: 90%&quot;, &quot;time_in_market&quot;: &quot;1_2_years&quot;}}'</pre>
+  <ul class="hx-prose">
+    <li>Errors: 400 with <code>errors</code> (missing or invalid fields), 404 for an unknown tool, 405 for methods other than POST, 413 above 32,000 bytes, 429 when the rate limit is reached, 500 if the tool fails.</li>
+    <li>Limits: 30 requests per minute per IP address; text fields up to 6,000 characters; lists up to 50 items.</li>
+    <li>Forms without JavaScript post <code>application/x-www-form-urlencoded</code> and get an HTML page back.</li>
+    <li>Nothing is stored and the input is not logged (see <a href="/privacy/">Privacy</a>).</li>
+  </ul>
+</section>
+
+<section class="hx-section" aria-labelledby="ref-h">
+  <h2 id="ref-h">Tool reference</h2>
+  <p class="hx-sub">Generated from the server's own input schemas on 25 September 2026.</p>
+</section>
+<section class="hx-section" id="pmf-scorecard" aria-labelledby="d-pmf-scorecard">
+  <h3 id="d-pmf-scorecard">PMF Scorecard <code>pmf_scorecard</code></h3>
+  <p class="hx-prose">Generate a Product-Market Fit scorecard. Parses the metrics you provide (MRR, churn, NPS, CAC, LTV, retention, activation and similar) and scores each dimension against built-in benchmark ranges. <a href="/tools/pmf-scorecard/">Open the form</a>.</p>
+  <div class="hx-table"><table><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Allowed values</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>product</code></td><td>string</td><td>yes</td><td></td><td>Product name and brief description</td></tr>
+<tr><td><code>target_market</code></td><td>string</td><td>yes</td><td>enterprise_saas, smb_saas, consumer, marketplace, fintech, healthtech, other</td><td>Target market segment (e.g., &#x27;Enterprise SaaS&#x27;, &#x27;SMB&#x27;, &#x27;Consumer&#x27;)</td></tr>
+<tr><td><code>current_metrics</code></td><td>string</td><td>yes</td><td></td><td>Your current metrics (will be PARSED). Include any of: MRR, ARR, churn rate, NPS, CAC, LTV, retention rate, activation rate, DAU/MAU, trial conversion, revenue growth. Example: &#x27;MRR: $50K, Churn: 3%, NPS: 45, CAC: $500, LTV: $3000, Retention: 92%&#x27;</td></tr>
+<tr><td><code>time_in_market</code></td><td>string</td><td>no</td><td>pre_launch, 0_6_months, 6_12_months, 1_2_years, 2_plus_years</td><td>How long the product has been in market (shown in the scorecard)</td></tr>
+<tr><td><code>customer_feedback</code></td><td>string</td><td>no</td><td></td><td>Optional: Qualitative feedback themes (e.g., &#x27;Users love X but struggle with Y&#x27;)</td></tr>
+  </tbody></table></div>
+</section>
+<section class="hx-section" id="launch-commander" aria-labelledby="d-launch-commander">
+  <h3 id="d-launch-commander">Launch Commander <code>launch_commander</code></h3>
+  <p class="hx-prose">Generate a context-aware launch plan. Have a date? Get a detailed timeline. Still planning? Enter &#x27;TBD&#x27; or &#x27;Q2 2025&#x27; for a flexible plan. <a href="/tools/launch-commander/">Open the form</a>.</p>
+  <div class="hx-table"><table><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Allowed values</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>product_feature</code></td><td>string</td><td>yes</td><td></td><td>What you&#x27;re launching (product/feature name and description)</td></tr>
+<tr><td><code>launch_date</code></td><td>string</td><td>no</td><td></td><td>Target launch date. Accepts: &#x27;YYYY-MM-DD&#x27;, &#x27;Q1 2025&#x27;, &#x27;March 2025&#x27;, or &#x27;TBD&#x27; for planning mode</td></tr>
+<tr><td><code>launch_type</code></td><td>string</td><td>yes</td><td>major_release, feature_launch, beta_launch, product_update, market_expansion</td><td>Type of launch determines plan complexity</td></tr>
+<tr><td><code>target_segments</code></td><td>string</td><td>yes</td><td></td><td>Target customer segments (comma-separated)</td></tr>
+<tr><td><code>goals</code></td><td>string</td><td>yes</td><td></td><td>Launch success metrics (e.g., &#x27;500 signups, $50k pipeline, 10% trial conversion, 1000 downloads&#x27;)</td></tr>
+<tr><td><code>available_channels</code></td><td>string</td><td>no</td><td></td><td>Optional: Marketing channels available (comma-separated). E.g., &#x27;email, linkedin, blog, webinar, PR, paid_ads, community&#x27;</td></tr>
+<tr><td><code>team_size</code></td><td>string</td><td>no</td><td>solo, small_2_5, medium_6_15, large_15_plus</td><td>Marketing/GTM team size affects task distribution</td></tr>
+<tr><td><code>budget_level</code></td><td>string</td><td>no</td><td>bootstrap, moderate, well_funded</td><td>Budget affects recommended tactics</td></tr>
+  </tbody></table></div>
+</section>
+<section class="hx-section" id="customer-interview-kit" aria-labelledby="d-customer-interview-kit">
+  <h3 id="d-customer-interview-kit">Customer Interview Kit <code>customer_interview_kit</code></h3>
+  <p class="hx-prose">Generate interview guides that ADAPT based on interview type, industry, and product complexity. Includes synthesis templates. <a href="/tools/customer-interview-kit/">Open the form</a>.</p>
+  <div class="hx-table"><table><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Allowed values</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>interview_type</code></td><td>string</td><td>yes</td><td>discovery, validation, feedback, churn, win_loss, persona_research</td><td>Type of interview determines question focus</td></tr>
+<tr><td><code>product_context</code></td><td>string</td><td>yes</td><td></td><td>Product/service being researched</td></tr>
+<tr><td><code>industry</code></td><td>string</td><td>no</td><td>saas, fintech, healthtech, ecommerce, marketplace, enterprise_software, consumer, other</td><td>Industry affects terminology and context</td></tr>
+<tr><td><code>product_complexity</code></td><td>string</td><td>no</td><td>simple, moderate, complex, highly_technical</td><td>Affects technical depth of questions</td></tr>
+<tr><td><code>target_persona</code></td><td>string</td><td>yes</td><td></td><td>Who you&#x27;re interviewing (role/title)</td></tr>
+<tr><td><code>key_hypotheses</code></td><td>string</td><td>no</td><td></td><td>Optional: Hypotheses to validate during interview</td></tr>
+  </tbody></table></div>
+</section>
+<section class="hx-section" id="retention-playbook" aria-labelledby="d-retention-playbook">
+  <h3 id="d-retention-playbook">Retention Playbook <code>retention_playbook</code></h3>
+  <p class="hx-prose">Generate retention strategies. Has DISCOVERY MODE - if you don&#x27;t know WHY people churn, get a churn analysis framework first. <a href="/tools/retention-playbook/">Open the form</a>.</p>
+  <div class="hx-table"><table><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Allowed values</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>customer_segment</code></td><td>string</td><td>yes</td><td></td><td>Customer segment to focus on</td></tr>
+<tr><td><code>business_model</code></td><td>string</td><td>yes</td><td>saas_subscription, usage_based, marketplace, transactional, freemium, enterprise_contract</td><td>Business model affects health score weighting</td></tr>
+<tr><td><code>current_churn_rate</code></td><td>string</td><td>yes</td><td></td><td>Current churn rate (e.g., &#x27;5%&#x27; or &#x27;5% monthly&#x27;)</td></tr>
+<tr><td><code>churn_reasons</code></td><td>string</td><td>no</td><td></td><td>OPTIONAL: Known churn reasons (comma-separated). If you don&#x27;t know, leave blank to get discovery mode with churn analysis framework</td></tr>
+<tr><td><code>available_data_signals</code></td><td>string</td><td>no</td><td></td><td>What usage data you can track (comma-separated). E.g., &#x27;login frequency, feature usage, support tickets, NPS responses&#x27;</td></tr>
+<tr><td><code>cs_team_size</code></td><td>string</td><td>no</td><td>no_dedicated_cs, small_1_3, medium_4_10, large_10_plus</td><td>CS team capacity affects intervention strategy</td></tr>
+<tr><td><code>current_interventions</code></td><td>string</td><td>no</td><td></td><td>Optional: What retention tactics you already do</td></tr>
+  </tbody></table></div>
+</section>
+<section class="hx-section" id="partner-architect" aria-labelledby="d-partner-architect">
+  <h3 id="d-partner-architect">Partner Architect <code>partner_architect</code></h3>
+  <p class="hx-prose">Design partner programs that ADAPT based on partner model type. Different structures for resellers vs referrals vs integrations vs affiliates. <a href="/tools/partner-architect/">Open the form</a>.</p>
+  <div class="hx-table"><table><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Allowed values</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>company</code></td><td>string</td><td>yes</td><td></td><td>Your company name</td></tr>
+<tr><td><code>product</code></td><td>string</td><td>yes</td><td></td><td>Product partners will sell/integrate</td></tr>
+<tr><td><code>partner_model</code></td><td>string</td><td>yes</td><td>reseller, referral, integration_tech, agency_si, affiliate, oem_white_label</td><td>Partner type determines program structure</td></tr>
+<tr><td><code>partner_goals</code></td><td>string</td><td>yes</td><td></td><td>Revenue/growth targets from partners</td></tr>
+<tr><td><code>your_deal_size</code></td><td>string</td><td>yes</td><td></td><td>Average deal size (determines viable commission rates). E.g., &#x27;$5000 ACV&#x27; or &#x27;$500/month&#x27;</td></tr>
+<tr><td><code>partner_support_capacity</code></td><td>string</td><td>no</td><td>minimal_self_serve, moderate, high_touch</td><td>How much partner support can you provide?</td></tr>
+<tr><td><code>existing_partners</code></td><td>string</td><td>no</td><td></td><td>Optional: Current partner types/count</td></tr>
+  </tbody></table></div>
+</section>
+<section class="hx-section" id="crisis-planner" aria-labelledby="d-crisis-planner">
+  <h3 id="d-crisis-planner">Crisis Planner <code>crisis_planner</code></h3>
+  <p class="hx-prose">Generate crisis playbooks. Know your risks? Get specific playbooks. Not sure what to plan for? We&#x27;ll suggest the top crises for your industry. <a href="/tools/crisis-planner/">Open the form</a>.</p>
+  <div class="hx-table"><table><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Allowed values</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>company</code></td><td>string</td><td>yes</td><td></td><td>Company name</td></tr>
+<tr><td><code>industry</code></td><td>string</td><td>yes</td><td>fintech, healthtech, saas, ecommerce, enterprise, consumer, other</td><td>Industry affects which crises to prioritize</td></tr>
+<tr><td><code>customer_base</code></td><td>string</td><td>yes</td><td>b2b_enterprise, b2b_smb, b2c_consumer, mixed</td><td>Customer type affects communication approach</td></tr>
+<tr><td><code>data_sensitivity</code></td><td>string</td><td>yes</td><td>high_pii_financial, medium_business_data, low_general</td><td>Data sensitivity affects security protocols</td></tr>
+<tr><td><code>potential_crises</code></td><td>string</td><td>no</td><td></td><td>OPTIONAL: Crisis types to plan for (comma-separated). If not provided, we&#x27;ll suggest the top 4 crises for your industry. Options: data_breach, service_outage, pr_incident, executive_departure, security_vulnerability, regulatory_action, product_safety, customer_data_exposure</td></tr>
+<tr><td><code>company_size</code></td><td>string</td><td>no</td><td>startup_under_50, scaleup_50_200, midsize_200_1000, enterprise_1000_plus</td><td>Affects response team structure</td></tr>
+<tr><td><code>compliance_requirements</code></td><td>string</td><td>no</td><td></td><td>Optional: Relevant compliance (GDPR, HIPAA, SOC2, etc.)</td></tr>
+  </tbody></table></div>
+</section>
+<section class="hx-section" id="competitive-intel" aria-labelledby="d-competitive-intel">
+  <h3 id="d-competitive-intel">Competitive Intel <code>competitive_intel</code></h3>
+  <p class="hx-prose">Generate battle cards. If you know your strengths/weaknesses, get complete battle cards. If you only know competitors and win/loss stories, we&#x27;ll derive your positioning. <a href="/tools/competitive-intel/">Open the form</a>.</p>
+  <div class="hx-table"><table><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Allowed values</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>your_product</code></td><td>string</td><td>yes</td><td></td><td>Your product name and brief description</td></tr>
+<tr><td><code>competitors</code></td><td>string</td><td>yes</td><td></td><td>Competitor names (comma-separated). Will generate battle card for EACH</td></tr>
+<tr><td><code>your_strengths</code></td><td>string</td><td>no</td><td></td><td>OPTIONAL: What you do better (comma-separated). Will be DERIVED from wins/losses if not provided</td></tr>
+<tr><td><code>your_weaknesses</code></td><td>string</td><td>no</td><td></td><td>OPTIONAL: Where competitors beat you (comma-separated). Will be DERIVED from wins/losses if not provided</td></tr>
+<tr><td><code>competitor_details</code></td><td>string</td><td>no</td><td></td><td>Optional: Any known details about competitors. E.g., &#x27;Competitor A is cheaper, Competitor B targets enterprise&#x27;</td></tr>
+<tr><td><code>common_objections</code></td><td>string</td><td>no</td><td></td><td>Sales objections you hear (comma-separated). E.g., &#x27;too expensive, missing X feature, competitor has better Y&#x27;</td></tr>
+<tr><td><code>recent_wins</code></td><td>string</td><td>no</td><td></td><td>Why customers chose you over competitors - will be used to DERIVE strengths</td></tr>
+<tr><td><code>recent_losses</code></td><td>string</td><td>no</td><td></td><td>Why you lost deals to competitors - will be used to DERIVE weaknesses</td></tr>
+  </tbody></table></div>
+</section>
+<section class="hx-section" id="craft-gtm-analyzer" aria-labelledby="d-craft-gtm-analyzer">
+  <h3 id="d-craft-gtm-analyzer">CRAFT GTM Analyzer <code>craft_gtm_analyzer</code></h3>
+  <p class="hx-prose">Analyze a GTM document against the CRAFT framework. Parses the content, identifies gaps, scores each dimension and suggests sections to add. <a href="/tools/craft-gtm-analyzer/">Open the form</a>.</p>
+  <div class="hx-table"><table><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Allowed values</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>document_content</code></td><td>string</td><td>yes</td><td></td><td>The GTM document/plan to analyze. Paste full content - it will be PARSED and EVALUATED</td></tr>
+<tr><td><code>document_type</code></td><td>string</td><td>yes</td><td>gtm_strategy, launch_plan, campaign_brief, quarterly_plan, project_proposal, marketing_plan</td><td>Type of document (shown in the analysis)</td></tr>
+<tr><td><code>intended_audience</code></td><td>string</td><td>no</td><td></td><td>Optional: Who will read/approve this document</td></tr>
+<tr><td><code>desired_outcome</code></td><td>string</td><td>no</td><td></td><td>Optional: What action should this document drive</td></tr>
+  </tbody></table></div>
+</section>
+
+</main>
+<footer class="hx-footer">
+        <div class="hx-wrap">
+            <div class="hx-footer-grid">
+                <div>
+                    <a class="hx-lockup" href="https://gtmalpha.gtmhelix.com/" aria-label="GTM Alpha home"><span class="hx-alpha" aria-hidden="true">&#945;</span><span class="hx-wordmark">GTM Alpha</span></a>
+                    <p>Professional go-to-market strategy consulting powered by Shashwat Ghosh's expertise and advanced AI integration.</p>
+                    <a href="https://www.linkedin.com/in/shashwatghosh-ai-b2b-gtm-fractionalcmo/">LinkedIn</a>
+                    <a href="https://x.com/Shashwat_Ghosh">X (Twitter)</a>
+                </div>
+                <div>
+                    <h4>Platform</h4>
+                    <a href="https://gtmalpha.gtmhelix.com/#features">Features</a>
+                    <a href="https://gtmalpha.gtmhelix.com/#epic">EPIC Framework</a>
+                    <a href="https://gtmalpha.gtmhelix.com/integration">Integration</a>
+                    <a href="https://gtmalpha.gtmhelix.com/pricing">Pricing</a>
+                    <a href="https://gtmalpha.gtmhelix.com/api-docs">API Docs</a>
+                    <a href="https://gtmalpha.gtmhelix.com/faq">FAQ</a>
+                </div>
+                <div>
+                    <h4>Connectors</h4>
+                    <a href="https://gtmalpha.gtmhelix.com/integration">GTM Alpha</a>
+                    <a href="https://craft-gtm.gtmhelix.com/">CRAFT GTM</a>
+                    <a href="https://craft-content.gtmhelix.com/">CRAFT Content</a>
+                    <a href="https://impact.gtmhelix.com/">IMPACT</a>
+                    <a href="https://icp-intelligence.gtmhelix.com/">ICP Intelligence</a>
+                    <a href="https://revenue-enablement.gtmhelix.com/">Revenue Enablement</a>
+                    <a href="https://tools.gtmhelix.com/">All tools and plugins</a>
+                </div>
+                <div>
+                    <h4>Connect</h4>
+                    <a href="https://gtmalpha.gtmhelix.com/consultation">Book Consultation</a>
+                    <a href="mailto:shashwat@hyperplays.in">Email Support</a>
+                    <a href="https://gtmexpert.com/">GTMExpert.com</a>
+                    <a href="https://gtmalpha.gtmhelix.com/privacy">Privacy</a>
+                    <a href="https://gtmalpha.gtmhelix.com/terms">Terms</a>
+                </div>
+            </div>
+            <div class="hx-footer-bottom">
+                <span>&copy; 2026 Helix GTM Consulting. GTM Alpha by Shashwat Ghosh.</span>
+                <span><a href="https://gtmalpha.gtmhelix.com/privacy">Privacy</a> &middot; <a href="https://gtmalpha.gtmhelix.com/terms">Terms</a> &middot; <a href="https://gtmalpha.gtmhelix.com/faq">FAQ</a></span>
+            </div>
+        </div>
+    </footer>
+<script src="/assets/app.js" defer></script>
+</body>
+</html>

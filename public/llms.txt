@@ -1,54 +1,70 @@
-# CRAFT GTM MCP connector
+# CRAFT GTM
 
-> CRAFT GTM gives Claude eight planning tools for B2B go-to-market work: a product-market fit scorecard, launch plans, customer interview guides, retention playbooks, partner programs, crisis playbooks, competitive battle cards and a CRAFT review of any GTM document. Every tool turns the details you give it into a structured plan.
+> Yes. CRAFT GTM is a free set of eight planning tools by Shashwat Ghosh of Helix GTM Consulting. Give it your metrics, launch date, customers or competitors, and it returns a product-market fit scorecard, a launch plan, interview guides, retention, partner or crisis playbooks, battle cards, or a CRAFT review of any GTM document.
 
+- Web app (no sign-in): https://craft-gtm.gtmhelix.com/
 - MCP server URL (Streamable HTTP, no sign-in, read-only tools): https://craft-gtm.gtmhelix.com/mcp
-- Setup and tools: https://craft-gtm.gtmhelix.com/
-- Privacy policy: https://craft-gtm.gtmhelix.com/privacy.html
+- Connect to Claude, ChatGPT, Cursor, VS Code, Windsurf: https://craft-gtm.gtmhelix.com/connect/
+- Docs (MCP and REST, every field): https://craft-gtm.gtmhelix.com/docs/
+- FAQ: https://craft-gtm.gtmhelix.com/faq/
+- Privacy policy: https://craft-gtm.gtmhelix.com/privacy/
 - Local npm package: @shashwatgtmalpha/craft-gtm-mcp
 - Source code: https://github.com/shashwatgtm/craft-gtm-mcp
 - Built by: Shashwat Ghosh, Helix GTM Consulting (https://www.gtmexpert.com)
+- All connectors and Claude plugins: https://tools.gtmhelix.com/
 
 ## Tools
 
-- PMF Scorecard (pmf_scorecard): Generate a Product-Market Fit scorecard. Parses the metrics you provide (MRR, churn, NPS, CAC, LTV, retention, activation and similar) and scores each dimension against built-in benchmark ranges.
-- Launch Commander (launch_commander): Generate a context-aware launch plan. Have a date? Get a detailed timeline. Still planning? Enter 'TBD' or 'Q2 2025' for a flexible plan.
-- Customer Interview Kit (customer_interview_kit): Generate interview guides that ADAPT based on interview type, industry, and product complexity. Includes synthesis templates.
-- Retention Playbook (retention_playbook): Generate retention strategies. Has DISCOVERY MODE - if you don't know WHY people churn, get a churn analysis framework first.
-- Partner Architect (partner_architect): Design partner programs that ADAPT based on partner model type. Different structures for resellers vs referrals vs integrations vs affiliates.
-- Crisis Planner (crisis_planner): Generate crisis playbooks. Know your risks? Get specific playbooks. Not sure what to plan for? We'll suggest the top crises for your industry.
-- Competitive Intel (competitive_intel): Generate battle cards. If you know your strengths/weaknesses, get complete battle cards. If you only know competitors and win/loss stories, we'll derive your positioning.
-- CRAFT GTM Analyzer (craft_gtm_analyzer): Analyze a GTM document against the CRAFT framework. Parses the content, identifies gaps, scores each dimension and suggests sections to add.
+- [PMF Scorecard](https://craft-gtm.gtmhelix.com/tools/pmf-scorecard/) (`pmf_scorecard`): Generate a Product-Market Fit scorecard. Parses the metrics you provide (MRR, churn, NPS, CAC, LTV, retention, activation and similar) and scores each dimension against built-in benchmark ranges.
+- [Launch Commander](https://craft-gtm.gtmhelix.com/tools/launch-commander/) (`launch_commander`): Generate a context-aware launch plan. Have a date? Get a detailed timeline. Still planning? Enter 'TBD' or 'Q2 2025' for a flexible plan.
+- [Customer Interview Kit](https://craft-gtm.gtmhelix.com/tools/customer-interview-kit/) (`customer_interview_kit`): Generate interview guides that ADAPT based on interview type, industry, and product complexity. Includes synthesis templates.
+- [Retention Playbook](https://craft-gtm.gtmhelix.com/tools/retention-playbook/) (`retention_playbook`): Generate retention strategies. Has DISCOVERY MODE - if you don't know WHY people churn, get a churn analysis framework first.
+- [Partner Architect](https://craft-gtm.gtmhelix.com/tools/partner-architect/) (`partner_architect`): Design partner programs that ADAPT based on partner model type. Different structures for resellers vs referrals vs integrations vs affiliates.
+- [Crisis Planner](https://craft-gtm.gtmhelix.com/tools/crisis-planner/) (`crisis_planner`): Generate crisis playbooks. Know your risks? Get specific playbooks. Not sure what to plan for? We'll suggest the top crises for your industry.
+- [Competitive Intel](https://craft-gtm.gtmhelix.com/tools/competitive-intel/) (`competitive_intel`): Generate battle cards. If you know your strengths/weaknesses, get complete battle cards. If you only know competitors and win/loss stories, we'll derive your positioning.
+- [CRAFT GTM Analyzer](https://craft-gtm.gtmhelix.com/tools/craft-gtm-analyzer/) (`craft_gtm_analyzer`): Analyze a GTM document against the CRAFT framework. Parses the content, identifies gaps, scores each dimension and suggests sections to add.
 
 ## Questions and answers
 
 ### What is CRAFT GTM?
 
-CRAFT GTM gives Claude eight planning tools for B2B go-to-market work: a product-market fit scorecard, launch plans, customer interview guides, retention playbooks, partner programs, crisis playbooks, competitive battle cards and a CRAFT review of any GTM document. Every tool turns the details you give it into a structured plan.
+Yes. CRAFT GTM is a free set of eight planning tools by Shashwat Ghosh of Helix GTM Consulting. Give it your metrics, launch date, customers or competitors, and it returns a product-market fit scorecard, a launch plan, interview guides, retention, partner or crisis playbooks, battle cards, or a CRAFT review of any GTM document.
 
-### How do I connect CRAFT GTM to Claude?
+### Is CRAFT GTM free, and do I need an account?
 
-In Claude, open Customize, then Connectors, then Add custom connector. Name it CRAFT GTM, paste the server URL https://craft-gtm.gtmhelix.com/mcp, choose no sign-in and select Add. In Claude Code run: claude mcp add --transport http craft-gtm https://craft-gtm.gtmhelix.com/mcp
+It is free, and there is no account or sign-in. Use the tools in your browser here, or connect the MCP server to your AI assistant.
 
-### Does CRAFT GTM need an account, and what does it cost?
+### Does it use AI to write the answers?
 
-No account or sign-in is needed, and there is no charge. The server is public and every tool is read-only.
+No. Each tool applies fixed rules in the CRAFT GTM code to the inputs you give it. It does not call an AI model and does not look anything up. When you use it from Claude or another assistant, that assistant writes around the tool's answer.
 
-### Which tools does CRAFT GTM include?
+### What happens to what I type?
 
-8 tools: PMF Scorecard, Launch Commander, Customer Interview Kit, Retention Playbook, Partner Architect, Crisis Planner, Competitive Intel, CRAFT GTM Analyzer.
+It is sent to this site's server, used once to build the answer, and dropped when the answer is sent back. Nothing is stored and nothing you type is logged. The privacy page has the details.
 
-### What data does CRAFT GTM keep?
+### How do I use CRAFT GTM in Claude?
 
-None. Each call is answered from the inputs you give it, and the server stores and logs nothing. Netlify, the host, keeps its own request logs. See the privacy policy.
+In Claude, open Customize, then Connectors, then Add custom connector. Name it CRAFT GTM, paste https://craft-gtm.gtmhelix.com/mcp and choose no sign-in. The Connect page covers Claude Code, ChatGPT, Cursor, VS Code and Windsurf too.
 
-### Can I run CRAFT GTM on my own computer?
+### Who built it?
 
-Yes. Run npx -y @shashwatgtmalpha/craft-gtm-mcp to use the same tools locally over stdio; nothing is sent to us.
+Shashwat Ghosh, founder of Helix GTM Consulting: a GTM Alpha consultant, AI GTM expert and fractional CMO with 24+ years in B2B and 10+ years of fractional experience, based in Bengaluru.
 
-### Who built CRAFT GTM?
+### Why do some answers look like templates?
 
-Shashwat Ghosh, founder of Helix GTM Consulting, a GTM Alpha consultant, AI GTM expert and fractional CMO with 24+ years in B2B and 10+ years of fractional experience.
+Several tools return a structured plan with placeholders where your inputs did not give a fact. That is deliberate: the tools do not invent numbers or names. Fill the placeholders in before you use the result.
+
+### Can I call the tools from my own code?
+
+Yes. Send POST https://craft-gtm.gtmhelix.com/api/tools/<tool name> with a JSON body {"input": {...}}. The Docs page lists every field. Please keep to the rate limit of 30 requests per minute.
+
+### Is the source code public?
+
+Yes, at https://github.com/shashwatgtm/craft-gtm-mcp under the MIT licence. The npm package @shashwatgtmalpha/craft-gtm-mcp runs the same tools locally.
+
+### How do I report a problem?
+
+Email shashwat@gtmhelix.com or open an issue at https://github.com/shashwatgtm/craft-gtm-mcp/issues.
 
 ## Other connectors by Helix GTM Consulting
 
