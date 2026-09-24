@@ -1,8 +1,8 @@
 {
   "name": "@shashwatgtmalpha/craft-gtm-mcp",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "mcpName": "io.github.shashwatgtm/craft-gtm-mcp",
-  "description": "CRAFT GTM Framework MCP Server - Complete redesign with intelligent analysis, metric parsing, and context-aware outputs",
+  "description": "CRAFT GTM Framework MCP server: product-market fit, launch, interview, retention, partner, crisis and competitive planning tools. Runs locally over stdio (npm) or hosted over Streamable HTTP.",
   "main": "dist/index.js",
   "bin": {
     "craft-gtm-mcp": "./dist/index.js"

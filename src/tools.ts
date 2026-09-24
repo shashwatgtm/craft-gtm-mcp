@@ -3,7 +3,7 @@ import { Tool } from "@modelcontextprotocol/sdk/types.js";
 export const tools: Tool[] = [
   {
     name: "pmf_scorecard",
-    description: "Generate a Product-Market Fit scorecard with AUTO-SCORED dimensions based on your metrics. Parses MRR, churn, NPS, CAC, LTV, retention, activation rates and scores against industry benchmarks. Version 2.0 - Actually analyzes your data!",
+    description: "Generate a Product-Market Fit scorecard. Parses the metrics you provide (MRR, churn, NPS, CAC, LTV, retention, activation and similar) and scores each dimension against built-in benchmark ranges.",
     inputSchema: {
       type: "object",
       properties: {
@@ -19,7 +19,7 @@ export const tools: Tool[] = [
         },
         time_in_market: { 
           type: "string", 
-          description: "How long product has been in market (affects benchmarks)",
+          description: "How long the product has been in market (shown in the scorecard)",
           enum: ["pre_launch", "0_6_months", "6_12_months", "1_2_years", "2_plus_years"]
         },
         customer_feedback: { 
@@ -32,7 +32,7 @@ export const tools: Tool[] = [
   },
   {
     name: "launch_commander",
-    description: "Generate a context-aware launch plan. Have a date? Get a detailed timeline. Still planning? Enter 'TBD' or 'Q2 2025' for a flexible plan. Version 2.0 - Works at any planning stage!",
+    description: "Generate a context-aware launch plan. Have a date? Get a detailed timeline. Still planning? Enter 'TBD' or 'Q2 2025' for a flexible plan.",
     inputSchema: {
       type: "object",
       properties: {
@@ -65,7 +65,7 @@ export const tools: Tool[] = [
   },
   {
     name: "customer_interview_kit",
-    description: "Generate interview guides that ADAPT based on interview type, industry, and product complexity. Includes synthesis templates. Version 2.0 - Industry-specific questions!",
+    description: "Generate interview guides that ADAPT based on interview type, industry, and product complexity. Includes synthesis templates.",
     inputSchema: {
       type: "object",
       properties: {
@@ -93,7 +93,7 @@ export const tools: Tool[] = [
   },
   {
     name: "retention_playbook",
-    description: "Generate retention strategies. Has DISCOVERY MODE - if you don't know WHY people churn, get a churn analysis framework first. Version 2.0 - Works even if you don't know churn reasons!",
+    description: "Generate retention strategies. Has DISCOVERY MODE - if you don't know WHY people churn, get a churn analysis framework first.",
     inputSchema: {
       type: "object",
       properties: {
@@ -124,7 +124,7 @@ export const tools: Tool[] = [
   },
   {
     name: "partner_architect",
-    description: "Design partner programs that ADAPT based on partner model type. Different structures for resellers vs referrals vs integrations vs affiliates. Version 2.0 - Model-specific programs!",
+    description: "Design partner programs that ADAPT based on partner model type. Different structures for resellers vs referrals vs integrations vs affiliates.",
     inputSchema: {
       type: "object",
       properties: {
@@ -152,7 +152,7 @@ export const tools: Tool[] = [
   },
   {
     name: "crisis_planner",
-    description: "Generate crisis playbooks. Know your risks? Get specific playbooks. Not sure what to plan for? We'll suggest the top crises for your industry. Version 2.0 - Works at any preparedness level!",
+    description: "Generate crisis playbooks. Know your risks? Get specific playbooks. Not sure what to plan for? We'll suggest the top crises for your industry.",
     inputSchema: {
       type: "object",
       properties: {
@@ -188,7 +188,7 @@ export const tools: Tool[] = [
   },
   {
     name: "competitive_intel",
-    description: "Generate battle cards. If you know your strengths/weaknesses, get complete battle cards. If you only know competitors and win/loss stories, we'll derive your positioning. Version 2.0 - Works with any level of competitive knowledge!",
+    description: "Generate battle cards. If you know your strengths/weaknesses, get complete battle cards. If you only know competitors and win/loss stories, we'll derive your positioning.",
     inputSchema: {
       type: "object",
       properties: {
@@ -221,7 +221,7 @@ export const tools: Tool[] = [
   },
   {
     name: "craft_gtm_analyzer",
-    description: "ACTUALLY ANALYZE a GTM document against CRAFT framework. Parses content, identifies gaps, scores each dimension, and generates IMPROVED VERSION. Version 2.0 - Real analysis!",
+    description: "Analyze a GTM document against the CRAFT framework. Parses the content, identifies gaps, scores each dimension and suggests sections to add.",
     inputSchema: {
       type: "object",
       properties: {
@@ -231,7 +231,7 @@ export const tools: Tool[] = [
         },
         document_type: {
           type: "string",
-          description: "Type of document affects evaluation criteria",
+          description: "Type of document (shown in the analysis)",
           enum: ["gtm_strategy", "launch_plan", "campaign_brief", "quarterly_plan", "project_proposal", "marketing_plan"]
         },
         intended_audience: { type: "string", description: "Optional: Who will read/approve this document" },

@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CRAFT GTM MCP connector</title>
+<meta name="description" content="Go-to-market planning tools built on the CRAFT framework">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23C1121F'/%3E%3Ctext x='32' y='47' font-family='Georgia,serif' font-style='italic' font-size='46' fill='white' text-anchor='middle'%3E%CE%B1%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--ox:#641220;--signal:#C1121F;--paper:#FAF8F6;--ink:#1A0E10;--clay:#EAD9D5;--rose:#E5A8AC;--smoke:#7A6669}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.6 'IBM Plex Sans',system-ui,sans-serif}
+a{color:var(--signal)}
+header{background:var(--ox);color:#fff;padding:28px 20px}
+.wrap{max-width:880px;margin:0 auto;padding:0 20px}
+header .wrap{display:flex;gap:16px;align-items:center}
+.mark{width:38px;height:38px;background:var(--signal);color:#fff;display:flex;align-items:center;justify-content:center;font:italic 24px Georgia,serif;flex:none}
+h1,h2,h3{font-family:Archivo,system-ui,sans-serif}
+h1{font-weight:900;margin:0;font-size:28px}
+header p{margin:4px 0 0;color:#F6ECE9}
+h2{font-weight:800;margin:36px 0 12px}
+.mono{font:600 11.5px 'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:1.7px;color:var(--smoke)}
+code,pre{font-family:'IBM Plex Mono',monospace;font-size:14px}
+pre{background:#fff;border:1.5px solid var(--clay);padding:14px;overflow-x:auto}
+.card{background:#fff;border:1.5px solid var(--clay);padding:16px 18px;margin:12px 0}
+table{border-collapse:collapse;width:100%;background:#fff}
+th,td{border:1.5px solid var(--clay);padding:8px 10px;text-align:left;vertical-align:top}
+th{font:600 11.5px 'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:1.2px;color:var(--smoke)}
+footer{margin:48px 0 24px;color:var(--smoke);font-size:14px}
+</style>
+</head>
+<body>
+<header><div class="wrap"><div class="mark" aria-hidden="true">&alpha;</div><div><h1>CRAFT GTM</h1><p>Go-to-market planning tools built on the CRAFT framework</p></div></div></header>
+<main class="wrap">
+
+<p>CRAFT GTM gives Claude eight planning tools for B2B go-to-market work: a product-market fit scorecard, launch plans, customer interview guides, retention playbooks, partner programs, crisis playbooks, competitive battle cards and a CRAFT review of any GTM document. Every tool turns the details you give it into a structured plan.</p>
+
+<h2>Connect</h2>
+<div class="card">
+<p class="mono">Server URL</p>
+<pre>https://craft-gtm-mcp.netlify.app/mcp</pre>
+<p>Transport: Streamable HTTP (stateless, JSON responses). Authentication: none. Send MCP JSON-RPC messages with POST; other methods return 405, which is expected.</p>
+</div>
+
+<h3>Claude (web, desktop and mobile)</h3>
+<ol>
+<li>Open Customize, then Connectors, then Add custom connector.</li>
+<li>Name: CRAFT GTM. MCP server URL: <code>https://craft-gtm-mcp.netlify.app/mcp</code>.</li>
+<li>Choose no sign-in, then Add. Turn the connector on for a chat with the + menu.</li>
+</ol>
+
+<h3>Claude Code</h3>
+<pre>claude mcp add --transport http craft-gtm https://craft-gtm-mcp.netlify.app/mcp</pre>
+
+<h3>Run it locally instead (npm, stdio)</h3>
+<pre>npx -y @shashwatgtmalpha/craft-gtm-mcp</pre>
+<p>The npm package and this hosted server run the same code.</p>
+
+<h2>Tools</h2>
+<p>All tools only build text from the inputs you give them. They are marked read-only: they store nothing, change nothing and call no outside service.</p>
+<table>
+<tr><th>Tool</th><th>Title</th><th>What it does</th><th>Required inputs</th></tr>
+<tr><td><code>pmf_scorecard</code></td><td>PMF Scorecard</td><td>Generate a Product-Market Fit scorecard. Parses the metrics you provide (MRR, churn, NPS, CAC, LTV, retention, activation and similar) and scores each dimension against built-in benchmark ranges.</td><td>product, target_market, current_metrics</td></tr>
+<tr><td><code>launch_commander</code></td><td>Launch Commander</td><td>Generate a context-aware launch plan. Have a date? Get a detailed timeline. Still planning? Enter &#x27;TBD&#x27; or &#x27;Q2 2025&#x27; for a flexible plan.</td><td>product_feature, launch_type, target_segments, goals</td></tr>
+<tr><td><code>customer_interview_kit</code></td><td>Customer Interview Kit</td><td>Generate interview guides that ADAPT based on interview type, industry, and product complexity. Includes synthesis templates.</td><td>interview_type, product_context, target_persona</td></tr>
+<tr><td><code>retention_playbook</code></td><td>Retention Playbook</td><td>Generate retention strategies. Has DISCOVERY MODE - if you don&#x27;t know WHY people churn, get a churn analysis framework first.</td><td>customer_segment, business_model, current_churn_rate</td></tr>
+<tr><td><code>partner_architect</code></td><td>Partner Architect</td><td>Design partner programs that ADAPT based on partner model type. Different structures for resellers vs referrals vs integrations vs affiliates.</td><td>company, product, partner_model, partner_goals, your_deal_size</td></tr>
+<tr><td><code>crisis_planner</code></td><td>Crisis Planner</td><td>Generate crisis playbooks. Know your risks? Get specific playbooks. Not sure what to plan for? We&#x27;ll suggest the top crises for your industry.</td><td>company, industry, customer_base, data_sensitivity</td></tr>
+<tr><td><code>competitive_intel</code></td><td>Competitive Intel</td><td>Generate battle cards. If you know your strengths/weaknesses, get complete battle cards. If you only know competitors and win/loss stories, we&#x27;ll derive your positioning.</td><td>your_product, competitors</td></tr>
+<tr><td><code>craft_gtm_analyzer</code></td><td>CRAFT GTM Analyzer</td><td>Analyze a GTM document against the CRAFT framework. Parses the content, identifies gaps, scores each dimension and suggests sections to add.</td><td>document_content, document_type</td></tr>
+</table>
+
+<h2>Example prompts</h2>
+<ol>
+<li>Use CRAFT GTM to score our product-market fit. Product: a scheduling tool for clinics, target market: SMB SaaS. Metrics: MRR $40K, churn 4% monthly, NPS 38, CAC $600, LTV $4,200.</li>
+<li>Build a launch plan with CRAFT GTM for our new analytics add-on, a feature launch on 2026-11-15, for mid-market finance teams. Goals: 300 trials and $80K pipeline.</li>
+<li>Create a customer interview kit for churn interviews with operations managers at SaaS companies about our workflow automation product.</li>
+<li>Use CRAFT GTM to make battle cards for our product Acme Notes against Competitor A and Competitor B. Recent wins: faster setup. Recent losses: missing SSO.</li>
+</ol>
+
+<h2>Troubleshooting</h2>
+<ul>
+<li><strong>405 Method not allowed:</strong> you opened the server URL in a browser or sent a GET. Use an MCP client, which sends POST.</li>
+<li><strong>429 Too many requests:</strong> the server allows 300 requests per minute from one address. Wait a minute and try again.</li>
+<li><strong>"Missing required input":</strong> the tool was called without one of the required inputs listed above.</li>
+</ul>
+
+<h2>Support</h2>
+<p>Email <a href="mailto:shashwat@gtmhelix.com">shashwat@gtmhelix.com</a> or open an issue at <a href="https://github.com/shashwatgtm/craft-gtm-mcp/issues">https://github.com/shashwatgtm/craft-gtm-mcp/issues</a>.</p>
+<p>Privacy: see the <a href="/privacy.html">privacy policy</a>. Licence: MIT.</p>
+
+<footer class="mono">CRAFT GTM &middot; Shashwat Ghosh, Helix GTM Consulting &middot; <a href="/">Setup</a> &middot; <a href="/privacy.html">Privacy</a> &middot; <a href="https://github.com/shashwatgtm/craft-gtm-mcp">Source</a> &middot; Updated 24 September 2026</footer>
+</main>
+</body>
+</html>
