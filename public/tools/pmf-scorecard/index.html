@@ -207,6 +207,23 @@
 </section>
 <main id="main" class="hx-body">
 
+<section class="hx-section" aria-labelledby="need-h">
+  <h2 id="need-h">What do I need to run PMF Scorecard?</h2>
+  <p class="hx-sub">Free, no sign-up, no account. A web browser is enough; the answer comes back in a second or two.</p>
+  <div class="hx-table"><table><thead><tr><th>Input</th><th>Required?</th><th>What to enter</th></tr></thead><tbody>
+<tr><td>Product</td><td>Required</td><td>Product name and brief description</td></tr>
+<tr><td>Target market</td><td>Required</td><td>Target market segment (e.g., &#x27;Enterprise SaaS&#x27;, &#x27;SMB&#x27;, &#x27;Consumer&#x27;) Allowed: enterprise saas, smb saas, consumer, marketplace, fintech, healthtech, other.</td></tr>
+<tr><td>Current metrics</td><td>Required</td><td>Your current metrics (will be PARSED). Include any of: MRR, ARR, churn rate, NPS, CAC, LTV, retention rate, activation rate, DAU/MAU, trial conversion, revenue growth. Example: &#x27;MRR: $50K, Churn: 3%, NPS: 45, CAC: $500, LTV: $3000, Retention: 92%&#x27;</td></tr>
+<tr><td>Time in market</td><td>Optional</td><td>How long the product has been in market (shown in the scorecard) Allowed: pre launch, 0 6 months, 6 12 months, 1 2 years, 2 plus years.</td></tr>
+<tr><td>Customer feedback</td><td>Optional</td><td>Optional: Qualitative feedback themes (e.g., &#x27;Users love X but struggle with Y&#x27;)</td></tr>
+  </tbody></table></div>
+  <ol class="hx-steps">
+    <li>Fill in the required inputs above in the form below, or press <em>Fill in a tested example</em>.</li>
+    <li>Press <em>Run PMF Scorecard</em>.</li>
+    <li>Read the result on this page, then copy it and edit it before you use it.</li>
+  </ol>
+</section>
+
 <section class="hx-section" aria-labelledby="run-h">
   <h2 id="run-h">How do I run PMF Scorecard in my browser?</h2>
   <p class="hx-sub">Required: Product, Target market, Current metrics. Fields marked optional can be left empty.</p>
@@ -233,11 +250,85 @@
   <div class="hx-result-body" data-result></div>
 </section>
 
+<section class="hx-section" aria-labelledby="ex-h">
+  <h2 id="ex-h">What does PMF Scorecard return for the tested example?</h2>
+  <p class="hx-prose">Generated from the live code on 25 September 2026 with the inputs behind <em>Fill in a tested example</em>. Your own inputs give a different result.</p>
+  <details class="hx-run"><summary>Show the full result</summary>
+  <div class="hx-result-body hx-output">
+<h3>📊 Product-Market Fit Scorecard</h3>
+<h4>ClinicFlow, scheduling software for clinics</h4>
+<p><strong>Market Segment:</strong> SMB SAAS</p>
+<p><strong>Maturity Stage:</strong> 1 2 years</p>
+<p><strong>Analysis Date:</strong> 2026-09-24</p>
+<hr>
+<h4>🎯 Overall PMF Assessment</h4>
+<div class="hx-table"><table><thead><tr><th>Stage</th><th>Score</th><th>Status</th></tr></thead><tbody><tr><td><strong>Emerging PMF</strong></td><td><strong>7/10</strong></td><td>🟢</td></tr></tbody></table></div>
+<p>Good foundation but gaps to address before aggressive scaling.</p>
+<hr>
+<h4>📈 Dimension Scores</h4>
+<h5>1. Customer Retention (Churn)</h5>
+<div class="hx-table"><table><thead><tr><th>Metric</th><th>Your Value</th><th>Score</th><th>Benchmark</th><th>Status</th></tr></thead><tbody><tr><td>Monthly Churn</td><td>4%</td><td>7/10</td><td>&lt;5% target</td><td>GOOD</td></tr></tbody></table></div>
+<p><strong>Analysis:</strong> 4% is acceptable (benchmark: &lt;5%)</p>
+<hr>
+<h5>2. Customer Satisfaction (NPS)</h5>
+<div class="hx-table"><table><thead><tr><th>Metric</th><th>Your Value</th><th>Score</th><th>Benchmark</th><th>Status</th></tr></thead><tbody><tr><td>NPS Score</td><td>38</td><td>5/10</td><td>&gt;40 target</td><td>DEVELOPING</td></tr></tbody></table></div>
+<p><strong>Analysis:</strong> 38 is below target of 40</p>
+<hr>
+<h5>3. Unit Economics (LTV:CAC)</h5>
+<div class="hx-table"><table><thead><tr><th>Metric</th><th>Your Value</th><th>Score</th><th>Benchmark</th><th>Status</th></tr></thead><tbody><tr><td>LTV</td><td>$4,200</td><td>-</td><td>-</td><td>-</td></tr><tr><td>CAC</td><td>$600</td><td>-</td><td>-</td><td>-</td></tr><tr><td>LTV:CAC Ratio</td><td>7.0x</td><td>9/10</td><td>&gt;3x target</td><td>EXCELLENT</td></tr></tbody></table></div>
+<p><strong>Analysis:</strong> 7 exceeds benchmark of 4</p>
+<hr>
+<h5>4. Revenue Retention</h5>
+<div class="hx-table"><table><thead><tr><th>Metric</th><th>Your Value</th><th>Score</th><th>Benchmark</th><th>Status</th></tr></thead><tbody><tr><td>Retention Rate</td><td>90%</td><td>7/10</td><td>&gt;85% target</td><td>GOOD</td></tr></tbody></table></div>
+<p><strong>Analysis:</strong> 90 meets healthy benchmark of 85</p>
+<hr>
+<h5>5. Activation</h5>
+<div class="hx-table"><table><thead><tr><th>Metric</th><th>Your Value</th><th>Score</th><th>Benchmark</th><th>Status</th></tr></thead><tbody><tr><td>Activation Rate</td><td>NOT PROVIDED</td><td>0/10</td><td>&gt;50% target</td><td>MISSING</td></tr></tbody></table></div>
+<p><strong>Analysis:</strong> Data not provided - unable to score</p>
+<hr>
+<h4>📊 Additional Metrics Detected</h4>
+<div class="hx-table"><table><thead><tr><th>Metric</th><th>Value</th><th>Notes</th></tr></thead><tbody><tr><td>MRR</td><td>$40,000</td><td>Monthly Recurring Revenue</td></tr></tbody></table></div>
+<hr>
+<h4>🎯 Priority Actions</h4>
+<ol>
+<li>📊 NPS: Focus on detractor feedback, address top 3 pain points</li>
+</ol>
+<ol>
+<li>🎯 ACTIVATION: Define and track "aha moment" metric</li>
+</ol>
+<hr>
+<h4>📋 Data Gaps to Fill</h4>
+<ul>
+<li>[ ] Activation rate (define your "aha moment")</li>
+</ul>
+<hr>
+<p>*Scorecard generated using CRAFT GTM Framework v2.0*</p>
+<p>*Benchmarks adjusted for smb saas market and 1 2 years stage*</p>
+  </div></details>
+</section>
+
+<section class="hx-section" aria-labelledby="not-t-h">
+  <h2 id="not-t-h">Who is PMF Scorecard not ideal for?</h2>
+  <ul class="hx-prose">
+    <li>Anyone who cannot give the required inputs (Product, Target market, Current metrics); the answer is built only from them.</li>
+    <li>Teams that want finished, publish-ready plans: each tool returns a structured draft, with placeholders where your inputs gave no fact.</li>
+    <li>Anyone who needs live market or competitor data: the tools look nothing up and use only what you type.</li>
+  </ul>
+</section>
+
 <section class="hx-section" aria-labelledby="ai-h">
   <h2 id="ai-h">How do I use PMF Scorecard from Claude?</h2>
   <p class="hx-prose">Connect CRAFT GTM once (see <a href="/connect/">Connect</a>), then ask in plain words. A prompt built from the tested example:</p>
   <blockquote class="hx-quote">Use CRAFT GTM&#x27;s PMF Scorecard tool. product: ClinicFlow, scheduling software for clinics; target market: smb saas; current metrics: MRR: $40K, Churn: 4%, NPS: 38, CAC: $600, LTV: $4200, Retention: 90%; time in market: 1 2 years.</blockquote>
-  <p class="hx-prose">MCP tool name: <code>pmf_scorecard</code>. REST: <code>POST https://craft-gtm.gtmhelix.com/api/tools/pmf_scorecard</code> (see <a href="/docs/#pmf-scorecard">Docs</a>).</p>
+  <p class="hx-prose">MCP tool name: <code>pmf_scorecard</code>. REST: <code>POST https://craft-gtm.gtmhelix.com/api/tools/pmf_scorecard</code> with this JSON body (see <a href="/docs/#pmf-scorecard">Docs</a>):</p>
+  <pre class="hx-code-block">{
+  &quot;input&quot;: {
+    &quot;product&quot;: &quot;ClinicFlow, scheduling software for clinics&quot;,
+    &quot;target_market&quot;: &quot;smb_saas&quot;,
+    &quot;current_metrics&quot;: &quot;MRR: $40K, Churn: 4%, NPS: 38, CAC: $600, LTV: $4200, Retention: 90%&quot;,
+    &quot;time_in_market&quot;: &quot;1_2_years&quot;
+  }
+}</pre>
 </section>
 
 <section class="hx-section" aria-labelledby="works-h">

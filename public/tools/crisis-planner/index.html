@@ -207,6 +207,25 @@
 </section>
 <main id="main" class="hx-body">
 
+<section class="hx-section" aria-labelledby="need-h">
+  <h2 id="need-h">What do I need to run Crisis Planner?</h2>
+  <p class="hx-sub">Free, no sign-up, no account. A web browser is enough; the answer comes back in a second or two.</p>
+  <div class="hx-table"><table><thead><tr><th>Input</th><th>Required?</th><th>What to enter</th></tr></thead><tbody>
+<tr><td>Company</td><td>Required</td><td>Company name</td></tr>
+<tr><td>Industry</td><td>Required</td><td>Industry affects which crises to prioritize Allowed: fintech, healthtech, saas, ecommerce, enterprise, consumer, other.</td></tr>
+<tr><td>Customer base</td><td>Required</td><td>Customer type affects communication approach Allowed: b2b enterprise, b2b smb, b2c consumer, mixed.</td></tr>
+<tr><td>Data sensitivity</td><td>Required</td><td>Data sensitivity affects security protocols Allowed: high pii financial, medium business data, low general.</td></tr>
+<tr><td>Potential crises</td><td>Optional</td><td>OPTIONAL: Crisis types to plan for (comma-separated). If not provided, we&#x27;ll suggest the top 4 crises for your industry. Options: data_breach, service_outage, pr_incident, executive_departure, security_vulnerability, regulatory_action, product_safety, customer_data_exposure</td></tr>
+<tr><td>Company size</td><td>Optional</td><td>Affects response team structure Allowed: startup under 50, scaleup 50 200, midsize 200 1000, enterprise 1000 plus.</td></tr>
+<tr><td>Compliance requirements</td><td>Optional</td><td>Optional: Relevant compliance (GDPR, HIPAA, SOC2, etc.)</td></tr>
+  </tbody></table></div>
+  <ol class="hx-steps">
+    <li>Fill in the required inputs above in the form below, or press <em>Fill in a tested example</em>.</li>
+    <li>Press <em>Run Crisis Planner</em>.</li>
+    <li>Read the result on this page, then copy it and edit it before you use it.</li>
+  </ol>
+</section>
+
 <section class="hx-section" aria-labelledby="run-h">
   <h2 id="run-h">How do I run Crisis Planner in my browser?</h2>
   <p class="hx-sub">Required: Company, Industry, Customer base, Data sensitivity. Fields marked optional can be left empty.</p>
@@ -235,11 +254,150 @@
   <div class="hx-result-body" data-result></div>
 </section>
 
+<section class="hx-section" aria-labelledby="ex-h">
+  <h2 id="ex-h">What does Crisis Planner return for the tested example?</h2>
+  <p class="hx-prose">Generated from the live code on 25 September 2026 with the inputs behind <em>Fill in a tested example</em>. Your own inputs give a different result.</p>
+  <details class="hx-run"><summary>Show the full result</summary>
+  <div class="hx-result-body hx-output">
+<h3>🚨 Crisis Response Playbook</h3>
+<h4>Acme Notes</h4>
+<p>⚠️ <strong>NOTE:</strong> You didn't specify crises to plan for. Based on your industry (saas) and data sensitivity (medium business data), we've generated playbooks for the most likely crises.</p>
+<p><strong>Industry:</strong> saas</p>
+<p><strong>Company Size:</strong> startup under 50</p>
+<p><strong>Customer Base:</strong> b2b smb</p>
+<p><strong>Data Sensitivity:</strong> medium business data</p>
+<hr>
+<h4>👥 Crisis Response Team</h4>
+<p><strong>Incident Commander:</strong> CEO/Founder</p>
+<p><strong>Core Team (Always Activated):</strong></p>
+<ul>
+<li>CTO (if tech issue)</li>
+<li>Head of Customer</li>
+</ul>
+<p><strong>Extended Team (As Needed):</strong></p>
+<ul>
+<li>Legal counsel (external)</li>
+<li>PR consultant (external)</li>
+</ul>
+<hr>
+<h4>📞 Emergency Contacts</h4>
+<div class="hx-table"><table><thead><tr><th>Role</th><th>Name</th><th>Phone</th><th>Email</th></tr></thead><tbody><tr><td>Crisis Lead</td><td>[Add]</td><td>[Add]</td><td>[Add]</td></tr><tr><td>Legal Counsel</td><td>[Add]</td><td>[Add]</td><td>[Add]</td></tr><tr><td>PR Contact</td><td>[Add]</td><td>[Add]</td><td>[Add]</td></tr><tr><td>IT Security</td><td>[Add]</td><td>[Add]</td><td>[Add]</td></tr></tbody></table></div>
+<hr>
+<h4>🎯 Crisis-Specific Playbooks</h4>
+<h5>⚠️ SERVICE OUTAGE: service_outage</h5>
+<p><strong>Severity Levels:</strong></p>
+<div class="hx-table"><table><thead><tr><th>Level</th><th>Definition</th><th>Response Time</th><th>Escalation</th></tr></thead><tbody><tr><td>SEV-1</td><td>Complete outage, all customers</td><td>&lt;15 min</td><td>CEO/Founder + CEO</td></tr><tr><td>SEV-2</td><td>Major feature down, &gt;50% affected</td><td>&lt;30 min</td><td>CTO (if tech issue)</td></tr><tr><td>SEV-3</td><td>Degraded performance</td><td>&lt;1 hour</td><td>Engineering lead</td></tr></tbody></table></div>
+<p><strong>Immediate Response (0-15 minutes):</strong></p>
+<ol>
+<li>🚨 <strong>Acknowledge in status page</strong> - "Investigating reports of [issue]"</li>
+<li>👥 <strong>Assemble war room</strong> - Engineering, Support, Comms</li>
+<li>🔍 <strong>Diagnose</strong> - Root cause identification started</li>
+<li>📢 <strong>Notify support team</strong> - Prepare for volume</li>
+</ol>
+<p><strong>Active Incident (15 min - resolution):</strong></p>
+<div class="hx-table"><table><thead><tr><th>Time</th><th>Status Update</th><th>Channel</th></tr></thead><tbody><tr><td>15 min</td><td>"Identified: [description]"</td><td>Status page</td></tr><tr><td>30 min</td><td>"Working on fix, ETA [X]"</td><td>Status + Twitter</td></tr><tr><td>60 min</td><td>Progress update or revised ETA</td><td>Status + Email to affected</td></tr><tr><td>Every 30 min</td><td>Continued updates until resolved</td><td>Status</td></tr></tbody></table></div>
+<hr>
+<h5>🔐 SECURITY INCIDENT: data_breach</h5>
+<p><strong>Severity Assessment:</strong></p>
+<div class="hx-table"><table><thead><tr><th>Factor</th><th>High</th><th>Medium</th><th>Low</th></tr></thead><tbody><tr><td>Data exposed</td><td>PII, financial, health</td><td>Business data</td><td>No customer data</td></tr><tr><td>Customers affected</td><td>&gt;1000 or enterprise</td><td>100-1000</td><td>&lt;100</td></tr><tr><td>Attack ongoing</td><td>Yes</td><td>Unknown</td><td>Contained</td></tr></tbody></table></div>
+<p><strong>Immediate Response (0-4 hours):</strong></p>
+<ol>
+<li>⚡ <strong>Activate incident response team</strong> - CEO/Founder as incident commander</li>
+<li>🔒 <strong>Contain the threat</strong> - Isolate affected systems, revoke compromised credentials</li>
+<li>📸 <strong>Preserve evidence</strong> - Forensic images before remediation</li>
+<li>📝 <strong>Start incident log</strong> - Document timeline, actions, decisions</li>
+<li>🔇 <strong>Internal communication only</strong> - No external statements yet</li>
+</ol>
+<p><strong>Investigation Phase (4-24 hours):</strong></p>
+<ol>
+<li>Determine scope: What data, how many customers, how long exposed</li>
+<li>Identify attack vector and close vulnerability</li>
+<li>Engage forensics (internal or external)</li>
+<li>Prepare regulatory notification (72 hours to 7 days deadline for applicable authorities)</li>
+<li>Draft customer communication (DO NOT SEND YET)</li>
+</ol>
+<p><strong>Notification Phase (24-72 hours):</strong></p>
+<div class="hx-table"><table><thead><tr><th>Audience</th><th>Channel</th><th>Message Focus</th><th>Owner</th></tr></thead><tbody><tr><td>Regulators</td><td>Formal filing</td><td>Compliance notification</td><td>Legal</td></tr><tr><td>Customers</td><td>Email</td><td>What happened, what we're doing, what they should do</td><td>Customer comms</td></tr><tr><td>All customers</td><td>Email</td><td>Security update</td><td>Marketing</td></tr><tr><td>Media (if needed)</td><td>Press release</td><td>Factual statement</td><td>PR</td></tr><tr><td>Employees</td><td>All-hands</td><td>Full transparency</td><td>CEO</td></tr></tbody></table></div>
+<hr>
+<h5>🔐 SECURITY INCIDENT: security_vulnerability</h5>
+<p><strong>Severity Assessment:</strong></p>
+<div class="hx-table"><table><thead><tr><th>Factor</th><th>High</th><th>Medium</th><th>Low</th></tr></thead><tbody><tr><td>Data exposed</td><td>PII, financial, health</td><td>Business data</td><td>No customer data</td></tr><tr><td>Customers affected</td><td>&gt;1000 or enterprise</td><td>100-1000</td><td>&lt;100</td></tr><tr><td>Attack ongoing</td><td>Yes</td><td>Unknown</td><td>Contained</td></tr></tbody></table></div>
+<p><strong>Immediate Response (0-4 hours):</strong></p>
+<ol>
+<li>⚡ <strong>Activate incident response team</strong> - CEO/Founder as incident commander</li>
+<li>🔒 <strong>Contain the threat</strong> - Isolate affected systems, revoke compromised credentials</li>
+<li>📸 <strong>Preserve evidence</strong> - Forensic images before remediation</li>
+<li>📝 <strong>Start incident log</strong> - Document timeline, actions, decisions</li>
+<li>🔇 <strong>Internal communication only</strong> - No external statements yet</li>
+</ol>
+<p><strong>Investigation Phase (4-24 hours):</strong></p>
+<ol>
+<li>Determine scope: What data, how many customers, how long exposed</li>
+<li>Identify attack vector and close vulnerability</li>
+<li>Engage forensics (internal or external)</li>
+<li>Prepare regulatory notification (72 hours to 7 days deadline for applicable authorities)</li>
+<li>Draft customer communication (DO NOT SEND YET)</li>
+</ol>
+<p><strong>Notification Phase (24-72 hours):</strong></p>
+<div class="hx-table"><table><thead><tr><th>Audience</th><th>Channel</th><th>Message Focus</th><th>Owner</th></tr></thead><tbody><tr><td>Regulators</td><td>Formal filing</td><td>Compliance notification</td><td>Legal</td></tr><tr><td>Customers</td><td>Email</td><td>What happened, what we're doing, what they should do</td><td>Customer comms</td></tr><tr><td>All customers</td><td>Email</td><td>Security update</td><td>Marketing</td></tr><tr><td>Media (if needed)</td><td>Press release</td><td>Factual statement</td><td>PR</td></tr><tr><td>Employees</td><td>All-hands</td><td>Full transparency</td><td>CEO</td></tr></tbody></table></div>
+<hr>
+<h5>⚠️ CRISIS: customer_data_exposure</h5>
+<p><strong>Initial Assessment (First 30 minutes):</strong></p>
+<ol>
+<li>What happened? (Facts only, no speculation)</li>
+<li>Who is affected? (Customers, employees, partners)</li>
+<li>What's the current status? (Ongoing vs. contained)</li>
+<li>What are the legal/compliance implications?</li>
+<li>What's the reputational risk?</li>
+</ol>
+<p><strong>Response Team:</strong></p>
+<ul>
+<li>Incident Commander: CEO/Founder</li>
+<li>Core Team: CTO (if tech issue), Head of Customer</li>
+<li>Extended (as needed): Legal counsel (external), PR consultant (external)</li>
+</ul>
+<p><strong>Communication Timeline:</strong></p>
+<div class="hx-table"><table><thead><tr><th>Phase</th><th>Timing</th><th>Actions</th></tr></thead><tbody><tr><td>Acknowledge</td><td>&lt;2 hours</td><td>Internal brief, holding statement ready</td></tr><tr><td>Respond</td><td>2-24 hours</td><td>Stakeholder communications</td></tr><tr><td>Resolve</td><td>24-72 hours</td><td>Full resolution or clear plan</td></tr><tr><td>Review</td><td>1-2 weeks</td><td>Post-incident review</td></tr></tbody></table></div>
+<hr>
+<hr>
+<h4>📋 General Crisis Principles</h4>
+<h5>Communication Principles</h5>
+<ol>
+<li><strong>Speed matters</strong> - First mover shapes narrative</li>
+<li><strong>Honesty is non-negotiable</strong> - Never lie or mislead</li>
+<li><strong>Empathy first</strong> - Acknowledge impact before explaining</li>
+<li><strong>Specificity builds trust</strong> - Vague statements erode confidence</li>
+<li><strong>Consistent voice</strong> - Single spokesperson, aligned messaging</li>
+</ol>
+<hr>
+<p>*Crisis playbook generated using CRAFT GTM Framework v2.0*</p>
+<p>*Customized for saas industry with medium business data data sensitivity*</p>
+  </div></details>
+</section>
+
+<section class="hx-section" aria-labelledby="not-t-h">
+  <h2 id="not-t-h">Who is Crisis Planner not ideal for?</h2>
+  <ul class="hx-prose">
+    <li>Anyone who cannot give the required inputs (Company, Industry, Customer base, Data sensitivity); the answer is built only from them.</li>
+    <li>Teams that want finished, publish-ready plans: each tool returns a structured draft, with placeholders where your inputs gave no fact.</li>
+    <li>Anyone who needs live market or competitor data: the tools look nothing up and use only what you type.</li>
+  </ul>
+</section>
+
 <section class="hx-section" aria-labelledby="ai-h">
   <h2 id="ai-h">How do I use Crisis Planner from Claude?</h2>
   <p class="hx-prose">Connect CRAFT GTM once (see <a href="/connect/">Connect</a>), then ask in plain words. A prompt built from the tested example:</p>
   <blockquote class="hx-quote">Use CRAFT GTM&#x27;s Crisis Planner tool. company: Acme Notes; industry: saas; customer base: b2b smb; data sensitivity: medium business data; company size: startup under 50.</blockquote>
-  <p class="hx-prose">MCP tool name: <code>crisis_planner</code>. REST: <code>POST https://craft-gtm.gtmhelix.com/api/tools/crisis_planner</code> (see <a href="/docs/#crisis-planner">Docs</a>).</p>
+  <p class="hx-prose">MCP tool name: <code>crisis_planner</code>. REST: <code>POST https://craft-gtm.gtmhelix.com/api/tools/crisis_planner</code> with this JSON body (see <a href="/docs/#crisis-planner">Docs</a>):</p>
+  <pre class="hx-code-block">{
+  &quot;input&quot;: {
+    &quot;company&quot;: &quot;Acme Notes&quot;,
+    &quot;industry&quot;: &quot;saas&quot;,
+    &quot;customer_base&quot;: &quot;b2b_smb&quot;,
+    &quot;data_sensitivity&quot;: &quot;medium_business_data&quot;,
+    &quot;company_size&quot;: &quot;startup_under_50&quot;
+  }
+}</pre>
 </section>
 
 <section class="hx-section" aria-labelledby="works-h">

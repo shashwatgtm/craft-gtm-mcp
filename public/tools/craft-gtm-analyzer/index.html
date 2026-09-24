@@ -207,6 +207,22 @@
 </section>
 <main id="main" class="hx-body">
 
+<section class="hx-section" aria-labelledby="need-h">
+  <h2 id="need-h">What do I need to run CRAFT GTM Analyzer?</h2>
+  <p class="hx-sub">Free, no sign-up, no account. A web browser is enough; the answer comes back in a second or two.</p>
+  <div class="hx-table"><table><thead><tr><th>Input</th><th>Required?</th><th>What to enter</th></tr></thead><tbody>
+<tr><td>Document content</td><td>Required</td><td>The GTM document/plan to analyze. Paste full content - it will be PARSED and EVALUATED</td></tr>
+<tr><td>Document type</td><td>Required</td><td>Type of document (shown in the analysis) Allowed: gtm strategy, launch plan, campaign brief, quarterly plan, project proposal, marketing plan.</td></tr>
+<tr><td>Intended audience</td><td>Optional</td><td>Optional: Who will read/approve this document</td></tr>
+<tr><td>Desired outcome</td><td>Optional</td><td>Optional: What action should this document drive</td></tr>
+  </tbody></table></div>
+  <ol class="hx-steps">
+    <li>Fill in the required inputs above in the form below, or press <em>Fill in a tested example</em>.</li>
+    <li>Press <em>Run CRAFT GTM Analyzer</em>.</li>
+    <li>Read the result on this page, then copy it and edit it before you use it.</li>
+  </ol>
+</section>
+
 <section class="hx-section" aria-labelledby="run-h">
   <h2 id="run-h">How do I run CRAFT GTM Analyzer in my browser?</h2>
   <p class="hx-sub">Required: Document content, Document type. Fields marked optional can be left empty.</p>
@@ -232,11 +248,145 @@
   <div class="hx-result-body" data-result></div>
 </section>
 
+<section class="hx-section" aria-labelledby="ex-h">
+  <h2 id="ex-h">What does CRAFT GTM Analyzer return for the tested example?</h2>
+  <p class="hx-prose">Generated from the live code on 25 September 2026 with the inputs behind <em>Fill in a tested example</em>. Your own inputs give a different result.</p>
+  <details class="hx-run"><summary>Show the full result</summary>
+  <div class="hx-result-body hx-output">
+<h3>📋 CRAFT Document Analysis</h3>
+<h4>QUARTERLY PLAN</h4>
+<p><strong>Document Length:</strong> 189 characters (~38 words)</p>
+<p><strong>Intended Audience:</strong> Not specified</p>
+<p><strong>Desired Outcome:</strong> Not specified</p>
+<hr>
+<h4>🎯 Overall Score: 31/50 (62%)</h4>
+<div class="hx-table"><table><thead><tr><th>Rating</th><th>🟡 GOOD</th></tr></thead><tbody></tbody></table></div>
+<hr>
+<h4>📊 Dimension Scores</h4>
+<div class="hx-table"><table><thead><tr><th>Dimension</th><th>Score</th><th>Status</th><th>Assessment</th></tr></thead><tbody><tr><td><strong>C</strong>haracter (Who)</td><td>10/10</td><td>✅</td><td>Clear ownership</td></tr><tr><td><strong>R</strong>esult (What success)</td><td>6/10</td><td>⚠️</td><td>Vague goals</td></tr><tr><td><strong>A</strong>rtifact (What's produced)</td><td>0/10</td><td>❌</td><td>Unclear outputs</td></tr><tr><td><strong>F</strong>rame (Context)</td><td>5/10</td><td>⚠️</td><td>Partial context</td></tr><tr><td><strong>T</strong>imeline (When)</td><td>10/10</td><td>✅</td><td>Clear timeline</td></tr></tbody></table></div>
+<hr>
+<h4>🔍 Detailed Analysis</h4>
+<h5>C - CHARACTER (Who executes?)</h5>
+<p><strong>Score: 10/10</strong></p>
+<p><strong>Found in document:</strong></p>
+<ul>
+<li>"marketing lead"</li>
+<li>"Owner"</li>
+<li>"lead"</li>
+<li>"Owner:"</li>
+</ul>
+<p><strong>Gaps identified:</strong></p>
+<ul>
+<li>✅ Character dimension is well-defined</li>
+</ul>
+<hr>
+<h5>R - RESULT (What does success look like?)</h5>
+<p><strong>Score: 6/10</strong></p>
+<p><strong>Found in document:</strong></p>
+<ul>
+<li>"metric"</li>
+</ul>
+<p><strong>Gaps identified:</strong></p>
+<ul>
+<li>Consider adding leading and lagging indicators</li>
+</ul>
+<p><strong>Recommended improvement:</strong></p>
+<p><strong>Add this section:</strong></p>
+<pre><code>## Success Metrics
+
+| KPI | Current | Target | Timeline |
+|-----|---------|--------|----------|
+| Primary metric | [Baseline] | [Goal] | [Date] |
+| Secondary metric | [Baseline] | [Goal] | [Date] |
+| Leading indicator | [Baseline] | [Goal] | [Date] |
+
+Success Definition: [Specific, measurable outcome]</code></pre>
+<hr>
+<h5>A - ARTIFACT (What gets produced?)</h5>
+<p><strong>Score: 0/10</strong></p>
+<p><strong>Found in document:</strong></p>
+<ul>
+<li>❌ No clear deliverables specified</li>
+</ul>
+<p><strong>Gaps identified:</strong></p>
+<ul>
+<li>No clear deliverables specified</li>
+<li>Add: List of specific outputs/artifacts</li>
+</ul>
+<p><strong>Recommended improvement:</strong></p>
+<p><strong>Add this section:</strong></p>
+<pre><code>## Deliverables
+
+| Deliverable | Description | Owner | Due Date |
+|-------------|-------------|-------|----------|
+| [Output 1] | [What it is] | [Who] | [When] |
+| [Output 2] | [What it is] | [Who] | [When] |</code></pre>
+<hr>
+<h5>F - FRAME (Context &amp; constraints)</h5>
+<p><strong>Score: 5/10</strong></p>
+<p><strong>Found in document:</strong></p>
+<ul>
+<li>"Budget"</li>
+</ul>
+<p><strong>Gaps identified:</strong></p>
+<ul>
+<li>✅ Frame/context is well-defined</li>
+</ul>
+<hr>
+<h5>T - TIMELINE (When does it happen?)</h5>
+<p><strong>Score: 10/10</strong></p>
+<p><strong>Found in document:</strong></p>
+<ul>
+<li>"Q1"</li>
+<li>"by"</li>
+<li>"market"</li>
+<li>"marketing"</li>
+<li>"plan"</li>
+</ul>
+<p><strong>Gaps identified:</strong></p>
+<ul>
+<li>✅ Timeline is well-defined</li>
+</ul>
+<hr>
+<h4>🎯 Priority Improvements</h4>
+<div class="hx-table"><table><thead><tr><th>Priority</th><th>Dimension</th><th>Current Score</th><th>Action</th></tr></thead><tbody><tr><td>1</td><td>Artifact</td><td>0/10</td><td>No clear deliverables specified</td></tr><tr><td>2</td><td>Frame</td><td>5/10</td><td>Enhance this section</td></tr><tr><td>3</td><td>Result</td><td>6/10</td><td>Consider adding leading and lagging indicators</td></tr></tbody></table></div>
+<hr>
+<h4>📝 Document Excerpt Analyzed</h4>
+<pre><code>Q1 plan: grow pipeline 30% by launching two webinars and an outbound sequence to mid-market finance leaders. Owner: marketing lead. Budget: $20K. Success metric: 40 qualified opportunities.</code></pre>
+<hr>
+<h4>✅ Next Steps</h4>
+<ol>
+<li>Address Artifact: No clear deliverables specified</li>
+<li>Improve Frame: undefined</li>
+<li>Review with intended stakeholders</li>
+<li>Define desired outcome from this document</li>
+</ol>
+<hr>
+<p>*Analysis performed using CRAFT GTM Framework v2.0*</p>
+<p>*Document type: quarterly plan*</p>
+  </div></details>
+</section>
+
+<section class="hx-section" aria-labelledby="not-t-h">
+  <h2 id="not-t-h">Who is CRAFT GTM Analyzer not ideal for?</h2>
+  <ul class="hx-prose">
+    <li>Anyone who cannot give the required inputs (Document content, Document type); the answer is built only from them.</li>
+    <li>Teams that want finished, publish-ready plans: each tool returns a structured draft, with placeholders where your inputs gave no fact.</li>
+    <li>Anyone who needs live market or competitor data: the tools look nothing up and use only what you type.</li>
+  </ul>
+</section>
+
 <section class="hx-section" aria-labelledby="ai-h">
   <h2 id="ai-h">How do I use CRAFT GTM Analyzer from Claude?</h2>
   <p class="hx-prose">Connect CRAFT GTM once (see <a href="/connect/">Connect</a>), then ask in plain words. A prompt built from the tested example:</p>
   <blockquote class="hx-quote">Use CRAFT GTM&#x27;s CRAFT GTM Analyzer tool. document content: Q1 plan: grow pipeline 30% by launching two webinars and an outbound sequence to mid-market finance leaders. Owner: marketing lead. Budget: ...; document type: quarterly plan.</blockquote>
-  <p class="hx-prose">MCP tool name: <code>craft_gtm_analyzer</code>. REST: <code>POST https://craft-gtm.gtmhelix.com/api/tools/craft_gtm_analyzer</code> (see <a href="/docs/#craft-gtm-analyzer">Docs</a>).</p>
+  <p class="hx-prose">MCP tool name: <code>craft_gtm_analyzer</code>. REST: <code>POST https://craft-gtm.gtmhelix.com/api/tools/craft_gtm_analyzer</code> with this JSON body (see <a href="/docs/#craft-gtm-analyzer">Docs</a>):</p>
+  <pre class="hx-code-block">{
+  &quot;input&quot;: {
+    &quot;document_content&quot;: &quot;Q1 plan: grow pipeline 30% by launching two webinars and an outbound sequence to mid-market finance leaders. Owner: marketing lead. Budget: $20K. Success metric: 40 qualified opportunities.&quot;,
+    &quot;document_type&quot;: &quot;quarterly_plan&quot;
+  }
+}</pre>
 </section>
 
 <section class="hx-section" aria-labelledby="works-h">
