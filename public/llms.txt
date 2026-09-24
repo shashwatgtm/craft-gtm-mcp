@@ -1,6 +1,6 @@
 # CRAFT GTM
 
-> Yes. CRAFT GTM is a free set of eight planning tools by Shashwat Ghosh of Helix GTM Consulting. Give it your metrics, launch date, customers or competitors, and it returns a product-market fit scorecard, a launch plan, interview guides, retention, partner or crisis playbooks, battle cards, or a CRAFT review of any GTM document.
+> Yes. CRAFT GTM is a free MCP server and web app with eight planning tools, by Shashwat Ghosh of Helix GTM Consulting. Give it your metrics, launch date, customers or competitors, and it returns a product-market fit scorecard, a launch plan, interview guides, retention, partner or crisis playbooks, battle cards, or a CRAFT review of any GTM document.
 
 - Web app (no sign-in): https://craft-gtm.gtmhelix.com/
 - MCP server URL (Streamable HTTP, no sign-in, read-only tools): https://craft-gtm.gtmhelix.com/mcp
@@ -28,7 +28,7 @@
 
 ### What is CRAFT GTM?
 
-Yes. CRAFT GTM is a free set of eight planning tools by Shashwat Ghosh of Helix GTM Consulting. Give it your metrics, launch date, customers or competitors, and it returns a product-market fit scorecard, a launch plan, interview guides, retention, partner or crisis playbooks, battle cards, or a CRAFT review of any GTM document.
+Yes. CRAFT GTM is a free MCP server and web app with eight planning tools, by Shashwat Ghosh of Helix GTM Consulting. Give it your metrics, launch date, customers or competitors, and it returns a product-market fit scorecard, a launch plan, interview guides, retention, partner or crisis playbooks, battle cards, or a CRAFT review of any GTM document.
 
 ### Is CRAFT GTM free, and do I need an account?
 
@@ -61,6 +61,10 @@ Yes. Send POST https://craft-gtm.gtmhelix.com/api/tools/<tool name> with a JSON 
 ### Is the source code public?
 
 Yes, at https://github.com/shashwatgtm/craft-gtm-mcp under the MIT licence. The npm package @shashwatgtmalpha/craft-gtm-mcp runs the same tools locally.
+
+### Who is CRAFT GTM not ideal for?
+
+Teams that want finished, publish-ready plans: each tool returns a structured draft, with placeholders where your inputs gave no fact. Anyone who needs live market or competitor data: the tools look nothing up and use only what you type. Teams that need saved history or shared workspaces: nothing is stored, so keep each result where you keep your work.
 
 ### How do I report a problem?
 

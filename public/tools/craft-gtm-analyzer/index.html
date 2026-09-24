@@ -132,6 +132,7 @@
    "url": "https://craft-gtm.gtmhelix.com/tools/craft-gtm-analyzer/",
    "applicationCategory": "BusinessApplication",
    "browserRequirements": "Any modern browser; works without JavaScript",
+   "softwareRequirements": "None: a web browser, or any MCP client such as Claude for the MCP address",
    "operatingSystem": "Any",
    "isAccessibleForFree": true,
    "offers": {
@@ -201,12 +202,13 @@
     <span class="hx-eyebrow">CRAFT GTM · tool 8 of 8</span>
     <h1>CRAFT GTM Analyzer</h1>
     <p class="hx-lead">Analyze a GTM document against the CRAFT framework. Parses the content, identifies gaps, scores each dimension and suggests sections to add.</p>
+    <p class="hx-byline">By <a href="https://www.gtmexpert.com/" rel="author">Shashwat Ghosh</a>, founder of Helix GTM Consulting · Last updated <time datetime="2026-09-25">25 September 2026</time></p>
   </div></div>
 </section>
 <main id="main" class="hx-body">
 
 <section class="hx-section" aria-labelledby="run-h">
-  <h2 id="run-h">Run CRAFT GTM Analyzer in your browser</h2>
+  <h2 id="run-h">How do I run CRAFT GTM Analyzer in my browser?</h2>
   <p class="hx-sub">Required: Document content, Document type. Fields marked optional can be left empty.</p>
   <form class="hx-form" method="post" action="/api/tools/craft_gtm_analyzer" data-tool="craft_gtm_analyzer" data-title="CRAFT GTM Analyzer">
 <div class="hx-field"><label for="f-document_content">Document content <span class="hx-req" aria-hidden="true">*</span></label><textarea id="f-document_content" name="document_content" rows="3" maxlength="6000" data-kind="string" required aria-required="true" aria-describedby="f-document_content-help"></textarea><p class="hx-help" id="f-document_content-help">The GTM document/plan to analyze. Paste full content - it will be PARSED and EVALUATED</p></div>
@@ -231,14 +233,14 @@
 </section>
 
 <section class="hx-section" aria-labelledby="ai-h">
-  <h2 id="ai-h">Use it from Claude or another assistant</h2>
+  <h2 id="ai-h">How do I use CRAFT GTM Analyzer from Claude?</h2>
   <p class="hx-prose">Connect CRAFT GTM once (see <a href="/connect/">Connect</a>), then ask in plain words. A prompt built from the tested example:</p>
   <blockquote class="hx-quote">Use CRAFT GTM&#x27;s CRAFT GTM Analyzer tool. document content: Q1 plan: grow pipeline 30% by launching two webinars and an outbound sequence to mid-market finance leaders. Owner: marketing lead. Budget: ...; document type: quarterly plan.</blockquote>
   <p class="hx-prose">MCP tool name: <code>craft_gtm_analyzer</code>. REST: <code>POST https://craft-gtm.gtmhelix.com/api/tools/craft_gtm_analyzer</code> (see <a href="/docs/#craft-gtm-analyzer">Docs</a>).</p>
 </section>
 
 <section class="hx-section" aria-labelledby="works-h">
-  <h2 id="works-h">How this tool works</h2>
+  <h2 id="works-h">How does CRAFT GTM Analyzer work?</h2>
   <p class="hx-prose">It applies fixed rules in the CRAFT GTM code to the inputs above and returns text. It does not call an AI model, does not look anything up, and does not store what you type. The web form and the MCP server run the same function, so the same input gives the same answer in both.</p>
   <p class="hx-pn"><a href="/tools/competitive-intel/">Previous: Competitive Intel</a></p>
 </section>
@@ -282,8 +284,8 @@
                 </div>
             </div>
             <div class="hx-footer-bottom">
-                <span>&copy; 2026 Helix GTM Consulting. GTM Alpha by Shashwat Ghosh.</span>
-                <span><a href="https://gtmalpha.gtmhelix.com/privacy">Privacy</a> &middot; <a href="https://gtmalpha.gtmhelix.com/terms">Terms</a> &middot; <a href="https://gtmalpha.gtmhelix.com/faq">FAQ</a></span>
+                <span>&copy; 2026 Helix GTM Consulting. CRAFT GTM by Shashwat Ghosh.</span>
+                <span><a href="/privacy/">Privacy</a> &middot; <a href="/faq/">FAQ</a></span>
             </div>
         </div>
     </footer>

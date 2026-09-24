@@ -132,6 +132,7 @@
    "url": "https://craft-gtm.gtmhelix.com/tools/crisis-planner/",
    "applicationCategory": "BusinessApplication",
    "browserRequirements": "Any modern browser; works without JavaScript",
+   "softwareRequirements": "None: a web browser, or any MCP client such as Claude for the MCP address",
    "operatingSystem": "Any",
    "isAccessibleForFree": true,
    "offers": {
@@ -201,12 +202,13 @@
     <span class="hx-eyebrow">CRAFT GTM · tool 6 of 8</span>
     <h1>Crisis Planner</h1>
     <p class="hx-lead">Generate crisis playbooks. Know your risks? Get specific playbooks. Not sure what to plan for? We&#x27;ll suggest the top crises for your industry.</p>
+    <p class="hx-byline">By <a href="https://www.gtmexpert.com/" rel="author">Shashwat Ghosh</a>, founder of Helix GTM Consulting · Last updated <time datetime="2026-09-25">25 September 2026</time></p>
   </div></div>
 </section>
 <main id="main" class="hx-body">
 
 <section class="hx-section" aria-labelledby="run-h">
-  <h2 id="run-h">Run Crisis Planner in your browser</h2>
+  <h2 id="run-h">How do I run Crisis Planner in my browser?</h2>
   <p class="hx-sub">Required: Company, Industry, Customer base, Data sensitivity. Fields marked optional can be left empty.</p>
   <form class="hx-form" method="post" action="/api/tools/crisis_planner" data-tool="crisis_planner" data-title="Crisis Planner">
 <div class="hx-field"><label for="f-company">Company <span class="hx-req" aria-hidden="true">*</span></label><input id="f-company" name="company" type="text" maxlength="6000" data-kind="string" required aria-required="true" aria-describedby="f-company-help"><p class="hx-help" id="f-company-help">Company name</p></div>
@@ -234,14 +236,14 @@
 </section>
 
 <section class="hx-section" aria-labelledby="ai-h">
-  <h2 id="ai-h">Use it from Claude or another assistant</h2>
+  <h2 id="ai-h">How do I use Crisis Planner from Claude?</h2>
   <p class="hx-prose">Connect CRAFT GTM once (see <a href="/connect/">Connect</a>), then ask in plain words. A prompt built from the tested example:</p>
   <blockquote class="hx-quote">Use CRAFT GTM&#x27;s Crisis Planner tool. company: Acme Notes; industry: saas; customer base: b2b smb; data sensitivity: medium business data; company size: startup under 50.</blockquote>
   <p class="hx-prose">MCP tool name: <code>crisis_planner</code>. REST: <code>POST https://craft-gtm.gtmhelix.com/api/tools/crisis_planner</code> (see <a href="/docs/#crisis-planner">Docs</a>).</p>
 </section>
 
 <section class="hx-section" aria-labelledby="works-h">
-  <h2 id="works-h">How this tool works</h2>
+  <h2 id="works-h">How does Crisis Planner work?</h2>
   <p class="hx-prose">It applies fixed rules in the CRAFT GTM code to the inputs above and returns text. It does not call an AI model, does not look anything up, and does not store what you type. The web form and the MCP server run the same function, so the same input gives the same answer in both.</p>
   <p class="hx-pn"><a href="/tools/partner-architect/">Previous: Partner Architect</a><a href="/tools/competitive-intel/">Next: Competitive Intel</a></p>
 </section>
@@ -285,8 +287,8 @@
                 </div>
             </div>
             <div class="hx-footer-bottom">
-                <span>&copy; 2026 Helix GTM Consulting. GTM Alpha by Shashwat Ghosh.</span>
-                <span><a href="https://gtmalpha.gtmhelix.com/privacy">Privacy</a> &middot; <a href="https://gtmalpha.gtmhelix.com/terms">Terms</a> &middot; <a href="https://gtmalpha.gtmhelix.com/faq">FAQ</a></span>
+                <span>&copy; 2026 Helix GTM Consulting. CRAFT GTM by Shashwat Ghosh.</span>
+                <span><a href="/privacy/">Privacy</a> &middot; <a href="/faq/">FAQ</a></span>
             </div>
         </div>
     </footer>

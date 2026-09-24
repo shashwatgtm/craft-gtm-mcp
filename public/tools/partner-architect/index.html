@@ -132,6 +132,7 @@
    "url": "https://craft-gtm.gtmhelix.com/tools/partner-architect/",
    "applicationCategory": "BusinessApplication",
    "browserRequirements": "Any modern browser; works without JavaScript",
+   "softwareRequirements": "None: a web browser, or any MCP client such as Claude for the MCP address",
    "operatingSystem": "Any",
    "isAccessibleForFree": true,
    "offers": {
@@ -201,12 +202,13 @@
     <span class="hx-eyebrow">CRAFT GTM · tool 5 of 8</span>
     <h1>Partner Architect</h1>
     <p class="hx-lead">Design partner programs that ADAPT based on partner model type. Different structures for resellers vs referrals vs integrations vs affiliates.</p>
+    <p class="hx-byline">By <a href="https://www.gtmexpert.com/" rel="author">Shashwat Ghosh</a>, founder of Helix GTM Consulting · Last updated <time datetime="2026-09-25">25 September 2026</time></p>
   </div></div>
 </section>
 <main id="main" class="hx-body">
 
 <section class="hx-section" aria-labelledby="run-h">
-  <h2 id="run-h">Run Partner Architect in your browser</h2>
+  <h2 id="run-h">How do I run Partner Architect in my browser?</h2>
   <p class="hx-sub">Required: Company, Product, Partner model, Partner goals, Your deal size. Fields marked optional can be left empty.</p>
   <form class="hx-form" method="post" action="/api/tools/partner_architect" data-tool="partner_architect" data-title="Partner Architect">
 <div class="hx-field"><label for="f-company">Company <span class="hx-req" aria-hidden="true">*</span></label><input id="f-company" name="company" type="text" maxlength="6000" data-kind="string" required aria-required="true" aria-describedby="f-company-help"><p class="hx-help" id="f-company-help">Your company name</p></div>
@@ -234,14 +236,14 @@
 </section>
 
 <section class="hx-section" aria-labelledby="ai-h">
-  <h2 id="ai-h">Use it from Claude or another assistant</h2>
+  <h2 id="ai-h">How do I use Partner Architect from Claude?</h2>
   <p class="hx-prose">Connect CRAFT GTM once (see <a href="/connect/">Connect</a>), then ask in plain words. A prompt built from the tested example:</p>
   <blockquote class="hx-quote">Use CRAFT GTM&#x27;s Partner Architect tool. company: Acme Notes; product: Team knowledge base; partner model: referral; partner goals: 20% of new revenue from partners; your deal size: $5000 ACV; partner support capacity: moderate.</blockquote>
   <p class="hx-prose">MCP tool name: <code>partner_architect</code>. REST: <code>POST https://craft-gtm.gtmhelix.com/api/tools/partner_architect</code> (see <a href="/docs/#partner-architect">Docs</a>).</p>
 </section>
 
 <section class="hx-section" aria-labelledby="works-h">
-  <h2 id="works-h">How this tool works</h2>
+  <h2 id="works-h">How does Partner Architect work?</h2>
   <p class="hx-prose">It applies fixed rules in the CRAFT GTM code to the inputs above and returns text. It does not call an AI model, does not look anything up, and does not store what you type. The web form and the MCP server run the same function, so the same input gives the same answer in both.</p>
   <p class="hx-pn"><a href="/tools/retention-playbook/">Previous: Retention Playbook</a><a href="/tools/crisis-planner/">Next: Crisis Planner</a></p>
 </section>
@@ -285,8 +287,8 @@
                 </div>
             </div>
             <div class="hx-footer-bottom">
-                <span>&copy; 2026 Helix GTM Consulting. GTM Alpha by Shashwat Ghosh.</span>
-                <span><a href="https://gtmalpha.gtmhelix.com/privacy">Privacy</a> &middot; <a href="https://gtmalpha.gtmhelix.com/terms">Terms</a> &middot; <a href="https://gtmalpha.gtmhelix.com/faq">FAQ</a></span>
+                <span>&copy; 2026 Helix GTM Consulting. CRAFT GTM by Shashwat Ghosh.</span>
+                <span><a href="/privacy/">Privacy</a> &middot; <a href="/faq/">FAQ</a></span>
             </div>
         </div>
     </footer>

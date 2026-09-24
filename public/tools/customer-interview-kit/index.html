@@ -132,6 +132,7 @@
    "url": "https://craft-gtm.gtmhelix.com/tools/customer-interview-kit/",
    "applicationCategory": "BusinessApplication",
    "browserRequirements": "Any modern browser; works without JavaScript",
+   "softwareRequirements": "None: a web browser, or any MCP client such as Claude for the MCP address",
    "operatingSystem": "Any",
    "isAccessibleForFree": true,
    "offers": {
@@ -201,12 +202,13 @@
     <span class="hx-eyebrow">CRAFT GTM · tool 3 of 8</span>
     <h1>Customer Interview Kit</h1>
     <p class="hx-lead">Generate interview guides that ADAPT based on interview type, industry, and product complexity. Includes synthesis templates.</p>
+    <p class="hx-byline">By <a href="https://www.gtmexpert.com/" rel="author">Shashwat Ghosh</a>, founder of Helix GTM Consulting · Last updated <time datetime="2026-09-25">25 September 2026</time></p>
   </div></div>
 </section>
 <main id="main" class="hx-body">
 
 <section class="hx-section" aria-labelledby="run-h">
-  <h2 id="run-h">Run Customer Interview Kit in your browser</h2>
+  <h2 id="run-h">How do I run Customer Interview Kit in my browser?</h2>
   <p class="hx-sub">Required: Interview type, Product context, Target persona. Fields marked optional can be left empty.</p>
   <form class="hx-form" method="post" action="/api/tools/customer_interview_kit" data-tool="customer_interview_kit" data-title="Customer Interview Kit">
 <div class="hx-field"><label for="f-interview_type">Interview type <span class="hx-req" aria-hidden="true">*</span></label><select id="f-interview_type" name="interview_type" data-kind="string" required aria-required="true" aria-describedby="f-interview_type-help"><option value="" disabled selected>Choose one</option><option value="discovery">discovery</option><option value="validation">validation</option><option value="feedback">feedback</option><option value="churn">churn</option><option value="win_loss">win loss</option><option value="persona_research">persona research</option></select><p class="hx-help" id="f-interview_type-help">Type of interview determines question focus</p></div>
@@ -233,14 +235,14 @@
 </section>
 
 <section class="hx-section" aria-labelledby="ai-h">
-  <h2 id="ai-h">Use it from Claude or another assistant</h2>
+  <h2 id="ai-h">How do I use Customer Interview Kit from Claude?</h2>
   <p class="hx-prose">Connect CRAFT GTM once (see <a href="/connect/">Connect</a>), then ask in plain words. A prompt built from the tested example:</p>
   <blockquote class="hx-quote">Use CRAFT GTM&#x27;s Customer Interview Kit tool. interview type: churn; product context: Workflow automation for operations teams; target persona: Operations manager; industry: saas; product complexity: moderate.</blockquote>
   <p class="hx-prose">MCP tool name: <code>customer_interview_kit</code>. REST: <code>POST https://craft-gtm.gtmhelix.com/api/tools/customer_interview_kit</code> (see <a href="/docs/#customer-interview-kit">Docs</a>).</p>
 </section>
 
 <section class="hx-section" aria-labelledby="works-h">
-  <h2 id="works-h">How this tool works</h2>
+  <h2 id="works-h">How does Customer Interview Kit work?</h2>
   <p class="hx-prose">It applies fixed rules in the CRAFT GTM code to the inputs above and returns text. It does not call an AI model, does not look anything up, and does not store what you type. The web form and the MCP server run the same function, so the same input gives the same answer in both.</p>
   <p class="hx-pn"><a href="/tools/launch-commander/">Previous: Launch Commander</a><a href="/tools/retention-playbook/">Next: Retention Playbook</a></p>
 </section>
@@ -284,8 +286,8 @@
                 </div>
             </div>
             <div class="hx-footer-bottom">
-                <span>&copy; 2026 Helix GTM Consulting. GTM Alpha by Shashwat Ghosh.</span>
-                <span><a href="https://gtmalpha.gtmhelix.com/privacy">Privacy</a> &middot; <a href="https://gtmalpha.gtmhelix.com/terms">Terms</a> &middot; <a href="https://gtmalpha.gtmhelix.com/faq">FAQ</a></span>
+                <span>&copy; 2026 Helix GTM Consulting. CRAFT GTM by Shashwat Ghosh.</span>
+                <span><a href="/privacy/">Privacy</a> &middot; <a href="/faq/">FAQ</a></span>
             </div>
         </div>
     </footer>
