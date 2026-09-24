@@ -2,9 +2,9 @@
 
 > CRAFT GTM gives Claude eight planning tools for B2B go-to-market work: a product-market fit scorecard, launch plans, customer interview guides, retention playbooks, partner programs, crisis playbooks, competitive battle cards and a CRAFT review of any GTM document. Every tool turns the details you give it into a structured plan.
 
-- MCP server URL (Streamable HTTP, no sign-in, read-only tools): https://craft-gtm-mcp.netlify.app/mcp
-- Setup and tools: https://craft-gtm-mcp.netlify.app/
-- Privacy policy: https://craft-gtm-mcp.netlify.app/privacy.html
+- MCP server URL (Streamable HTTP, no sign-in, read-only tools): https://craft-gtm.gtmhelix.com/mcp
+- Setup and tools: https://craft-gtm.gtmhelix.com/
+- Privacy policy: https://craft-gtm.gtmhelix.com/privacy.html
 - Local npm package: @shashwatgtmalpha/craft-gtm-mcp
 - Source code: https://github.com/shashwatgtm/craft-gtm-mcp
 - Built by: Shashwat Ghosh, Helix GTM Consulting (https://www.gtmexpert.com)
@@ -28,7 +28,7 @@ CRAFT GTM gives Claude eight planning tools for B2B go-to-market work: a product
 
 ### How do I connect CRAFT GTM to Claude?
 
-In Claude, open Customize, then Connectors, then Add custom connector. Name it CRAFT GTM, paste the server URL https://craft-gtm-mcp.netlify.app/mcp, choose no sign-in and select Add. In Claude Code run: claude mcp add --transport http craft-gtm https://craft-gtm-mcp.netlify.app/mcp
+In Claude, open Customize, then Connectors, then Add custom connector. Name it CRAFT GTM, paste the server URL https://craft-gtm.gtmhelix.com/mcp, choose no sign-in and select Add. In Claude Code run: claude mcp add --transport http craft-gtm https://craft-gtm.gtmhelix.com/mcp
 
 ### Does CRAFT GTM need an account, and what does it cost?
 
@@ -52,8 +52,8 @@ Shashwat Ghosh, founder of Helix GTM Consulting, a GTM Alpha consultant, AI GTM 
 
 ## Other connectors by Helix GTM Consulting
 
-- GTM Alpha: https://gtmalpha.netlify.app/integration
-- CRAFT Content: https://craft-content-mcp.netlify.app/
-- IMPACT: https://impact-mcp.netlify.app/
-- ICP Intelligence: https://icp-intelligence-mcp.netlify.app/
-- Revenue Enablement: https://revenue-enablement-mcp.netlify.app/
+- GTM Alpha: https://gtmalpha.gtmhelix.com/integration
+- CRAFT Content: https://craft-content.gtmhelix.com/
+- IMPACT: https://impact.gtmhelix.com/
+- ICP Intelligence: https://icp-intelligence.gtmhelix.com/
+- Revenue Enablement: https://revenue-enablement.gtmhelix.com/

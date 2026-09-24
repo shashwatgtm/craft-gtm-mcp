@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /mcp
 
-Sitemap: https://craft-gtm-mcp.netlify.app/sitemap.xml
+Sitemap: https://craft-gtm.gtmhelix.com/sitemap.xml
