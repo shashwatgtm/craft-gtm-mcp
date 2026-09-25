@@ -43,7 +43,7 @@ export function generateCompetitiveIntel(args: {
   // Parse competitor details if provided
   const competitorInfo: Record<string, string[]> = {};
   if (args.competitor_details) {
-    const details = args.competitor_details.split(/[,\n]/);
+    const details = args.competitor_details.split(/\n|,(?!\d{3}(?!\d))/);
     for (const detail of details) {
       for (const comp of competitors) {
         if (detail.toLowerCase().includes(comp.toLowerCase())) {

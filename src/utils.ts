@@ -84,7 +84,7 @@ export function parseMetrics(metricsText: string): ParsedMetrics {
   const text = metricsText.toLowerCase();
   
   // MRR/ARR parsing
-  const mrrMatch = text.match(/mrr[:\s]*\$?([\d,]+(?:\.\d+)?)\s*(k|m)?/i);
+  const mrrMatch = text.match(/\bmrr[:\s]*\$?(\d[\d,]*(?:\.\d+)?)\s*(k|m)?\b/i);
   if (mrrMatch) {
     let value = parseFloat(mrrMatch[1].replace(/,/g, ''));
     if (mrrMatch[2]?.toLowerCase() === 'k') value *= 1000;
@@ -92,7 +92,7 @@ export function parseMetrics(metricsText: string): ParsedMetrics {
     metrics.mrr = value;
   }
   
-  const arrMatch = text.match(/arr[:\s]*\$?([\d,]+(?:\.\d+)?)\s*(k|m)?/i);
+  const arrMatch = text.match(/\barr[:\s]*\$?(\d[\d,]*(?:\.\d+)?)\s*(k|m)?\b/i);
   if (arrMatch) {
     let value = parseFloat(arrMatch[1].replace(/,/g, ''));
     if (arrMatch[2]?.toLowerCase() === 'k') value *= 1000;
@@ -148,9 +148,9 @@ export function parseMetrics(metricsText: string): ParsedMetrics {
   }
   
   // Revenue growth
-  const growthMatch = text.match(/(?:revenue\s*)?growth[:\s]*([\d.]+)\s*%?/i);
+  const growthMatch = text.match(/(?:revenue\s*)?growth[:\s]*([-\u2212]?\s*[\d.]+)\s*%?/i);
   if (growthMatch) {
-    metrics.revenueGrowth = parseFloat(growthMatch[1]);
+    metrics.revenueGrowth = parseFloat(growthMatch[1].replace(/[\u2212\s]/g, (c) => (c === '\u2212' ? '-' : '')));
   }
   
   // DAU/MAU
@@ -192,12 +192,12 @@ export function scoreMetric(value: number | undefined, benchmarks: { low: number
 
   // The benchmark figures are the tool's example ranges, so each one is labelled.
   if (higherIsBetter) {
-    if (value >= benchmarks.high) return { score: 9, label: 'EXCELLENT', analysis: `${v} exceeds benchmark of ${benchmarks.high} ${EXAMPLE_FIGURE}` };
+    if (value >= benchmarks.high) return { score: 9, label: 'EXCELLENT', analysis: `${v} is at or above the excellent mark of ${benchmarks.high} ${EXAMPLE_FIGURE}` };
     if (value >= benchmarks.medium) return { score: 7, label: 'GOOD', analysis: `${v} meets healthy benchmark of ${benchmarks.medium} ${EXAMPLE_FIGURE}` };
     if (value >= benchmarks.low) return { score: 5, label: 'DEVELOPING', analysis: `${v} is below target of ${benchmarks.medium} ${EXAMPLE_FIGURE}` };
     return { score: 3, label: 'CRITICAL', analysis: `${v} is significantly below minimum of ${benchmarks.low} ${EXAMPLE_FIGURE}` };
   } else {
-    if (value <= benchmarks.low) return { score: 9, label: 'EXCELLENT', analysis: `${v}% is below target of ${benchmarks.low}% ${EXAMPLE_FIGURE}` };
+    if (value <= benchmarks.low) return { score: 9, label: 'EXCELLENT', analysis: `${v}% is at or below the excellent mark of ${benchmarks.low}% ${EXAMPLE_FIGURE}` };
     if (value <= benchmarks.medium) return { score: 7, label: 'GOOD', analysis: `${v}% is acceptable (benchmark: <${benchmarks.medium}%) ${EXAMPLE_FIGURE}` };
     if (value <= benchmarks.high) return { score: 5, label: 'DEVELOPING', analysis: `${v}% is elevated against the example benchmark - needs attention` };
     return { score: 3, label: 'CRITICAL', analysis: `${v}% significantly exceeds maximum of ${benchmarks.high}% ${EXAMPLE_FIGURE}` };
@@ -222,7 +222,7 @@ export function addDays(date: Date, days: number): Date {
 
 export function parseListItems(text: string): string[] {
   return text
-    .split(/[,\n]/)
+    .split(/\n|,(?!\d{3}(?!\d))/)
     .map(item => item.replace(/^[-•*]\s*/, '').trim())
     .filter(item => item.length > 0);
 }

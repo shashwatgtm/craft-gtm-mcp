@@ -164,7 +164,7 @@ export function generateLaunchCommander(args: {
 
 ## 🎯 Launch Goals
 
-${args.goals.split(/[,\n]/).map(g => `- ${g.trim()}`).join('\n')}
+${args.goals.split(/\n|,(?!\d{3}(?!\d))/).map(g => `- ${g.trim()}`).join('\n')}
 
 ---
 
