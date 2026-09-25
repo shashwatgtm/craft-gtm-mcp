@@ -115,7 +115,7 @@
    "about": {
     "@id": "https://craft-gtm.gtmhelix.com/#app"
    },
-   "dateModified": "2026-09-25",
+   "dateModified": "2026-09-26",
    "inLanguage": "en",
    "primaryImageOfPage": "https://craft-gtm.gtmhelix.com/og.png"
   },
@@ -219,7 +219,7 @@
     <span class="hx-eyebrow">CRAFT GTM · tool 1 of 8</span>
     <h1>PMF Scorecard</h1>
     <p class="hx-lead">Generate a Product-Market Fit scorecard. Parses the metrics you provide (MRR, churn, NPS, CAC, LTV, retention, activation and similar) and scores each dimension against built-in benchmark ranges.</p>
-    <p class="hx-byline">By <a href="https://www.gtmexpert.com/" rel="author">Shashwat Ghosh</a>, Co-Founder and Fractional CMO, Helix GTM Consulting · Last updated <time datetime="2026-09-25">25 September 2026</time></p>
+    <p class="hx-byline">By <a href="https://www.gtmexpert.com/" rel="author">Shashwat Ghosh</a>, Co-Founder and Fractional CMO, Helix GTM Consulting · Last updated <time datetime="2026-09-26">26 September 2026</time></p>
   </div></div>
 </section>
 <main id="main" class="hx-body">
@@ -258,7 +258,7 @@
     </div>
     
   </form>
-  <script type="application/json" data-example>{"product": "ClinicFlow, scheduling software for clinics", "target_market": "smb_saas", "current_metrics": "MRR: $40K, Churn: 4%, NPS: 38, CAC: $600, LTV: $4200, Retention: 90%", "time_in_market": "1_2_years"}</script>
+  <script type="application/json" data-example>{"product": "ExampleCo Scheduler, scheduling software for clinics", "target_market": "smb_saas", "current_metrics": "MRR: $40K, Churn: 4%, NPS: 38, CAC: $600, LTV: $4200, Retention: 90%", "time_in_market": "1_2_years"}</script>
 </section>
 
 <section class="hx-section hx-result" id="result" aria-live="polite" aria-labelledby="result-h" hidden>
@@ -269,11 +269,11 @@
 
 <section class="hx-section" aria-labelledby="ex-h">
   <h2 id="ex-h">What does PMF Scorecard return for the tested example?</h2>
-  <p class="hx-prose">Generated from the live code on 25 September 2026 with the inputs behind <em>Fill in a tested example</em>. Your own inputs give a different result.</p>
+  <p class="hx-prose">Generated from the live code on 26 September 2026 with the inputs behind <em>Fill in a tested example</em>. Your own inputs give a different result.</p>
   <details class="hx-run"><summary>Show the full result</summary>
   <div class="hx-result-body hx-output">
 <h3>📊 Product-Market Fit Scorecard</h3>
-<h4>ClinicFlow, scheduling software for clinics</h4>
+<h4>ExampleCo Scheduler, scheduling software for clinics</h4>
 <p><strong>Market Segment:</strong> SMB SAAS</p>
 <p><strong>Time in Market:</strong> 1 to 2 years</p>
 <p><strong>Analysis Date:</strong> 2026-09-25</p>
@@ -339,11 +339,11 @@
 <section class="hx-section" aria-labelledby="ai-h">
   <h2 id="ai-h">How do I use PMF Scorecard from Claude?</h2>
   <p class="hx-prose">Connect CRAFT GTM once (see <a href="/connect/">Connect</a>), then ask in plain words. A prompt built from the tested example:</p>
-  <blockquote class="hx-quote">Use CRAFT GTM&#x27;s PMF Scorecard tool. product: ClinicFlow, scheduling software for clinics; target market: smb saas; current metrics: MRR: $40K, Churn: 4%, NPS: 38, CAC: $600, LTV: $4200, Retention: 90%; time in market: 1 2 years.</blockquote>
+  <blockquote class="hx-quote">Use CRAFT GTM&#x27;s PMF Scorecard tool. product: ExampleCo Scheduler, scheduling software for clinics; target market: smb saas; current metrics: MRR: $40K, Churn: 4%, NPS: 38, CAC: $600, LTV: $4200, Retention: 90%; time in market: 1 2 years.</blockquote>
   <p class="hx-prose">MCP tool name: <code>pmf_scorecard</code>. REST: <code>POST https://craft-gtm.gtmhelix.com/api/tools/pmf_scorecard</code> with this JSON body (see <a href="/docs/#pmf-scorecard">Docs</a>):</p>
   <pre class="hx-code-block">{
   &quot;input&quot;: {
-    &quot;product&quot;: &quot;ClinicFlow, scheduling software for clinics&quot;,
+    &quot;product&quot;: &quot;ExampleCo Scheduler, scheduling software for clinics&quot;,
     &quot;target_market&quot;: &quot;smb_saas&quot;,
     &quot;current_metrics&quot;: &quot;MRR: $40K, Churn: 4%, NPS: 38, CAC: $600, LTV: $4200, Retention: 90%&quot;,
     &quot;time_in_market&quot;: &quot;1_2_years&quot;
