@@ -1,6 +1,6 @@
 # CRAFT GTM
 
-> Yes. CRAFT GTM is a free MCP server and web app with eight planning tools, by Shashwat Ghosh of Helix GTM Consulting. Give it your metrics, launch date, customers or competitors, and it returns a product-market fit scorecard, a launch plan, interview guides, retention, partner or crisis playbooks, battle cards, or a CRAFT review of any GTM document.
+> CRAFT GTM is a free MCP server and web app with eight planning tools, by Shashwat Ghosh of Helix GTM Consulting. Give it your metrics, launch date, customers or competitors, and it returns a product-market fit scorecard, a launch plan, interview guides, retention, partner or crisis playbooks, battle cards, or a CRAFT review of any GTM document.
 
 - Web app (no sign-in): https://craft-gtm.gtmhelix.com/
 - MCP server URL (Streamable HTTP, no sign-in, read-only tools): https://craft-gtm.gtmhelix.com/mcp
@@ -28,7 +28,7 @@
 
 ### What is CRAFT GTM?
 
-Yes. CRAFT GTM is a free MCP server and web app with eight planning tools, by Shashwat Ghosh of Helix GTM Consulting. Give it your metrics, launch date, customers or competitors, and it returns a product-market fit scorecard, a launch plan, interview guides, retention, partner or crisis playbooks, battle cards, or a CRAFT review of any GTM document.
+CRAFT GTM is a free MCP server and web app with eight planning tools, by Shashwat Ghosh of Helix GTM Consulting. Give it your metrics, launch date, customers or competitors, and it returns a product-market fit scorecard, a launch plan, interview guides, retention, partner or crisis playbooks, battle cards, or a CRAFT review of any GTM document.
 
 ### Is CRAFT GTM free, and do I need an account?
 
@@ -48,7 +48,7 @@ In Claude, open Customize, then Connectors, then Add custom connector. Name it C
 
 ### Who built it?
 
-Shashwat Ghosh, founder of Helix GTM Consulting: a GTM Alpha consultant, AI GTM expert and fractional CMO with 24+ years in B2B and 10+ years of fractional experience, based in Bengaluru.
+Shashwat Ghosh, Co-Founder and Fractional CMO of Helix GTM Consulting, a business consulting firm founded in 2022 in Bengaluru. He has 24+ years in B2B and 10+ years of fractional experience, and created the EPIC, IMPACT and CRAFT frameworks and the Hub-Spoke Messaging Methodology.
 
 ### Why do some answers look like templates?
 
