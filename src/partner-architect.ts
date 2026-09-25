@@ -1,3 +1,8 @@
+import { describeChoice, readableChoice, EXAMPLE_FIGURE, EXAMPLE_FIGURES, SUGGESTION_FOOTER } from './utils.js';
+
+// Every rate, fee, deal count and staff count in the tier definitions is an example figure.
+const hasFigure = (text: string): boolean => /\d/.test(text);
+
 export function generatePartnerArchitect(args: {
   company: string;
   product: string;
@@ -13,6 +18,13 @@ export function generatePartnerArchitect(args: {
   // Parse deal size for commission calculations
   const dealSizeMatch = args.your_deal_size.match(/\$?([\d,]+)/);
   const dealSize = dealSizeMatch ? parseInt(dealSizeMatch[1].replace(/,/g, '')) : 5000;
+  // When no amount is found in the deal size, the figures below use an assumed one: say so.
+  const dealSizeShown = dealSizeMatch
+    ? args.your_deal_size
+    : `${args.your_deal_size} (no amount found, so $${dealSize} is assumed) ${EXAMPLE_FIGURE}`;
+  const dealSizeBasis = dealSizeMatch
+    ? `${args.your_deal_size} deal size`
+    : `an assumed $${dealSize} deal size ${EXAMPLE_FIGURE}`;
   
   interface PartnerTier {
     name: string;
@@ -80,7 +92,7 @@ export function generatePartnerArchitect(args: {
   const program = programStructures[partnerModel] || programStructures.referral;
   
   const supportAdjustments: Record<string, string> = {
-    minimal_self_serve: '⚠️ Note: With minimal support capacity, prioritize self-serve onboarding, comprehensive documentation, and automated reporting. Consider limiting to 2 tiers max.',
+    minimal_self_serve: `⚠️ Note: With minimal support capacity, prioritize self-serve onboarding, comprehensive documentation, and automated reporting. Consider limiting to 2 tiers max. ${EXAMPLE_FIGURE}`,
     moderate: 'With moderate capacity, balance 1:1 support for top partners with self-serve for others. Consider office hours model.',
     high_touch: 'With high-touch capacity, you can offer white-glove onboarding and dedicated partner managers across tiers.'
   };
@@ -90,8 +102,8 @@ export function generatePartnerArchitect(args: {
 
 **Partner Model:** ${partnerModel.replace(/_/g, ' ')}
 **Product:** ${args.product}
-**Average Deal Size:** ${args.your_deal_size}
-**Support Capacity:** ${supportCapacity.replace(/_/g, ' ')}
+**Average Deal Size:** ${dealSizeShown}
+**Support Capacity:** ${describeChoice(args.partner_support_capacity, supportCapacity)}
 
 ---
 
@@ -108,14 +120,14 @@ ${supportAdjustments[supportCapacity] || ''}
 ${program.tiers.map((tier, i) => `
 ### Tier ${i + 1}: ${tier.name}
 
-**Requirements to Qualify:**
+**Requirements to Qualify:**${tier.requirements.some(hasFigure) ? ` ${EXAMPLE_FIGURES}` : ''}
 ${tier.requirements.map(r => `- ${r}`).join('\n')}
 
-**Benefits:**
+**Benefits:**${tier.benefits.some(hasFigure) ? ` ${EXAMPLE_FIGURES}` : ''}
 ${tier.benefits.map(b => `- ✅ ${b}`).join('\n')}
 
 **Commission/Economics:**
-\`${tier.commission}\`
+\`${tier.commission}\`${hasFigure(tier.commission) ? ` ${EXAMPLE_FIGURE}` : ''}
 
 **Support Level:**
 ${tier.support}
@@ -127,6 +139,7 @@ ${tier.support}
 
 ### Partner Economics Calculator
 
+${EXAMPLE_FIGURES} The commission rates and deal counts in this table are illustrations, applied to ${dealSizeMatch ? 'your' : 'the assumed'} deal size.
 | Scenario | Partner Effort | Partner Earnings | Your Revenue |
 |----------|---------------|------------------|--------------|
 | ${program.tiers[0].name} (1 deal) | Low | $${Math.round(dealSize * 0.10)} | $${Math.round(dealSize * 0.90)} |
@@ -135,8 +148,8 @@ ${tier.support}
 
 ### Commission Viability Check
 
-Based on ${args.your_deal_size} deal size:
-- ✅ ${dealSize > 1000 ? 'Deal size supports meaningful partner commissions' : '⚠️ Deal size may be too small for reseller model - consider affiliate or referral'}
+Based on ${dealSizeBasis} (checked against example deal-size thresholds):
+- ${dealSize > 1000 ? '✅ Deal size supports meaningful partner commissions' : '⚠️ Deal size may be too small for reseller model - consider affiliate or referral'}
 - ${dealSize > 5000 ? '✅ Can support dedicated partner manager at scale' : '⚠️ May need to rely on self-serve until partner volume justifies support'}
 - ${dealSize > 10000 ? '✅ Enterprise deals justify white-glove partner support' : 'Consider pooled partner support model'}
 
@@ -188,7 +201,7 @@ I've been following [Partner Company]'s work in [space] and think there's a stro
 
 ${args.company} helps [value prop]. Our partners typically ${partnerModel === 'reseller' ? 'expand their revenue by offering our solution alongside their services' : partnerModel === 'referral' ? 'earn $X per qualified introduction' : partnerModel === 'integration_tech' ? 'increase their product value through deep integration' : 'grow their business with our tools'}.
 
-${partnerModel === 'reseller' ? `With deals averaging ${args.your_deal_size}, partners at our Silver tier earn ~${Math.round(dealSize * 0.20 * 5)}/quarter.` : ''}
+${partnerModel === 'reseller' ? `With deals averaging ${args.your_deal_size}, partners at our Silver tier earn ~${Math.round(dealSize * 0.20 * 5)}/quarter. ${EXAMPLE_FIGURE}` : ''}
 
 Would you be open to a 15-minute call to explore fit?
 
@@ -198,5 +211,7 @@ Would you be open to a 15-minute call to explore fit?
 ---
 
 *Partner program architecture generated using CRAFT GTM Framework v2.0*
-*Customized for ${partnerModel.replace(/_/g, ' ')} model with ${supportCapacity.replace(/_/g, ' ')} support capacity*`;
+*Customized for ${partnerModel.replace(/_/g, ' ')} model with ${readableChoice(supportCapacity)} support capacity*
+
+${SUGGESTION_FOOTER}`;
 }

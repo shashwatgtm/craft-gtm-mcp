@@ -2,6 +2,62 @@
 // UTILITY FUNCTIONS - Metric Parsing & Analysis
 // ============================================================================
 
+// ----------------------------------------------------------------------------
+// Output labels. A figure that is neither the user's input nor computed only
+// from it is labelled as an example, so no invented figure reads as a fact.
+// ----------------------------------------------------------------------------
+
+/** Inline label: on the same line as the example figure. */
+export const EXAMPLE_FIGURE = '(Example figure: replace with your own)';
+/** Block label: a line of its own directly above a table or list of example figures. */
+export const EXAMPLE_FIGURES = 'Example figures: replace with your own.';
+/** Footer for any output that suggests timings, lengths or counts. */
+export const SUGGESTION_FOOTER = 'Suggested timings, lengths and counts: adjust them to your own.';
+
+// Readable forms of enum values that carry digits or abbreviations.
+const READABLE_CHOICES: Record<string, string> = {
+  pre_launch: 'pre-launch',
+  '0_6_months': '0 to 6 months',
+  '6_12_months': '6 to 12 months',
+  '1_2_years': '1 to 2 years',
+  '2_plus_years': '2+ years',
+  small_2_5: 'small (2 to 5)',
+  medium_6_15: 'medium (6 to 15)',
+  large_15_plus: 'large (15+)',
+  well_funded: 'well funded',
+  no_dedicated_cs: 'no dedicated CS',
+  small_1_3: 'small (1 to 3)',
+  medium_4_10: 'medium (4 to 10)',
+  large_10_plus: 'large (10+)',
+  startup_under_50: 'startup (under 50)',
+  scaleup_50_200: 'scale-up (50 to 200)',
+  midsize_200_1000: 'mid-size (200 to 1,000)',
+  enterprise_1000_plus: 'enterprise (1,000+)',
+  b2b_enterprise: 'B2B enterprise',
+  b2b_smb: 'B2B SMB',
+  b2c_consumer: 'B2C consumer',
+  high_pii_financial: 'high (PII, financial)',
+  medium_business_data: 'medium (business data)',
+  low_general: 'low (general)',
+  minimal_self_serve: 'minimal (self-serve)',
+  high_touch: 'high touch',
+  win_loss: 'win/loss'
+};
+
+/** Readable form of an enum value: "small_2_5" becomes "small (2 to 5)"; other values lose their underscores. */
+export function readableChoice(value: string): string {
+  return READABLE_CHOICES[value] ?? value.replace(/_/g, ' ');
+}
+
+/** The user's choice in readable form or, when it was not supplied, the value the tool assumes, marked as assumed. */
+export function describeChoice(supplied: string | undefined, assumed: string): string {
+  if (supplied) return readableChoice(supplied);
+  const shown = readableChoice(assumed);
+  return /\d/.test(shown)
+    ? `${shown} (assumed, not supplied) ${EXAMPLE_FIGURE}`
+    : `${shown} (assumed, not supplied)`;
+}
+
 export interface ParsedMetrics {
   mrr?: number;
   arr?: number;
@@ -127,21 +183,24 @@ export function parseMetrics(metricsText: string): ParsedMetrics {
   return metrics;
 }
 
-export function scoreMetric(value: number | undefined, benchmarks: { low: number; medium: number; high: number }, higherIsBetter: boolean = true): { score: number; label: string; analysis: string } {
+export function scoreMetric(value: number | undefined, benchmarks: { low: number; medium: number; high: number }, higherIsBetter: boolean = true, shown?: string): { score: number; label: string; analysis: string } {
   if (value === undefined) {
     return { score: 0, label: 'MISSING', analysis: 'Data not provided - unable to score' };
   }
-  
+  // How the value is printed (the score always uses the exact value)
+  const v = shown ?? String(value);
+
+  // The benchmark figures are the tool's example ranges, so each one is labelled.
   if (higherIsBetter) {
-    if (value >= benchmarks.high) return { score: 9, label: 'EXCELLENT', analysis: `${value} exceeds benchmark of ${benchmarks.high}` };
-    if (value >= benchmarks.medium) return { score: 7, label: 'GOOD', analysis: `${value} meets healthy benchmark of ${benchmarks.medium}` };
-    if (value >= benchmarks.low) return { score: 5, label: 'DEVELOPING', analysis: `${value} is below target of ${benchmarks.medium}` };
-    return { score: 3, label: 'CRITICAL', analysis: `${value} is significantly below minimum of ${benchmarks.low}` };
+    if (value >= benchmarks.high) return { score: 9, label: 'EXCELLENT', analysis: `${v} exceeds benchmark of ${benchmarks.high} ${EXAMPLE_FIGURE}` };
+    if (value >= benchmarks.medium) return { score: 7, label: 'GOOD', analysis: `${v} meets healthy benchmark of ${benchmarks.medium} ${EXAMPLE_FIGURE}` };
+    if (value >= benchmarks.low) return { score: 5, label: 'DEVELOPING', analysis: `${v} is below target of ${benchmarks.medium} ${EXAMPLE_FIGURE}` };
+    return { score: 3, label: 'CRITICAL', analysis: `${v} is significantly below minimum of ${benchmarks.low} ${EXAMPLE_FIGURE}` };
   } else {
-    if (value <= benchmarks.low) return { score: 9, label: 'EXCELLENT', analysis: `${value}% is below target of ${benchmarks.low}%` };
-    if (value <= benchmarks.medium) return { score: 7, label: 'GOOD', analysis: `${value}% is acceptable (benchmark: <${benchmarks.medium}%)` };
-    if (value <= benchmarks.high) return { score: 5, label: 'DEVELOPING', analysis: `${value}% is elevated - needs attention` };
-    return { score: 3, label: 'CRITICAL', analysis: `${value}% significantly exceeds maximum of ${benchmarks.high}%` };
+    if (value <= benchmarks.low) return { score: 9, label: 'EXCELLENT', analysis: `${v}% is below target of ${benchmarks.low}% ${EXAMPLE_FIGURE}` };
+    if (value <= benchmarks.medium) return { score: 7, label: 'GOOD', analysis: `${v}% is acceptable (benchmark: <${benchmarks.medium}%) ${EXAMPLE_FIGURE}` };
+    if (value <= benchmarks.high) return { score: 5, label: 'DEVELOPING', analysis: `${v}% is elevated against the example benchmark - needs attention` };
+    return { score: 3, label: 'CRITICAL', analysis: `${v}% significantly exceeds maximum of ${benchmarks.high}% ${EXAMPLE_FIGURE}` };
   }
 }
 
@@ -236,7 +295,7 @@ export function analyzeCRAFTDimensions(content: string): CRAFTAnalysis {
   if (analysis.result.found.length === 0) {
     analysis.result.gaps.push('No measurable outcomes defined');
     analysis.result.gaps.push('Add: Specific KPIs with target numbers');
-    analysis.result.gaps.push('Example: "Goal: Increase MQLs by 30% in Q1"');
+    analysis.result.gaps.push(`Example: "Goal: Increase MQLs by 30% in Q1" ${EXAMPLE_FIGURE}`);
   } else if (analysis.result.found.length < 3) {
     analysis.result.gaps.push('Consider adding leading and lagging indicators');
   }

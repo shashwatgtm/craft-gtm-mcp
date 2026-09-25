@@ -1,4 +1,4 @@
-import { parseListItems } from './utils.js';
+import { parseListItems, EXAMPLE_FIGURE, SUGGESTION_FOOTER } from './utils.js';
 
 export function generateCompetitiveIntel(args: {
   your_product: string;
@@ -403,23 +403,25 @@ ${competitors.map(c => `
 
 ## 🔄 Next Steps
 
-1. **Fill in the win/loss analysis** (even 5 deals helps)
-2. **Do 2-3 sales team interviews** (15 min each)
+1. **Fill in the win/loss analysis** (even 5 deals helps) ${EXAMPLE_FIGURE}
+2. **Do 2-3 sales team interviews** (15 min each) ${EXAMPLE_FIGURE}
 3. **Complete competitor profiles** above
 4. **Come back to this tool** with your findings
 
 **Once you have this data, run competitive_intel again with:**
 \`\`\`
-your_strengths: "strength 1, strength 2"
-your_weaknesses: "weakness 1, weakness 2"
-common_objections: "objection 1, objection 2"
-recent_wins: "why we won deal 1, why we won deal 2"
-recent_losses: "why we lost deal 1, why we lost deal 2"
+your_strengths: "[strength 1], [strength 2]"
+your_weaknesses: "[weakness 1], [weakness 2]"
+common_objections: "[objection 1], [objection 2]"
+recent_wins: "[why we won deal 1], [why we won deal 2]"
+recent_losses: "[why we lost deal 1], [why we lost deal 2]"
 \`\`\`
 
 You'll get complete battle cards with specific handlers for each competitor and objection.
 
 ---
 
-*Competitive Discovery Kit generated using CRAFT GTM Framework v2.0*`;
+*Competitive Discovery Kit generated using CRAFT GTM Framework v2.0*
+
+${SUGGESTION_FOOTER}`;
 }

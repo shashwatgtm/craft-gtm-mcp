@@ -1,4 +1,4 @@
-import { formatDate, addDays, calculateDaysUntil, parseListItems } from './utils.js';
+import { formatDate, addDays, calculateDaysUntil, parseListItems, describeChoice, EXAMPLE_FIGURE } from './utils.js';
 
 interface Phase {
   name: string;
@@ -73,36 +73,37 @@ export function generateLaunchCommander(args: {
   const daysUntilLaunch = launchDate ? calculateDaysUntil(launchDate.toISOString()) : null;
   
   // Define phase structure based on launch type
+  // (weekRange is the heading shown in planning mode; the offsets drive the dates)
   const phases: Record<string, Phase[]> = {
     major_release: [
-      { name: 'Foundation', weekRange: 'Week -12 to -9', startOffset: -84, endOffset: -63, focus: 'Research & Strategy', tasks: ['Finalize positioning', 'Competitive analysis', 'Messaging framework', 'Content strategy', 'Channel planning'] },
-      { name: 'Content Creation', weekRange: 'Week -8 to -5', startOffset: -56, endOffset: -35, focus: 'Asset Development', tasks: ['Landing page design', 'Demo videos', 'Blog content', 'Sales enablement', 'Press kit'] },
-      { name: 'Pre-Launch', weekRange: 'Week -4 to -2', startOffset: -28, endOffset: -14, focus: 'Build Anticipation', tasks: ['Waitlist campaign', 'Influencer outreach', 'Internal training', 'PR coordination', 'Beta feedback integration'] },
-      { name: 'Launch Week', weekRange: 'Week -1 to 0', startOffset: -7, endOffset: 0, focus: 'Execute Launch', tasks: ['Press release', 'Email blast', 'Social campaign', 'Webinar/event', 'Product Hunt (if applicable)'] },
-      { name: 'Post-Launch', weekRange: 'Week 1 to 4', startOffset: 1, endOffset: 28, focus: 'Optimize & Scale', tasks: ['Monitor metrics', 'Gather feedback', 'Address issues', 'Amplify wins', 'Iterate messaging'] }
+      { name: 'Foundation', weekRange: 'Weeks 12 to 9 before launch', startOffset: -84, endOffset: -63, focus: 'Research & Strategy', tasks: ['Finalize positioning', 'Competitive analysis', 'Messaging framework', 'Content strategy', 'Channel planning'] },
+      { name: 'Content Creation', weekRange: 'Weeks 8 to 5 before launch', startOffset: -56, endOffset: -35, focus: 'Asset Development', tasks: ['Landing page design', 'Demo videos', 'Blog content', 'Sales enablement', 'Press kit'] },
+      { name: 'Pre-Launch', weekRange: 'Weeks 4 to 2 before launch', startOffset: -28, endOffset: -14, focus: 'Build Anticipation', tasks: ['Waitlist campaign', 'Influencer outreach', 'Internal training', 'PR coordination', 'Beta feedback integration'] },
+      { name: 'Launch Week', weekRange: 'Week 1 before launch to launch week (week 0)', startOffset: -7, endOffset: 0, focus: 'Execute Launch', tasks: ['Press release', 'Email blast', 'Social campaign', 'Webinar/event', 'Product Hunt (if applicable)'] },
+      { name: 'Post-Launch', weekRange: 'Weeks 1 to 4 after launch', startOffset: 1, endOffset: 28, focus: 'Optimize & Scale', tasks: ['Monitor metrics', 'Gather feedback', 'Address issues', 'Amplify wins', 'Iterate messaging'] }
     ],
     feature_launch: [
-      { name: 'Prep', weekRange: 'Week -6 to -4', startOffset: -42, endOffset: -28, focus: 'Planning', tasks: ['Positioning', 'Key messages', 'Content brief', 'Channel selection'] },
-      { name: 'Build', weekRange: 'Week -3 to -2', startOffset: -21, endOffset: -14, focus: 'Create Assets', tasks: ['Landing page update', 'Email sequences', 'Blog post', 'Help docs'] },
-      { name: 'Launch', weekRange: 'Week -1 to 0', startOffset: -7, endOffset: 0, focus: 'Go Live', tasks: ['Announcement email', 'In-app notification', 'Social posts', 'Customer webinar'] },
-      { name: 'Follow-up', weekRange: 'Week 1 to 2', startOffset: 1, endOffset: 14, focus: 'Drive Adoption', tasks: ['Adoption tracking', 'Feature tips', 'Success stories', 'Feedback loop'] }
+      { name: 'Prep', weekRange: 'Weeks 6 to 4 before launch', startOffset: -42, endOffset: -28, focus: 'Planning', tasks: ['Positioning', 'Key messages', 'Content brief', 'Channel selection'] },
+      { name: 'Build', weekRange: 'Weeks 3 to 2 before launch', startOffset: -21, endOffset: -14, focus: 'Create Assets', tasks: ['Landing page update', 'Email sequences', 'Blog post', 'Help docs'] },
+      { name: 'Launch', weekRange: 'Week 1 before launch to launch week (week 0)', startOffset: -7, endOffset: 0, focus: 'Go Live', tasks: ['Announcement email', 'In-app notification', 'Social posts', 'Customer webinar'] },
+      { name: 'Follow-up', weekRange: 'Weeks 1 to 2 after launch', startOffset: 1, endOffset: 14, focus: 'Drive Adoption', tasks: ['Adoption tracking', 'Feature tips', 'Success stories', 'Feedback loop'] }
     ],
     beta_launch: [
-      { name: 'Setup', weekRange: 'Week -4 to -3', startOffset: -28, endOffset: -21, focus: 'Prepare Beta', tasks: ['Beta criteria', 'Feedback system', 'Communication plan', 'Success metrics'] },
-      { name: 'Recruit', weekRange: 'Week -2 to -1', startOffset: -14, endOffset: -7, focus: 'Get Testers', tasks: ['Beta invitations', 'Onboarding flow', 'Expectation setting', 'NDA if needed'] },
-      { name: 'Run', weekRange: 'Week 0 to 2', startOffset: 0, endOffset: 14, focus: 'Active Beta', tasks: ['Monitor usage', 'Collect feedback', 'Bug tracking', 'Regular check-ins'] },
-      { name: 'Close', weekRange: 'Week 3 to 4', startOffset: 15, endOffset: 28, focus: 'Wrap Up', tasks: ['Synthesize feedback', 'Thank testers', 'GA decision', 'Case studies'] }
+      { name: 'Setup', weekRange: 'Weeks 4 to 3 before launch', startOffset: -28, endOffset: -21, focus: 'Prepare Beta', tasks: ['Beta criteria', 'Feedback system', 'Communication plan', 'Success metrics'] },
+      { name: 'Recruit', weekRange: 'Weeks 2 to 1 before launch', startOffset: -14, endOffset: -7, focus: 'Get Testers', tasks: ['Beta invitations', 'Onboarding flow', 'Expectation setting', 'NDA if needed'] },
+      { name: 'Run', weekRange: 'Launch week (week 0) to week 2 after launch', startOffset: 0, endOffset: 14, focus: 'Active Beta', tasks: ['Monitor usage', 'Collect feedback', 'Bug tracking', 'Regular check-ins'] },
+      { name: 'Close', weekRange: 'Weeks 3 to 4 after launch', startOffset: 15, endOffset: 28, focus: 'Wrap Up', tasks: ['Synthesize feedback', 'Thank testers', 'GA decision', 'Case studies'] }
     ],
     product_update: [
-      { name: 'Prepare', weekRange: 'Week -2 to -1', startOffset: -14, endOffset: -7, focus: 'Get Ready', tasks: ['Release notes', 'Email draft', 'Support prep'] },
-      { name: 'Launch', weekRange: 'Week 0', startOffset: 0, endOffset: 0, focus: 'Announce', tasks: ['Customer email', 'In-app message', 'Changelog update', 'Support brief'] }
+      { name: 'Prepare', weekRange: 'Weeks 2 to 1 before launch', startOffset: -14, endOffset: -7, focus: 'Get Ready', tasks: ['Release notes', 'Email draft', 'Support prep'] },
+      { name: 'Launch', weekRange: 'Launch week (week 0)', startOffset: 0, endOffset: 0, focus: 'Announce', tasks: ['Customer email', 'In-app message', 'Changelog update', 'Support brief'] }
     ],
     market_expansion: [
-      { name: 'Research', weekRange: 'Week -10 to -7', startOffset: -70, endOffset: -49, focus: 'Market Analysis', tasks: ['Market sizing', 'Competitor mapping', 'Localization needs', 'Partner identification'] },
-      { name: 'Adapt', weekRange: 'Week -6 to -4', startOffset: -42, endOffset: -28, focus: 'Localization', tasks: ['Messaging localization', 'Pricing strategy', 'Legal/compliance', 'Payment methods'] },
-      { name: 'Seed', weekRange: 'Week -3 to -1', startOffset: -21, endOffset: -7, focus: 'Build Presence', tasks: ['Local partnerships', 'PR outreach', 'Pilot customers', 'Local hiring'] },
-      { name: 'Launch', weekRange: 'Week 0', startOffset: 0, endOffset: 0, focus: 'Market Entry', tasks: ['Launch event', 'Press release', 'Paid campaigns', 'Community seeding'] },
-      { name: 'Scale', weekRange: 'Week 1 to 6', startOffset: 1, endOffset: 42, focus: 'Grow Market', tasks: ['Performance optimization', 'Expand channels', 'Local team growth', 'Customer success'] }
+      { name: 'Research', weekRange: 'Weeks 10 to 7 before launch', startOffset: -70, endOffset: -49, focus: 'Market Analysis', tasks: ['Market sizing', 'Competitor mapping', 'Localization needs', 'Partner identification'] },
+      { name: 'Adapt', weekRange: 'Weeks 6 to 4 before launch', startOffset: -42, endOffset: -28, focus: 'Localization', tasks: ['Messaging localization', 'Pricing strategy', 'Legal/compliance', 'Payment methods'] },
+      { name: 'Seed', weekRange: 'Weeks 3 to 1 before launch', startOffset: -21, endOffset: -7, focus: 'Build Presence', tasks: ['Local partnerships', 'PR outreach', 'Pilot customers', 'Local hiring'] },
+      { name: 'Launch', weekRange: 'Launch week (week 0)', startOffset: 0, endOffset: 0, focus: 'Market Entry', tasks: ['Launch event', 'Press release', 'Paid campaigns', 'Community seeding'] },
+      { name: 'Scale', weekRange: 'Weeks 1 to 6 after launch', startOffset: 1, endOffset: 42, focus: 'Grow Market', tasks: ['Performance optimization', 'Expand channels', 'Local team growth', 'Customer success'] }
     ]
   };
   
@@ -141,14 +142,23 @@ export function generateLaunchCommander(args: {
   
   const availableTactics = budgetTactics[budgetLevel] || budgetTactics.moderate;
 
+  // Days until launch: counted from today to the user's date. A quarter or a month
+  // (planning mode) is counted to an assumed mid-month day, so that figure is an example.
+  let daysNote = '';
+  if (daysUntilLaunch !== null) {
+    if (daysUntilLaunch <= 0) daysNote = ' (PAST DUE)';
+    else if (isFlexible) daysNote = ` (about ${daysUntilLaunch} days away, counted to an assumed mid-month date) ${EXAMPLE_FIGURE}`;
+    else daysNote = ` (${daysUntilLaunch} days away)`;
+  }
+
   // Build the launch plan
   let output = `# 🚀 Launch Command Center
 ## ${args.product_feature}
 
 **Launch Type:** ${launchType.replace(/_/g, ' ').toUpperCase()}
-**Launch Date:** ${displayDate}${daysUntilLaunch !== null ? ` (${daysUntilLaunch > 0 ? daysUntilLaunch + ' days away' : 'PAST DUE'})` : ''}
-**Team Size:** ${teamSize.replace(/_/g, ' ')}
-**Budget Level:** ${budgetLevel.replace(/_/g, ' ')}
+**Launch Date:** ${displayDate}${daysNote}
+**Team Size:** ${describeChoice(args.team_size, teamSize)}
+**Budget Level:** ${describeChoice(args.budget_level, budgetLevel)}
 
 ---
 
@@ -165,7 +175,7 @@ ${segments.map((s, i) => `${i + 1}. **${s}**`).join('\n')}
 ---
 
 ## 📢 Active Channels
-
+${args.available_channels ? '' : '\n*Channels not supplied: these defaults are assumed.*\n'}
 ${channels.map(ch => `- ✅ ${ch}`).join('\n')}
 
 **Budget-Appropriate Tactics:**
@@ -175,7 +185,11 @@ ${availableTactics.map(t => `- ${t}`).join('\n')}
 
 ## 📅 Launch Timeline
 
-`;
+${!launchDate
+  ? '*No exact launch date: the task due dates below count back from today, as if launching today. Add a launch date (YYYY-MM-DD) for a real schedule.*\n\n'
+  : isFlexible
+    ? `*Planning mode: the task due dates below count back from an assumed launch date of ${formatDate(launchDate)}.*\n\n`
+    : ''}`;
 
   // Generate detailed timeline - use current date as reference if no launch date
   const referenceDate = launchDate || new Date();

@@ -32,12 +32,12 @@ export const tools: Tool[] = [
   },
   {
     name: "launch_commander",
-    description: "Generate a context-aware launch plan. Have a date? Get a detailed timeline. Still planning? Enter 'TBD' or 'Q2 2025' for a flexible plan.",
+    description: "Generate a context-aware launch plan. Have a date? Get a detailed timeline. Still planning? Enter 'TBD' or a quarter such as 'Q2 2027' for a flexible plan.",
     inputSchema: {
       type: "object",
       properties: {
         product_feature: { type: "string", description: "What you're launching (product/feature name and description)" },
-        launch_date: { type: "string", description: "Target launch date. Accepts: 'YYYY-MM-DD', 'Q1 2025', 'March 2025', or 'TBD' for planning mode" },
+        launch_date: { type: "string", description: "Target launch date. Accepts: 'YYYY-MM-DD', 'Q1 2027', 'March 2027', or 'TBD' for planning mode" },
         launch_type: {
           type: "string",
           description: "Type of launch determines plan complexity",
@@ -138,7 +138,7 @@ export const tools: Tool[] = [
         partner_goals: { type: "string", description: "Revenue/growth targets from partners" },
         your_deal_size: { 
           type: "string", 
-          description: "Average deal size (determines viable commission rates). E.g., '$5000 ACV' or '$500/month'"
+          description: "Average deal size, as a full amount (e.g., '$5000 ACV' or '$500/month'; shorthand such as '$5K' is read as 5). It scales the example commission amounts; the example rates are fixed"
         },
         partner_support_capacity: {
           type: "string",
@@ -152,7 +152,7 @@ export const tools: Tool[] = [
   },
   {
     name: "crisis_planner",
-    description: "Generate crisis playbooks. Know your risks? Get specific playbooks. Not sure what to plan for? We'll suggest the top crises for your industry.",
+    description: "Generate crisis playbooks. Know your risks? Get specific playbooks. Not sure what to plan for? The tool uses a default set of common crises for your industry (not ranked by likelihood).",
     inputSchema: {
       type: "object",
       properties: {
@@ -174,7 +174,7 @@ export const tools: Tool[] = [
         },
         potential_crises: {
           type: "string",
-          description: "OPTIONAL: Crisis types to plan for (comma-separated). If not provided, we'll suggest the top 4 crises for your industry. Options: data_breach, service_outage, pr_incident, executive_departure, security_vulnerability, regulatory_action, product_safety, customer_data_exposure"
+          description: "OPTIONAL: Crisis types to plan for (comma-separated). If not provided, the tool uses a default set of common crises for your industry (not ranked by likelihood). Options: data_breach, service_outage, pr_incident, executive_departure, security_vulnerability, regulatory_action, product_safety, customer_data_exposure"
         },
         company_size: {
           type: "string",

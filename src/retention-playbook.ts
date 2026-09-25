@@ -1,4 +1,4 @@
-import { parseListItems } from './utils.js';
+import { parseListItems, describeChoice, EXAMPLE_FIGURE, EXAMPLE_FIGURES, SUGGESTION_FOOTER } from './utils.js';
 
 export function generateRetentionPlaybook(args: {
   customer_segment: string;
@@ -20,10 +20,12 @@ export function generateRetentionPlaybook(args: {
   
   // Determine severity
   const churnSeverity = churnRate > 8 ? 'CRITICAL' : churnRate > 5 ? 'HIGH' : churnRate > 3 ? 'MODERATE' : 'HEALTHY';
-  
+  // CS team size as shown to the user (readable, and marked when it is the assumed default)
+  const csTeamShown = describeChoice(args.cs_team_size, csTeamSize);
+
   // DISCOVERY MODE: If no churn reasons provided
   if (churnReasons.length === 0) {
-    return generateChurnDiscoveryKit(args.customer_segment, businessModel, churnRate, churnSeverity, csTeamSize);
+    return generateChurnDiscoveryKit(args.customer_segment, businessModel, churnRate, churnSeverity, csTeamShown);
   }
   
   // Business model-specific health score weights
@@ -94,11 +96,11 @@ export function generateRetentionPlaybook(args: {
     
     if (reasonLower.includes('use') || reasonLower.includes('adopt') || reasonLower.includes('engagement') || reasonLower.includes('not using')) {
       return {
-        trigger: 'Low login frequency OR <30% feature adoption',
+        trigger: `Low login frequency OR <30% feature adoption ${EXAMPLE_FIGURE}`,
         action: 'Onboarding reset + use case discovery call + quick-win identification',
         owner: capacity.highTouch > 30 ? 'CSM' : 'Automated nurture + human backup',
         timing: 'When pattern detected (Day 7, 14, 21 of low engagement)',
-        email: `Subject: Getting more out of [Product]\n\nHi [Name],\n\nI noticed your team hasn't been using [Product] as much recently. Sometimes that means we didn't nail the initial setup.\n\nI'd love to understand your goals better and show you a quick win that might change how you see the product. Teams like yours typically see [specific outcome] within the first month when we get this right.\n\n15 minutes - worth it?\n\n[Your name]`
+        email: `Subject: Getting more out of [Product]\n\nHi [Name],\n\nI noticed your team hasn't been using [Product] as much recently. Sometimes that means we didn't nail the initial setup.\n\nI'd love to understand your goals better and show you a quick win that might change how you see the product. Teams like yours typically see [specific outcome] within the first month when we get this right.\n\n15 minutes - worth it? ${EXAMPLE_FIGURE}\n\n[Your name]`
       };
     }
     
@@ -116,23 +118,24 @@ export function generateRetentionPlaybook(args: {
 ## ${args.customer_segment}
 
 **Business Model:** ${businessModel.replace(/_/g, ' ')}
-**Current Churn Rate:** ${args.current_churn_rate} (${churnSeverity})
-**CS Team Capacity:** ${csTeamSize.replace(/_/g, ' ')}
+**Current Churn Rate:** ${args.current_churn_rate} (${churnSeverity}, judged against example benchmarks)
+**CS Team Capacity:** ${csTeamShown}
 
 ---
 
 ## 🚨 Churn Severity Assessment
 
-| Metric | Value | Status |
+| Metric | Value | Status (against example benchmarks) |
 |--------|-------|--------|
 | Monthly Churn | ${churnRate}% | ${churnSeverity === 'CRITICAL' ? '🔴' : churnSeverity === 'HIGH' ? '🟠' : churnSeverity === 'MODERATE' ? '🟡' : '🟢'} ${churnSeverity} |
-| Annual Revenue at Risk | ~${(churnRate * 12).toFixed(0)}% | ${churnRate * 12 > 50 ? '⚠️ Urgent' : 'Monitor'} |
-| Benchmark (${businessModel.replace(/_/g, ' ')}) | ${businessModel === 'saas_subscription' ? '3-5%' : businessModel === 'consumer' ? '5-8%' : '4-6%'} | - |
+| Annual Revenue at Risk (your monthly churn, annualized) | ~${(churnRate * 12).toFixed(0)}% | ${churnRate * 12 > 50 ? '⚠️ Urgent' : 'Monitor'} |
+| Benchmark (${businessModel.replace(/_/g, ' ')}) | ${businessModel === 'saas_subscription' ? '3-5%' : businessModel === 'consumer' ? '5-8%' : '4-6%'} ${EXAMPLE_FIGURE} | - |
 
 ---
 
 ## 📊 Health Score Model (${businessModel.replace(/_/g, ' ')})
 
+${EXAMPLE_FIGURES} The weights and thresholds below are illustrations to adapt to your data.
 | Signal | Weight | How to Track | Threshold |
 |--------|--------|--------------|-----------|
 ${Object.entries(weights).map(([signal, weight]) => {
@@ -142,10 +145,11 @@ ${Object.entries(weights).map(([signal, weight]) => {
 
 ### Health Score Calculation
 
+${EXAMPLE_FIGURES}
 \`\`\`
 Health Score = ${Object.entries(weights).map(([signal, weight]) => `(${signal} × ${weight / 100})`).join(' + ')}
 
-Risk Levels:
+Risk Levels (${EXAMPLE_FIGURES.replace(/\.$/, '')}):
 - 🔴 Critical (0-30): Immediate intervention required
 - 🟠 At Risk (31-50): Proactive outreach needed  
 - 🟡 Monitor (51-70): Nurture and optimize
@@ -188,6 +192,7 @@ ${intervention.email}
 
   output += `## 📈 Intervention Mix (Based on Team Capacity)
 
+${EXAMPLE_FIGURES} The allocation is a starting split for this team size.
 | Intervention Type | Allocation | Description |
 |-------------------|------------|-------------|
 | High-Touch | ${capacity.highTouch}% | Personal calls, custom solutions, executive involvement |
@@ -204,14 +209,14 @@ ${intervention.email}
 | First Value Review | Day 30 | Success metrics review | Confirm value |
 | Expansion Probe | Day 60 | Use case expansion | Deepen |
 | QBR (if applicable) | Day 90 | Business review | Renew signal |
-| Pre-Renewal | -60 days | Renewal conversation | Retain |
+| Pre-Renewal | 60 days before renewal | Renewal conversation | Retain |
 | At-Risk Intervention | When triggered | Health score-based | Save |
 
 ---
 
 ## 📊 Metrics & Monitoring
 
-| Metric | Target | Current | Tracking |
+| Metric | Target (${EXAMPLE_FIGURES.replace(/\.$/, '')}) | Current | Tracking |
 |--------|--------|---------|----------|
 | Monthly Churn Rate | <${businessModel === 'saas_subscription' ? '3' : '5'}% | ${churnRate}% | Billing system |
 | Health Score Coverage | 100% | - | CS platform |
@@ -222,7 +227,9 @@ ${intervention.email}
 ---
 
 *Retention playbook generated for ${args.customer_segment} using CRAFT GTM Framework v2.0*
-*Optimized for ${businessModel.replace(/_/g, ' ')} business model with ${csTeamSize.replace(/_/g, ' ')} CS team*`;
+*Optimized for ${businessModel.replace(/_/g, ' ')} business model with ${csTeamShown} CS team*
+
+${SUGGESTION_FOOTER}`;
 
   return output;
 }
@@ -233,7 +240,7 @@ function generateChurnDiscoveryKit(
   businessModel: string,
   churnRate: number,
   severity: string,
-  csTeamSize: string
+  csTeamShown: string
 ): string {
   const commonReasons: Record<string, string[]> = {
     saas_subscription: ['Price/value mismatch', 'Missing features', 'Poor support', 'Competitor switch', 'Low usage/adoption', 'Champion left', 'Budget cuts', 'Poor onboarding'],
@@ -250,11 +257,11 @@ function generateChurnDiscoveryKit(
 
 ## Current Situation
 
-| Metric | Value | Assessment |
+| Metric | Value | Assessment (against example benchmarks) |
 |--------|-------|------------|
 | **Churn Rate** | ${churnRate}% | ${severity} |
 | **Business Model** | ${businessModel.replace(/_/g, ' ')} | |
-| **CS Team** | ${csTeamSize.replace(/_/g, ' ')} | |
+| **CS Team** | ${csTeamShown} | |
 
 ⚠️ **You haven't provided churn reasons.** To build an effective retention playbook, you need to understand WHY customers leave.
 
@@ -309,7 +316,7 @@ For high-value churns, do a 15-minute call:
 Before customers tell you why they left, your data might already show patterns:
 
 ### Usage Signals to Check
-- [ ] Login frequency trend (30/60/90 days before churn)
+- [ ] Login frequency trend (30/60/90 days before churn) ${EXAMPLE_FIGURE}
 - [ ] Feature adoption (which features did churns NOT use?)
 - [ ] Support ticket volume and sentiment
 - [ ] Time since last meaningful action
@@ -326,7 +333,7 @@ Before customers tell you why they left, your data might already show patterns:
 
 ## 🎯 Common Churn Reasons for ${businessModel.replace(/_/g, ' ')} Business Model
 
-Based on industry patterns, here are the MOST LIKELY reasons for your model:
+Here are common churn reasons to check for your model (a starting checklist, not ranked by likelihood):
 
 ${reasons.map((r, i) => `### ${i + 1}. ${r}
 
@@ -341,13 +348,13 @@ ${reasons.map((r, i) => `### ${i + 1}. ${r}
 ## 🔄 Next Steps
 
 1. **Send churn survey** to last 20 churned customers
-2. **Conduct 5 churn interviews** with highest-value losses
+2. **Conduct 5 churn interviews** with highest-value losses ${EXAMPLE_FIGURE}
 3. **Pull data** on the signals above
-4. **Come back to this tool** with your top 3-5 churn reasons
+4. **Come back to this tool** with your top 3-5 churn reasons ${EXAMPLE_FIGURE}
 
 **Once you have churn reasons, run this tool again with:**
 \`\`\`
-churn_reasons: "reason 1, reason 2, reason 3"
+churn_reasons: "[reason 1], [reason 2], [reason 3]"
 \`\`\`
 
 You'll get a complete playbook with specific interventions for each reason.
@@ -355,7 +362,9 @@ You'll get a complete playbook with specific interventions for each reason.
 ---
 
 *Churn Discovery Kit generated using CRAFT GTM Framework v2.0*
-*For ${segment} in ${businessModel.replace(/_/g, ' ')} model*`;
+*For ${segment} in ${businessModel.replace(/_/g, ' ')} model*
+
+${SUGGESTION_FOOTER}`;
 }
 
 function getSignalsForReason(reason: string): string {
@@ -367,7 +376,7 @@ function getSignalsForReason(reason: string): string {
     'Low usage/adoption': 'Login frequency dropping, few features used, short sessions',
     'Champion left': 'Primary contact changed, new stakeholder questions basics',
     'Budget cuts': 'Delayed payments, contract negotiation requests, downgrade inquiries',
-    'Poor onboarding': 'Churns within 30 days, incomplete setup, never hit first milestone'
+    'Poor onboarding': `Churns within 30 days ${EXAMPLE_FIGURE}, incomplete setup, never hit first milestone`
   };
   return signals[reason] || 'Check support tickets and usage data for mentions';
 }

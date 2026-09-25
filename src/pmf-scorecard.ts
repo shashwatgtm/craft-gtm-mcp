@@ -1,4 +1,4 @@
-import { parseMetrics, scoreMetric } from './utils.js';
+import { parseMetrics, scoreMetric, describeChoice, readableChoice, EXAMPLE_FIGURES, SUGGESTION_FOOTER } from './utils.js';
 
 export function generatePMFScorecard(args: {
   product: string;
@@ -69,7 +69,7 @@ export function generatePMFScorecard(args: {
   // Score each dimension
   const churnScore = scoreMetric(metrics.churn, b.churn, false);
   const npsScore = scoreMetric(metrics.nps, b.nps, true);
-  const ltvCacScore = scoreMetric(metrics.ltvCacRatio, b.ltvCac, true);
+  const ltvCacScore = scoreMetric(metrics.ltvCacRatio, b.ltvCac, true, metrics.ltvCacRatio?.toFixed(1));
   const retentionScore = scoreMetric(metrics.retentionRate, b.retention, true);
   const activationScore = scoreMetric(metrics.activationRate, b.activation, true);
   
@@ -98,6 +98,7 @@ export function generatePMFScorecard(args: {
   
   // Build actionable recommendations
   const recommendations: string[] = [];
+  let suggestsCounts = false; // true when a recommendation suggests a count (needs the suggestion footer)
   if (churnScore.label === 'CRITICAL' || churnScore.label === 'DEVELOPING') {
     recommendations.push('🚨 CHURN: Implement churn prediction model, conduct exit interviews, improve onboarding');
   }
@@ -105,6 +106,7 @@ export function generatePMFScorecard(args: {
     recommendations.push('📊 NPS: Start measuring NPS immediately - critical PMF signal');
   } else if (npsScore.score < 6) {
     recommendations.push('📊 NPS: Focus on detractor feedback, address top 3 pain points');
+    suggestsCounts = true;
   }
   if (ltvCacScore.label === 'MISSING') {
     recommendations.push('💰 LTV:CAC: Calculate unit economics - essential for scaling decisions');
@@ -132,11 +134,14 @@ export function generatePMFScorecard(args: {
     }
   }
 
+  // Every benchmark below is an example figure: the column header carries the block label.
+  const dimensionHeader = `| Metric | Your Value | Score | Benchmark (${EXAMPLE_FIGURES.replace(/\.$/, '')}) | Status |`;
+
   return `# 📊 Product-Market Fit Scorecard
 ## ${args.product}
 
 **Market Segment:** ${marketType.replace(/_/g, ' ').toUpperCase()}
-**Maturity Stage:** ${maturity.replace(/_/g, ' ')}
+**Time in Market:** ${describeChoice(args.time_in_market, maturity)}
 **Analysis Date:** ${new Date().toISOString().split('T')[0]}
 
 ---
@@ -148,13 +153,16 @@ export function generatePMFScorecard(args: {
 | **${pmfStage}** | **${overallScore}/10** | ${overallScore >= 7 ? '🟢' : overallScore >= 5 ? '🟡' : '🔴'} |
 
 ${pmfAnalysis}
+The score is the average of the dimensions scored below (missing data is left out), each judged against an example benchmark.
 
 ---
 
 ## 📈 Dimension Scores
 
+Each score and status compares your value with an example benchmark for the ${marketType.replace(/_/g, ' ')} market segment.
+
 ### 1. Customer Retention (Churn)
-| Metric | Your Value | Score | Benchmark | Status |
+${dimensionHeader}
 |--------|-----------|-------|-----------|--------|
 | Monthly Churn | ${metrics.churn !== undefined ? metrics.churn + '%' : 'NOT PROVIDED'} | ${churnScore.score}/10 | <${b.churn.medium}% target | ${churnScore.label} |
 
@@ -163,7 +171,7 @@ ${pmfAnalysis}
 ---
 
 ### 2. Customer Satisfaction (NPS)
-| Metric | Your Value | Score | Benchmark | Status |
+${dimensionHeader}
 |--------|-----------|-------|-----------|--------|
 | NPS Score | ${metrics.nps !== undefined ? metrics.nps : 'NOT PROVIDED'} | ${npsScore.score}/10 | >${b.nps.medium} target | ${npsScore.label} |
 
@@ -172,10 +180,10 @@ ${pmfAnalysis}
 ---
 
 ### 3. Unit Economics (LTV:CAC)
-| Metric | Your Value | Score | Benchmark | Status |
+${dimensionHeader}
 |--------|-----------|-------|-----------|--------|
-| LTV | ${metrics.ltv !== undefined ? '$' + metrics.ltv.toLocaleString() : 'NOT PROVIDED'} | - | - | - |
-| CAC | ${metrics.cac !== undefined ? '$' + metrics.cac.toLocaleString() : 'NOT PROVIDED'} | - | - | - |
+| LTV | ${metrics.ltv !== undefined ? '$' + metrics.ltv.toLocaleString('en-US') : 'NOT PROVIDED'} | - | - | - |
+| CAC | ${metrics.cac !== undefined ? '$' + metrics.cac.toLocaleString('en-US') : 'NOT PROVIDED'} | - | - | - |
 | LTV:CAC Ratio | ${metrics.ltvCacRatio !== undefined ? metrics.ltvCacRatio.toFixed(1) + 'x' : 'NOT PROVIDED'} | ${ltvCacScore.score}/10 | >${b.ltvCac.medium}x target | ${ltvCacScore.label} |
 
 **Analysis:** ${ltvCacScore.analysis}
@@ -183,7 +191,7 @@ ${pmfAnalysis}
 ---
 
 ### 4. Revenue Retention
-| Metric | Your Value | Score | Benchmark | Status |
+${dimensionHeader}
 |--------|-----------|-------|-----------|--------|
 | Retention Rate | ${metrics.retentionRate !== undefined ? metrics.retentionRate + '%' : 'NOT PROVIDED'} | ${retentionScore.score}/10 | >${b.retention.medium}% target | ${retentionScore.label} |
 
@@ -192,7 +200,7 @@ ${pmfAnalysis}
 ---
 
 ### 5. Activation
-| Metric | Your Value | Score | Benchmark | Status |
+${dimensionHeader}
 |--------|-----------|-------|-----------|--------|
 | Activation Rate | ${metrics.activationRate !== undefined ? metrics.activationRate + '%' : 'NOT PROVIDED'} | ${activationScore.score}/10 | >${b.activation.medium}% target | ${activationScore.label} |
 
@@ -204,7 +212,7 @@ ${pmfAnalysis}
 
 | Metric | Value | Notes |
 |--------|-------|-------|
-${metrics.mrr !== undefined ? `| MRR | $${metrics.mrr.toLocaleString()} | Monthly Recurring Revenue |\n` : ''}${metrics.arr !== undefined ? `| ARR | $${metrics.arr.toLocaleString()} | Annual Recurring Revenue |\n` : ''}${metrics.dau !== undefined ? `| DAU | ${metrics.dau.toLocaleString()} | Daily Active Users |\n` : ''}${metrics.mau !== undefined ? `| MAU | ${metrics.mau.toLocaleString()} | Monthly Active Users |\n` : ''}${metrics.dauMauRatio !== undefined ? `| DAU/MAU | ${(metrics.dauMauRatio * 100).toFixed(1)}% | Stickiness ratio |\n` : ''}${metrics.trialConversion !== undefined ? `| Trial Conversion | ${metrics.trialConversion}% | Trial to paid rate |\n` : ''}${metrics.revenueGrowth !== undefined ? `| Revenue Growth | ${metrics.revenueGrowth}% | MoM or YoY growth |\n` : ''}
+${metrics.mrr !== undefined ? `| MRR | $${metrics.mrr.toLocaleString('en-US')} | Monthly Recurring Revenue |\n` : ''}${metrics.arr !== undefined ? `| ARR | $${metrics.arr.toLocaleString('en-US')} | Annual Recurring Revenue |\n` : ''}${metrics.dau !== undefined ? `| DAU | ${metrics.dau.toLocaleString('en-US')} | Daily Active Users |\n` : ''}${metrics.mau !== undefined ? `| MAU | ${metrics.mau.toLocaleString('en-US')} | Monthly Active Users |\n` : ''}${metrics.dauMauRatio !== undefined ? `| DAU/MAU | ${(metrics.dauMauRatio * 100).toFixed(1)}% | Stickiness ratio |\n` : ''}${metrics.trialConversion !== undefined ? `| Trial Conversion | ${metrics.trialConversion}% | Trial to paid rate |\n` : ''}${metrics.revenueGrowth !== undefined ? `| Revenue Growth | ${metrics.revenueGrowth}% | MoM or YoY growth |\n` : ''}
 
 ${feedbackAnalysis ? `---\n\n## 💬 Qualitative Signals\n\n${feedbackAnalysis}\n` : ''}
 ---
@@ -229,5 +237,5 @@ ${[
 ---
 
 *Scorecard generated using CRAFT GTM Framework v2.0*
-*Benchmarks adjusted for ${marketType.replace(/_/g, ' ')} market and ${maturity.replace(/_/g, ' ')} stage*`;
+*Benchmarks are example ranges for the ${marketType.replace(/_/g, ' ')} market segment. Time in market${args.time_in_market ? ` (${readableChoice(args.time_in_market)})` : ''} does not change the benchmarks or scores.*${suggestsCounts ? `\n\n${SUGGESTION_FOOTER}` : ''}`;
 }

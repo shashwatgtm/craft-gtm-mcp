@@ -1,4 +1,4 @@
-import { parseListItems } from './utils.js';
+import { parseListItems, describeChoice, readableChoice, EXAMPLE_FIGURES, SUGGESTION_FOOTER } from './utils.js';
 
 export function generateCustomerInterviewKit(args: {
   interview_type: string;
@@ -12,6 +12,10 @@ export function generateCustomerInterviewKit(args: {
   const industry = args.industry || 'saas';
   const complexity = args.product_complexity || 'moderate';
   const hypotheses = args.key_hypotheses ? parseListItems(args.key_hypotheses) : [];
+  // Readable names for display ("enterprise_software" -> "enterprise software")
+  const typeName = readableChoice(interviewType);
+  const industryName = readableChoice(industry);
+  const complexityName = readableChoice(complexity);
   
   // Industry-specific terminology and context
   const industryContext: Record<string, { terms: string[]; painPoints: string[]; stakeholders: string[] }> = {
@@ -121,7 +125,7 @@ export function generateCustomerInterviewKit(args: {
       ],
       core: [
         `[Show solution] What's your initial reaction?`,
-        `On a scale of 1-10, how excited would you be to try this? Why that number?`,
+        `How excited would you be to try this (scale 1 to 10)? Why that number?`,
         `What would need to change for that to be a 10?`,
         `How does this compare to what you're using today?`,
         `Would this solve the problem you mentioned earlier?`
@@ -161,7 +165,7 @@ export function generateCustomerInterviewKit(args: {
       ],
       closing: [
         `Would you be open to being a reference/case study?`,
-        `On a scale of 0-10, how likely are you to recommend us? [NPS]`,
+        `How likely are you to recommend us (scale 0 to 10)? [NPS]`,
         `What advice would you give our product team?`
       ]
     },
@@ -261,7 +265,7 @@ ${hypotheses.map((h, i) => `
 | To Validate | Ask |
 |-------------|-----|
 | Confirm problem exists | "How often do you experience [problem from hypothesis]?" |
-| Understand severity | "On a scale of 1-10, how painful is this?" |
+| Understand severity | "How painful is this (scale 1 to 10)?" |
 | Test assumption | "You mentioned [related topic]. Is [hypothesis] true for you?" |
 | Find counter-evidence | "What would make [hypothesis] NOT true?" |
 `).join('')}
@@ -269,12 +273,12 @@ ${hypotheses.map((h, i) => `
   }
 
   return `# 🎙️ Customer Interview Kit
-## ${interviewType.replace(/_/g, ' ').toUpperCase()} Interview
+## ${typeName.toUpperCase()} Interview
 
 **Target Persona:** ${args.target_persona}
 **Product Context:** ${args.product_context}
-**Industry:** ${industry}
-**Complexity Level:** ${complexity}
+**Industry:** ${describeChoice(args.industry, industry)}
+**Complexity Level:** ${describeChoice(args.product_complexity, complexity)}
 
 ---
 
@@ -309,7 +313,7 @@ ${hypotheses.length > 0 ? `4. Validate/invalidate key hypotheses` : ''}
 
 ${questions.opening.map(q => `- ${q}`).join('\n')}
 
-**Industry-specific opener:** "I know in ${industry}, ${ctx.painPoints[0]} is a common challenge. Is that something you deal with?"
+**Industry-specific opener:** "I know in ${industryName}, ${ctx.painPoints[0]} is a common challenge. Is that something you deal with?"
 
 ---
 
@@ -319,11 +323,11 @@ ${questions.opening.map(q => `- ${q}`).join('\n')}
 
 ${questions.core.map((q, i) => `${i + 1}. ${q}`).join('\n')}
 
-### ${complexity.charAt(0).toUpperCase() + complexity.slice(1)}-Level Technical Questions
+### ${complexityName.charAt(0).toUpperCase() + complexityName.slice(1)}-Level Technical Questions
 
 ${techQuestions.map((q, i) => `${i + 1}. ${q}`).join('\n')}
 
-### Industry-Specific Questions (${industry})
+### Industry-Specific Questions (${industryName})
 
 1. How do you currently handle ${ctx.terms[0]}?
 2. What's your process for ${ctx.terms[1]}?
@@ -355,7 +359,7 @@ ${hypothesisSection}
 ## 📝 Note-Taking Template
 
 \`\`\`
-INTERVIEW: ${interviewType.toUpperCase()} | ${args.target_persona}
+INTERVIEW: ${typeName.toUpperCase()} | ${args.target_persona}
 DATE: _______________
 DURATION: _______________
 
@@ -394,6 +398,7 @@ FOLLOW-UP ACTIONS:
 After conducting multiple interviews, map findings to:
 
 ### ICP Signals
+${EXAMPLE_FIGURES} Tally the Count column against your own number of interviews.
 | Signal | Count | Implication |
 |--------|-------|-------------|
 | [Common pain point] | /10 | Include in messaging |
@@ -410,6 +415,8 @@ After conducting multiple interviews, map findings to:
 
 ---
 
-*Interview kit generated for ${interviewType} interviews using CRAFT GTM Framework v2.0*
-*Customized for ${industry} industry at ${complexity} complexity level*`;
+*Interview kit generated for ${typeName} interviews using CRAFT GTM Framework v2.0*
+*Customized for ${industryName} industry at ${complexityName} complexity level*
+
+${SUGGESTION_FOOTER}`;
 }

@@ -4,14 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CRAFT GTM Docs: MCP Server and REST API | Helix GTM</title>
-<meta name="description" content="How to call the 8 CRAFT GTM tools over MCP or REST: addresses, limits, errors and every input field, generated from the server&#x27;s own schemas.">
+<meta name="description" content="How to call the 8 CRAFT GTM tools over MCP or REST: addresses, limits, errors and every input field, from the server&#x27;s own schemas. Free, with no sign-in.">
 <meta name="robots" content="index, follow, max-image-preview:large">
 <meta name="author" content="Shashwat Ghosh, Helix GTM Consulting">
 <link rel="canonical" href="https://craft-gtm.gtmhelix.com/docs/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="CRAFT GTM by Helix GTM Consulting">
 <meta property="og:title" content="CRAFT GTM Docs: MCP Server and REST API | Helix GTM">
-<meta property="og:description" content="How to call the 8 CRAFT GTM tools over MCP or REST: addresses, limits, errors and every input field, generated from the server&#x27;s own schemas.">
+<meta property="og:description" content="How to call the 8 CRAFT GTM tools over MCP or REST: addresses, limits, errors and every input field, from the server&#x27;s own schemas. Free, with no sign-in.">
 <meta property="og:url" content="https://craft-gtm.gtmhelix.com/docs/">
 <meta property="og:image" content="https://craft-gtm.gtmhelix.com/og.png">
 <meta property="og:image:width" content="1200">
@@ -19,7 +19,7 @@
 <meta property="og:image:alt" content="CRAFT GTM by Helix GTM Consulting">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="CRAFT GTM Docs: MCP Server and REST API | Helix GTM">
-<meta name="twitter:description" content="How to call the 8 CRAFT GTM tools over MCP or REST: addresses, limits, errors and every input field, generated from the server&#x27;s own schemas.">
+<meta name="twitter:description" content="How to call the 8 CRAFT GTM tools over MCP or REST: addresses, limits, errors and every input field, from the server&#x27;s own schemas. Free, with no sign-in.">
 <meta name="twitter:image" content="https://craft-gtm.gtmhelix.com/og.png">
 <meta name="twitter:creator" content="@Shashwat_Ghosh">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
@@ -108,7 +108,7 @@
    "@id": "https://craft-gtm.gtmhelix.com/docs/#page",
    "url": "https://craft-gtm.gtmhelix.com/docs/",
    "name": "CRAFT GTM Docs: MCP Server and REST API | Helix GTM",
-   "description": "How to call the 8 CRAFT GTM tools over MCP or REST: addresses, limits, errors and every input field, generated from the server's own schemas.",
+   "description": "How to call the 8 CRAFT GTM tools over MCP or REST: addresses, limits, errors and every input field, from the server's own schemas. Free, with no sign-in.",
    "isPartOf": {
     "@id": "https://craft-gtm.gtmhelix.com/#site"
    },
@@ -208,10 +208,10 @@
 </section>
 <section class="hx-section" id="launch-commander" aria-labelledby="d-launch-commander">
   <h3 id="d-launch-commander">Launch Commander <code>launch_commander</code></h3>
-  <p class="hx-prose">Generate a context-aware launch plan. Have a date? Get a detailed timeline. Still planning? Enter &#x27;TBD&#x27; or &#x27;Q2 2025&#x27; for a flexible plan. <a href="/tools/launch-commander/">Open the form</a>.</p>
+  <p class="hx-prose">Generate a context-aware launch plan. Have a date? Get a detailed timeline. Still planning? Enter &#x27;TBD&#x27; or a quarter such as &#x27;Q2 2027&#x27; for a flexible plan. <a href="/tools/launch-commander/">Open the form</a>.</p>
   <div class="hx-table"><table><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Allowed values</th><th>Meaning</th></tr></thead><tbody>
 <tr><td><code>product_feature</code></td><td>string</td><td>yes</td><td></td><td>What you&#x27;re launching (product/feature name and description)</td></tr>
-<tr><td><code>launch_date</code></td><td>string</td><td>no</td><td></td><td>Target launch date. Accepts: &#x27;YYYY-MM-DD&#x27;, &#x27;Q1 2025&#x27;, &#x27;March 2025&#x27;, or &#x27;TBD&#x27; for planning mode</td></tr>
+<tr><td><code>launch_date</code></td><td>string</td><td>no</td><td></td><td>Target launch date. Accepts: &#x27;YYYY-MM-DD&#x27;, &#x27;Q1 2027&#x27;, &#x27;March 2027&#x27;, or &#x27;TBD&#x27; for planning mode</td></tr>
 <tr><td><code>launch_type</code></td><td>string</td><td>yes</td><td>major_release, feature_launch, beta_launch, product_update, market_expansion</td><td>Type of launch determines plan complexity</td></tr>
 <tr><td><code>target_segments</code></td><td>string</td><td>yes</td><td></td><td>Target customer segments (comma-separated)</td></tr>
 <tr><td><code>goals</code></td><td>string</td><td>yes</td><td></td><td>Launch success metrics (e.g., &#x27;500 signups, $50k pipeline, 10% trial conversion, 1000 downloads&#x27;)</td></tr>
@@ -253,20 +253,20 @@
 <tr><td><code>product</code></td><td>string</td><td>yes</td><td></td><td>Product partners will sell/integrate</td></tr>
 <tr><td><code>partner_model</code></td><td>string</td><td>yes</td><td>reseller, referral, integration_tech, agency_si, affiliate, oem_white_label</td><td>Partner type determines program structure</td></tr>
 <tr><td><code>partner_goals</code></td><td>string</td><td>yes</td><td></td><td>Revenue/growth targets from partners</td></tr>
-<tr><td><code>your_deal_size</code></td><td>string</td><td>yes</td><td></td><td>Average deal size (determines viable commission rates). E.g., &#x27;$5000 ACV&#x27; or &#x27;$500/month&#x27;</td></tr>
+<tr><td><code>your_deal_size</code></td><td>string</td><td>yes</td><td></td><td>Average deal size, as a full amount (e.g., &#x27;$5000 ACV&#x27; or &#x27;$500/month&#x27;; shorthand such as &#x27;$5K&#x27; is read as 5). It scales the example commission amounts; the example rates are fixed</td></tr>
 <tr><td><code>partner_support_capacity</code></td><td>string</td><td>no</td><td>minimal_self_serve, moderate, high_touch</td><td>How much partner support can you provide?</td></tr>
 <tr><td><code>existing_partners</code></td><td>string</td><td>no</td><td></td><td>Optional: Current partner types/count</td></tr>
   </tbody></table></div>
 </section>
 <section class="hx-section" id="crisis-planner" aria-labelledby="d-crisis-planner">
   <h3 id="d-crisis-planner">Crisis Planner <code>crisis_planner</code></h3>
-  <p class="hx-prose">Generate crisis playbooks. Know your risks? Get specific playbooks. Not sure what to plan for? We&#x27;ll suggest the top crises for your industry. <a href="/tools/crisis-planner/">Open the form</a>.</p>
+  <p class="hx-prose">Generate crisis playbooks. Know your risks? Get specific playbooks. Not sure what to plan for? The tool uses a default set of common crises for your industry (not ranked by likelihood). <a href="/tools/crisis-planner/">Open the form</a>.</p>
   <div class="hx-table"><table><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Allowed values</th><th>Meaning</th></tr></thead><tbody>
 <tr><td><code>company</code></td><td>string</td><td>yes</td><td></td><td>Company name</td></tr>
 <tr><td><code>industry</code></td><td>string</td><td>yes</td><td>fintech, healthtech, saas, ecommerce, enterprise, consumer, other</td><td>Industry affects which crises to prioritize</td></tr>
 <tr><td><code>customer_base</code></td><td>string</td><td>yes</td><td>b2b_enterprise, b2b_smb, b2c_consumer, mixed</td><td>Customer type affects communication approach</td></tr>
 <tr><td><code>data_sensitivity</code></td><td>string</td><td>yes</td><td>high_pii_financial, medium_business_data, low_general</td><td>Data sensitivity affects security protocols</td></tr>
-<tr><td><code>potential_crises</code></td><td>string</td><td>no</td><td></td><td>OPTIONAL: Crisis types to plan for (comma-separated). If not provided, we&#x27;ll suggest the top 4 crises for your industry. Options: data_breach, service_outage, pr_incident, executive_departure, security_vulnerability, regulatory_action, product_safety, customer_data_exposure</td></tr>
+<tr><td><code>potential_crises</code></td><td>string</td><td>no</td><td></td><td>OPTIONAL: Crisis types to plan for (comma-separated). If not provided, the tool uses a default set of common crises for your industry (not ranked by likelihood). Options: data_breach, service_outage, pr_incident, executive_departure, security_vulnerability, regulatory_action, product_safety, customer_data_exposure</td></tr>
 <tr><td><code>company_size</code></td><td>string</td><td>no</td><td>startup_under_50, scaleup_50_200, midsize_200_1000, enterprise_1000_plus</td><td>Affects response team structure</td></tr>
 <tr><td><code>compliance_requirements</code></td><td>string</td><td>no</td><td></td><td>Optional: Relevant compliance (GDPR, HIPAA, SOC2, etc.)</td></tr>
   </tbody></table></div>

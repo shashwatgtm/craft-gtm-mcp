@@ -1,4 +1,4 @@
-import { analyzeCRAFTDimensions } from './utils.js';
+import { analyzeCRAFTDimensions, EXAMPLE_FIGURE } from './utils.js';
 
 export function generateCRAFTAnalyzer(args: {
   document_content: string;
@@ -108,7 +108,8 @@ Key Deadlines:
   let output = `# 📋 CRAFT Document Analysis
 ## ${docType.replace(/_/g, ' ').toUpperCase()}
 
-**Document Length:** ${content.length} characters (~${Math.round(content.length / 5)} words)
+**Document Length:** ${content.length} characters
+**Words (estimate):** ~${Math.round(content.length / 5)}, from the character count ${EXAMPLE_FIGURE}
 **Intended Audience:** ${audience}
 **Desired Outcome:** ${outcome}
 
@@ -232,13 +233,16 @@ ${analysis.timeline.gaps.length > 0 ? `\n**Recommended improvement:**\n${generat
     { name: 'Frame', score: analysis.frame.score, gaps: analysis.frame.gaps },
     { name: 'Timeline', score: analysis.timeline.score, gaps: analysis.timeline.gaps }
   ].filter(d => d.score < 7).sort((a, b) => a.score - b.score);
-  
+  // The recommended action for a dimension: its first gap, or the generic action when it lists none
+  // (a dimension can score below 7 with no gap listed, for example Frame with one match).
+  const actionFor = (d: { gaps: string[] }): string => d.gaps[0] || 'Enhance this section';
+
   if (dimensions.length === 0) {
-    output += `✅ **Document is well-structured!** All CRAFT dimensions score 7+ out of 10.\n\n`;
+    output += `✅ **Document is well-structured!** All CRAFT dimensions score 7/10 or higher.\n\n`;
   } else {
     output += `| Priority | Dimension | Current Score | Action |\n|----------|-----------|---------------|--------|\n`;
     dimensions.forEach((d, i) => {
-      output += `| ${i + 1} | ${d.name} | ${d.score}/10 | ${d.gaps[0] || 'Enhance this section'} |\n`;
+      output += `| ${i + 1} | ${d.name} | ${d.score}/10 | ${actionFor(d)} |\n`;
     });
   }
 
@@ -255,8 +259,8 @@ ${content.substring(0, 500)}${content.length > 500 ? '...\n\n[Document continues
 
 ## ✅ Next Steps
 
-1. ${dimensions[0] ? `Address ${dimensions[0].name}: ${dimensions[0].gaps[0]}` : 'Document is well-structured - ready for review'}
-2. ${dimensions[1] ? `Improve ${dimensions[1].name}: ${dimensions[1].gaps[0]}` : 'Consider adding more detail to strongest sections'}
+1. ${dimensions[0] ? `Address ${dimensions[0].name}: ${actionFor(dimensions[0])}` : 'Document is well-structured - ready for review'}
+2. ${dimensions[1] ? `Improve ${dimensions[1].name}: ${actionFor(dimensions[1])}` : 'Consider adding more detail to strongest sections'}
 3. Review with ${audience !== 'Not specified' ? audience : 'intended stakeholders'}
 4. ${outcome !== 'Not specified' ? `Ensure document drives: ${outcome}` : 'Define desired outcome from this document'}
 

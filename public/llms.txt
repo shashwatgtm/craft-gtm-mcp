@@ -16,11 +16,11 @@
 ## Tools
 
 - [PMF Scorecard](https://craft-gtm.gtmhelix.com/tools/pmf-scorecard/) (`pmf_scorecard`): Generate a Product-Market Fit scorecard. Parses the metrics you provide (MRR, churn, NPS, CAC, LTV, retention, activation and similar) and scores each dimension against built-in benchmark ranges.
-- [Launch Commander](https://craft-gtm.gtmhelix.com/tools/launch-commander/) (`launch_commander`): Generate a context-aware launch plan. Have a date? Get a detailed timeline. Still planning? Enter 'TBD' or 'Q2 2025' for a flexible plan.
+- [Launch Commander](https://craft-gtm.gtmhelix.com/tools/launch-commander/) (`launch_commander`): Generate a context-aware launch plan. Have a date? Get a detailed timeline. Still planning? Enter 'TBD' or a quarter such as 'Q2 2027' for a flexible plan.
 - [Customer Interview Kit](https://craft-gtm.gtmhelix.com/tools/customer-interview-kit/) (`customer_interview_kit`): Generate interview guides that ADAPT based on interview type, industry, and product complexity. Includes synthesis templates.
 - [Retention Playbook](https://craft-gtm.gtmhelix.com/tools/retention-playbook/) (`retention_playbook`): Generate retention strategies. Has DISCOVERY MODE - if you don't know WHY people churn, get a churn analysis framework first.
 - [Partner Architect](https://craft-gtm.gtmhelix.com/tools/partner-architect/) (`partner_architect`): Design partner programs that ADAPT based on partner model type. Different structures for resellers vs referrals vs integrations vs affiliates.
-- [Crisis Planner](https://craft-gtm.gtmhelix.com/tools/crisis-planner/) (`crisis_planner`): Generate crisis playbooks. Know your risks? Get specific playbooks. Not sure what to plan for? We'll suggest the top crises for your industry.
+- [Crisis Planner](https://craft-gtm.gtmhelix.com/tools/crisis-planner/) (`crisis_planner`): Generate crisis playbooks. Know your risks? Get specific playbooks. Not sure what to plan for? The tool uses a default set of common crises for your industry (not ranked by likelihood).
 - [Competitive Intel](https://craft-gtm.gtmhelix.com/tools/competitive-intel/) (`competitive_intel`): Generate battle cards. If you know your strengths/weaknesses, get complete battle cards. If you only know competitors and win/loss stories, we'll derive your positioning.
 - [CRAFT GTM Analyzer](https://craft-gtm.gtmhelix.com/tools/craft-gtm-analyzer/) (`craft_gtm_analyzer`): Analyze a GTM document against the CRAFT framework. Parses the content, identifies gaps, scores each dimension and suggests sections to add.
 
@@ -52,7 +52,7 @@ Shashwat Ghosh, Co-Founder and Fractional CMO of Helix GTM Consulting, a busines
 
 ### Why do some answers look like templates?
 
-Several tools return a structured plan with placeholders where your inputs did not give a fact. That is deliberate: the tools do not invent numbers or names. Fill the placeholders in before you use the result.
+Several tools return a structured plan with [placeholders] where your inputs did not give a fact. When an answer shows a benchmark, target, rate, weight or other figure you did not supply, it is labelled "Example figure: replace with your own". Figures calculated from your inputs are not labelled. Suggested lengths, timings and counts are marked as suggestions. Replace every example and placeholder before you use the result.
 
 ### Can I call the tools from my own code?
 

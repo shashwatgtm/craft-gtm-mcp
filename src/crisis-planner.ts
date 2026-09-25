@@ -1,4 +1,4 @@
-import { parseListItems } from './utils.js';
+import { parseListItems, describeChoice, readableChoice, EXAMPLE_FIGURE, EXAMPLE_FIGURES, SUGGESTION_FOOTER } from './utils.js';
 
 // Default crises by industry
 const DEFAULT_CRISES: Record<string, string[]> = {
@@ -32,12 +32,13 @@ export function generateCrisisPlanner(args: {
   if (args.potential_crises) {
     crises = parseListItems(args.potential_crises);
   } else {
-    crises = DEFAULT_CRISES[args.industry] || DEFAULT_CRISES.other;
+    // A copy, so adding data_breach below never changes the shared default list for later calls on the same server.
+    crises = [...(DEFAULT_CRISES[args.industry] || DEFAULT_CRISES.other)];
     // Add data breach as priority if high sensitivity
     if (dataSensitivity === 'high_pii_financial' && !crises.includes('data_breach')) {
       crises.unshift('data_breach');
     }
-    crisesNote = `\n⚠️ **NOTE:** You didn't specify crises to plan for. Based on your industry (${args.industry}) and data sensitivity (${dataSensitivity.replace(/_/g, ' ')}), we've generated playbooks for the most likely crises.\n`;
+    crisesNote = `\n⚠️ **NOTE:** You didn't specify crises to plan for. Based on your industry (${args.industry}) and your data sensitivity, ${readableChoice(dataSensitivity)}, we've generated playbooks for a default set of common crises for this industry.\n`;
   }
   
   // Team structure based on company size
@@ -51,39 +52,41 @@ export function generateCrisisPlanner(args: {
   const team = teamStructure[companySize] || teamStructure.scaleup_50_200;
   
   // Generate specific playbook for each crisis type
+  // (response times, severity thresholds and phase windows are example figures, labelled in the output)
   const generateCrisisPlaybook = (crisisType: string): string => {
     const crisisLower = crisisType.toLowerCase();
-    
+    const crisisName = crisisType.replace(/_/g, ' ');
+
     // Data breach / Security incident
     if (crisisLower.includes('breach') || crisisLower.includes('security') || crisisLower.includes('hack')) {
-      const notificationTime = dataSensitivity === 'high_pii_financial' ? '24-72 hours' : '72 hours to 7 days';
-      const regulatoryBody = compliance.toLowerCase().includes('hipaa') ? 'HHS' : 
+      // The legal notification deadline differs by law and country, so no deadline is stated as fact.
+      const regulatoryBody = compliance.toLowerCase().includes('hipaa') ? 'HHS' :
                             compliance.toLowerCase().includes('gdpr') ? 'relevant DPA' : 'applicable authorities';
-      
-      return `### 🔐 SECURITY INCIDENT: ${crisisType}
 
-**Severity Assessment:**
+      return `### 🔐 SECURITY INCIDENT: ${crisisName}
+
+**Severity Assessment:** ${EXAMPLE_FIGURES}
 | Factor | High | Medium | Low |
 |--------|------|--------|-----|
 | Data exposed | PII, financial, health | Business data | No customer data |
 | Customers affected | >1000 or enterprise | 100-1000 | <100 |
 | Attack ongoing | Yes | Unknown | Contained |
 
-**Immediate Response (0-4 hours):**
+**Immediate Response (0-4 hours):** ${EXAMPLE_FIGURE}
 1. ⚡ **Activate incident response team** - ${team.lead} as incident commander
 2. 🔒 **Contain the threat** - Isolate affected systems, revoke compromised credentials
 3. 📸 **Preserve evidence** - Forensic images before remediation
 4. 📝 **Start incident log** - Document timeline, actions, decisions
 5. 🔇 **Internal communication only** - No external statements yet
 
-**Investigation Phase (4-24 hours):**
+**Investigation Phase (4-24 hours):** ${EXAMPLE_FIGURE}
 1. Determine scope: What data, how many customers, how long exposed
 2. Identify attack vector and close vulnerability
 3. Engage forensics (internal or external)
-4. Prepare regulatory notification (${notificationTime} deadline for ${regulatoryBody})
+4. Prepare regulatory notification for ${regulatoryBody} by the deadline that applies to you (it differs by law and country)
 5. Draft customer communication (DO NOT SEND YET)
 
-**Notification Phase (24-72 hours):**
+**Notification Phase (24-72 hours):** ${EXAMPLE_FIGURE}
 | Audience | Channel | Message Focus | Owner |
 |----------|---------|---------------|-------|
 | Regulators | Formal filing | Compliance notification | Legal |
@@ -98,22 +101,22 @@ export function generateCrisisPlanner(args: {
     
     // Service outage
     if (crisisLower.includes('outage') || crisisLower.includes('downtime') || crisisLower.includes('down')) {
-      return `### ⚠️ SERVICE OUTAGE: ${crisisType}
+      return `### ⚠️ SERVICE OUTAGE: ${crisisName}
 
-**Severity Levels:**
+**Severity Levels:** ${EXAMPLE_FIGURES}
 | Level | Definition | Response Time | Escalation |
 |-------|------------|---------------|------------|
 | SEV-1 | Complete outage, all customers | <15 min | ${team.lead} + CEO |
 | SEV-2 | Major feature down, >50% affected | <30 min | ${team.core[0]} |
 | SEV-3 | Degraded performance | <1 hour | Engineering lead |
 
-**Immediate Response (0-15 minutes):**
+**Immediate Response (0-15 minutes):** ${EXAMPLE_FIGURE}
 1. 🚨 **Acknowledge in status page** - "Investigating reports of [issue]"
 2. 👥 **Assemble war room** - Engineering, Support, Comms
 3. 🔍 **Diagnose** - Root cause identification started
 4. 📢 **Notify support team** - Prepare for volume
 
-**Active Incident (15 min - resolution):**
+**Active Incident (15 min - resolution):** ${EXAMPLE_FIGURES}
 | Time | Status Update | Channel |
 |------|---------------|---------|
 | 15 min | "Identified: [description]" | Status page |
@@ -127,7 +130,7 @@ export function generateCrisisPlanner(args: {
     
     // PR/Reputation incident
     if (crisisLower.includes('pr') || crisisLower.includes('reputation') || crisisLower.includes('media') || crisisLower.includes('social')) {
-      return `### 📰 PR/REPUTATION INCIDENT: ${crisisType}
+      return `### 📰 PR/REPUTATION INCIDENT: ${crisisName}
 
 **Severity Assessment:**
 | Factor | High | Medium | Low |
@@ -136,14 +139,14 @@ export function generateCrisisPlanner(args: {
 | Factual accuracy | Claims are true | Partially true | Misinformation |
 | Viral potential | Trending | Spreading | Contained |
 
-**Immediate Response (0-2 hours):**
+**Immediate Response (0-2 hours):** ${EXAMPLE_FIGURE}
 1. 📊 **Assess situation** - What's being said, by whom, how widely spread
 2. 🔇 **Pause scheduled content** - No tone-deaf marketing
 3. 👥 **Brief crisis team** - Align on facts and stance
 4. 📝 **Draft holding statement** - Review with legal
 5. 🎯 **Identify key stakeholders to notify** - Investors, board, partners
 
-**Response Strategy Matrix:**
+**Response Strategy Matrix:** ${EXAMPLE_FIGURES}
 | Scenario | Recommended Response | Timing |
 |----------|---------------------|--------|
 | Factual error about us | Correct publicly with evidence | <4 hours |
@@ -158,9 +161,9 @@ export function generateCrisisPlanner(args: {
     
     // Executive departure
     if (crisisLower.includes('executive') || crisisLower.includes('departure') || crisisLower.includes('fired') || crisisLower.includes('resign')) {
-      return `### 👔 EXECUTIVE DEPARTURE: ${crisisType}
+      return `### 👔 EXECUTIVE DEPARTURE: ${crisisName}
 
-**Scenario Types:**
+**Scenario Types:** ${EXAMPLE_FIGURES}
 | Type | Response Approach | Timeline |
 |------|-------------------|----------|
 | Planned departure | Controlled announcement, successor named | 2-4 weeks prep |
@@ -180,9 +183,9 @@ export function generateCrisisPlanner(args: {
     
     // Competitor attack
     if (crisisLower.includes('competitor') || crisisLower.includes('attack') || crisisLower.includes('market')) {
-      return `### ⚔️ COMPETITIVE THREAT: ${crisisType}
+      return `### ⚔️ COMPETITIVE THREAT: ${crisisName}
 
-**Assessment Framework:**
+**Assessment Framework:** ${EXAMPLE_FIGURES}
 | Threat Type | Response Level | Timeline |
 |-------------|----------------|----------|
 | Competitive FUD campaign | Monitor + selective response | Ongoing |
@@ -209,9 +212,9 @@ export function generateCrisisPlanner(args: {
     }
     
     // Default playbook
-    return `### ⚠️ CRISIS: ${crisisType}
+    return `### ⚠️ CRISIS: ${crisisName}
 
-**Initial Assessment (First 30 minutes):**
+**Initial Assessment (First 30 minutes):** ${EXAMPLE_FIGURE}
 1. What happened? (Facts only, no speculation)
 2. Who is affected? (Customers, employees, partners)
 3. What's the current status? (Ongoing vs. contained)
@@ -223,7 +226,7 @@ export function generateCrisisPlanner(args: {
 - Core Team: ${team.core.join(', ')}
 - Extended (as needed): ${team.extended.join(', ')}
 
-**Communication Timeline:**
+**Communication Timeline:** ${EXAMPLE_FIGURES}
 | Phase | Timing | Actions |
 |-------|--------|---------|
 | Acknowledge | <2 hours | Internal brief, holding statement ready |
@@ -239,9 +242,9 @@ export function generateCrisisPlanner(args: {
 ## ${args.company}
 ${crisesNote}
 **Industry:** ${args.industry}
-**Company Size:** ${companySize.replace(/_/g, ' ')}
-**Customer Base:** ${customerBase.replace(/_/g, ' ')}
-**Data Sensitivity:** ${dataSensitivity.replace(/_/g, ' ')}
+**Company Size:** ${describeChoice(args.company_size, companySize)}
+**Customer Base:** ${readableChoice(customerBase)}
+**Data Sensitivity:** ${readableChoice(dataSensitivity)}
 ${compliance ? `**Compliance Requirements:** ${compliance}` : ''}
 
 ---
@@ -293,7 +296,9 @@ ${team.extended.map(member => `- ${member}`).join('\n')}
 ---
 
 *Crisis playbook generated using CRAFT GTM Framework v2.0*
-*Customized for ${args.industry} industry with ${dataSensitivity.replace(/_/g, ' ')} data sensitivity*`;
+*Customized for ${args.industry} industry with data sensitivity: ${readableChoice(dataSensitivity)}*
+
+${SUGGESTION_FOOTER}`;
 
   return output;
 }
