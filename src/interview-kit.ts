@@ -236,7 +236,7 @@ export function generateCustomerInterviewKit(args: {
       ],
       probing: [
         `Walk me through a recent project you're proud of.`,
-        `What skills separate great ${args.target_persona}s from good ones?`,
+        `What skills separate great ${/s$/i.test(args.target_persona.trim()) ? args.target_persona.trim() : `${args.target_persona}s`} from good ones?`,
         `What do you wish you had known when you started?`,
         `What trends are you watching in your field?`,
         `What frustrates you most about your role?`
