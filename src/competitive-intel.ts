@@ -143,15 +143,15 @@ ${info.length > 0 ? `**Known Intel:**\n${info.map(i => `- ${i}`).join('\n')}\n` 
 
 | Dimension | ${args.your_product} | ${comp} |
 |-----------|------------|---------|
-| ${strengths[0]?.split(' ')[0] || 'Strength 1'} | ✅ Strong | ⚠️ Limited |
-| ${strengths[1]?.split(' ')[0] || 'Strength 2'} | ✅ Strong | ⚠️ Limited |
-| ${weaknesses[0]?.split(' ')[0] || 'Gap 1'} | ⚠️ Developing | ✅ Strong |
+| ${strengths[0] || 'Strength 1'} | ✅ Strong | ⚠️ Limited |
+| ${strengths[1] || 'Strength 2'} | ✅ Strong | ⚠️ Limited |
+| ${weaknesses[0] || 'Gap 1'} | ⚠️ Developing | ✅ Strong |
 
 **Our Advantages Over ${comp}:**
 ${strengths.slice(0, 3).map(s => `- ${s}`).join('\n')}
 
 **Their Advantages Over Us:**
-${weaknesses.slice(0, 2).map(w => `- They're stronger at: ${w}`).join('\n')}
+${weaknesses.slice(0, 2).map(w => `- Where we fall short: ${w}`).join('\n')}
 
 **${comp} Trap Questions:**
 *Questions to ask that expose their weaknesses*
@@ -183,6 +183,14 @@ Would it help to talk to a customer who evaluated both?"
   output += `## 💬 Objection Handlers
 
 `;
+  // A section with no content never prints empty: say what to add instead.
+  if (objections.length === 0) {
+    output += `No objections supplied. Add common_objections (for example "too expensive, we already use a competitor") to get a handler for each one.
+
+---
+
+`;
+  }
 
   // Generate specific handler for each objection
   for (let i = 0; i < objections.length; i++) {
@@ -247,7 +255,7 @@ WATCH OUT FOR:
 ${weaknesses.slice(0, 2).map(w => `• ${w}`).join('\n')}
 
 TOP OBJECTION HANDLERS:
-${objections.slice(0, 3).map((o, i) => `${i + 1}. "${o}" → Focus on [${strengths[i] || 'key value'}]`).join('\n')}
+${objections.length > 0 ? objections.slice(0, 3).map((o, i) => `${i + 1}. "${o}" → Focus on [${strengths[i] || 'key value'}]`).join('\n') : 'None supplied yet: add common_objections.'}
 \`\`\`
 
 ---
