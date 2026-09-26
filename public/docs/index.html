@@ -172,7 +172,7 @@
   <ul class="hx-prose">
     <li>Address: <code>https://craft-gtm.gtmhelix.com/mcp</code> (Streamable HTTP, stateless, JSON responses). GET returns 405 by design.</li>
     <li>Authentication: none. Every tool is marked read-only (<code>readOnlyHint: true</code>, <code>destructiveHint: false</code>) and has a title.</li>
-    <li>Rate limit: 300 requests per minute per IP address. Server: <code>craft-gtm-mcp</code> version 2.2.0.</li>
+    <li>Rate limit: 300 requests per minute per IP address. Server: <code>craft-gtm-mcp</code> version 2.2.1.</li>
     <li>Local use: <code>npx -y @shashwatgtmalpha/craft-gtm-mcp</code> runs these tools over stdio (npm can lag behind this site until a new version is published).</li>
   </ul>
 </section>
@@ -253,7 +253,7 @@
 <tr><td><code>product</code></td><td>string</td><td>yes</td><td></td><td>Product partners will sell/integrate</td></tr>
 <tr><td><code>partner_model</code></td><td>string</td><td>yes</td><td>reseller, referral, integration_tech, agency_si, affiliate, oem_white_label</td><td>Partner type determines program structure</td></tr>
 <tr><td><code>partner_goals</code></td><td>string</td><td>yes</td><td></td><td>Revenue/growth targets from partners</td></tr>
-<tr><td><code>your_deal_size</code></td><td>string</td><td>yes</td><td></td><td>Average deal size, as a full amount (e.g., &#x27;$5000 ACV&#x27; or &#x27;$500/month&#x27;; shorthand such as &#x27;$5K&#x27; is read as 5). It scales the example commission amounts; the example rates are fixed</td></tr>
+<tr><td><code>your_deal_size</code></td><td>string</td><td>yes</td><td></td><td>Average deal size as one amount (e.g., &#x27;$5000 ACV&#x27;, &#x27;$5K&#x27; or &#x27;$500/month&#x27;; a range is refused). It scales the example commission amounts; the example rates are fixed</td></tr>
 <tr><td><code>partner_support_capacity</code></td><td>string</td><td>no</td><td>minimal_self_serve, moderate, high_touch</td><td>How much partner support can you provide?</td></tr>
 <tr><td><code>existing_partners</code></td><td>string</td><td>no</td><td></td><td>Optional: Current partner types/count</td></tr>
   </tbody></table></div>

@@ -1,4 +1,4 @@
-# @shashwatgtmalpha/craft-gtm-mcp v2.2.0
+# @shashwatgtmalpha/craft-gtm-mcp v2.2.1
 🚀 **CRAFT GTM Framework MCP Server** - A complete redesign with intelligent analysis, metric parsing, and context-aware outputs.
 
 ## What's New in v2.0.0
@@ -34,7 +34,7 @@ Or add to your Claude Desktop config:
 
 ## Tools and inputs
 
-Generated on 26 September 2026 from the server's own tool list (`tools/list` of craft-gtm-mcp 2.2.0, the same code as the hosted MCP address), so every tool name, title, description and input below is exactly what the server accepts. Every tool is read-only.
+Generated on 26 September 2026 from the server's own tool list (`tools/list` of craft-gtm-mcp 2.2.1, the same code as the hosted MCP address), so every tool name, title, description and input below is exactly what the server accepts. Every tool is read-only.
 
 | # | Tool | Title | What it does |
 |---|---|---|---|
@@ -103,7 +103,7 @@ Generated on 26 September 2026 from the server's own tool list (`tools/list` of 
 | `product` | Yes | string | Product partners will sell/integrate |
 | `partner_model` | Yes | one of: `reseller`, `referral`, `integration_tech`, `agency_si`, `affiliate`, `oem_white_label` | Partner type determines program structure |
 | `partner_goals` | Yes | string | Revenue/growth targets from partners |
-| `your_deal_size` | Yes | string | Average deal size, as a full amount (e.g., '$5000 ACV' or '$500/month'; shorthand such as '$5K' is read as 5). It scales the example commission amounts; the example rates are fixed |
+| `your_deal_size` | Yes | string | Average deal size as one amount (e.g., '$5000 ACV', '$5K' or '$500/month'; a range is refused). It scales the example commission amounts; the example rates are fixed |
 | `partner_support_capacity` | No | one of: `minimal_self_serve`, `moderate`, `high_touch` | How much partner support can you provide? |
 | `existing_partners` | No | string | Optional: Current partner types/count |
 
@@ -151,7 +151,7 @@ Generated on 26 September 2026 from the server's own tool list (`tools/list` of 
 
 ## Author
 
-**Shashwat Ghosh** - [Helix GTM Consulting](https://tools.gtmhelix.com)
+**Shashwat Ghosh**, Co-Founder and Fractional CMO, [Helix GTM Consulting](https://tools.gtmhelix.com), with 24+ years in B2B and 10+ years of fractional experience
 
 ## License
 

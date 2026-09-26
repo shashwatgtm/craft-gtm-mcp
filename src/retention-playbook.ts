@@ -271,7 +271,7 @@ Here's a framework to discover your churn reasons:
 
 ## 📋 Step 1: Churn Survey Template
 
-Send this to recently churned customers (within 7 days of churn):
+Send this to recently churned customers, within 7 days of churn (Example figure: replace with your own):
 
 **Subject:** Quick question - we'd love your feedback
 

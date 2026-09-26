@@ -16,8 +16,9 @@ export function generatePartnerArchitect(args: {
   const supportCapacity = args.partner_support_capacity || 'moderate';
   
   // Parse deal size for commission calculations
-  const dealSizeMatch = args.your_deal_size.match(/\$?([\d,]+)/);
-  const dealSize = dealSizeMatch ? parseInt(dealSizeMatch[1].replace(/,/g, '')) : 5000;
+  const dealSizeRead = readAmount(args.your_deal_size);
+  const dealSizeMatch = dealSizeRead !== null;
+  const dealSize = dealSizeRead ?? 5000;
   // When no amount is found in the deal size, the figures below use an assumed one: say so.
   const dealSizeShown = dealSizeMatch
     ? args.your_deal_size
@@ -214,4 +215,12 @@ Would you be open to a 15-minute call to explore fit?
 *Customized for ${partnerModel.replace(/_/g, ' ')} model with ${readableChoice(supportCapacity)} support capacity*
 
 ${SUGGESTION_FOOTER}`;
+}
+
+// Reads one amount from text: "$5,000", "$50K" and "$1.5M" give 5000, 50000 and 1500000 (run 7, T5).
+function readAmount(text: string): number | null {
+  const m = text.replace(/,/g, '').match(/(\d+(?:\.\d+)?)\s*([kmb])?\b/i);
+  if (!m) return null;
+  const mult: Record<string, number> = { k: 1e3, m: 1e6, b: 1e9 };
+  return Math.round(parseFloat(m[1]) * (mult[(m[2] || '').toLowerCase()] ?? 1));
 }

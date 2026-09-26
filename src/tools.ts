@@ -138,7 +138,7 @@ export const tools: Tool[] = [
         partner_goals: { type: "string", description: "Revenue/growth targets from partners" },
         your_deal_size: { 
           type: "string", 
-          description: "Average deal size, as a full amount (e.g., '$5000 ACV' or '$500/month'; shorthand such as '$5K' is read as 5). It scales the example commission amounts; the example rates are fixed"
+          description: "Average deal size as one amount (e.g., '$5000 ACV', '$5K' or '$500/month'; a range is refused). It scales the example commission amounts; the example rates are fixed"
         },
         partner_support_capacity: {
           type: "string",

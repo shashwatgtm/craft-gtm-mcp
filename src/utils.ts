@@ -148,7 +148,8 @@ export function parseMetrics(metricsText: string): ParsedMetrics {
   }
   
   // Revenue growth
-  const growthMatch = text.match(/(?:revenue\s*)?growth[:\s]*([-\u2212]?\s*[\d.]+)\s*%?/i);
+  // Run 7: also read the figure when it comes first, as in "-12% revenue growth".
+  const growthMatch = text.match(/(?:revenue\s*)?growth[:\s]*([-\u2212]?\s*[\d.]+)\s*%?/i) || text.match(/([-\u2212]?\d[\d.]*)\s*%\s*(?:revenue\s*)?growth/i);
   if (growthMatch) {
     metrics.revenueGrowth = parseFloat(growthMatch[1].replace(/[\u2212\s]/g, (c) => (c === '\u2212' ? '-' : '')));
   }
