@@ -1,6 +1,13 @@
 # @shashwatgtmalpha/craft-gtm-mcp v2.2.4
 🚀 **CRAFT GTM Framework MCP Server** - A complete redesign with intelligent analysis, metric parsing, and context-aware outputs.
 
+## Use it hosted (no install)
+
+Add `https://craft-gtm.gtmhelix.com/mcp` to Claude or ChatGPT as a custom connector. It needs no sign-in and always runs the newest version (2.2.4). The same tools run as a free web app with a form per tool at https://craft-gtm.gtmhelix.com/, and the setup steps are at https://craft-gtm.gtmhelix.com/connect/.
+
+The npm package below is an older version (2.0.1 on npm on 27 September 2026) until the next npm release. Use it only if you need a local stdio server.
+
+
 ## What's New in v2.0.0
 
 This is a **major redesign** addressing all critical issues from v1.x:
