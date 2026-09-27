@@ -1,4 +1,4 @@
-import { parseListItems, lowerCommonWords, EXAMPLE_FIGURE, SUGGESTION_FOOTER } from './utils.js';
+import { parseListItems, lowerCommonWords, lowerFirstIfCommon, EXAMPLE_FIGURE, SUGGESTION_FOOTER } from './utils.js';
 
 export function generateCompetitiveIntel(args: {
   your_product: string;
@@ -69,7 +69,7 @@ export function generateCompetitiveIntel(args: {
     if (objLower.includes('competitor') || objLower.includes('other') || objLower.includes('alternative') || competitors.some(c => objLower.includes(c.toLowerCase()))) {
       return {
         acknowledge: "It makes sense to evaluate options thoroughly.",
-        counter: `What sets us apart is ${strengths[0] || 'our unique approach'}. Customers who've compared us often find that [specific advantage].`,
+        counter: `What sets us apart is ${strengths[0] ? lowerFirstIfCommon(strengths[0]) : 'our unique approach'}. Customers who've compared us often find that [specific advantage].`,
         redirect: "What's most important to you in making this decision?"
       };
     }
