@@ -1,4 +1,4 @@
-import { parseListItems, describeChoice, EXAMPLE_FIGURE, EXAMPLE_FIGURES, SUGGESTION_FOOTER } from './utils.js';
+import { parseListItems, describeChoice, readableChoice, EXAMPLE_FIGURE, EXAMPLE_FIGURES, SUGGESTION_FOOTER } from './utils.js';
 
 export function generateRetentionPlaybook(args: {
   customer_segment: string;
@@ -117,7 +117,7 @@ export function generateRetentionPlaybook(args: {
   let output = `# 🔄 Retention Playbook
 ## ${args.customer_segment}
 
-**Business Model:** ${businessModel.replace(/_/g, ' ')}
+**Business Model:** ${readableChoice(businessModel)}
 **Current Churn Rate:** ${args.current_churn_rate} (${churnSeverity}, judged against example benchmarks)
 **CS Team Capacity:** ${csTeamShown}
 
@@ -129,11 +129,11 @@ export function generateRetentionPlaybook(args: {
 |--------|-------|--------|
 | Monthly Churn | ${churnRate}% | ${churnSeverity === 'CRITICAL' ? '🔴' : churnSeverity === 'HIGH' ? '🟠' : churnSeverity === 'MODERATE' ? '🟡' : '🟢'} ${churnSeverity} |
 | Annual Revenue at Risk (your monthly churn, annualized) | ~${(churnRate * 12).toFixed(0)}% | ${churnRate * 12 > 50 ? '⚠️ Urgent' : 'Monitor'} |
-| Benchmark (${businessModel.replace(/_/g, ' ')}) | ${businessModel === 'saas_subscription' ? '3-5%' : businessModel === 'consumer' ? '5-8%' : '4-6%'} ${EXAMPLE_FIGURE} | - |
+| Benchmark (${readableChoice(businessModel)}) | ${businessModel === 'saas_subscription' ? '3-5%' : businessModel === 'consumer' ? '5-8%' : '4-6%'} ${EXAMPLE_FIGURE} | - |
 
 ---
 
-## 📊 Health Score Model (${businessModel.replace(/_/g, ' ')})
+## 📊 Health Score Model (${readableChoice(businessModel)})
 
 ${EXAMPLE_FIGURES} The weights and thresholds below are illustrations to adapt to your data.
 | Signal | Weight | How to Track | Threshold |
@@ -227,7 +227,7 @@ ${EXAMPLE_FIGURES} The allocation is a starting split for this team size.
 ---
 
 *Retention playbook generated for ${args.customer_segment} using CRAFT GTM Framework v2.0*
-*Optimized for ${businessModel.replace(/_/g, ' ')} business model with ${csTeamShown} CS team*
+*Optimized for ${readableChoice(businessModel)} business model with ${csTeamShown} CS team*
 
 ${SUGGESTION_FOOTER}`;
 
@@ -260,7 +260,7 @@ function generateChurnDiscoveryKit(
 | Metric | Value | Assessment (against example benchmarks) |
 |--------|-------|------------|
 | **Churn Rate** | ${churnRate}% | ${severity} |
-| **Business Model** | ${businessModel.replace(/_/g, ' ')} | |
+| **Business Model** | ${readableChoice(businessModel)} | |
 | **CS Team** | ${csTeamShown} | |
 
 ⚠️ **You haven't provided churn reasons.** To build an effective retention playbook, you need to understand WHY customers leave.
@@ -331,7 +331,7 @@ Before customers tell you why they left, your data might already show patterns:
 
 ---
 
-## 🎯 Common Churn Reasons for ${businessModel.replace(/_/g, ' ')} Business Model
+## 🎯 Common Churn Reasons for ${readableChoice(businessModel)} Business Model
 
 Here are common churn reasons to check for your model (a starting checklist, not ranked by likelihood):
 
@@ -362,7 +362,7 @@ You'll get a complete playbook with specific interventions for each reason.
 ---
 
 *Churn Discovery Kit generated using CRAFT GTM Framework v2.0*
-*For ${segment} in ${businessModel.replace(/_/g, ' ')} model*
+*For ${segment} in ${readableChoice(businessModel)} model*
 
 ${SUGGESTION_FOOTER}`;
 }

@@ -176,7 +176,7 @@ ${segments.map((s, i) => `${i + 1}. **${s}**`).join('\n')}
 
 ## 📢 Active Channels
 ${args.available_channels ? '' : '\n*Channels not supplied: these defaults are assumed.*\n'}
-${channels.map(ch => `- ✅ ${ch}`).join('\n')}
+${channels.map(ch => `- ✅ ${ch.toLowerCase() === 'linkedin' ? 'LinkedIn' : ch}`).join('\n')}
 
 **Budget-Appropriate Tactics:**
 ${availableTactics.map(t => `- ${t}`).join('\n')}

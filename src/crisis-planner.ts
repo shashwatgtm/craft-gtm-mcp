@@ -38,7 +38,7 @@ export function generateCrisisPlanner(args: {
     if (dataSensitivity === 'high_pii_financial' && !crises.includes('data_breach')) {
       crises.unshift('data_breach');
     }
-    crisesNote = `\n⚠️ **NOTE:** You didn't specify crises to plan for. Based on your industry (${args.industry}) and your data sensitivity, ${readableChoice(dataSensitivity)}, we've generated playbooks for a default set of common crises for this industry.\n`;
+    crisesNote = `\n⚠️ **NOTE:** You didn't specify crises to plan for. Based on your industry (${readableChoice(args.industry)}) and your data sensitivity, ${readableChoice(dataSensitivity)}, we've generated playbooks for a default set of common crises for this industry.\n`;
   }
   
   // Team structure based on company size
@@ -241,7 +241,7 @@ export function generateCrisisPlanner(args: {
   let output = `# 🚨 Crisis Response Playbook
 ## ${args.company}
 ${crisesNote}
-**Industry:** ${args.industry}
+**Industry:** ${readableChoice(args.industry)}
 **Company Size:** ${describeChoice(args.company_size, companySize)}
 **Customer Base:** ${readableChoice(customerBase)}
 **Data Sensitivity:** ${readableChoice(dataSensitivity)}
@@ -296,7 +296,7 @@ ${team.extended.map(member => `- ${member}`).join('\n')}
 ---
 
 *Crisis playbook generated using CRAFT GTM Framework v2.0*
-*Customized for ${args.industry} industry with data sensitivity: ${readableChoice(dataSensitivity)}*
+*Customized for ${readableChoice(args.industry)} industry with data sensitivity: ${readableChoice(dataSensitivity)}*
 
 ${SUGGESTION_FOOTER}`;
 

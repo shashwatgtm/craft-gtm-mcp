@@ -1,4 +1,4 @@
-import { parseMetrics, scoreMetric, describeChoice, readableChoice, EXAMPLE_FIGURES, SUGGESTION_FOOTER } from './utils.js';
+import { parseMetrics, scoreMetric, describeChoice, readableChoice, cap, EXAMPLE_FIGURES, SUGGESTION_FOOTER } from './utils.js';
 
 export function generatePMFScorecard(args: {
   product: string;
@@ -140,7 +140,7 @@ export function generatePMFScorecard(args: {
   return `# 📊 Product-Market Fit Scorecard
 ## ${args.product}
 
-**Market Segment:** ${marketType.replace(/_/g, ' ').toUpperCase()}
+**Market Segment:** ${cap(readableChoice(marketType))}
 **Time in Market:** ${describeChoice(args.time_in_market, maturity)}
 **Analysis Date:** ${new Date().toISOString().split('T')[0]}
 
@@ -159,7 +159,7 @@ The score is the average of the dimensions scored below (missing data is left ou
 
 ## 📈 Dimension Scores
 
-Each score and status compares your value with an example benchmark for the ${marketType.replace(/_/g, ' ')} market segment.
+Each score and status compares your value with an example benchmark for the ${readableChoice(marketType)} market segment.
 
 ### 1. Customer Retention (Churn)
 ${dimensionHeader}
@@ -237,5 +237,5 @@ ${[
 ---
 
 *Scorecard generated using CRAFT GTM Framework v2.0*
-*Benchmarks are example ranges for the ${marketType.replace(/_/g, ' ')} market segment. Time in market${args.time_in_market ? ` (${readableChoice(args.time_in_market)})` : ''} does not change the benchmarks or scores.*${suggestsCounts ? `\n\n${SUGGESTION_FOOTER}` : ''}`;
+*Benchmarks are example ranges for the ${readableChoice(marketType)} market segment. Time in market${args.time_in_market ? ` (${readableChoice(args.time_in_market)})` : ''} does not change the benchmarks or scores.*${suggestsCounts ? `\n\n${SUGGESTION_FOOTER}` : ''}`;
 }

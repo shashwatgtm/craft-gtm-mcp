@@ -1,4 +1,4 @@
-import { parseListItems, EXAMPLE_FIGURE, SUGGESTION_FOOTER } from './utils.js';
+import { parseListItems, lowerCommonWords, EXAMPLE_FIGURE, SUGGESTION_FOOTER } from './utils.js';
 
 export function generateCompetitiveIntel(args: {
   your_product: string;
@@ -145,7 +145,7 @@ ${info.length > 0 ? `**Known Intel:**\n${info.map(i => `- ${i}`).join('\n')}\n` 
 |-----------|------------|---------|
 | ${strengths[0] || 'Strength 1'} | ✅ Strong | ⚠️ Limited |
 | ${strengths[1] || 'Strength 2'} | ✅ Strong | ⚠️ Limited |
-| ${weaknesses[0] || 'Gap 1'} | ⚠️ Developing | ✅ Strong |
+| ${weaknesses[0] ? `Our gap: ${weaknesses[0]}` : 'Gap 1'} | ⚠️ Gap for us | ✅ Ahead of us |
 
 **Our Advantages Over ${comp}:**
 ${strengths.slice(0, 3).map(s => `- ${s}`).join('\n')}
@@ -156,8 +156,8 @@ ${weaknesses.slice(0, 2).map(w => `- Where we fall short: ${w}`).join('\n')}
 **${comp} Trap Questions:**
 *Questions to ask that expose their weaknesses*
 
-1. "How does ${comp} handle ${strengths[0]?.toLowerCase() || 'your top strength'}?"
-2. "What's their approach to ${strengths[1]?.toLowerCase() || 'your second strength'}?"
+1. "How does ${comp} handle ${strengths[0] ? lowerCommonWords(strengths[0]) : 'your top strength'}?"
+2. "What's their approach to ${strengths[1] ? lowerCommonWords(strengths[1]) : 'your second strength'}?"
 3. "Have you looked at how they compare on [key metric]?"
 
 **"Why Not ${comp}?" Response:**
