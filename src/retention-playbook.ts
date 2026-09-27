@@ -1,4 +1,4 @@
-import { parseListItems, describeChoice, readableChoice, EXAMPLE_FIGURE, EXAMPLE_FIGURES, SUGGESTION_FOOTER } from './utils.js';
+import { parseListItems, describeChoice, readableChoice, lowerFirstIfCommon, EXAMPLE_FIGURE, EXAMPLE_FIGURES, SUGGESTION_FOOTER } from './utils.js';
 
 export function generateRetentionPlaybook(args: {
   customer_segment: string;
@@ -226,7 +226,7 @@ ${EXAMPLE_FIGURES} The allocation is a starting split for this team size.
 
 ---
 
-*Retention playbook generated for ${args.customer_segment} using CRAFT GTM Framework v2.0*
+*Retention playbook generated for ${lowerFirstIfCommon(args.customer_segment)} using CRAFT GTM Framework v2.0*
 *Optimized for ${readableChoice(businessModel)} business model with ${csTeamShown} CS team*
 
 ${SUGGESTION_FOOTER}`;
