@@ -93,7 +93,7 @@ export const tools: Tool[] = [
   },
   {
     name: "retention_playbook",
-    description: "Generate retention strategies. Has DISCOVERY MODE - if you don't know WHY people churn, get a churn analysis framework first.",
+    description: "Generate retention strategies. Has DISCOVERY MODE: if you don't know WHY people churn, get a churn analysis framework first.",
     inputSchema: {
       type: "object",
       properties: {
@@ -213,8 +213,8 @@ export const tools: Tool[] = [
           type: "string",
           description: "Sales objections you hear (comma-separated). E.g., 'too expensive, missing X feature, competitor has better Y'"
         },
-        recent_wins: { type: "string", description: "Why customers chose you over competitors - will be used to DERIVE strengths" },
-        recent_losses: { type: "string", description: "Why you lost deals to competitors - will be used to DERIVE weaknesses" }
+        recent_wins: { type: "string", description: "Why customers chose you over competitors: will be used to DERIVE strengths" },
+        recent_losses: { type: "string", description: "Why you lost deals to competitors: will be used to DERIVE weaknesses" }
       },
       required: ["your_product", "competitors"]
     }
@@ -227,7 +227,7 @@ export const tools: Tool[] = [
       properties: {
         document_content: { 
           type: "string", 
-          description: "The GTM document/plan to analyze. Paste full content - it will be PARSED and EVALUATED"
+          description: "The GTM document/plan to analyze. Paste full content: it will be PARSED and EVALUATED"
         },
         document_type: {
           type: "string",

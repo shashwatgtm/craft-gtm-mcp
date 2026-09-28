@@ -1,9 +1,9 @@
-# @shashwatgtmalpha/craft-gtm-mcp v2.2.5
+# @shashwatgtmalpha/craft-gtm-mcp v2.2.6
 🚀 **CRAFT GTM Framework MCP Server** - A complete redesign with intelligent analysis, metric parsing, and context-aware outputs.
 
 ## Use it hosted (no install)
 
-Add `https://craft-gtm.gtmhelix.com/mcp` to Claude or ChatGPT as a custom connector. It needs no sign-in and always runs the newest version (2.2.5). The same tools run as a free web app with a form per tool at https://craft-gtm.gtmhelix.com/, and the setup steps are at https://craft-gtm.gtmhelix.com/connect/.
+Add `https://craft-gtm.gtmhelix.com/mcp` to Claude or ChatGPT as a custom connector. It needs no sign-in and always runs the newest version (2.2.6). The same tools run as a free web app with a form per tool at https://craft-gtm.gtmhelix.com/, and the setup steps are at https://craft-gtm.gtmhelix.com/connect/.
 
 The npm package below is an older version (2.0.1 on npm on 27 September 2026) until the next npm release. Use it only if you need a local stdio server.
 
@@ -41,14 +41,14 @@ Or add to your Claude Desktop config:
 
 ## Tools and inputs
 
-Generated on 27 September 2026 from the server's own tool list (`tools/list` of craft-gtm-mcp 2.2.5, the same code as the hosted MCP address), so every tool name, title, description and input below is exactly what the server accepts. Every tool is read-only.
+Generated on 27 September 2026 from the server's own tool list (`tools/list` of craft-gtm-mcp 2.2.6, the same code as the hosted MCP address), so every tool name, title, description and input below is exactly what the server accepts. Every tool is read-only.
 
 | # | Tool | Title | What it does |
 |---|---|---|---|
 | 1 | `pmf_scorecard` | PMF Scorecard | Generate a Product-Market Fit scorecard. Parses the metrics you provide (MRR, churn, NPS, CAC, LTV, retention, activation and similar) and scores each dimension against built-in benchmark ranges. |
 | 2 | `launch_commander` | Launch Commander | Generate a context-aware launch plan. Have a date? Get a detailed timeline. Still planning? Enter 'TBD' or a quarter such as 'Q2 2027' for a flexible plan. |
 | 3 | `customer_interview_kit` | Customer Interview Kit | Generate interview guides that ADAPT based on interview type, industry, and product complexity. Includes synthesis templates. |
-| 4 | `retention_playbook` | Retention Playbook | Generate retention strategies. Has DISCOVERY MODE - if you don't know WHY people churn, get a churn analysis framework first. |
+| 4 | `retention_playbook` | Retention Playbook | Generate retention strategies. Has DISCOVERY MODE: if you don't know WHY people churn, get a churn analysis framework first. |
 | 5 | `partner_architect` | Partner Architect | Design partner programs that ADAPT based on partner model type. Different structures for resellers vs referrals vs integrations vs affiliates. |
 | 6 | `crisis_planner` | Crisis Planner | Generate crisis playbooks. Know your risks? Get specific playbooks. Not sure what to plan for? The tool uses a default set of common crises for your industry (not ranked by likelihood). |
 | 7 | `competitive_intel` | Competitive Intel | Generate battle cards. If you know your strengths/weaknesses, get complete battle cards. If you only know competitors and win/loss stories, we'll derive your positioning. |
@@ -136,14 +136,14 @@ Generated on 27 September 2026 from the server's own tool list (`tools/list` of 
 | `your_weaknesses` | No | string | OPTIONAL: Where competitors beat you (comma-separated). Will be DERIVED from wins/losses if not provided |
 | `competitor_details` | No | string | Optional: Any known details about competitors. E.g., 'Competitor A is cheaper, Competitor B targets enterprise' |
 | `common_objections` | No | string | Sales objections you hear (comma-separated). E.g., 'too expensive, missing X feature, competitor has better Y' |
-| `recent_wins` | No | string | Why customers chose you over competitors - will be used to DERIVE strengths |
-| `recent_losses` | No | string | Why you lost deals to competitors - will be used to DERIVE weaknesses |
+| `recent_wins` | No | string | Why customers chose you over competitors: will be used to DERIVE strengths |
+| `recent_losses` | No | string | Why you lost deals to competitors: will be used to DERIVE weaknesses |
 
 #### 8. CRAFT GTM Analyzer (`craft_gtm_analyzer`)
 
 | Input | Required | Type | Description |
 |---|---|---|---|
-| `document_content` | Yes | string | The GTM document/plan to analyze. Paste full content - it will be PARSED and EVALUATED |
+| `document_content` | Yes | string | The GTM document/plan to analyze. Paste full content: it will be PARSED and EVALUATED |
 | `document_type` | Yes | one of: `gtm_strategy`, `launch_plan`, `campaign_brief`, `quarterly_plan`, `project_proposal`, `marketing_plan` | Type of document (shown in the analysis) |
 | `intended_audience` | No | string | Optional: Who will read/approve this document |
 | `desired_outcome` | No | string | Optional: What action should this document drive |
