@@ -171,11 +171,11 @@ export function generateCrisisPlanner(args: {
 | Termination for cause | Legal review, minimal details, forward-focused | Same day |
 
 **Immediate Actions:**
-1. 📋 **Access management** - Revoke systems access immediately (if unplanned/termination)
+1. 📋 **Access management**: Revoke systems access immediately (if unplanned/termination)
 2. 👥 **Internal announcement first**: Employees hear from leadership, not media
 3. 📧 **Prepare external communications**: Customers, investors, partners
 4. 🎯 **Identify interim leadership**: Clear chain of command
-5. 📞 **Personal outreach to key accounts** - ${customerBase === 'b2b_enterprise' ? 'Call top 20 accounts' : 'Prepare customer FAQ'}
+5. 📞 **Personal outreach to key accounts**: ${customerBase === 'b2b_enterprise' ? 'Call top 20 accounts' : 'Prepare customer FAQ'}
 
 ---
 `;

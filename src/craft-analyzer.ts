@@ -136,7 +136,7 @@ Key Deadlines:
 
 ## 🔍 Detailed Analysis
 
-### C - CHARACTER (Who executes?)
+### C: CHARACTER (Who executes?)
 **Score: ${analysis.character.score}/10**
 
 **Found in document:**
@@ -153,7 +153,7 @@ ${analysis.character.gaps.length > 0 ? `\n**Recommended improvement:**\n${genera
 
 ---
 
-### R - RESULT (What does success look like?)
+### R: RESULT (What does success look like?)
 **Score: ${analysis.result.score}/10**
 
 **Found in document:**
@@ -170,7 +170,7 @@ ${analysis.result.gaps.length > 0 ? `\n**Recommended improvement:**\n${generateI
 
 ---
 
-### A - ARTIFACT (What gets produced?)
+### A: ARTIFACT (What gets produced?)
 **Score: ${analysis.artifact.score}/10**
 
 **Found in document:**
@@ -187,7 +187,7 @@ ${analysis.artifact.gaps.length > 0 ? `\n**Recommended improvement:**\n${generat
 
 ---
 
-### F - FRAME (Context & constraints)
+### F: FRAME (Context & constraints)
 **Score: ${analysis.frame.score}/10**
 
 **Found in document:**
@@ -204,7 +204,7 @@ ${analysis.frame.gaps.length > 0 ? `\n**Recommended improvement:**\n${generateIm
 
 ---
 
-### T - TIMELINE (When does it happen?)
+### T: TIMELINE (When does it happen?)
 **Score: ${analysis.timeline.score}/10**
 
 **Found in document:**
