@@ -1,4 +1,4 @@
-import { parseListItems, describeChoice, readableChoice, lowerFirstIfCommon, EXAMPLE_FIGURE, EXAMPLE_FIGURES, SUGGESTION_FOOTER } from './utils.js';
+import { parseListItems, describeChoice, readableChoice, lowerFirstIfCommon, cap, EXAMPLE_FIGURE, EXAMPLE_FIGURES, SUGGESTION_FOOTER } from './utils.js';
 
 export function generateRetentionPlaybook(args: {
   customer_segment: string;
@@ -60,7 +60,7 @@ export function generateRetentionPlaybook(args: {
         action: 'Value demonstration call + ROI analysis',
         owner: capacity.highTouch > 30 ? 'CSM' : 'Automated + escalation path',
         timing: 'Within 24 hours of signal',
-        email: `Subject: Getting more value from ${args.customer_segment}\n\nHi [Name],\n\nI noticed you mentioned concerns about cost. I'd love to show you some features that customers tell us deliver the biggest ROI.\n\nMany teams in your situation found that [specific feature] alone saves [X hours/dollars] per month.\n\nWould you be open to a quick 15-minute call to ensure you're getting maximum value?\n\n[Your name]`
+        email: `Subject: Getting more value from ${lowerFirstIfCommon(args.customer_segment)}\n\nHi [Name],\n\nI noticed you mentioned concerns about cost. I'd love to show you some features that customers tell us deliver the biggest ROI.\n\nMany teams in your situation found that [specific feature] alone saves [X hours/dollars] per month.\n\nWould you be open to a quick 15-minute call to ensure you're getting maximum value?\n\n[Your name]`
       };
     }
     
@@ -115,7 +115,7 @@ export function generateRetentionPlaybook(args: {
   };
 
   let output = `# 🔄 Retention Playbook
-## ${args.customer_segment}
+## ${cap(lowerFirstIfCommon(args.customer_segment))}
 
 **Business Model:** ${readableChoice(businessModel)}
 **Current Churn Rate:** ${args.current_churn_rate} (${churnSeverity}, judged against example benchmarks)
@@ -362,7 +362,7 @@ You'll get a complete playbook with specific interventions for each reason.
 ---
 
 *Churn Discovery Kit generated using CRAFT GTM Framework v2.0*
-*For ${segment} in ${readableChoice(businessModel)} model*
+*For ${lowerFirstIfCommon(segment)} in ${readableChoice(businessModel)} model*
 
 ${SUGGESTION_FOOTER}`;
 }
