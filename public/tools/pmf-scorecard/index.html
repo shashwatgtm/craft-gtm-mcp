@@ -27,6 +27,7 @@
 <link rel="preload" href="/assets/fonts/VT323-latin-400.woff2?v=8ddbebcc10" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/assets/fonts.css?v=a7f7495a4f">
 <link rel="stylesheet" href="/assets/helix.css?v=bb6dd8a7a6">
+<link rel="stylesheet" href="/assets/helix-report.css?v=c4b45d0331">
 <script type="application/ld+json">
 {
  "@context": "https://schema.org",
@@ -267,63 +268,83 @@
 
 <section class="hx-section" id="result" aria-live="polite" aria-labelledby="result-h" hidden>
   <h2 id="result-h">Result</h2>
-  <div class="win "><div class="win-bar"><span class="t">PMF Scorecard: your result</span><span class="wb" aria-hidden="true"><i></i><i></i></span></div><div class="win-body"><div class="hx-result-actions"><button type="button" class="hx-btn hx-btn-ghost" data-copy>Copy the result</button></div><p class="hx9-example-note" data-example-note hidden>This answer uses a made-up example company. Change the details above and press Run to see yours.</p><div class="hx-result-body" data-result></div><p class="hx9-next"><strong>What next?</strong> <a href="https://gtmhelix.com/lets-get-started/">Work with Shashwat on this</a> <a href="https://gtmhelix.com/#start">Try another tool</a> <a href="https://tools.gtmhelix.com/tools/">See all 48 tools</a></p></div></div>
+  <article class="hxr hxr-run" aria-labelledby="result-t">
+    <header class="hxr-head">
+      <p class="hxr-tag">CRAFT GTM report</p>
+      <h3 class="hxr-title" id="result-t">PMF Scorecard: your result</h3>
+      <p class="hxr-meta"><span data-hxr-date></span><span>Made with PMF Scorecard by Helix GTM Consulting</span><span data-hxr-basis>Based on what you entered</span><span>https://craft-gtm.gtmhelix.com/tools/pmf-scorecard/</span></p>
+    </header>
+    <div class="hxr-actions"><button type="button" class="hx-btn hx-btn-ghost" data-copy>Copy the result</button><button type="button" class="hx-btn hx-btn-ghost" data-print>Print or save as PDF</button></div>
+    <p class="hx9-example-note hxr-note" data-example-note hidden>This answer uses a made-up example company. Change the details above and press Run to see yours.</p>
+    <div class="hxr-body hx-result-body" data-result></div>
+    <footer class="hxr-foot"><span>Built by Shashwat Ghosh</span><span>https://craft-gtm.gtmhelix.com/tools/pmf-scorecard/</span><span data-hxr-date></span></footer>
+  </article>
+  <p class="hx9-next"><strong>What next?</strong> <a href="https://gtmhelix.com/lets-get-started/">Work with Shashwat on this</a> <a href="https://gtmhelix.com/#start">Try another tool</a> <a href="https://tools.gtmhelix.com/tools/">See all 48 tools</a></p>
 </section>
 
 <section class="hx-section" aria-labelledby="ex-h">
   <h2 id="ex-h">Example answer</h2>
   <p class="hx-prose">From version 2.2.11 of this tool, with the inputs behind <em>Fill in an example</em>. Your own inputs give a different result.</p>
-  <div class="win "><div class="win-bar"><span class="t">Example: PMF Scorecard</span><span class="wb" aria-hidden="true"><i></i><i></i></span></div><div class="win-body"><details class="hx-run"><summary>Show the full result</summary><div class="hx-result-body hx-output"><h3>Product-Market Fit Scorecard</h3>
-<h4>ExampleCo Scheduler, scheduling software for clinics</h4>
+  <article class="hxr hxr-example" aria-labelledby="ex-t">
+    <header class="hxr-head">
+      <p class="hxr-tag">CRAFT GTM report</p>
+      <h3 class="hxr-title" id="ex-t">Example: PMF Scorecard</h3>
+      <p class="hxr-meta"><span>Made with PMF Scorecard by Helix GTM Consulting</span><span>Based on the made-up example inputs</span><span>https://craft-gtm.gtmhelix.com/tools/pmf-scorecard/</span></p>
+    </header>
+    <div class="hxr-actions"><button type="button" class="hx-btn hx-btn-ghost" data-print>Print or save as PDF</button></div>
+    <details class="hx-run"><summary>Show the full result</summary><div class="hxr-body hx-result-body hx-output"><h4 class="hxr-h2">Product-Market Fit Scorecard</h4>
+<h5 class="hxr-h3">ExampleCo Scheduler, scheduling software for clinics</h5>
 <p><strong>Market Segment:</strong> SMB SaaS</p>
 <p><strong>Time in Market:</strong> 1 to 2 years</p>
 <p><strong>Analysis Date:</strong> 2026-09-29</p>
 <hr>
-<h4>Overall PMF Assessment</h4>
+<h5 class="hxr-h3">Overall PMF Assessment</h5>
 <div class="hx-table"><table><thead><tr><th>Stage</th><th>Score</th><th>Status</th></tr></thead><tbody><tr><td><strong>Emerging PMF</strong></td><td><strong>7/10</strong></td><td>Yes</td></tr></tbody></table></div>
 <p>Based on 4 of 5 dimensions.</p>
 <p>Good foundation but gaps to address before aggressive scaling.</p>
 <p>The score is the average of the dimensions scored below (missing data is left out), each judged against an example benchmark.</p>
 <hr>
-<h4>Dimension Scores</h4>
+<h5 class="hxr-h3">Dimension Scores</h5>
 <p>Each score and status compares your value with an example benchmark for the SMB SaaS market segment.</p>
-<h5>1. Customer Retention (Churn)</h5>
+<h6 class="hxr-h4">1. Customer Retention (Churn)</h6>
 <div class="hx-table"><table><thead><tr><th>Metric</th><th>Your Value</th><th>Score</th><th>Benchmark (Example figures: replace with your own)</th><th>Status</th></tr></thead><tbody><tr><td>Monthly Churn</td><td>4%</td><td>7/10</td><td>&lt;5% target</td><td>GOOD</td></tr></tbody></table></div>
 <p><strong>Analysis:</strong> 4% is acceptable (benchmark: &lt;5%) (Example figure: replace with your own)</p>
 <hr>
-<h5>2. Customer Satisfaction (NPS)</h5>
+<h6 class="hxr-h4">2. Customer Satisfaction (NPS)</h6>
 <div class="hx-table"><table><thead><tr><th>Metric</th><th>Your Value</th><th>Score</th><th>Benchmark (Example figures: replace with your own)</th><th>Status</th></tr></thead><tbody><tr><td>NPS Score</td><td>38</td><td>5/10</td><td>&gt;40 target</td><td>DEVELOPING</td></tr></tbody></table></div>
 <p><strong>Analysis:</strong> 38 is below the target of 40 (Example figure: replace with your own)</p>
 <hr>
-<h5>3. Unit Economics (LTV:CAC)</h5>
+<h6 class="hxr-h4">3. Unit Economics (LTV:CAC)</h6>
 <div class="hx-table"><table><thead><tr><th>Metric</th><th>Your Value</th><th>Score</th><th>Benchmark (Example figures: replace with your own)</th><th>Status</th></tr></thead><tbody><tr><td>LTV</td><td>$4,200</td><td>-</td><td>-</td><td>-</td></tr><tr><td>CAC</td><td>$600</td><td>-</td><td>-</td><td>-</td></tr><tr><td>LTV:CAC Ratio</td><td>7.0x</td><td>9/10</td><td>&gt;3x target</td><td>EXCELLENT</td></tr></tbody></table></div>
 <p><strong>Analysis:</strong> 7.0x is at or above the excellent mark of 4x (Example figure: replace with your own)</p>
 <hr>
-<h5>4. Revenue Retention</h5>
+<h6 class="hxr-h4">4. Revenue Retention</h6>
 <div class="hx-table"><table><thead><tr><th>Metric</th><th>Your Value</th><th>Score</th><th>Benchmark (Example figures: replace with your own)</th><th>Status</th></tr></thead><tbody><tr><td>Retention Rate</td><td>90%</td><td>7/10</td><td>&gt;85% target</td><td>GOOD</td></tr></tbody></table></div>
 <p><strong>Analysis:</strong> 90% meets the healthy benchmark of 85% (Example figure: replace with your own)</p>
 <hr>
-<h5>5. Activation</h5>
+<h6 class="hxr-h4">5. Activation</h6>
 <div class="hx-table"><table><thead><tr><th>Metric</th><th>Your Value</th><th>Score</th><th>Benchmark (Example figures: replace with your own)</th><th>Status</th></tr></thead><tbody><tr><td>Activation Rate</td><td>NOT PROVIDED</td><td>0/10</td><td>&gt;50% target</td><td>MISSING</td></tr></tbody></table></div>
 <p><strong>Analysis:</strong> Data not provided: not scored</p>
 <hr>
-<h4>Additional Metrics Detected</h4>
+<h5 class="hxr-h3">Additional Metrics Detected</h5>
 <div class="hx-table"><table><thead><tr><th>Metric</th><th>Value</th><th>Notes</th></tr></thead><tbody><tr><td>MRR</td><td>$40,000</td><td>Monthly Recurring Revenue</td></tr></tbody></table></div>
 <hr>
-<h4>Priority Actions</h4>
+<h5 class="hxr-h3">Priority Actions</h5>
 <ol>
 <li value="1">NPS: Focus on detractor feedback, address top 3 pain points</li>
 <li value="2">ACTIVATION: Define and track "aha moment" metric</li>
 </ol>
 <hr>
-<h4>Data Gaps to Fill</h4>
+<h5 class="hxr-h3">Data Gaps to Fill</h5>
 <ul>
 <li>[ ] Activation rate (define your "aha moment")</li>
 </ul>
 <hr>
 <p><em>Scorecard generated using the CRAFT GTM framework</em></p>
 <p><em>Benchmarks are example ranges for the SMB SaaS market segment. Time in market (1 to 2 years) does not change the benchmarks or scores.</em></p>
-<p>Suggested timings, lengths and counts: adjust them to your own.</p></div></details></div></div>
+<p>Suggested timings, lengths and counts: adjust them to your own.</p></div></details>
+    <footer class="hxr-foot"><span>Built by Shashwat Ghosh</span><span>https://craft-gtm.gtmhelix.com/tools/pmf-scorecard/</span></footer>
+  </article>
   <p class="figcap">The dimension scores and the overall result (stage Emerging PMF, score 7/10) from this page&#x27;s example answer. Activation was not given, so the answer lists it under Data Gaps to Fill.</p>
 </section>
 <aside class="hx7-strip" aria-label="Built by Shashwat Ghosh"><div class="hx-wrap hx7-strip-row"><picture class="hx7-strip-photo"><source srcset="/assets/shashwat-ghosh-160.webp?v=c5d0d41b0c" type="image/webp"><img src="/assets/shashwat-ghosh-160.jpg?v=b453d25fa4" width="160" height="160" alt="Shashwat Ghosh" decoding="async"></picture><p><b>Built by Shashwat Ghosh</b>, Co-Founder and Fractional CMO, Helix GTM Consulting, with 24+ years in B2B and 10+ years fractional.</p><a href="https://gtmhelix.com/about/">About Shashwat</a></div></aside>
@@ -418,6 +439,6 @@
             </div>
         </div>
     </footer>
-<script src="/assets/app.js?v=47d60caaff" defer></script>
+<script src="/assets/app.js?v=45af447678" defer></script>
 </body>
 </html>
