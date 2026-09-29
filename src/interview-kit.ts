@@ -1,4 +1,4 @@
-import { parseListItems, describeChoice, readableChoice, EXAMPLE_FIGURES, SUGGESTION_FOOTER } from './utils.js';
+import { parseListItems, describeChoice, readableChoice, lowerFirstIfCommon, EXAMPLE_FIGURES, SUGGESTION_FOOTER } from './utils.js';
 
 export function generateCustomerInterviewKit(args: {
   interview_type: string;
@@ -71,7 +71,7 @@ export function generateCustomerInterviewKit(args: {
       'How easy was it to get started?'
     ],
     moderate: [
-      'Walk me through your typical workflow with [product category].',
+      `Walk me through your typical workflow with ${lowerFirstIfCommon(args.product_context)}.`,
       'What integrations are most important to you?',
       'How do you measure success with tools like this?'
     ],
@@ -295,7 +295,7 @@ ${hypotheses.map((h, i) => `
 
 ## Interview Objectives
 
-1. Understand ${args.target_persona}'s current reality and challenges
+1. Understand the current reality and challenges of: ${args.target_persona}
 2. ${interviewType === 'discovery' ? 'Identify unmet needs and pain points' :
      interviewType === 'validation' ? 'Test solution assumptions and get honest reaction' :
      interviewType === 'feedback' ? 'Gather improvement ideas and satisfaction signals' :
@@ -329,8 +329,8 @@ ${techQuestions.map((q, i) => `${i + 1}. ${q}`).join('\n')}
 
 ### Industry-Specific Questions (${industryName})
 
-1. How do you currently handle ${ctx.terms[0]}?
-2. What's your process for ${ctx.terms[1]}?
+1. ${industry === 'saas' ? 'How do you manage your software subscriptions today?' : `How do you currently handle ${ctx.terms[0]}?`}
+2. ${industry === 'saas' ? (interviewType === 'churn' ? `What's your process for ${ctx.terms[3]}?` : "What's your process for handling churn?") : `What's your process for ${ctx.terms[1]}?`}
 3. How do ${ctx.stakeholders[0]} and ${ctx.stakeholders[1]} collaborate on this?
 4. What ${ctx.terms[2]} challenges have you faced?
 
@@ -338,7 +338,7 @@ ${techQuestions.map((q, i) => `${i + 1}. ${q}`).join('\n')}
 
 ## Probing Questions (Use as needed)
 
-*Follow the energy - when they light up or seem frustrated, probe deeper*
+*Follow the energy: when they light up or seem frustrated, probe deeper*
 
 ${questions.probing.map(q => `- ${q}`).join('\n')}
 
