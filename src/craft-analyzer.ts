@@ -1,4 +1,4 @@
-import { analyzeCRAFTDimensions, EXAMPLE_FIGURE } from './utils.js';
+import { analyzeCRAFTDimensions } from './utils.js';
 
 export function generateCRAFTAnalyzer(args: {
   document_content: string;
@@ -26,6 +26,18 @@ export function generateCRAFTAnalyzer(args: {
   else if (percentage >= 40) { rating = 'NEEDS WORK'; }
   else { rating = 'SIGNIFICANT GAPS'; }
   
+  // Run 12 (R12-21): the terms each dimension looks for, named when a dimension scores under 7 with no gap listed.
+  const TERMS: Record<string, string> = {
+    character: 'owners, roles and teams',
+    result: 'measurable goals and targets',
+    artifact: 'deliverables and outputs',
+    frame: 'budget, constraints and assumptions',
+    timeline: 'dates, deadlines and milestones',
+  };
+  // No gap listed: "well-defined" only at 7 or more; below that, say which terms to add.
+  const noGap = (key: string, score: number, strong: string): string =>
+    score >= 7 ? `- ${strong}` : `- Partly covered: few ${key.charAt(0).toUpperCase() + key.slice(1)} terms found (${TERMS[key]}); add them`;
+
   // Generate improved sections for gaps
   const generateImprovement = (dimension: string, gaps: string[]): string => {
     if (gaps.length === 0) return 'No improvements needed';
@@ -108,7 +120,7 @@ Key Deadlines:
 ## ${docType.replace(/_/g, ' ').toUpperCase()}
 
 **Document Length:** ${content.length} characters
-**Words (estimate):** ~${Math.round(content.length / 5)}, from the character count ${EXAMPLE_FIGURE}
+**Words (estimate):** ~${Math.round(content.length / 5)}, from the character count
 **Intended Audience:** ${audience}
 **Desired Outcome:** ${outcome}
 
@@ -118,6 +130,8 @@ Key Deadlines:
 
 | Rating | ${rating} |
 |--------|-------------|
+
+Scores come from a keyword check, not a reading of the plan: check each gap against your document.
 
 ---
 
@@ -138,15 +152,15 @@ Key Deadlines:
 ### C: CHARACTER (Who executes?)
 **Score: ${analysis.character.score}/10**
 
-**Found in document:**
+**Words matched:**
 ${analysis.character.found.length > 0 
   ? analysis.character.found.slice(0, 5).map(f => `- "${f}"`).join('\n')
-  : '- No clear roles or owners identified'}
+  : '- None'}
 
 **Gaps identified:**
 ${analysis.character.gaps.length > 0 
   ? analysis.character.gaps.map(g => `- ${g}`).join('\n')
-  : '- Character dimension is well-defined'}
+  : noGap('character', analysis.character.score, 'Character dimension is well-defined')}
 
 ${analysis.character.gaps.length > 0 ? `\n**Recommended improvement:**\n${generateImprovement('character', analysis.character.gaps)}` : ''}
 
@@ -155,15 +169,15 @@ ${analysis.character.gaps.length > 0 ? `\n**Recommended improvement:**\n${genera
 ### R: RESULT (What does success look like?)
 **Score: ${analysis.result.score}/10**
 
-**Found in document:**
+**Words matched:**
 ${analysis.result.found.length > 0 
   ? analysis.result.found.slice(0, 5).map(f => `- "${f}"`).join('\n')
-  : '- No measurable outcomes defined'}
+  : '- None'}
 
 **Gaps identified:**
 ${analysis.result.gaps.length > 0 
   ? analysis.result.gaps.map(g => `- ${g}`).join('\n')
-  : '- Results are well-defined'}
+  : noGap('result', analysis.result.score, 'Results are well-defined')}
 
 ${analysis.result.gaps.length > 0 ? `\n**Recommended improvement:**\n${generateImprovement('result', analysis.result.gaps)}` : ''}
 
@@ -172,15 +186,15 @@ ${analysis.result.gaps.length > 0 ? `\n**Recommended improvement:**\n${generateI
 ### A: ARTIFACT (What gets produced?)
 **Score: ${analysis.artifact.score}/10**
 
-**Found in document:**
+**Words matched:**
 ${analysis.artifact.found.length > 0 
   ? analysis.artifact.found.slice(0, 5).map(f => `- "${f}"`).join('\n')
-  : '- No clear deliverables specified'}
+  : '- None'}
 
 **Gaps identified:**
 ${analysis.artifact.gaps.length > 0 
   ? analysis.artifact.gaps.map(g => `- ${g}`).join('\n')
-  : '- Artifacts are well-defined'}
+  : noGap('artifact', analysis.artifact.score, 'Artifacts are well-defined')}
 
 ${analysis.artifact.gaps.length > 0 ? `\n**Recommended improvement:**\n${generateImprovement('artifact', analysis.artifact.gaps)}` : ''}
 
@@ -189,15 +203,15 @@ ${analysis.artifact.gaps.length > 0 ? `\n**Recommended improvement:**\n${generat
 ### F: FRAME (Context & constraints)
 **Score: ${analysis.frame.score}/10**
 
-**Found in document:**
+**Words matched:**
 ${analysis.frame.found.length > 0 
   ? analysis.frame.found.slice(0, 5).map(f => `- "${f}"`).join('\n')
-  : '- No context or constraints defined'}
+  : '- None'}
 
 **Gaps identified:**
 ${analysis.frame.gaps.length > 0 
   ? analysis.frame.gaps.map(g => `- ${g}`).join('\n')
-  : '- Frame/context is well-defined'}
+  : noGap('frame', analysis.frame.score, 'Frame/context is well-defined')}
 
 ${analysis.frame.gaps.length > 0 ? `\n**Recommended improvement:**\n${generateImprovement('frame', analysis.frame.gaps)}` : ''}
 
@@ -206,15 +220,15 @@ ${analysis.frame.gaps.length > 0 ? `\n**Recommended improvement:**\n${generateIm
 ### T: TIMELINE (When does it happen?)
 **Score: ${analysis.timeline.score}/10**
 
-**Found in document:**
+**Words matched:**
 ${analysis.timeline.found.length > 0 
   ? analysis.timeline.found.slice(0, 5).map(f => `- "${f}"`).join('\n')
-  : '- No timeline or deadlines specified'}
+  : '- None'}
 
 **Gaps identified:**
 ${analysis.timeline.gaps.length > 0 
   ? analysis.timeline.gaps.map(g => `- ${g}`).join('\n')
-  : '- Timeline is well-defined'}
+  : noGap('timeline', analysis.timeline.score, 'Timeline is well-defined')}
 
 ${analysis.timeline.gaps.length > 0 ? `\n**Recommended improvement:**\n${generateImprovement('timeline', analysis.timeline.gaps)}` : ''}
 
@@ -226,15 +240,15 @@ ${analysis.timeline.gaps.length > 0 ? `\n**Recommended improvement:**\n${generat
 
   // Prioritize improvements by lowest scores
   const dimensions = [
-    { name: 'Character', score: analysis.character.score, gaps: analysis.character.gaps },
-    { name: 'Result', score: analysis.result.score, gaps: analysis.result.gaps },
-    { name: 'Artifact', score: analysis.artifact.score, gaps: analysis.artifact.gaps },
-    { name: 'Frame', score: analysis.frame.score, gaps: analysis.frame.gaps },
-    { name: 'Timeline', score: analysis.timeline.score, gaps: analysis.timeline.gaps }
+    { name: 'Character', key: 'character', score: analysis.character.score, gaps: analysis.character.gaps },
+    { name: 'Result', key: 'result', score: analysis.result.score, gaps: analysis.result.gaps },
+    { name: 'Artifact', key: 'artifact', score: analysis.artifact.score, gaps: analysis.artifact.gaps },
+    { name: 'Frame', key: 'frame', score: analysis.frame.score, gaps: analysis.frame.gaps },
+    { name: 'Timeline', key: 'timeline', score: analysis.timeline.score, gaps: analysis.timeline.gaps }
   ].filter(d => d.score < 7).sort((a, b) => a.score - b.score);
   // The recommended action for a dimension: its first gap, or the generic action when it lists none
   // (a dimension can score below 7 with no gap listed, for example Frame with one match).
-  const actionFor = (d: { gaps: string[] }): string => d.gaps[0] || 'Enhance this section';
+  const actionFor = (d: { key: string; gaps: string[] }): string => d.gaps[0] || `Add ${TERMS[d.key]}`;
 
   if (dimensions.length === 0) {
     output += `**Document is well-structured!** All CRAFT dimensions score 7/10 or higher.\n\n`;
@@ -251,14 +265,14 @@ ${analysis.timeline.gaps.length > 0 ? `\n**Recommended improvement:**\n${generat
 ## Document Excerpt Analyzed
 
 \`\`\`
-${content.substring(0, 500)}${content.length > 500 ? '...\n\n[Document continues - ' + (content.length - 500) + ' more characters]' : ''}
+${content.substring(0, 500)}${content.length > 500 ? '...\n\n[Document continues: ' + (content.length - 500) + ' more characters]' : ''}
 \`\`\`
 
 ---
 
 ## Next Steps
 
-1. ${dimensions[0] ? `Address ${dimensions[0].name}: ${actionFor(dimensions[0])}` : 'Document is well-structured - ready for review'}
+1. ${dimensions[0] ? `Address ${dimensions[0].name}: ${actionFor(dimensions[0])}` : 'Document is well-structured: ready for review'}
 2. ${dimensions[1] ? `Improve ${dimensions[1].name}: ${actionFor(dimensions[1])}` : 'Consider adding more detail to strongest sections'}
 3. Review with ${audience !== 'Not specified' ? audience : 'intended stakeholders'}
 4. ${outcome !== 'Not specified' ? `Ensure document drives: ${outcome}` : 'Define desired outcome from this document'}
