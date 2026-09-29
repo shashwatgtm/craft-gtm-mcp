@@ -275,10 +275,10 @@ ${metricRows}
 
 | Risk | Mitigation | Owner |
 |------|------------|-------|
-| Launch delay | Buffer week built in | ${getOwner('strategy')} |
-| Low awareness | Backup paid campaign ready | ${getOwner('execution')} |
-| Technical issues | Rollback plan documented | Engineering |
-| Competitive response | Battle cards updated | ${getOwner('sales')} |
+| Launch delay | Build in a buffer week | ${getOwner('strategy')} |
+| Low awareness | Have a backup paid campaign ready | ${getOwner('execution')} |
+| Technical issues | Document a rollback plan | Engineering |
+| Competitive response | Update the battle cards | ${getOwner('sales')} |
 
 ---
 

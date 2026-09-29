@@ -313,7 +313,7 @@ ${hypotheses.length > 0 ? `4. Validate/invalidate key hypotheses` : ''}
 
 ${questions.opening.map(q => `- ${q}`).join('\n')}
 
-**Industry-specific opener:** "I know in ${industryName}, ${ctx.painPoints[0]} is a common challenge. Is that something you deal with?"
+**Industry-specific opener:** "How much of a challenge is ${ctx.painPoints[0]} for you${industry === 'other' ? '' : ` in ${industryName}`}?"
 
 ---
 

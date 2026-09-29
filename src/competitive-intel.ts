@@ -90,7 +90,7 @@ export function generateCompetitiveIntel(args: {
     if (objLower.includes('feature') || objLower.includes('can\'t') || objLower.includes('doesn\'t') || objLower.includes('missing') || objLower.includes('lack')) {
       return {
         acknowledge: "That's a fair point.",
-        counter: `While [feature] works differently in our product, customers find that [workaround or alternative benefit]. Plus, ${S[0] ? lowerFirstIfCommon(S[0]) : '[your key strength]'} [how it makes up for the gap].`,
+        counter: `[Only if true and provable: While [feature] works differently in our product, customers find that [workaround or alternative benefit].] Plus, ${S[0] ? lowerFirstIfCommon(S[0]) : '[your key strength]'} [how it makes up for the gap].`,
         redirect: "How critical is that specific capability vs. the overall outcome you're trying to achieve?"
       };
     }
@@ -98,7 +98,7 @@ export function generateCompetitiveIntel(args: {
     if (objLower.includes('risk') || objLower.includes('trust') || objLower.includes('new') || objLower.includes('proven')) {
       return {
         acknowledge: "De-risking a decision like this is smart.",
-        counter: `We work with [similar customers/industries] who had the same concern. Here's how we reduce risk: [pilot program, guarantee, case studies]. Would a reference call help?`,
+        counter: `[Only if true and provable: We work with [similar customers/industries] who had the same concern.] Here's how we reduce risk: [pilot program, guarantee, case studies]. [Only if true and provable: Would a reference call help?]`,
         redirect: "What would help you feel confident in moving forward?"
       };
     }
@@ -149,7 +149,7 @@ ${info.length > 0 ? `**Known Intel:**\n${info.map(i => `- ${i}`).join('\n')}\n` 
 | Dimension | ${args.your_product} | ${comp} |
 |-----------|------------|---------|
 ${S.length > 0 ? S.slice(0, 2).map(s => `| ${s} | Strong | [Your rating] |`).join('\n') : '| [Your key strength] | [Your rating] | [Your rating] |'}
-${W.length > 0 ? `| Our gap: ${W[0]} | Gap for us | Ahead of us |` : '| [Your main gap] | [Your rating] | [Your rating] |'}
+${W.length > 0 ? `| Our gap: ${W[0]} | Gap for us | [Your rating] |` : '| [Your main gap] | [Your rating] | [Your rating] |'}
 
 **Our Advantages Over ${comp}:**
 ${S.length > 0 ? S.slice(0, 3).map(s => `- ${s}`).join('\n') : '- [Your advantages]'}
@@ -175,7 +175,7 @@ Here's why customers choose us:
 
 ${S.length > 0 ? S.slice(0, 2).map((s, n) => `${n + 1}. ${s}: [brief explanation]`).join('\n') : '1. [Your key strength]: [brief explanation]'}
 
-Would it help to talk to a customer who evaluated both?"
+[Only if true and provable: Would it help to talk to a customer who evaluated both?]"
 \`\`\`
 
 ---

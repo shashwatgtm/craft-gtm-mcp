@@ -200,7 +200,7 @@ Subject: Partnership opportunity with ${args.company}
 
 Hi [Name],
 
-I've been following [Partner Company]'s work in [space] and think there's a strong opportunity for us to work together.
+[Only if true and provable: I've been following [Partner Company]'s work in [space].] I think there's a strong opportunity for us to work together.
 
 ${args.company} helps [value prop]. Partners ${partnerModel === 'reseller' ? 'can expand their revenue by offering our solution alongside their services' : partnerModel === 'referral' ? 'earn a commission on each closed deal (see the tiers above)' : partnerModel === 'integration_tech' ? 'can increase their product value through deep integration' : 'can grow their business with our tools'}.
 ${partnerModel === 'reseller' ? `\nWith deals averaging ${args.your_deal_size}, partners at the Silver tier would earn about ${money(dealSize * 0.20 * 5)} a quarter. ${EXAMPLE_FIGURE}\n` : ''}
