@@ -50,6 +50,12 @@ export function generateCrisisPlanner(args: {
   };
   
   const team = teamStructure[companySize] || teamStructure.scaleup_50_200;
+
+  // Run 12 (R12-21): a heading names the kind of crisis once ("Service outage"), and the crisis as typed only when it differs.
+  const heading = (kind: string, name: string): string =>
+    name.trim().toLowerCase() === kind.toLowerCase() ? kind : `${kind}: ${name}`;
+  // The first security crisis gets the full steps; a later one points back to them.
+  let securityDone = '';
   
   // Generate specific playbook for each crisis type
   // (response times, severity thresholds and phase windows are example figures, labelled in the output)
@@ -63,7 +69,16 @@ export function generateCrisisPlanner(args: {
       const regulatoryBody = compliance.toLowerCase().includes('hipaa') ? 'HHS' :
                             compliance.toLowerCase().includes('gdpr') ? 'relevant DPA' : 'applicable authorities';
 
-      return `### SECURITY INCIDENT: ${crisisName}
+      if (securityDone) {
+        return `### ${heading('Security incident', crisisName)}
+
+Use the ${securityDone} steps above.
+
+---
+`;
+      }
+      securityDone = crisisName;
+      return `### ${heading('Security incident', crisisName)}
 
 **Severity Assessment:** ${EXAMPLE_FIGURES}
 | Factor | High | Medium | Low |
@@ -101,12 +116,12 @@ export function generateCrisisPlanner(args: {
     
     // Service outage
     if (crisisLower.includes('outage') || crisisLower.includes('downtime') || crisisLower.includes('down')) {
-      return `### SERVICE OUTAGE: ${crisisName}
+      return `### ${heading('Service outage', crisisName)}
 
 **Severity Levels:** ${EXAMPLE_FIGURES}
 | Level | Definition | Response Time | Escalation |
 |-------|------------|---------------|------------|
-| SEV-1 | Complete outage, all customers | <15 min | ${team.lead} + CEO |
+| SEV-1 | Complete outage, all customers | <15 min | ${/CEO/.test(team.lead) ? team.lead : `${team.lead} + CEO`} |
 | SEV-2 | Major feature down, >50% affected | <30 min | ${team.core[0]} |
 | SEV-3 | Degraded performance | <1 hour | Engineering lead |
 
@@ -116,11 +131,11 @@ export function generateCrisisPlanner(args: {
 3. **Diagnose**: Root cause identification started
 4. **Notify support team**: Prepare for volume
 
-**Active Incident (15 min - resolution):** ${EXAMPLE_FIGURES}
+**Active Incident (15 minutes to resolution):** ${EXAMPLE_FIGURES}
 | Time | Status Update | Channel |
 |------|---------------|---------|
 | 15 min | "Identified: [description]" | Status page |
-| 30 min | "Working on fix, ETA [X]" | Status + Twitter |
+| 30 min | "Working on fix, ETA [X]" | Status page + X (Twitter) |
 | 60 min | Progress update or revised ETA | Status + Email to affected |
 | Every 30 min | Continued updates until resolved | Status |
 
@@ -130,7 +145,7 @@ export function generateCrisisPlanner(args: {
     
     // PR/Reputation incident
     if (crisisLower.includes('pr') || crisisLower.includes('reputation') || crisisLower.includes('media') || crisisLower.includes('social')) {
-      return `### PR/REPUTATION INCIDENT: ${crisisName}
+      return `### ${heading('PR or reputation incident', crisisName)}
 
 **Severity Assessment:**
 | Factor | High | Medium | Low |
@@ -161,7 +176,7 @@ export function generateCrisisPlanner(args: {
     
     // Executive departure
     if (crisisLower.includes('executive') || crisisLower.includes('departure') || crisisLower.includes('fired') || crisisLower.includes('resign')) {
-      return `### EXECUTIVE DEPARTURE: ${crisisName}
+      return `### ${heading('Executive departure', crisisName)}
 
 **Scenario Types:** ${EXAMPLE_FIGURES}
 | Type | Response Approach | Timeline |
@@ -183,7 +198,7 @@ export function generateCrisisPlanner(args: {
     
     // Competitor attack
     if (crisisLower.includes('competitor') || crisisLower.includes('attack') || crisisLower.includes('market')) {
-      return `### COMPETITIVE THREAT: ${crisisName}
+      return `### ${heading('Competitive threat', crisisName)}
 
 **Assessment Framework:** ${EXAMPLE_FIGURES}
 | Threat Type | Response Level | Timeline |
@@ -212,7 +227,7 @@ export function generateCrisisPlanner(args: {
     }
     
     // Default playbook
-    return `### CRISIS: ${crisisName}
+    return `### ${heading('Crisis', crisisName)}
 
 **Initial Assessment (First 30 minutes):** ${EXAMPLE_FIGURE}
 1. What happened? (Facts only, no speculation)
@@ -282,8 +297,6 @@ ${team.extended.map(member => `- ${member}`).join('\n')}
   }
 
   output += `
----
-
 ## General Crisis Principles
 
 ### Communication Principles
