@@ -100,23 +100,23 @@ export function generatePMFScorecard(args: {
   const recommendations: string[] = [];
   let suggestsCounts = false; // true when a recommendation suggests a count (needs the suggestion footer)
   if (churnScore.label === 'CRITICAL' || churnScore.label === 'DEVELOPING') {
-    recommendations.push('🚨 CHURN: Implement churn prediction model, conduct exit interviews, improve onboarding');
+    recommendations.push('CHURN: Implement churn prediction model, conduct exit interviews, improve onboarding');
   }
   if (npsScore.label === 'MISSING') {
-    recommendations.push('📊 NPS: Start measuring NPS immediately - critical PMF signal');
+    recommendations.push('NPS: Start measuring NPS immediately - critical PMF signal');
   } else if (npsScore.score < 6) {
-    recommendations.push('📊 NPS: Focus on detractor feedback, address top 3 pain points');
+    recommendations.push('NPS: Focus on detractor feedback, address top 3 pain points');
     suggestsCounts = true;
   }
   if (ltvCacScore.label === 'MISSING') {
-    recommendations.push('💰 LTV:CAC: Calculate unit economics - essential for scaling decisions');
+    recommendations.push('LTV:CAC: Calculate unit economics - essential for scaling decisions');
   } else if (ltvCacScore.score < 6) {
-    recommendations.push('💰 UNIT ECONOMICS: Either reduce CAC (improve conversion) or increase LTV (upsell/retention)');
+    recommendations.push('UNIT ECONOMICS: Either reduce CAC (improve conversion) or increase LTV (upsell/retention)');
   }
   if (activationScore.label === 'MISSING') {
-    recommendations.push('🎯 ACTIVATION: Define and track "aha moment" metric');
+    recommendations.push('ACTIVATION: Define and track "aha moment" metric');
   } else if (activationScore.score < 6) {
-    recommendations.push('🎯 ACTIVATION: Improve time-to-value, simplify onboarding, remove friction');
+    recommendations.push('ACTIVATION: Improve time-to-value, simplify onboarding, remove friction');
   }
   
   // Parse customer feedback for qualitative signals
@@ -124,20 +124,20 @@ export function generatePMFScorecard(args: {
   if (args.customer_feedback) {
     const feedback = args.customer_feedback.toLowerCase();
     if (feedback.includes('love') || feedback.includes('great') || feedback.includes('essential')) {
-      feedbackAnalysis = '✅ Positive signals: Strong emotional resonance detected';
+      feedbackAnalysis = 'Positive signals: Strong emotional resonance detected';
     }
     if (feedback.includes('but') || feedback.includes('however') || feedback.includes('wish')) {
-      feedbackAnalysis += '\n⚠️ Improvement signals: Feature gaps or friction points mentioned';
+      feedbackAnalysis += '\nImprovement signals: Feature gaps or friction points mentioned';
     }
     if (feedback.includes('confus') || feedback.includes('difficult') || feedback.includes('complex')) {
-      feedbackAnalysis += '\n🔧 UX signals: Usability improvements needed';
+      feedbackAnalysis += '\nUX signals: Usability improvements needed';
     }
   }
 
   // Every benchmark below is an example figure: the column header carries the block label.
   const dimensionHeader = `| Metric | Your Value | Score | Benchmark (${EXAMPLE_FIGURES.replace(/\.$/, '')}) | Status |`;
 
-  return `# 📊 Product-Market Fit Scorecard
+  return `# Product-Market Fit Scorecard
 ## ${args.product}
 
 **Market Segment:** ${cap(readableChoice(marketType))}
@@ -146,18 +146,18 @@ export function generatePMFScorecard(args: {
 
 ---
 
-## 🎯 Overall PMF Assessment
+## Overall PMF Assessment
 
 | Stage | Score | Status |
 |-------|-------|--------|
-| **${pmfStage}** | **${overallScore}/10** | ${overallScore >= 7 ? '🟢' : overallScore >= 5 ? '🟡' : '🔴'} |
+| **${pmfStage}** | **${overallScore}/10** | ${overallScore >= 7 ? 'Yes' : overallScore >= 5 ? 'Note' : 'No'} |
 
 ${pmfAnalysis}
 The score is the average of the dimensions scored below (missing data is left out), each judged against an example benchmark.
 
 ---
 
-## 📈 Dimension Scores
+## Dimension Scores
 
 Each score and status compares your value with an example benchmark for the ${readableChoice(marketType)} market segment.
 
@@ -208,22 +208,22 @@ ${dimensionHeader}
 
 ---
 
-## 📊 Additional Metrics Detected
+## Additional Metrics Detected
 
 | Metric | Value | Notes |
 |--------|-------|-------|
 ${metrics.mrr !== undefined ? `| MRR | $${metrics.mrr.toLocaleString('en-US')} | Monthly Recurring Revenue |\n` : ''}${metrics.arr !== undefined ? `| ARR | $${metrics.arr.toLocaleString('en-US')} | Annual Recurring Revenue |\n` : ''}${metrics.dau !== undefined ? `| DAU | ${metrics.dau.toLocaleString('en-US')} | Daily Active Users |\n` : ''}${metrics.mau !== undefined ? `| MAU | ${metrics.mau.toLocaleString('en-US')} | Monthly Active Users |\n` : ''}${metrics.dauMauRatio !== undefined ? `| DAU/MAU | ${(metrics.dauMauRatio * 100).toFixed(1)}% | Stickiness ratio |\n` : ''}${metrics.trialConversion !== undefined ? `| Trial Conversion | ${metrics.trialConversion}% | Trial to paid rate |\n` : ''}${metrics.revenueGrowth !== undefined ? `| Revenue Growth | ${metrics.revenueGrowth}% | MoM or YoY growth |\n` : ''}
 
-${feedbackAnalysis ? `---\n\n## 💬 Qualitative Signals\n\n${feedbackAnalysis}\n` : ''}
+${feedbackAnalysis ? `---\n\n## Qualitative Signals\n\n${feedbackAnalysis}\n` : ''}
 ---
 
-## 🎯 Priority Actions
+## Priority Actions
 
-${recommendations.length > 0 ? recommendations.map((r, i) => `${i + 1}. ${r}`).join('\n\n') : '✅ All dimensions scoring well - focus on scaling!'}
+${recommendations.length > 0 ? recommendations.map((r, i) => `${i + 1}. ${r}`).join('\n\n') : 'All dimensions scoring well - focus on scaling!'}
 
 ---
 
-## 📋 Data Gaps to Fill
+## Data Gaps to Fill
 
 ${[
   metrics.churn === undefined ? '- [ ] Churn rate (monthly or annual)' : null,
@@ -232,10 +232,10 @@ ${[
   metrics.cac === undefined ? '- [ ] Customer Acquisition Cost' : null,
   metrics.retentionRate === undefined ? '- [ ] Retention/renewal rate' : null,
   metrics.activationRate === undefined ? '- [ ] Activation rate (define your "aha moment")' : null
-].filter(Boolean).join('\n') || '✅ All critical metrics provided!'}
+].filter(Boolean).join('\n') || 'All critical metrics provided!'}
 
 ---
 
-*Scorecard generated using CRAFT GTM Framework v2.0*
+*Scorecard generated using the CRAFT GTM framework*
 *Benchmarks are example ranges for the ${readableChoice(marketType)} market segment. Time in market${args.time_in_market ? ` (${readableChoice(args.time_in_market)})` : ''} does not change the benchmarks or scores.*${suggestsCounts ? `\n\n${SUGGESTION_FOOTER}` : ''}`;
 }

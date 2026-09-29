@@ -114,7 +114,7 @@ export function generateRetentionPlaybook(args: {
     };
   };
 
-  let output = `# 🔄 Retention Playbook
+  let output = `# Retention Playbook
 ## ${cap(lowerFirstIfCommon(args.customer_segment))}
 
 **Business Model:** ${readableChoice(businessModel)}
@@ -123,24 +123,24 @@ export function generateRetentionPlaybook(args: {
 
 ---
 
-## 🚨 Churn Severity Assessment
+## Churn Severity Assessment
 
 | Metric | Value | Status (against example benchmarks) |
 |--------|-------|--------|
-| Monthly Churn | ${churnRate}% | ${churnSeverity === 'CRITICAL' ? '🔴' : churnSeverity === 'HIGH' ? '🟠' : churnSeverity === 'MODERATE' ? '🟡' : '🟢'} ${churnSeverity} |
-| Annual Revenue at Risk (your monthly churn, annualized) | ~${(churnRate * 12).toFixed(0)}% | ${churnRate * 12 > 50 ? '⚠️ Urgent' : 'Monitor'} |
+| Monthly Churn | ${churnRate}% | ${churnSeverity} |
+| Annual Revenue at Risk (your monthly churn, annualized) | ~${(churnRate * 12).toFixed(0)}% | ${churnRate * 12 > 50 ? 'Urgent' : 'Monitor'} |
 | Benchmark (${readableChoice(businessModel)}) | ${businessModel === 'saas_subscription' ? '3-5%' : businessModel === 'consumer' ? '5-8%' : '4-6%'} ${EXAMPLE_FIGURE} | - |
 
 ---
 
-## 📊 Health Score Model (${readableChoice(businessModel)})
+## Health Score Model (${readableChoice(businessModel)})
 
 ${EXAMPLE_FIGURES} The weights and thresholds below are illustrations to adapt to your data.
 | Signal | Weight | How to Track | Threshold |
 |--------|--------|--------------|-----------|
 ${Object.entries(weights).map(([signal, weight]) => {
   const available = dataSignals.some(ds => ds.toLowerCase().includes(signal.split('_')[0]));
-  return `| ${signal.replace(/_/g, ' ')} | ${weight}% | ${available ? '✅ Available' : '⚠️ Need to add'} | Red < 30, Yellow 30-70, Green > 70 |`;
+  return `| ${signal.replace(/_/g, ' ')} | ${weight}% | ${available ? 'Available' : 'Need to add'} | Red < 30, Yellow 30-70, Green > 70 |`;
 }).join('\n')}
 
 ### Health Score Calculation
@@ -150,15 +150,15 @@ ${EXAMPLE_FIGURES}
 Health Score = ${Object.entries(weights).map(([signal, weight]) => `(${signal} × ${weight / 100})`).join(' + ')}
 
 Risk Levels (${EXAMPLE_FIGURES.replace(/\.$/, '')}):
-- 🔴 Critical (0-30): Immediate intervention required
-- 🟠 At Risk (31-50): Proactive outreach needed  
-- 🟡 Monitor (51-70): Nurture and optimize
-- 🟢 Healthy (71-100): Expand and advocate
+- Critical (0-30): Immediate intervention required
+- At Risk (31-50): Proactive outreach needed  
+- Monitor (51-70): Nurture and optimize
+- Healthy (71-100): Expand and advocate
 \`\`\`
 
 ---
 
-## 🎯 Churn Reason Interventions
+## Churn Reason Interventions
 
 `;
 
@@ -190,7 +190,7 @@ ${intervention.email}
 `;
   }
 
-  output += `## 📈 Intervention Mix (Based on Team Capacity)
+  output += `## Intervention Mix (Based on Team Capacity)
 
 ${EXAMPLE_FIGURES} The allocation is a starting split for this team size.
 | Intervention Type | Allocation | Description |
@@ -201,7 +201,7 @@ ${EXAMPLE_FIGURES} The allocation is a starting split for this team size.
 
 ---
 
-## ⏰ Lifecycle Intervention Timing
+## Lifecycle Intervention Timing
 
 | Touchpoint | Timing | Action | Goal |
 |------------|--------|--------|------|
@@ -214,7 +214,7 @@ ${EXAMPLE_FIGURES} The allocation is a starting split for this team size.
 
 ---
 
-## 📊 Metrics & Monitoring
+## Metrics & Monitoring
 
 | Metric | Target (${EXAMPLE_FIGURES.replace(/\.$/, '')}) | Current | Tracking |
 |--------|--------|---------|----------|
@@ -226,7 +226,7 @@ ${EXAMPLE_FIGURES} The allocation is a starting split for this team size.
 
 ---
 
-*Retention playbook generated for ${lowerFirstIfCommon(args.customer_segment)} using CRAFT GTM Framework v2.0*
+*Retention playbook generated for ${lowerFirstIfCommon(args.customer_segment)} using the CRAFT GTM framework*
 *Optimized for ${readableChoice(businessModel)} business model with ${csTeamShown} CS team*
 
 ${SUGGESTION_FOOTER}`;
@@ -253,7 +253,7 @@ function generateChurnDiscoveryKit(
 
   const reasons = commonReasons[businessModel] || commonReasons.saas_subscription;
 
-  return `# 🔍 Churn Discovery Kit: ${segment}
+  return `# Churn Discovery Kit: ${segment}
 
 ## Current Situation
 
@@ -263,13 +263,13 @@ function generateChurnDiscoveryKit(
 | **Business Model** | ${readableChoice(businessModel)} | |
 | **CS Team** | ${csTeamShown} | |
 
-⚠️ **You haven't provided churn reasons.** To build an effective retention playbook, you need to understand WHY customers leave.
+**You haven't provided churn reasons.** To build an effective retention playbook, you need to understand WHY customers leave.
 
 Here's a framework to discover your churn reasons:
 
 ---
 
-## 📋 Step 1: Churn Survey Template
+## Step 1: Churn Survey Template
 
 Send this to recently churned customers, within 7 days of churn (Example figure: replace with your own):
 
@@ -291,7 +291,7 @@ ${reasons.map((r, i) => `> - ${r}`).join('\n')}
 
 ---
 
-## 📞 Step 2: Churn Interview Questions
+## Step 2: Churn Interview Questions
 
 For high-value churns, do a 15-minute call:
 
@@ -311,7 +311,7 @@ For high-value churns, do a 15-minute call:
 
 ---
 
-## 📊 Step 3: Data Analysis Checklist
+## Step 3: Data Analysis Checklist
 
 Before customers tell you why they left, your data might already show patterns:
 
@@ -331,7 +331,7 @@ Before customers tell you why they left, your data might already show patterns:
 
 ---
 
-## 🎯 Common Churn Reasons for ${readableChoice(businessModel)} Business Model
+## Common Churn Reasons for ${readableChoice(businessModel)} Business Model
 
 Here are common churn reasons to check for your model (a starting checklist, not ranked by likelihood):
 
@@ -345,7 +345,7 @@ ${reasons.map((r, i) => `### ${i + 1}. ${r}
 
 ---
 
-## 🔄 Next Steps
+## Next Steps
 
 1. **Send churn survey** to last 20 churned customers
 2. **Conduct 5 churn interviews** with highest-value losses ${EXAMPLE_FIGURE}
@@ -361,7 +361,7 @@ You'll get a complete playbook with specific interventions for each reason.
 
 ---
 
-*Churn Discovery Kit generated using CRAFT GTM Framework v2.0*
+*Churn Discovery Kit generated using the CRAFT GTM framework*
 *For ${lowerFirstIfCommon(segment)} in ${readableChoice(businessModel)} model*
 
 ${SUGGESTION_FOOTER}`;

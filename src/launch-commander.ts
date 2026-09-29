@@ -152,7 +152,7 @@ export function generateLaunchCommander(args: {
   }
 
   // Build the launch plan
-  let output = `# 🚀 Launch Command Center
+  let output = `# Launch Command Center
 ## ${args.product_feature}
 
 **Launch Type:** ${launchType.replace(/_/g, ' ').toUpperCase()}
@@ -162,28 +162,28 @@ export function generateLaunchCommander(args: {
 
 ---
 
-## 🎯 Launch Goals
+## Launch Goals
 
 ${args.goals.split(/\n|,(?!\d{3}(?!\d))/).map(g => `- ${g.trim()}`).join('\n')}
 
 ---
 
-## 👥 Target Segments
+## Target Segments
 
 ${segments.map((s, i) => `${i + 1}. **${s}**`).join('\n')}
 
 ---
 
-## 📢 Active Channels
+## Active Channels
 ${args.available_channels ? '' : '\n*Channels not supplied: these defaults are assumed.*\n'}
-${channels.map(ch => `- ✅ ${ch.toLowerCase() === 'linkedin' ? 'LinkedIn' : ch}`).join('\n')}
+${channels.map(ch => `- ${ch.toLowerCase() === 'linkedin' ? 'LinkedIn' : ch}`).join('\n')}
 
 **Budget-Appropriate Tactics:**
 ${availableTactics.map(t => `- ${t}`).join('\n')}
 
 ---
 
-## 📅 Launch Timeline
+## Launch Timeline
 
 ${!launchDate
   ? '*No exact launch date: the task due dates below count back from today, as if launching today. Add a launch date (YYYY-MM-DD) for a real schedule.*\n\n'
@@ -199,7 +199,7 @@ ${!launchDate
     const phaseEnd = addDays(referenceDate, phase.endOffset);
     const isCurrentPhase = launchDate ? (new Date() >= phaseStart && new Date() <= phaseEnd) : false;
     
-    output += `### ${isCurrentPhase ? '👉 ' : ''}${phase.name} Phase
+    output += `### ${phase.name} Phase${isCurrentPhase ? ' (current phase)' : ''}
 **${isFlexible ? phase.weekRange : formatDate(phaseStart) + ' to ' + formatDate(phaseEnd)}** | Focus: ${phase.focus}
 
 | Task | Owner | Due | Status |
@@ -213,7 +213,7 @@ ${!launchDate
       const ownerType = task.toLowerCase().includes('strategy') || task.toLowerCase().includes('position') ? 'strategy' :
                        task.toLowerCase().includes('content') || task.toLowerCase().includes('blog') ? 'content' :
                        task.toLowerCase().includes('sales') || task.toLowerCase().includes('enablement') ? 'sales' : 'execution';
-      output += `| ${task} | ${getOwner(ownerType)} | ${formatDate(taskDate)} | ${isPast ? '⚠️ Check' : '⬜ Pending'} |\n`;
+      output += `| ${task} | ${getOwner(ownerType)} | ${formatDate(taskDate)} | ${isPast ? 'Check' : 'Pending'} |\n`;
     });
     
     output += '\n';
@@ -222,7 +222,7 @@ ${!launchDate
   // Segment-specific messaging
   output += `---
 
-## 💬 Segment Messaging Matrix
+## Segment Messaging Matrix
 
 `;
 
@@ -242,7 +242,7 @@ ${!launchDate
 
   output += `---
 
-## 📊 Success Metrics
+## Success Metrics
 
 | Metric | Target | Tracking Method |
 |--------|--------|-----------------|
@@ -253,7 +253,7 @@ ${!launchDate
 
 ---
 
-## ⚠️ Risk Mitigation
+## Risk Mitigation
 
 | Risk | Mitigation | Owner |
 |------|------------|-------|
@@ -264,7 +264,7 @@ ${!launchDate
 
 ---
 
-## 📋 Pre-Launch Checklist
+## Pre-Launch Checklist
 
 - [ ] Positioning finalized and approved
 - [ ] All assets created and reviewed
@@ -277,7 +277,7 @@ ${!launchDate
 
 ---
 
-*Launch plan generated for ${launchType.replace(/_/g, ' ')} using CRAFT GTM Framework v2.0*`;
+*Launch plan generated for ${launchType.replace(/_/g, ' ')} using the CRAFT GTM framework*`;
 
   return output;
 }

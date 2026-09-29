@@ -38,7 +38,7 @@ export function generateCrisisPlanner(args: {
     if (dataSensitivity === 'high_pii_financial' && !crises.includes('data_breach')) {
       crises.unshift('data_breach');
     }
-    crisesNote = `\n⚠️ **NOTE:** You didn't specify crises to plan for. Based on your industry (${readableChoice(args.industry)}) and your data sensitivity, ${readableChoice(dataSensitivity)}, we've generated playbooks for a default set of common crises for this industry.\n`;
+    crisesNote = `\n**NOTE:** You didn't specify crises to plan for. Based on your industry (${readableChoice(args.industry)}) and your data sensitivity, ${readableChoice(dataSensitivity)}, we've generated playbooks for a default set of common crises for this industry.\n`;
   }
   
   // Team structure based on company size
@@ -63,7 +63,7 @@ export function generateCrisisPlanner(args: {
       const regulatoryBody = compliance.toLowerCase().includes('hipaa') ? 'HHS' :
                             compliance.toLowerCase().includes('gdpr') ? 'relevant DPA' : 'applicable authorities';
 
-      return `### 🔐 SECURITY INCIDENT: ${crisisName}
+      return `### SECURITY INCIDENT: ${crisisName}
 
 **Severity Assessment:** ${EXAMPLE_FIGURES}
 | Factor | High | Medium | Low |
@@ -73,11 +73,11 @@ export function generateCrisisPlanner(args: {
 | Attack ongoing | Yes | Unknown | Contained |
 
 **Immediate Response (0-4 hours):** ${EXAMPLE_FIGURE}
-1. ⚡ **Activate incident response team**: ${team.lead} as incident commander
-2. 🔒 **Contain the threat**: Isolate affected systems, revoke compromised credentials
-3. 📸 **Preserve evidence**: Forensic images before remediation
-4. 📝 **Start incident log**: Document timeline, actions, decisions
-5. 🔇 **Internal communication only**: No external statements yet
+1. **Activate incident response team**: ${team.lead} as incident commander
+2. **Contain the threat**: Isolate affected systems, revoke compromised credentials
+3. **Preserve evidence**: Forensic images before remediation
+4. **Start incident log**: Document timeline, actions, decisions
+5. **Internal communication only**: No external statements yet
 
 **Investigation Phase (4-24 hours):** ${EXAMPLE_FIGURE}
 1. Determine scope: What data, how many customers, how long exposed
@@ -101,7 +101,7 @@ export function generateCrisisPlanner(args: {
     
     // Service outage
     if (crisisLower.includes('outage') || crisisLower.includes('downtime') || crisisLower.includes('down')) {
-      return `### ⚠️ SERVICE OUTAGE: ${crisisName}
+      return `### SERVICE OUTAGE: ${crisisName}
 
 **Severity Levels:** ${EXAMPLE_FIGURES}
 | Level | Definition | Response Time | Escalation |
@@ -111,10 +111,10 @@ export function generateCrisisPlanner(args: {
 | SEV-3 | Degraded performance | <1 hour | Engineering lead |
 
 **Immediate Response (0-15 minutes):** ${EXAMPLE_FIGURE}
-1. 🚨 **Acknowledge in status page**: "Investigating reports of [issue]"
-2. 👥 **Assemble war room**: Engineering, Support, Comms
-3. 🔍 **Diagnose**: Root cause identification started
-4. 📢 **Notify support team**: Prepare for volume
+1. **Acknowledge in status page**: "Investigating reports of [issue]"
+2. **Assemble war room**: Engineering, Support, Comms
+3. **Diagnose**: Root cause identification started
+4. **Notify support team**: Prepare for volume
 
 **Active Incident (15 min - resolution):** ${EXAMPLE_FIGURES}
 | Time | Status Update | Channel |
@@ -130,7 +130,7 @@ export function generateCrisisPlanner(args: {
     
     // PR/Reputation incident
     if (crisisLower.includes('pr') || crisisLower.includes('reputation') || crisisLower.includes('media') || crisisLower.includes('social')) {
-      return `### 📰 PR/REPUTATION INCIDENT: ${crisisName}
+      return `### PR/REPUTATION INCIDENT: ${crisisName}
 
 **Severity Assessment:**
 | Factor | High | Medium | Low |
@@ -140,11 +140,11 @@ export function generateCrisisPlanner(args: {
 | Viral potential | Trending | Spreading | Contained |
 
 **Immediate Response (0-2 hours):** ${EXAMPLE_FIGURE}
-1. 📊 **Assess situation**: What's being said, by whom, how widely spread
-2. 🔇 **Pause scheduled content**: No tone-deaf marketing
-3. 👥 **Brief crisis team**: Align on facts and stance
-4. 📝 **Draft holding statement**: Review with legal
-5. 🎯 **Identify key stakeholders to notify**: Investors, board, partners
+1. **Assess situation**: What's being said, by whom, how widely spread
+2. **Pause scheduled content**: No tone-deaf marketing
+3. **Brief crisis team**: Align on facts and stance
+4. **Draft holding statement**: Review with legal
+5. **Identify key stakeholders to notify**: Investors, board, partners
 
 **Response Strategy Matrix:** ${EXAMPLE_FIGURES}
 | Scenario | Recommended Response | Timing |
@@ -161,7 +161,7 @@ export function generateCrisisPlanner(args: {
     
     // Executive departure
     if (crisisLower.includes('executive') || crisisLower.includes('departure') || crisisLower.includes('fired') || crisisLower.includes('resign')) {
-      return `### 👔 EXECUTIVE DEPARTURE: ${crisisName}
+      return `### EXECUTIVE DEPARTURE: ${crisisName}
 
 **Scenario Types:** ${EXAMPLE_FIGURES}
 | Type | Response Approach | Timeline |
@@ -171,11 +171,11 @@ export function generateCrisisPlanner(args: {
 | Termination for cause | Legal review, minimal details, forward-focused | Same day |
 
 **Immediate Actions:**
-1. 📋 **Access management**: Revoke systems access immediately (if unplanned/termination)
-2. 👥 **Internal announcement first**: Employees hear from leadership, not media
-3. 📧 **Prepare external communications**: Customers, investors, partners
-4. 🎯 **Identify interim leadership**: Clear chain of command
-5. 📞 **Personal outreach to key accounts**: ${customerBase === 'b2b_enterprise' ? 'Call top 20 accounts' : 'Prepare customer FAQ'}
+1. **Access management**: Revoke systems access immediately (if unplanned/termination)
+2. **Internal announcement first**: Employees hear from leadership, not media
+3. **Prepare external communications**: Customers, investors, partners
+4. **Identify interim leadership**: Clear chain of command
+5. **Personal outreach to key accounts**: ${customerBase === 'b2b_enterprise' ? 'Call top 20 accounts' : 'Prepare customer FAQ'}
 
 ---
 `;
@@ -183,7 +183,7 @@ export function generateCrisisPlanner(args: {
     
     // Competitor attack
     if (crisisLower.includes('competitor') || crisisLower.includes('attack') || crisisLower.includes('market')) {
-      return `### ⚔️ COMPETITIVE THREAT: ${crisisName}
+      return `### COMPETITIVE THREAT: ${crisisName}
 
 **Assessment Framework:** ${EXAMPLE_FIGURES}
 | Threat Type | Response Level | Timeline |
@@ -212,7 +212,7 @@ export function generateCrisisPlanner(args: {
     }
     
     // Default playbook
-    return `### ⚠️ CRISIS: ${crisisName}
+    return `### CRISIS: ${crisisName}
 
 **Initial Assessment (First 30 minutes):** ${EXAMPLE_FIGURE}
 1. What happened? (Facts only, no speculation)
@@ -238,7 +238,7 @@ export function generateCrisisPlanner(args: {
 `;
   };
 
-  let output = `# 🚨 Crisis Response Playbook
+  let output = `# Crisis Response Playbook
 ## ${args.company}
 ${crisesNote}
 **Industry:** ${readableChoice(args.industry)}
@@ -249,7 +249,7 @@ ${compliance ? `**Compliance Requirements:** ${compliance}` : ''}
 
 ---
 
-## 👥 Crisis Response Team
+## Crisis Response Team
 
 **Incident Commander:** ${team.lead}
 
@@ -261,7 +261,7 @@ ${team.extended.map(member => `- ${member}`).join('\n')}
 
 ---
 
-## 📞 Emergency Contacts
+## Emergency Contacts
 
 | Role | Name | Phone | Email |
 |------|------|-------|-------|
@@ -272,7 +272,7 @@ ${team.extended.map(member => `- ${member}`).join('\n')}
 
 ---
 
-## 🎯 Crisis-Specific Playbooks
+## Crisis-Specific Playbooks
 
 `;
 
@@ -284,7 +284,7 @@ ${team.extended.map(member => `- ${member}`).join('\n')}
   output += `
 ---
 
-## 📋 General Crisis Principles
+## General Crisis Principles
 
 ### Communication Principles
 1. **Speed matters**: First mover shapes narrative
@@ -295,7 +295,7 @@ ${team.extended.map(member => `- ${member}`).join('\n')}
 
 ---
 
-*Crisis playbook generated using CRAFT GTM Framework v2.0*
+*Crisis playbook generated using the CRAFT GTM framework*
 *Customized for ${readableChoice(args.industry)} industry with data sensitivity: ${readableChoice(dataSensitivity)}*
 
 ${SUGGESTION_FOOTER}`;

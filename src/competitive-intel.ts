@@ -110,20 +110,20 @@ export function generateCompetitiveIntel(args: {
     };
   };
 
-  let output = `# ⚔️ Competitive Battle Cards
+  let output = `# Competitive Battle Cards
 ## ${args.your_product}
 
 ---
 
-## 🎯 Your Competitive Position
+## Your Competitive Position
 
-### When We Win 💪
+### When We Win
 
 ${S.length > 0 ? S.map((s, i) => `${i + 1}. **${s}**`).join('\n') : 'Not known yet (add your_strengths or recent_wins).'}
 
 ${wins.length > 0 ? `\n**Recent Win Patterns:**\n${wins.map(w => `- ${w}`).join('\n')}` : ''}
 
-### When We Lose ⚠️
+### When We Lose
 
 ${W.length > 0 ? W.map((w, i) => `${i + 1}. **${w}**`).join('\n') : 'Not known yet (add your_weaknesses or recent_losses).'}
 
@@ -131,7 +131,7 @@ ${losses.length > 0 ? `\n**Recent Loss Patterns:**\n${losses.map(l => `- ${l}`).
 
 ---
 
-## 🃏 Competitor Battle Cards
+## Competitor Battle Cards
 
 `;
 
@@ -183,7 +183,7 @@ Would it help to talk to a customer who evaluated both?"
 `;
   }
 
-  output += `## 💬 Objection Handlers
+  output += `## Objection Handlers
 
 `;
   // A section with no content never prints empty: say what to add instead.
@@ -222,16 +222,16 @@ ${handler.redirect}"
 `;
   }
 
-  output += `## 📊 Win/Loss Analysis
+  output += `## Win/Loss Analysis
 
 ### We Win When:
 ${wins.length > 0 
-  ? wins.map(w => `- ✅ ${w}`).join('\n')
+  ? wins.map(w => `- ${w}`).join('\n')
   : S.length > 0 ? S.slice(0, 2).map(s => `- The buyer's priority is ${lowerFirstIfCommon(s)}`).join('\n') : '- Not known yet (add recent_wins)'}
 
 ### We Lose When:
 ${losses.length > 0 
-  ? losses.map(l => `- ❌ ${l}`).join('\n')
+  ? losses.map(l => `- ${l}`).join('\n')
   : W.length > 0 ? W.slice(0, 2).map(w => `- The buyer needs what we lack: ${w}`).join('\n') : '- Not known yet (add recent_losses)'}
 
 ### Win Rate by Competitor (Track This):
@@ -242,7 +242,7 @@ ${competitors.map(c => `| ${c} | __% | __ deals | __ |`).join('\n')}
 
 ---
 
-## 📝 Quick Reference Card
+## Quick Reference Card
 
 \`\`\`
 Quick guide: ${args.your_product} against the competition
@@ -323,7 +323,7 @@ function extractWeaknessFromLoss(loss: string): string {
 
 // Discovery mode when user has minimal competitive knowledge
 function generateCompetitiveDiscoveryKit(product: string, competitors: string[]): string {
-  return `# 🔍 Competitive Discovery Kit: ${product}
+  return `# Competitive Discovery Kit: ${product}
 
 ## Current Situation
 
@@ -339,7 +339,7 @@ But you haven't provided:
 
 ---
 
-## 📋 Step 1: Win/Loss Analysis Template
+## Step 1: Win/Loss Analysis Template
 
 ### For Your Last 10 Wins, Answer:
 
@@ -359,7 +359,7 @@ But you haven't provided:
 
 ---
 
-## 📞 Step 2: Sales Team Interview Questions
+## Step 2: Sales Team Interview Questions
 
 Ask your sales reps:
 
@@ -379,7 +379,7 @@ Ask your sales reps:
 
 ---
 
-## 🔎 Step 3: Competitive Research Checklist
+## Step 3: Competitive Research Checklist
 
 For each competitor (${competitors.join(', ')}):
 
@@ -392,7 +392,7 @@ For each competitor (${competitors.join(', ')}):
 
 ---
 
-## 🎯 Quick Competitor Profiles to Fill In
+## Quick Competitor Profiles to Fill In
 
 ${competitors.map(c => `
 ### ${c}
@@ -408,7 +408,7 @@ ${competitors.map(c => `
 
 ---
 
-## 🔄 Next Steps
+## Next Steps
 
 1. **Fill in the win/loss analysis** (even 5 deals helps) ${EXAMPLE_FIGURE}
 2. **Do 2-3 sales team interviews** (15 min each) ${EXAMPLE_FIGURE}

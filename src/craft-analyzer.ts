@@ -21,15 +21,14 @@ export function generateCRAFTAnalyzer(args: {
   
   // Determine rating
   let rating = '';
-  let ratingEmoji = '';
-  if (percentage >= 80) { rating = 'EXCELLENT'; ratingEmoji = '🟢'; }
-  else if (percentage >= 60) { rating = 'GOOD'; ratingEmoji = '🟡'; }
-  else if (percentage >= 40) { rating = 'NEEDS WORK'; ratingEmoji = '🟠'; }
-  else { rating = 'SIGNIFICANT GAPS'; ratingEmoji = '🔴'; }
+  if (percentage >= 80) { rating = 'EXCELLENT'; }
+  else if (percentage >= 60) { rating = 'GOOD'; }
+  else if (percentage >= 40) { rating = 'NEEDS WORK'; }
+  else { rating = 'SIGNIFICANT GAPS'; }
   
   // Generate improved sections for gaps
   const generateImprovement = (dimension: string, gaps: string[]): string => {
-    if (gaps.length === 0) return '✅ No improvements needed';
+    if (gaps.length === 0) return 'No improvements needed';
     
     switch (dimension) {
       case 'character':
@@ -90,9 +89,9 @@ Success Definition: [Specific, measurable outcome]
 
 | Phase | Milestone | Date | Status |
 |-------|-----------|------|--------|
-| Phase 1 | [Milestone] | [Date] | ⬜ |
-| Phase 2 | [Milestone] | [Date] | ⬜ |
-| Phase 3 | [Milestone] | [Date] | ⬜ |
+| Phase 1 | [Milestone] | [Date] | [ ] |
+| Phase 2 | [Milestone] | [Date] | [ ] |
+| Phase 3 | [Milestone] | [Date] | [ ] |
 
 Key Deadlines:
 - [Date]: [Deliverable/milestone]
@@ -105,7 +104,7 @@ Key Deadlines:
   };
   
   // Build the analysis output
-  let output = `# 📋 CRAFT Document Analysis
+  let output = `# CRAFT Document Analysis
 ## ${docType.replace(/_/g, ' ').toUpperCase()}
 
 **Document Length:** ${content.length} characters
@@ -115,26 +114,26 @@ Key Deadlines:
 
 ---
 
-## 🎯 Overall Score: ${totalScore}/${maxScore} (${percentage}%)
+## Overall Score: ${totalScore}/${maxScore} (${percentage}%)
 
-| Rating | ${ratingEmoji} ${rating} |
+| Rating | ${rating} |
 |--------|-------------|
 
 ---
 
-## 📊 Dimension Scores
+## Dimension Scores
 
 | Dimension | Score | Status | Assessment |
 |-----------|-------|--------|------------|
-| **C**haracter (Who) | ${analysis.character.score}/10 | ${analysis.character.score >= 7 ? '✅' : analysis.character.score >= 4 ? '⚠️' : '❌'} | ${analysis.character.score >= 7 ? 'Clear ownership' : analysis.character.score >= 4 ? 'Partial ownership' : 'Missing ownership'} |
-| **R**esult (What success) | ${analysis.result.score}/10 | ${analysis.result.score >= 7 ? '✅' : analysis.result.score >= 4 ? '⚠️' : '❌'} | ${analysis.result.score >= 7 ? 'Clear goals' : analysis.result.score >= 4 ? 'Vague goals' : 'No measurable goals'} |
-| **A**rtifact (What's produced) | ${analysis.artifact.score}/10 | ${analysis.artifact.score >= 7 ? '✅' : analysis.artifact.score >= 4 ? '⚠️' : '❌'} | ${analysis.artifact.score >= 7 ? 'Clear deliverables' : analysis.artifact.score >= 4 ? 'Some deliverables' : 'Unclear outputs'} |
-| **F**rame (Context) | ${analysis.frame.score}/10 | ${analysis.frame.score >= 7 ? '✅' : analysis.frame.score >= 4 ? '⚠️' : '❌'} | ${analysis.frame.score >= 7 ? 'Clear context' : analysis.frame.score >= 4 ? 'Partial context' : 'Missing context'} |
-| **T**imeline (When) | ${analysis.timeline.score}/10 | ${analysis.timeline.score >= 7 ? '✅' : analysis.timeline.score >= 4 ? '⚠️' : '❌'} | ${analysis.timeline.score >= 7 ? 'Clear timeline' : analysis.timeline.score >= 4 ? 'Vague timeline' : 'No timeline'} |
+| **C**haracter (Who) | ${analysis.character.score}/10 | ${analysis.character.score >= 7 ? 'Yes' : analysis.character.score >= 4 ? 'Note' : 'No'} | ${analysis.character.score >= 7 ? 'Clear ownership' : analysis.character.score >= 4 ? 'Partial ownership' : 'Missing ownership'} |
+| **R**esult (What success) | ${analysis.result.score}/10 | ${analysis.result.score >= 7 ? 'Yes' : analysis.result.score >= 4 ? 'Note' : 'No'} | ${analysis.result.score >= 7 ? 'Clear goals' : analysis.result.score >= 4 ? 'Vague goals' : 'No measurable goals'} |
+| **A**rtifact (What's produced) | ${analysis.artifact.score}/10 | ${analysis.artifact.score >= 7 ? 'Yes' : analysis.artifact.score >= 4 ? 'Note' : 'No'} | ${analysis.artifact.score >= 7 ? 'Clear deliverables' : analysis.artifact.score >= 4 ? 'Some deliverables' : 'Unclear outputs'} |
+| **F**rame (Context) | ${analysis.frame.score}/10 | ${analysis.frame.score >= 7 ? 'Yes' : analysis.frame.score >= 4 ? 'Note' : 'No'} | ${analysis.frame.score >= 7 ? 'Clear context' : analysis.frame.score >= 4 ? 'Partial context' : 'Missing context'} |
+| **T**imeline (When) | ${analysis.timeline.score}/10 | ${analysis.timeline.score >= 7 ? 'Yes' : analysis.timeline.score >= 4 ? 'Note' : 'No'} | ${analysis.timeline.score >= 7 ? 'Clear timeline' : analysis.timeline.score >= 4 ? 'Vague timeline' : 'No timeline'} |
 
 ---
 
-## 🔍 Detailed Analysis
+## Detailed Analysis
 
 ### C: CHARACTER (Who executes?)
 **Score: ${analysis.character.score}/10**
@@ -142,12 +141,12 @@ Key Deadlines:
 **Found in document:**
 ${analysis.character.found.length > 0 
   ? analysis.character.found.slice(0, 5).map(f => `- "${f}"`).join('\n')
-  : '- ❌ No clear roles or owners identified'}
+  : '- No clear roles or owners identified'}
 
 **Gaps identified:**
 ${analysis.character.gaps.length > 0 
   ? analysis.character.gaps.map(g => `- ${g}`).join('\n')
-  : '- ✅ Character dimension is well-defined'}
+  : '- Character dimension is well-defined'}
 
 ${analysis.character.gaps.length > 0 ? `\n**Recommended improvement:**\n${generateImprovement('character', analysis.character.gaps)}` : ''}
 
@@ -159,12 +158,12 @@ ${analysis.character.gaps.length > 0 ? `\n**Recommended improvement:**\n${genera
 **Found in document:**
 ${analysis.result.found.length > 0 
   ? analysis.result.found.slice(0, 5).map(f => `- "${f}"`).join('\n')
-  : '- ❌ No measurable outcomes defined'}
+  : '- No measurable outcomes defined'}
 
 **Gaps identified:**
 ${analysis.result.gaps.length > 0 
   ? analysis.result.gaps.map(g => `- ${g}`).join('\n')
-  : '- ✅ Results are well-defined'}
+  : '- Results are well-defined'}
 
 ${analysis.result.gaps.length > 0 ? `\n**Recommended improvement:**\n${generateImprovement('result', analysis.result.gaps)}` : ''}
 
@@ -176,12 +175,12 @@ ${analysis.result.gaps.length > 0 ? `\n**Recommended improvement:**\n${generateI
 **Found in document:**
 ${analysis.artifact.found.length > 0 
   ? analysis.artifact.found.slice(0, 5).map(f => `- "${f}"`).join('\n')
-  : '- ❌ No clear deliverables specified'}
+  : '- No clear deliverables specified'}
 
 **Gaps identified:**
 ${analysis.artifact.gaps.length > 0 
   ? analysis.artifact.gaps.map(g => `- ${g}`).join('\n')
-  : '- ✅ Artifacts are well-defined'}
+  : '- Artifacts are well-defined'}
 
 ${analysis.artifact.gaps.length > 0 ? `\n**Recommended improvement:**\n${generateImprovement('artifact', analysis.artifact.gaps)}` : ''}
 
@@ -193,12 +192,12 @@ ${analysis.artifact.gaps.length > 0 ? `\n**Recommended improvement:**\n${generat
 **Found in document:**
 ${analysis.frame.found.length > 0 
   ? analysis.frame.found.slice(0, 5).map(f => `- "${f}"`).join('\n')
-  : '- ❌ No context or constraints defined'}
+  : '- No context or constraints defined'}
 
 **Gaps identified:**
 ${analysis.frame.gaps.length > 0 
   ? analysis.frame.gaps.map(g => `- ${g}`).join('\n')
-  : '- ✅ Frame/context is well-defined'}
+  : '- Frame/context is well-defined'}
 
 ${analysis.frame.gaps.length > 0 ? `\n**Recommended improvement:**\n${generateImprovement('frame', analysis.frame.gaps)}` : ''}
 
@@ -210,18 +209,18 @@ ${analysis.frame.gaps.length > 0 ? `\n**Recommended improvement:**\n${generateIm
 **Found in document:**
 ${analysis.timeline.found.length > 0 
   ? analysis.timeline.found.slice(0, 5).map(f => `- "${f}"`).join('\n')
-  : '- ❌ No timeline or deadlines specified'}
+  : '- No timeline or deadlines specified'}
 
 **Gaps identified:**
 ${analysis.timeline.gaps.length > 0 
   ? analysis.timeline.gaps.map(g => `- ${g}`).join('\n')
-  : '- ✅ Timeline is well-defined'}
+  : '- Timeline is well-defined'}
 
 ${analysis.timeline.gaps.length > 0 ? `\n**Recommended improvement:**\n${generateImprovement('timeline', analysis.timeline.gaps)}` : ''}
 
 ---
 
-## 🎯 Priority Improvements
+## Priority Improvements
 
 `;
 
@@ -238,7 +237,7 @@ ${analysis.timeline.gaps.length > 0 ? `\n**Recommended improvement:**\n${generat
   const actionFor = (d: { gaps: string[] }): string => d.gaps[0] || 'Enhance this section';
 
   if (dimensions.length === 0) {
-    output += `✅ **Document is well-structured!** All CRAFT dimensions score 7/10 or higher.\n\n`;
+    output += `**Document is well-structured!** All CRAFT dimensions score 7/10 or higher.\n\n`;
   } else {
     output += `| Priority | Dimension | Current Score | Action |\n|----------|-----------|---------------|--------|\n`;
     dimensions.forEach((d, i) => {
@@ -249,7 +248,7 @@ ${analysis.timeline.gaps.length > 0 ? `\n**Recommended improvement:**\n${generat
   output += `
 ---
 
-## 📝 Document Excerpt Analyzed
+## Document Excerpt Analyzed
 
 \`\`\`
 ${content.substring(0, 500)}${content.length > 500 ? '...\n\n[Document continues - ' + (content.length - 500) + ' more characters]' : ''}
@@ -257,7 +256,7 @@ ${content.substring(0, 500)}${content.length > 500 ? '...\n\n[Document continues
 
 ---
 
-## ✅ Next Steps
+## Next Steps
 
 1. ${dimensions[0] ? `Address ${dimensions[0].name}: ${actionFor(dimensions[0])}` : 'Document is well-structured - ready for review'}
 2. ${dimensions[1] ? `Improve ${dimensions[1].name}: ${actionFor(dimensions[1])}` : 'Consider adding more detail to strongest sections'}
@@ -266,7 +265,7 @@ ${content.substring(0, 500)}${content.length > 500 ? '...\n\n[Document continues
 
 ---
 
-*Analysis performed using CRAFT GTM Framework v2.0*
+*Analysis performed using the CRAFT GTM framework*
 *Document type: ${docType.replace(/_/g, ' ')}*`;
 
   return output;

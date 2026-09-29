@@ -257,7 +257,7 @@ export function generateCustomerInterviewKit(args: {
     hypothesisSection = `
 ---
 
-## 🔬 Hypothesis Validation Questions
+## Hypothesis Validation Questions
 
 ${hypotheses.map((h, i) => `
 ### Hypothesis ${i + 1}: ${h}
@@ -272,7 +272,7 @@ ${hypotheses.map((h, i) => `
 `;
   }
 
-  return `# 🎙️ Customer Interview Kit
+  return `# Customer Interview Kit
 ## ${typeName.toUpperCase()} Interview
 
 **Target Persona:** ${args.target_persona}
@@ -282,7 +282,7 @@ ${hypotheses.map((h, i) => `
 
 ---
 
-## 📋 Pre-Interview Checklist
+## Pre-Interview Checklist
 
 - [ ] Reviewed persona's LinkedIn/background
 - [ ] Tested recording equipment
@@ -293,7 +293,7 @@ ${hypotheses.map((h, i) => `
 
 ---
 
-## 🎯 Interview Objectives
+## Interview Objectives
 
 1. Understand ${args.target_persona}'s current reality and challenges
 2. ${interviewType === 'discovery' ? 'Identify unmet needs and pain points' :
@@ -307,7 +307,7 @@ ${hypotheses.length > 0 ? `4. Validate/invalidate key hypotheses` : ''}
 
 ---
 
-## 🎬 Opening (5 min)
+## Opening (5 min)
 
 *Build rapport before diving into questions*
 
@@ -317,7 +317,7 @@ ${questions.opening.map(q => `- ${q}`).join('\n')}
 
 ---
 
-## 💡 Core Questions (25-30 min)
+## Core Questions (25-30 min)
 
 ### Main Line of Inquiry
 
@@ -336,7 +336,7 @@ ${techQuestions.map((q, i) => `${i + 1}. ${q}`).join('\n')}
 
 ---
 
-## 🔍 Probing Questions (Use as needed)
+## Probing Questions (Use as needed)
 
 *Follow the energy - when they light up or seem frustrated, probe deeper*
 
@@ -346,7 +346,7 @@ ${questions.probing.map(q => `- ${q}`).join('\n')}
 
 ---
 
-## 🎬 Closing (5 min)
+## Closing (5 min)
 
 ${questions.closing.map(q => `- ${q}`).join('\n')}
 
@@ -356,7 +356,7 @@ ${hypothesisSection}
 
 ---
 
-## 📝 Note-Taking Template
+## Note-Taking Template
 
 \`\`\`
 INTERVIEW: ${typeName.toUpperCase()} | ${args.target_persona}
@@ -384,7 +384,7 @@ NEEDS/WANTS:
 - Unexpected:
 
 ${hypotheses.length > 0 ? `HYPOTHESIS VALIDATION:
-${hypotheses.map((h, i) => `- H${i + 1}: ✅ Confirmed / ❌ Rejected / ⚠️ Unclear`).join('\n')}` : ''}
+${hypotheses.map((h, i) => `- H${i + 1}: Confirmed / Rejected / Unclear`).join('\n')}` : ''}
 
 FOLLOW-UP ACTIONS:
 - [ ] _______________
@@ -393,7 +393,7 @@ FOLLOW-UP ACTIONS:
 
 ---
 
-## 🧩 Synthesis Framework
+## Synthesis Framework
 
 After conducting multiple interviews, map findings to:
 
@@ -415,7 +415,7 @@ ${EXAMPLE_FIGURES} Tally the Count column against your own number of interviews.
 
 ---
 
-*Interview kit generated for ${typeName} interviews using CRAFT GTM Framework v2.0*
+*Interview kit generated for ${typeName} interviews using the CRAFT GTM framework*
 *Customized for ${industryName} industry at ${complexityName} complexity level*
 
 ${SUGGESTION_FOOTER}`;

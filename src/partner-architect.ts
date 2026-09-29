@@ -93,12 +93,12 @@ export function generatePartnerArchitect(args: {
   const program = programStructures[partnerModel] || programStructures.referral;
   
   const supportAdjustments: Record<string, string> = {
-    minimal_self_serve: `⚠️ Note: With minimal support capacity, prioritize self-serve onboarding, comprehensive documentation, and automated reporting. Consider limiting to 2 tiers max. ${EXAMPLE_FIGURE}`,
+    minimal_self_serve: `Note: With minimal support capacity, prioritize self-serve onboarding, comprehensive documentation, and automated reporting. Consider limiting to 2 tiers max. ${EXAMPLE_FIGURE}`,
     moderate: 'With moderate capacity, balance 1:1 support for top partners with self-serve for others. Consider office hours model.',
     high_touch: 'With high-touch capacity, you can offer white-glove onboarding and dedicated partner managers across tiers.'
   };
 
-  return `# 🤝 Partner Program Architecture
+  return `# Partner Program Architecture
 ## ${args.company} - ${partnerModel.replace(/_/g, ' ').toUpperCase()} Program
 
 **Partner Model:** ${partnerModel.replace(/_/g, ' ')}
@@ -108,7 +108,7 @@ export function generatePartnerArchitect(args: {
 
 ---
 
-## 📋 Program Overview
+## Program Overview
 
 ${program.overview}
 
@@ -116,7 +116,7 @@ ${supportAdjustments[supportCapacity] || ''}
 
 ---
 
-## 🏆 Partner Tiers
+## Partner Tiers
 
 ${program.tiers.map((tier, i) => `
 ### Tier ${i + 1}: ${tier.name}
@@ -125,7 +125,7 @@ ${program.tiers.map((tier, i) => `
 ${tier.requirements.map(r => `- ${r}`).join('\n')}
 
 **Benefits:**${tier.benefits.some(hasFigure) ? ` ${EXAMPLE_FIGURES}` : ''}
-${tier.benefits.map(b => `- ✅ ${b}`).join('\n')}
+${tier.benefits.map(b => `- ${b}`).join('\n')}
 
 **Commission/Economics:**
 \`${tier.commission}\`${hasFigure(tier.commission) ? ` ${EXAMPLE_FIGURE}` : ''}
@@ -136,7 +136,7 @@ ${tier.support}
 ---
 `).join('')}
 
-## 💰 Economic Model
+## Economic Model
 
 ### Partner Economics Calculator
 
@@ -150,13 +150,13 @@ ${EXAMPLE_FIGURES} The commission rates and deal counts in this table are illust
 ### Commission Viability Check
 
 Based on ${dealSizeBasis} (checked against example deal-size thresholds):
-- ${dealSize > 1000 ? '✅ Deal size supports meaningful partner commissions' : '⚠️ Deal size may be too small for reseller model - consider affiliate or referral'}
-- ${dealSize > 5000 ? '✅ Can support dedicated partner manager at scale' : '⚠️ May need to rely on self-serve until partner volume justifies support'}
-- ${dealSize > 10000 ? '✅ Enterprise deals justify white-glove partner support' : 'Consider pooled partner support model'}
+- ${dealSize > 1000 ? 'Deal size supports meaningful partner commissions' : 'Note: Deal size may be too small for reseller model - consider affiliate or referral'}
+- ${dealSize > 5000 ? 'Can support dedicated partner manager at scale' : 'Note: May need to rely on self-serve until partner volume justifies support'}
+- ${dealSize > 10000 ? 'Enterprise deals justify white-glove partner support' : 'Consider pooled partner support model'}
 
 ---
 
-## 📊 Program KPIs
+## Program KPIs
 
 | Metric | Definition | Target | Tracking |
 |--------|------------|--------|----------|
@@ -164,7 +164,7 @@ ${program.kpis.map(kpi => `| ${kpi} | [Define measurement] | [Set target] | [Too
 
 ---
 
-## 🚀 Onboarding Flow
+## Onboarding Flow
 
 ### Day 0-7: Welcome & Setup
 - [ ] Partner agreement signed
@@ -189,7 +189,7 @@ ${program.kpis.map(kpi => `| ${kpi} | [Define measurement] | [Set target] | [Too
 
 ---
 
-## 📧 Partner Communications
+## Partner Communications
 
 ### Recruitment Email Template
 
@@ -211,7 +211,7 @@ Would you be open to a 15-minute call to explore fit?
 
 ---
 
-*Partner program architecture generated using CRAFT GTM Framework v2.0*
+*Partner program architecture generated using the CRAFT GTM framework*
 *Customized for ${partnerModel.replace(/_/g, ' ')} model with ${readableChoice(supportCapacity)} support capacity*
 
 ${SUGGESTION_FOOTER}`;
