@@ -282,7 +282,7 @@
 <p><strong>CS Team Capacity:</strong> small (1 to 3)</p>
 <hr>
 <h4>Churn Severity Assessment</h4>
-<div class="hx-table"><table><thead><tr><th>Metric</th><th>Value</th><th>Status (against example benchmarks)</th></tr></thead><tbody><tr><td>Monthly Churn</td><td>4%</td><td>MODERATE</td></tr><tr><td>Annual Revenue at Risk (your monthly churn, annualized)</td><td>~48%</td><td>Monitor</td></tr><tr><td>Benchmark (SaaS subscription)</td><td>3-5% (Example figure: replace with your own)</td><td>-</td></tr></tbody></table></div>
+<div class="hx-table"><table><thead><tr><th>Metric</th><th>Value</th><th>Status (against example benchmarks)</th></tr></thead><tbody><tr><td>Monthly Churn</td><td>4%</td><td>MODERATE</td></tr><tr><td>Annual Revenue at Risk (your monthly churn, annualized)</td><td>~48% (monthly churn times twelve, not compounded)</td><td>Monitor</td></tr><tr><td>Benchmark (SaaS subscription)</td><td>3-5% (Example figure: replace with your own)</td><td>-</td></tr></tbody></table></div>
 <hr>
 <h4>Health Score Model (SaaS subscription)</h4>
 <p>Example figures: replace with your own. The weights and thresholds below are illustrations to adapt to your data.</p>
@@ -301,7 +301,7 @@ Risk Levels (Example figures: replace with your own):
 <h5>1. "onboarding friction"</h5>
 <p><strong>Trigger:</strong> "onboarding friction" identified in customer feedback</p>
 <p><strong>Intervention Protocol:</strong></p>
-<div class="hx-table"><table><thead><tr><th>Element</th><th>Detail</th></tr></thead><tbody><tr><td>Action</td><td>Personalized outreach + root cause analysis</td></tr><tr><td>Owner</td><td>Automated check-in with escalation</td></tr><tr><td>Timing</td><td>Within 48 hours of signal</td></tr><tr><td>Success Metric</td><td>Retention rate of triggered customers</td></tr></tbody></table></div>
+<div class="hx-table"><table><thead><tr><th>Element</th><th>Detail</th></tr></thead><tbody><tr><td>Action</td><td>Personalized outreach + root cause analysis</td></tr><tr><td>Owner</td><td>CS team, after an automated check-in</td></tr><tr><td>Timing</td><td>Within 48 hours of signal</td></tr><tr><td>Success Metric</td><td>Retention rate of triggered customers</td></tr></tbody></table></div>
 <p><strong>Ready-to-Use Email Template:</strong></p>
 <pre><code>Subject: Quick check-in
 
@@ -309,7 +309,7 @@ Hi [Name],
 
 I wanted to reach out personally because your feedback matters to us.
 
-You mentioned "onboarding friction" - I'd love to understand this better and see if there's anything we can do.
+You mentioned [the problem, in the customer's words]. I'd love to understand this better and see if there's anything we can do.
 
 Do you have 10 minutes this week?
 

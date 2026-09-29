@@ -300,9 +300,9 @@
 <div class="hx-table"><table><thead><tr><th>Role</th><th>Name</th><th>Phone</th><th>Email</th></tr></thead><tbody><tr><td>Crisis Lead</td><td>[Add]</td><td>[Add]</td><td>[Add]</td></tr><tr><td>Legal Counsel</td><td>[Add]</td><td>[Add]</td><td>[Add]</td></tr><tr><td>PR Contact</td><td>[Add]</td><td>[Add]</td><td>[Add]</td></tr><tr><td>IT Security</td><td>[Add]</td><td>[Add]</td><td>[Add]</td></tr></tbody></table></div>
 <hr>
 <h4>Crisis-Specific Playbooks</h4>
-<h5>SERVICE OUTAGE: service outage</h5>
+<h5>Service outage</h5>
 <p><strong>Severity Levels:</strong> Example figures: replace with your own.</p>
-<div class="hx-table"><table><thead><tr><th>Level</th><th>Definition</th><th>Response Time</th><th>Escalation</th></tr></thead><tbody><tr><td>SEV-1</td><td>Complete outage, all customers</td><td>&lt;15 min</td><td>CEO/Founder + CEO</td></tr><tr><td>SEV-2</td><td>Major feature down, &gt;50% affected</td><td>&lt;30 min</td><td>CTO (if tech issue)</td></tr><tr><td>SEV-3</td><td>Degraded performance</td><td>&lt;1 hour</td><td>Engineering lead</td></tr></tbody></table></div>
+<div class="hx-table"><table><thead><tr><th>Level</th><th>Definition</th><th>Response Time</th><th>Escalation</th></tr></thead><tbody><tr><td>SEV-1</td><td>Complete outage, all customers</td><td>&lt;15 min</td><td>CEO/Founder</td></tr><tr><td>SEV-2</td><td>Major feature down, &gt;50% affected</td><td>&lt;30 min</td><td>CTO (if tech issue)</td></tr><tr><td>SEV-3</td><td>Degraded performance</td><td>&lt;1 hour</td><td>Engineering lead</td></tr></tbody></table></div>
 <p><strong>Immediate Response (0-15 minutes):</strong> (Example figure: replace with your own)</p>
 <ol>
 <li value="1"><strong>Acknowledge in status page</strong>: "Investigating reports of [issue]"</li>
@@ -310,10 +310,10 @@
 <li value="3"><strong>Diagnose</strong>: Root cause identification started</li>
 <li value="4"><strong>Notify support team</strong>: Prepare for volume</li>
 </ol>
-<p><strong>Active Incident (15 min - resolution):</strong> Example figures: replace with your own.</p>
-<div class="hx-table"><table><thead><tr><th>Time</th><th>Status Update</th><th>Channel</th></tr></thead><tbody><tr><td>15 min</td><td>"Identified: [description]"</td><td>Status page</td></tr><tr><td>30 min</td><td>"Working on fix, ETA [X]"</td><td>Status + Twitter</td></tr><tr><td>60 min</td><td>Progress update or revised ETA</td><td>Status + Email to affected</td></tr><tr><td>Every 30 min</td><td>Continued updates until resolved</td><td>Status</td></tr></tbody></table></div>
+<p><strong>Active Incident (15 minutes to resolution):</strong> Example figures: replace with your own.</p>
+<div class="hx-table"><table><thead><tr><th>Time</th><th>Status Update</th><th>Channel</th></tr></thead><tbody><tr><td>15 min</td><td>"Identified: [description]"</td><td>Status page</td></tr><tr><td>30 min</td><td>"Working on fix, ETA [X]"</td><td>Status page + X (Twitter)</td></tr><tr><td>60 min</td><td>Progress update or revised ETA</td><td>Status + Email to affected</td></tr><tr><td>Every 30 min</td><td>Continued updates until resolved</td><td>Status</td></tr></tbody></table></div>
 <hr>
-<h5>SECURITY INCIDENT: data breach</h5>
+<h5>Security incident: data breach</h5>
 <p><strong>Severity Assessment:</strong> Example figures: replace with your own.</p>
 <div class="hx-table"><table><thead><tr><th>Factor</th><th>High</th><th>Medium</th><th>Low</th></tr></thead><tbody><tr><td>Data exposed</td><td>PII, financial, health</td><td>Business data</td><td>No customer data</td></tr><tr><td>Customers affected</td><td>&gt;1000 or enterprise</td><td>100-1000</td><td>&lt;100</td></tr><tr><td>Attack ongoing</td><td>Yes</td><td>Unknown</td><td>Contained</td></tr></tbody></table></div>
 <p><strong>Immediate Response (0-4 hours):</strong> (Example figure: replace with your own)</p>
@@ -335,29 +335,10 @@
 <p><strong>Notification Phase (24-72 hours):</strong> (Example figure: replace with your own)</p>
 <div class="hx-table"><table><thead><tr><th>Audience</th><th>Channel</th><th>Message Focus</th><th>Owner</th></tr></thead><tbody><tr><td>Regulators</td><td>Formal filing</td><td>Compliance notification</td><td>Legal</td></tr><tr><td>Customers</td><td>Email</td><td>What happened, what we're doing, what they should do</td><td>Customer comms</td></tr><tr><td>All customers</td><td>Email</td><td>Security update</td><td>Marketing</td></tr><tr><td>Media (if needed)</td><td>Press release</td><td>Factual statement</td><td>PR</td></tr><tr><td>Employees</td><td>All-hands</td><td>Full transparency</td><td>CEO</td></tr></tbody></table></div>
 <hr>
-<h5>SECURITY INCIDENT: security vulnerability</h5>
-<p><strong>Severity Assessment:</strong> Example figures: replace with your own.</p>
-<div class="hx-table"><table><thead><tr><th>Factor</th><th>High</th><th>Medium</th><th>Low</th></tr></thead><tbody><tr><td>Data exposed</td><td>PII, financial, health</td><td>Business data</td><td>No customer data</td></tr><tr><td>Customers affected</td><td>&gt;1000 or enterprise</td><td>100-1000</td><td>&lt;100</td></tr><tr><td>Attack ongoing</td><td>Yes</td><td>Unknown</td><td>Contained</td></tr></tbody></table></div>
-<p><strong>Immediate Response (0-4 hours):</strong> (Example figure: replace with your own)</p>
-<ol>
-<li value="1"><strong>Activate incident response team</strong>: CEO/Founder as incident commander</li>
-<li value="2"><strong>Contain the threat</strong>: Isolate affected systems, revoke compromised credentials</li>
-<li value="3"><strong>Preserve evidence</strong>: Forensic images before remediation</li>
-<li value="4"><strong>Start incident log</strong>: Document timeline, actions, decisions</li>
-<li value="5"><strong>Internal communication only</strong>: No external statements yet</li>
-</ol>
-<p><strong>Investigation Phase (4-24 hours):</strong> (Example figure: replace with your own)</p>
-<ol>
-<li value="1">Determine scope: What data, how many customers, how long exposed</li>
-<li value="2">Identify attack vector and close vulnerability</li>
-<li value="3">Engage forensics (internal or external)</li>
-<li value="4">Prepare regulatory notification for applicable authorities by the deadline that applies to you (it differs by law and country)</li>
-<li value="5">Draft customer communication (DO NOT SEND YET)</li>
-</ol>
-<p><strong>Notification Phase (24-72 hours):</strong> (Example figure: replace with your own)</p>
-<div class="hx-table"><table><thead><tr><th>Audience</th><th>Channel</th><th>Message Focus</th><th>Owner</th></tr></thead><tbody><tr><td>Regulators</td><td>Formal filing</td><td>Compliance notification</td><td>Legal</td></tr><tr><td>Customers</td><td>Email</td><td>What happened, what we're doing, what they should do</td><td>Customer comms</td></tr><tr><td>All customers</td><td>Email</td><td>Security update</td><td>Marketing</td></tr><tr><td>Media (if needed)</td><td>Press release</td><td>Factual statement</td><td>PR</td></tr><tr><td>Employees</td><td>All-hands</td><td>Full transparency</td><td>CEO</td></tr></tbody></table></div>
+<h5>Security incident: security vulnerability</h5>
+<p>Use the data breach steps above.</p>
 <hr>
-<h5>CRISIS: customer data exposure</h5>
+<h5>Crisis: customer data exposure</h5>
 <p><strong>Initial Assessment (First 30 minutes):</strong> (Example figure: replace with your own)</p>
 <ol>
 <li value="1">What happened? (Facts only, no speculation)</li>
@@ -374,7 +355,6 @@
 </ul>
 <p><strong>Communication Timeline:</strong> Example figures: replace with your own.</p>
 <div class="hx-table"><table><thead><tr><th>Phase</th><th>Timing</th><th>Actions</th></tr></thead><tbody><tr><td>Acknowledge</td><td>&lt;2 hours</td><td>Internal brief, holding statement ready</td></tr><tr><td>Respond</td><td>2-24 hours</td><td>Stakeholder communications</td></tr><tr><td>Resolve</td><td>24-72 hours</td><td>Full resolution or clear plan</td></tr><tr><td>Review</td><td>1-2 weeks</td><td>Post-incident review</td></tr></tbody></table></div>
-<hr>
 <hr>
 <h4>General Crisis Principles</h4>
 <h5>Communication Principles</h5>
