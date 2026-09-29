@@ -58,9 +58,9 @@ export function generateRetentionPlaybook(args: {
       return {
         trigger: 'Price objection identified (survey, support ticket, or cancellation reason)',
         action: 'Value demonstration call + ROI analysis',
-        owner: capacity.highTouch > 30 ? 'CSM' : 'Automated + escalation path',
+        owner: capacity.highTouch > 30 ? 'CSM' : 'CS team, after an automated email',
         timing: 'Within 24 hours of signal',
-        email: `Subject: Getting more value from ${lowerFirstIfCommon(args.customer_segment)}\n\nHi [Name],\n\nI noticed you mentioned concerns about cost. I'd love to show you some features that customers tell us deliver the biggest ROI.\n\nMany teams in your situation found that [specific feature] alone saves [X hours/dollars] per month.\n\nWould you be open to a quick 15-minute call to ensure you're getting maximum value?\n\n[Your name]`
+        email: `Subject: Getting more value from ${lowerFirstIfCommon(args.customer_segment)}\n\nHi [Name],\n\nI noticed you mentioned concerns about cost. I'd love to show you the features that could deliver the most value for your team.\n\n[Only if true and provable: Many teams in your situation found that [specific feature] alone saves [X hours/dollars] per month.]\n\nWould you be open to a quick 15-minute call to ensure you're getting maximum value?\n\n[Your name]`
       };
     }
     
@@ -88,9 +88,9 @@ export function generateRetentionPlaybook(args: {
       return {
         trigger: 'Competitor mention in any customer touchpoint',
         action: 'Competitive win-back campaign + differentiation call',
-        owner: capacity.highTouch > 30 ? 'CSM or Account Exec' : 'Automated comparison content',
+        owner: capacity.highTouch > 30 ? 'CSM or Account Exec' : 'CS team, with automated comparison content',
         timing: 'Within 4 hours if identified',
-        email: `Subject: Before you decide...\n\nHi [Name],\n\nI understand you're evaluating other options. That's smart - you should always explore what's best for your team.\n\nBefore you make a final decision, I'd love to share some context that customers who've made similar evaluations found helpful. We've also been told we do [key differentiator] better than alternatives.\n\nWorth a quick call?\n\n[Your name]`
+        email: `Subject: Before you decide...\n\nHi [Name],\n\nI understand you're evaluating other options. That's smart: you should always explore what's best for your team.\n\nBefore you make a final decision, I'd love to share some context. [Only if true and provable: Customers who've made similar evaluations told us we do [key differentiator] better than alternatives.]\n\nWorth a quick call?\n\n[Your name]`
       };
     }
     
@@ -98,9 +98,9 @@ export function generateRetentionPlaybook(args: {
       return {
         trigger: `Low login frequency OR <30% feature adoption ${EXAMPLE_FIGURE}`,
         action: 'Onboarding reset + use case discovery call + quick-win identification',
-        owner: capacity.highTouch > 30 ? 'CSM' : 'Automated nurture + human backup',
+        owner: capacity.highTouch > 30 ? 'CSM' : 'CS team, after an automated nurture',
         timing: 'When pattern detected (Day 7, 14, 21 of low engagement)',
-        email: `Subject: Getting more out of [Product]\n\nHi [Name],\n\nI noticed your team hasn't been using [Product] as much recently. Sometimes that means we didn't nail the initial setup.\n\nI'd love to understand your goals better and show you a quick win that might change how you see the product. Teams like yours typically see [specific outcome] within the first month when we get this right.\n\n15 minutes - worth it? ${EXAMPLE_FIGURE}\n\n[Your name]`
+        email: `Subject: Getting more out of [Product]\n\nHi [Name],\n\nI noticed your team hasn't been using [Product] as much recently. Sometimes that means we didn't nail the initial setup.\n\nI'd love to understand your goals better and show you a quick win that might change how you see the product. [Only if true and provable: Teams like yours typically see [specific outcome] within the first month when we get this right.]\n\n15 minutes: worth it? ${EXAMPLE_FIGURE}\n\n[Your name]`
       };
     }
     
@@ -108,9 +108,9 @@ export function generateRetentionPlaybook(args: {
     return {
       trigger: `"${reason}" identified in customer feedback`,
       action: 'Personalized outreach + root cause analysis',
-      owner: capacity.highTouch > 30 ? 'CSM' : 'Automated check-in with escalation',
+      owner: capacity.highTouch > 30 ? 'CSM' : 'CS team, after an automated check-in',
       timing: 'Within 48 hours of signal',
-      email: `Subject: Quick check-in\n\nHi [Name],\n\nI wanted to reach out personally because your feedback matters to us.\n\nYou mentioned "${reason}" - I'd love to understand this better and see if there's anything we can do.\n\nDo you have 10 minutes this week?\n\n[Your name]`
+      email: `Subject: Quick check-in\n\nHi [Name],\n\nI wanted to reach out personally because your feedback matters to us.\n\nYou mentioned [the problem, in the customer's words]. I'd love to understand this better and see if there's anything we can do.\n\nDo you have 10 minutes this week?\n\n[Your name]`
     };
   };
 
@@ -128,7 +128,7 @@ export function generateRetentionPlaybook(args: {
 | Metric | Value | Status (against example benchmarks) |
 |--------|-------|--------|
 | Monthly Churn | ${churnRate}% | ${churnSeverity} |
-| Annual Revenue at Risk (your monthly churn, annualized) | ~${(churnRate * 12).toFixed(0)}% | ${churnRate * 12 > 50 ? 'Urgent' : 'Monitor'} |
+| Annual Revenue at Risk (your monthly churn, annualized) | ~${(churnRate * 12).toFixed(0)}% (monthly churn times twelve, not compounded) | ${churnRate * 12 > 50 ? 'Urgent' : 'Monitor'} |
 | Benchmark (${readableChoice(businessModel)}) | ${businessModel === 'saas_subscription' ? '3-5%' : businessModel === 'consumer' ? '5-8%' : '4-6%'} ${EXAMPLE_FIGURE} | - |
 
 ---
@@ -273,14 +273,14 @@ Here's a framework to discover your churn reasons:
 
 Send this to recently churned customers, within 7 days of churn (Example figure: replace with your own):
 
-**Subject:** Quick question - we'd love your feedback
+**Subject:** Quick question: we'd love your feedback
 
 **Body:**
 > Hi [Name],
 >
 > We're sorry to see you go. To help us improve, would you mind sharing the main reason you decided to leave?
 >
-> [SINGLE SELECT - pick ONE]
+> [SINGLE SELECT: pick ONE]
 ${reasons.map((r, i) => `> - ${r}`).join('\n')}
 > - Other: ___________
 >
@@ -299,7 +299,7 @@ For high-value churns, do a 15-minute call:
 1. "Thanks for taking the time. I'm trying to understand what we could have done better."
 
 ### Discovery (10 min)
-2. "Walk me through your decision to leave - when did you first start thinking about it?"
+2. "Walk me through your decision to leave: when did you first start thinking about it?"
 3. "What was the final trigger that made you decide?"
 4. "If you could change ONE thing about us, what would it be?"
 5. "Did you evaluate alternatives? What did they offer that we didn't?"
@@ -331,7 +331,7 @@ Before customers tell you why they left, your data might already show patterns:
 
 ---
 
-## Common Churn Reasons for ${readableChoice(businessModel)} Business Model
+## Common churn reasons for ${/^[aeiou]/i.test(readableChoice(businessModel)) ? 'an' : 'a'} ${readableChoice(businessModel)} model
 
 Here are common churn reasons to check for your model (a starting checklist, not ranked by likelihood):
 
@@ -347,7 +347,7 @@ ${reasons.map((r, i) => `### ${i + 1}. ${r}
 
 ## Next Steps
 
-1. **Send churn survey** to last 20 churned customers
+1. **Send churn survey** to last 20 churned customers ${EXAMPLE_FIGURE}
 2. **Conduct 5 churn interviews** with highest-value losses ${EXAMPLE_FIGURE}
 3. **Pull data** on the signals above
 4. **Come back to this tool** with your top 3-5 churn reasons ${EXAMPLE_FIGURE}
