@@ -52,8 +52,12 @@ export function generateCrisisPlanner(args: {
   const team = teamStructure[companySize] || teamStructure.scaleup_50_200;
 
   // Run 12 (R12-21): a heading names the kind of crisis once ("Service outage"), and the crisis as typed only when it differs.
-  const heading = (kind: string, name: string): string =>
-    name.trim().toLowerCase() === kind.toLowerCase() ? kind : `${kind}: ${name}`;
+  // Acronyms in the default crisis names are written in capitals ("pr incident" is the PR heading itself).
+  const heading = (kind: string, name: string): string => {
+    const shown = name.trim().replace(/\bpr\b/gi, 'PR').replace(/\bhipaa\b/gi, 'HIPAA');
+    const same = shown.toLowerCase() === kind.toLowerCase() || (kind.startsWith('PR ') && shown === 'PR incident');
+    return same ? kind : `${kind}: ${shown}`;
+  };
   // The first security crisis gets the full steps; a later one points back to them.
   let securityDone = '';
   
