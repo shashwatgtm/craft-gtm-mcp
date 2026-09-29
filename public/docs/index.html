@@ -39,16 +39,14 @@
    "url": "https://gtmhelix.com/",
    "email": "shashwat@gtmhelix.com",
    "foundingDate": "2022",
-   "description": "Business consulting and services firm, founded in 2022 in Bengaluru.",
+   "description": "Founded in 2022 in Bengaluru.",
    "foundingLocation": {
     "@type": "Place",
-    "name": "Bengaluru, India"
+    "name": "Bengaluru"
    },
    "address": {
     "@type": "PostalAddress",
-    "addressLocality": "Bengaluru",
-    "addressRegion": "Karnataka",
-    "addressCountry": "IN"
+    "addressLocality": "Bengaluru"
    },
    "sameAs": [
     "https://www.linkedin.com/company/helixgtmconsulting",
@@ -77,19 +75,14 @@
     "B2B Marketer of the Year 2020, Fintech (CMO Asia)"
    ],
    "knowsAbout": [
-    "Go-to-market strategy",
-    "B2B marketing",
-    "Product marketing",
-    "EPIC framework",
-    "IMPACT framework",
-    "CRAFT framework",
+    "EPIC",
+    "IMPACT",
+    "CRAFT",
     "Hub-Spoke Messaging Methodology"
    ],
    "address": {
     "@type": "PostalAddress",
-    "addressLocality": "Bengaluru",
-    "addressRegion": "Karnataka",
-    "addressCountry": "IN"
+    "addressLocality": "Bengaluru"
    },
    "image": "https://tools.gtmhelix.com/assets/shashwat-ghosh-480.jpg",
    "sameAs": [
@@ -209,6 +202,7 @@
     <li>Address: <code>https://craft-gtm.gtmhelix.com/mcp</code> (Streamable HTTP, stateless, JSON responses). GET returns 405 by design.</li>
     <li>Authentication: none. Every tool is marked read-only (<code>readOnlyHint: true</code>, <code>destructiveHint: false</code>) and has a title.</li>
     <li>Rate limit: 300 requests per minute per IP address. Server: <code>craft-gtm-mcp</code> version 2.2.9.</li>
+    <li>Limits: 262,144 bytes per call; text fields up to 4,000 characters, except the document fields <code>document_content</code> (CRAFT GTM Analyzer), which take up to 100,000; one call per request (no batches). A call over a limit is refused before the tool runs.</li>
     <li>Local use: <code>npx -y @shashwatgtmalpha/craft-gtm-mcp</code> runs these tools over stdio (npm can lag behind this site until a new version is published).</li>
   </ul>
 </section>
@@ -220,7 +214,7 @@
   -H "Content-Type: application/json" \
   -d '{&quot;input&quot;: {&quot;product&quot;: &quot;ExampleCo Scheduler, scheduling software for clinics&quot;, &quot;target_market&quot;: &quot;smb_saas&quot;, &quot;current_metrics&quot;: &quot;MRR: $40K, Churn: 4%, NPS: 38, CAC: $600, LTV: $4200, Retention: 90%&quot;, &quot;time_in_market&quot;: &quot;1_2_years&quot;}}'</pre></div></div>
   <ul class="hx-prose">
-    <li>Errors: 400 with <code>errors</code> (missing or invalid fields), 404 for an unknown tool, 405 for methods other than POST, 413 above 32,000 bytes, 429 when the rate limit is reached, 500 if the tool fails.</li>
+    <li>Errors: 400 with <code>errors</code> (missing or invalid fields), 404 for an unknown tool, 405 for methods other than POST, 413 above 32,000 bytes, 422 when the tool itself refuses the input (<code>ok</code> is false and <code>error</code> holds the tool's message), 429 when the rate limit is reached, 500 if the tool fails.</li>
     <li>Limits: 30 requests per minute per IP address; the whole request up to 32,000 bytes; top-level text fields up to 6,000 characters and top-level lists up to 50 items.</li>
     <li>Forms without JavaScript post <code>application/x-www-form-urlencoded</code> and get an HTML page back.</li>
     <li>Nothing is stored and the input is not logged (see <a href="/privacy/">Privacy</a>).</li>
@@ -412,6 +406,6 @@
             </div>
         </div>
     </footer>
-<script src="/assets/app.js?v=d1e45bf4af" defer></script>
+<script src="/assets/app.js?v=47d60caaff" defer></script>
 </body>
 </html>

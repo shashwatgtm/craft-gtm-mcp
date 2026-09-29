@@ -142,7 +142,8 @@ export default async (req, context) => {
       { status: 405, headers: { "Content-Type": "application/json", Allow: "POST", ...SECURITY, "Content-Security-Policy": JSON_CSP } });
   }
   const raw = await req.text();
-  if (raw.length > MAX_BODY_BYTES) return reply(413, { ok: false, error: "The request is too large." });
+  // R12-11 d (SH-M14): the limit is in bytes, so count the UTF-8 bytes, not the characters
+  if (new TextEncoder().encode(raw).length > MAX_BODY_BYTES) return reply(413, { ok: false, error: "The request is too large." });
 
   let input = {};
   let honeypot = "";

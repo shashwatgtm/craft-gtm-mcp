@@ -4,14 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CRAFT GTM Analyzer: free CRAFT GTM tool | Helix GTM</title>
-<meta name="description" content="Run CRAFT GTM Analyzer free in your browser or in Claude. Analyze a GTM document against the CRAFT framework. Free, with no sign-in.">
+<meta name="description" content="Score your GTM document against CRAFT from a GTM document and its type. Free in a browser or Claude, with no sign-in.">
 <meta name="robots" content="index, follow, max-image-preview:large">
 <meta name="author" content="Shashwat Ghosh, Helix GTM Consulting">
 <link rel="canonical" href="https://craft-gtm.gtmhelix.com/tools/craft-gtm-analyzer/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="CRAFT GTM by Helix GTM Consulting">
 <meta property="og:title" content="CRAFT GTM Analyzer: free CRAFT GTM tool | Helix GTM">
-<meta property="og:description" content="Run CRAFT GTM Analyzer free in your browser or in Claude. Analyze a GTM document against the CRAFT framework. Free, with no sign-in.">
+<meta property="og:description" content="Score your GTM document against CRAFT from a GTM document and its type. Free in a browser or Claude, with no sign-in.">
 <meta property="og:url" content="https://craft-gtm.gtmhelix.com/tools/craft-gtm-analyzer/">
 <meta property="og:image" content="https://craft-gtm.gtmhelix.com/og.png">
 <meta property="og:image:width" content="1200">
@@ -19,7 +19,7 @@
 <meta property="og:image:alt" content="CRAFT GTM by Helix GTM Consulting">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="CRAFT GTM Analyzer: free CRAFT GTM tool | Helix GTM">
-<meta name="twitter:description" content="Run CRAFT GTM Analyzer free in your browser or in Claude. Analyze a GTM document against the CRAFT framework. Free, with no sign-in.">
+<meta name="twitter:description" content="Score your GTM document against CRAFT from a GTM document and its type. Free in a browser or Claude, with no sign-in.">
 <meta name="twitter:image" content="https://craft-gtm.gtmhelix.com/og.png">
 <meta name="twitter:creator" content="@Shashwat_Ghosh">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
@@ -39,16 +39,14 @@
    "url": "https://gtmhelix.com/",
    "email": "shashwat@gtmhelix.com",
    "foundingDate": "2022",
-   "description": "Business consulting and services firm, founded in 2022 in Bengaluru.",
+   "description": "Founded in 2022 in Bengaluru.",
    "foundingLocation": {
     "@type": "Place",
-    "name": "Bengaluru, India"
+    "name": "Bengaluru"
    },
    "address": {
     "@type": "PostalAddress",
-    "addressLocality": "Bengaluru",
-    "addressRegion": "Karnataka",
-    "addressCountry": "IN"
+    "addressLocality": "Bengaluru"
    },
    "sameAs": [
     "https://www.linkedin.com/company/helixgtmconsulting",
@@ -77,19 +75,14 @@
     "B2B Marketer of the Year 2020, Fintech (CMO Asia)"
    ],
    "knowsAbout": [
-    "Go-to-market strategy",
-    "B2B marketing",
-    "Product marketing",
-    "EPIC framework",
-    "IMPACT framework",
-    "CRAFT framework",
+    "EPIC",
+    "IMPACT",
+    "CRAFT",
     "Hub-Spoke Messaging Methodology"
    ],
    "address": {
     "@type": "PostalAddress",
-    "addressLocality": "Bengaluru",
-    "addressRegion": "Karnataka",
-    "addressCountry": "IN"
+    "addressLocality": "Bengaluru"
    },
    "image": "https://tools.gtmhelix.com/assets/shashwat-ghosh-480.jpg",
    "sameAs": [
@@ -141,7 +134,7 @@
    "@id": "https://craft-gtm.gtmhelix.com/tools/craft-gtm-analyzer/#page",
    "url": "https://craft-gtm.gtmhelix.com/tools/craft-gtm-analyzer/",
    "name": "CRAFT GTM Analyzer: free CRAFT GTM tool | Helix GTM",
-   "description": "Run CRAFT GTM Analyzer free in your browser or in Claude. Analyze a GTM document against the CRAFT framework. Free, with no sign-in.",
+   "description": "Score your GTM document against CRAFT from a GTM document and its type. Free in a browser or Claude, with no sign-in.",
    "isPartOf": {
     "@id": "https://craft-gtm.gtmhelix.com/#site"
    },
@@ -256,7 +249,7 @@
 <div class="hx-body">
 <section class="hx-section hx-run-sec" id="run" aria-label="Run CRAFT GTM Analyzer">
   <div class="win hx-form-win"><div class="win-bar"><span class="t">Run CRAFT GTM Analyzer</span><span class="wb" aria-hidden="true"><i></i><i></i></span></div><form class="hx-form" method="post" action="/api/tools/craft_gtm_analyzer" data-tool="craft_gtm_analyzer" data-title="CRAFT GTM Analyzer"><p class="hx-help">You need: Document content, Document type. You can add: Intended audience, Desired outcome.</p>
-<div class="hx-field"><label for="f-document_content">Document content <span class="hx-req" aria-hidden="true">*</span></label><textarea id="f-document_content" name="document_content" rows="3" maxlength="6000" data-kind="string" required aria-required="true" aria-describedby="f-document_content-help"></textarea><p class="hx-help" id="f-document_content-help">Paste the full GTM document or plan you want reviewed.</p></div>
+<div class="hx-field"><label for="f-document_content">Document content <span class="hx-req" aria-hidden="true">*</span></label><textarea id="f-document_content" name="document_content" rows="3" maxlength="6000" data-kind="string" required aria-required="true" aria-describedby="f-document_content-help f-document_content-limit"></textarea><p class="hx-help" id="f-document_content-help">Paste the full GTM document or plan you want reviewed.</p><p class="hx-help" id="f-document_content-limit">Up to 6,000 characters in this form. For a longer document, use CRAFT GTM in Claude, which takes up to 100,000.</p></div>
 <div class="hx-field"><label for="f-document_type">Document type <span class="hx-req" aria-hidden="true">*</span></label><select id="f-document_type" name="document_type" data-kind="string" required aria-required="true" aria-describedby="f-document_type-help"><option value="" disabled selected>Choose one</option><option value="gtm_strategy">GTM strategy</option><option value="launch_plan">Launch plan</option><option value="campaign_brief">Campaign brief</option><option value="quarterly_plan">Quarterly plan</option><option value="project_proposal">Project proposal</option><option value="marketing_plan">Marketing plan</option></select><p class="hx-help" id="f-document_type-help">Type of document (shown in the analysis)</p></div>
 <div class="hx-field"><label for="f-intended_audience">Intended audience <span class="hx-opt">(optional)</span></label><textarea id="f-intended_audience" name="intended_audience" rows="3" maxlength="6000" data-kind="string" aria-describedby="f-intended_audience-help"></textarea><p class="hx-help" id="f-intended_audience-help">Optional: Who will read/approve this document</p></div>
 <div class="hx-field"><label for="f-desired_outcome">Desired outcome <span class="hx-opt">(optional)</span></label><textarea id="f-desired_outcome" name="desired_outcome" rows="3" maxlength="6000" data-kind="string" aria-describedby="f-desired_outcome-help"></textarea><p class="hx-help" id="f-desired_outcome-help">Optional: What action should this document drive</p></div>
@@ -279,20 +272,20 @@
 <section class="hx-section" aria-labelledby="ex-h">
   <h2 id="ex-h">Example answer</h2>
   <p class="hx-prose">From version 2.2.9 of this tool, with the inputs behind <em>Fill in an example</em>. Your own inputs give a different result.</p>
-  <div class="win "><div class="win-bar"><span class="t">Example: CRAFT GTM Analyzer</span><span class="wb" aria-hidden="true"><i></i><i></i></span></div><div class="win-body"><details class="hx-run"><summary>Show the full result</summary><div class="hx-result-body hx-output"><h3>📋 CRAFT Document Analysis</h3>
+  <div class="win "><div class="win-bar"><span class="t">Example: CRAFT GTM Analyzer</span><span class="wb" aria-hidden="true"><i></i><i></i></span></div><div class="win-body"><details class="hx-run"><summary>Show the full result</summary><div class="hx-result-body hx-output"><h3>CRAFT Document Analysis</h3>
 <h4>QUARTERLY PLAN</h4>
 <p><strong>Document Length:</strong> 189 characters</p>
 <p><strong>Words (estimate):</strong> ~38, from the character count (Example figure: replace with your own)</p>
 <p><strong>Intended Audience:</strong> Not specified</p>
 <p><strong>Desired Outcome:</strong> Not specified</p>
 <hr>
-<h4>🎯 Overall Score: 31/50 (62%)</h4>
-<div class="hx-table"><table><thead><tr><th>Rating</th><th>🟡 GOOD</th></tr></thead><tbody></tbody></table></div>
+<h4>Overall Score: 31/50 (62%)</h4>
+<div class="hx-table"><table><thead><tr><th>Rating</th><th>GOOD</th></tr></thead><tbody></tbody></table></div>
 <hr>
-<h4>📊 Dimension Scores</h4>
-<div class="hx-table"><table><thead><tr><th>Dimension</th><th>Score</th><th>Status</th><th>Assessment</th></tr></thead><tbody><tr><td><strong>C</strong>haracter (Who)</td><td>10/10</td><td>✅</td><td>Clear ownership</td></tr><tr><td><strong>R</strong>esult (What success)</td><td>6/10</td><td>⚠️</td><td>Vague goals</td></tr><tr><td><strong>A</strong>rtifact (What's produced)</td><td>0/10</td><td>❌</td><td>Unclear outputs</td></tr><tr><td><strong>F</strong>rame (Context)</td><td>5/10</td><td>⚠️</td><td>Partial context</td></tr><tr><td><strong>T</strong>imeline (When)</td><td>10/10</td><td>✅</td><td>Clear timeline</td></tr></tbody></table></div>
+<h4>Dimension Scores</h4>
+<div class="hx-table"><table><thead><tr><th>Dimension</th><th>Score</th><th>Status</th><th>Assessment</th></tr></thead><tbody><tr><td><strong>C</strong>haracter (Who)</td><td>10/10</td><td>Yes</td><td>Clear ownership</td></tr><tr><td><strong>R</strong>esult (What success)</td><td>6/10</td><td>Note</td><td>Vague goals</td></tr><tr><td><strong>A</strong>rtifact (What's produced)</td><td>0/10</td><td>No</td><td>Unclear outputs</td></tr><tr><td><strong>F</strong>rame (Context)</td><td>5/10</td><td>Note</td><td>Partial context</td></tr><tr><td><strong>T</strong>imeline (When)</td><td>10/10</td><td>Yes</td><td>Clear timeline</td></tr></tbody></table></div>
 <hr>
-<h4>🔍 Detailed Analysis</h4>
+<h4>Detailed Analysis</h4>
 <h5>C: CHARACTER (Who executes?)</h5>
 <p><strong>Score: 10/10</strong></p>
 <p><strong>Found in document:</strong></p>
@@ -304,7 +297,7 @@
 </ul>
 <p><strong>Gaps identified:</strong></p>
 <ul>
-<li>✅ Character dimension is well-defined</li>
+<li>Character dimension is well-defined</li>
 </ul>
 <hr>
 <h5>R: RESULT (What does success look like?)</h5>
@@ -333,7 +326,7 @@ Success Definition: [Specific, measurable outcome]</code></pre>
 <p><strong>Score: 0/10</strong></p>
 <p><strong>Found in document:</strong></p>
 <ul>
-<li>❌ No clear deliverables specified</li>
+<li>No clear deliverables specified</li>
 </ul>
 <p><strong>Gaps identified:</strong></p>
 <ul>
@@ -357,7 +350,7 @@ Success Definition: [Specific, measurable outcome]</code></pre>
 </ul>
 <p><strong>Gaps identified:</strong></p>
 <ul>
-<li>✅ Frame/context is well-defined</li>
+<li>Frame/context is well-defined</li>
 </ul>
 <hr>
 <h5>T: TIMELINE (When does it happen?)</h5>
@@ -372,16 +365,16 @@ Success Definition: [Specific, measurable outcome]</code></pre>
 </ul>
 <p><strong>Gaps identified:</strong></p>
 <ul>
-<li>✅ Timeline is well-defined</li>
+<li>Timeline is well-defined</li>
 </ul>
 <hr>
-<h4>🎯 Priority Improvements</h4>
+<h4>Priority Improvements</h4>
 <div class="hx-table"><table><thead><tr><th>Priority</th><th>Dimension</th><th>Current Score</th><th>Action</th></tr></thead><tbody><tr><td>1</td><td>Artifact</td><td>0/10</td><td>No clear deliverables specified</td></tr><tr><td>2</td><td>Frame</td><td>5/10</td><td>Enhance this section</td></tr><tr><td>3</td><td>Result</td><td>6/10</td><td>Consider adding leading and lagging indicators</td></tr></tbody></table></div>
 <hr>
-<h4>📝 Document Excerpt Analyzed</h4>
+<h4>Document Excerpt Analyzed</h4>
 <pre><code>Q1 plan: grow pipeline 30% by launching two webinars and an outbound sequence to mid-market finance leaders. Owner: marketing lead. Budget: $20K. Success metric: 40 qualified opportunities.</code></pre>
 <hr>
-<h4>✅ Next Steps</h4>
+<h4>Next Steps</h4>
 <ol>
 <li value="1">Address Artifact: No clear deliverables specified</li>
 <li value="2">Improve Frame: Enhance this section</li>
@@ -389,7 +382,7 @@ Success Definition: [Specific, measurable outcome]</code></pre>
 <li value="4">Define desired outcome from this document</li>
 </ol>
 <hr>
-<p><em>Analysis performed using CRAFT GTM Framework v2.0</em></p>
+<p><em>Analysis performed using CRAFT GTM framework</em></p>
 <p><em>Document type: quarterly plan</em></p></div></details></div></div>
   <p class="figcap">How the answer is laid out, using the sections the tool prints. The weakest letters point to the Priority Improvements rows.</p>
 </section>
@@ -406,7 +399,7 @@ Success Definition: [Specific, measurable outcome]</code></pre>
 <section class="hx-section" aria-labelledby="ai-h">
   <h2 id="ai-h">How do I use CRAFT GTM Analyzer from Claude?</h2>
   <p class="hx-prose">Add CRAFT GTM once (see <a href="/connect/">Use it in Claude or ChatGPT</a>), then ask in plain words. A prompt built from the tested example:</p>
-  <blockquote class="hx-quote">Use CRAFT GTM&#x27;s CRAFT GTM Analyzer tool. document content: Q1 plan: grow pipeline 30% by launching two webinars and an outbound sequence to mid-market finance leaders. Owner: marketing lead. Budget: ...; document type: Quarterly plan.</blockquote>
+  <blockquote class="hx-quote">Use CRAFT GTM&#x27;s CRAFT GTM Analyzer tool. document content: Q1 plan: grow pipeline 30% by launching two webinars and an outbound sequence to mid-market finance leaders. Owner: marketing lead. Budget: $20K. Success metric: 40 qualified opportunities; document type: Quarterly plan.</blockquote>
 </section>
 
 <section class="hx-section" aria-labelledby="works-h">
@@ -483,6 +476,6 @@ Success Definition: [Specific, measurable outcome]</code></pre>
             </div>
         </div>
     </footer>
-<script src="/assets/app.js?v=d1e45bf4af" defer></script>
+<script src="/assets/app.js?v=47d60caaff" defer></script>
 </body>
 </html>
