@@ -35,6 +35,11 @@ export function generateCompetitiveIntel(args: {
     weaknesses = ['[DISCOVERY NEEDED: Run loss analysis to identify]'];
   }
   
+  // Run 12 (R12-20, truth test): only strengths and gaps the user supplied (or that come from their own wins and
+  // losses) are printed as facts; anything else is a bracket for the user to fill in.
+  const S = args.your_strengths || wins.length > 0 ? strengths : [];
+  const W = args.your_weaknesses || losses.length > 0 ? weaknesses : [];
+
   // If no strengths, weaknesses, AND no objections - return discovery mode
   if (!args.your_strengths && !args.your_weaknesses && wins.length === 0 && losses.length === 0 && objections.length === 0) {
     return generateCompetitiveDiscoveryKit(args.your_product, competitors);
@@ -61,7 +66,7 @@ export function generateCompetitiveIntel(args: {
     if (objLower.includes('price') || objLower.includes('expensive') || objLower.includes('cost') || objLower.includes('budget')) {
       return {
         acknowledge: "I understand budget is a consideration.",
-        counter: `Let me share what customers find: ${strengths[0] || 'our solution'} typically delivers ROI within [X months]. One customer saved [specific amount] by [specific outcome].`,
+        counter: `[Only if true and provable: ${S[0] || 'our solution'} typically delivers ROI within [X months]. One customer saved [specific amount] by [specific outcome].]`,
         redirect: "What would the cost of NOT solving this problem be for your team?"
       };
     }
@@ -69,7 +74,7 @@ export function generateCompetitiveIntel(args: {
     if (objLower.includes('competitor') || objLower.includes('other') || objLower.includes('alternative') || competitors.some(c => objLower.includes(c.toLowerCase()))) {
       return {
         acknowledge: "It makes sense to evaluate options thoroughly.",
-        counter: `What sets us apart is ${strengths[0] ? lowerFirstIfCommon(strengths[0]) : 'our unique approach'}. Customers who've compared us often find that [specific advantage].`,
+        counter: `What sets us apart is ${S[0] ? lowerFirstIfCommon(S[0]) : '[your key strength]'}. [Only if true and provable: Customers who've compared us often find that [specific advantage].]`,
         redirect: "What's most important to you in making this decision?"
       };
     }
@@ -77,7 +82,7 @@ export function generateCompetitiveIntel(args: {
     if (objLower.includes('time') || objLower.includes('now') || objLower.includes('later') || objLower.includes('ready')) {
       return {
         acknowledge: "Timing is definitely important to get right.",
-        counter: "Here's what I've seen: teams that wait often find the problem grows. One customer told us they wished they'd started [X] months earlier.",
+        counter: "[Only if true and provable: Teams that wait often find the problem grows. One customer told us they wished they'd started [X] months earlier.]",
         redirect: "What would need to change for the timing to feel right?"
       };
     }
@@ -85,7 +90,7 @@ export function generateCompetitiveIntel(args: {
     if (objLower.includes('feature') || objLower.includes('can\'t') || objLower.includes('doesn\'t') || objLower.includes('missing') || objLower.includes('lack')) {
       return {
         acknowledge: "That's a fair point.",
-        counter: `While [feature] works differently in our product, customers find that [workaround or alternative benefit]. Plus, ${strengths[0] || 'our core strength'} more than makes up for it.`,
+        counter: `While [feature] works differently in our product, customers find that [workaround or alternative benefit]. Plus, ${S[0] ? lowerFirstIfCommon(S[0]) : '[your key strength]'} [how it makes up for the gap].`,
         redirect: "How critical is that specific capability vs. the overall outcome you're trying to achieve?"
       };
     }
@@ -100,7 +105,7 @@ export function generateCompetitiveIntel(args: {
     
     return {
       acknowledge: `I appreciate you raising that concern about "${objection}".`,
-      counter: `Here's how we address that: ${strengths[0] || 'our approach'} specifically helps with this. Let me share an example...`,
+      counter: `Here's how we address that: ${S[0] ? lowerFirstIfCommon(S[0]) : '[your key strength]'} [how it helps with this]. [Your example]`,
       redirect: "Can you tell me more about why that's a concern for your situation?"
     };
   };
@@ -114,13 +119,13 @@ export function generateCompetitiveIntel(args: {
 
 ### When We Win 💪
 
-${strengths.map((s, i) => `${i + 1}. **${s}**`).join('\n')}
+${S.length > 0 ? S.map((s, i) => `${i + 1}. **${s}**`).join('\n') : 'Not known yet (add your_strengths or recent_wins).'}
 
 ${wins.length > 0 ? `\n**Recent Win Patterns:**\n${wins.map(w => `- ${w}`).join('\n')}` : ''}
 
 ### When We Lose ⚠️
 
-${weaknesses.map((w, i) => `${i + 1}. **${w}**`).join('\n')}
+${W.length > 0 ? W.map((w, i) => `${i + 1}. **${w}**`).join('\n') : 'Not known yet (add your_weaknesses or recent_losses).'}
 
 ${losses.length > 0 ? `\n**Recent Loss Patterns:**\n${losses.map(l => `- ${l}`).join('\n')}` : ''}
 
@@ -143,22 +148,21 @@ ${info.length > 0 ? `**Known Intel:**\n${info.map(i => `- ${i}`).join('\n')}\n` 
 
 | Dimension | ${args.your_product} | ${comp} |
 |-----------|------------|---------|
-| ${strengths[0] || 'Strength 1'} | ✅ Strong | ⚠️ Limited |
-| ${strengths[1] || 'Strength 2'} | ✅ Strong | ⚠️ Limited |
-| ${weaknesses[0] ? `Our gap: ${weaknesses[0]}` : 'Gap 1'} | ⚠️ Gap for us | ✅ Ahead of us |
+${S.length > 0 ? S.slice(0, 2).map(s => `| ${s} | Strong | [Your rating] |`).join('\n') : '| [Your key strength] | [Your rating] | [Your rating] |'}
+${W.length > 0 ? `| Our gap: ${W[0]} | Gap for us | Ahead of us |` : '| [Your main gap] | [Your rating] | [Your rating] |'}
 
 **Our Advantages Over ${comp}:**
-${strengths.slice(0, 3).map(s => `- ${s}`).join('\n')}
+${S.length > 0 ? S.slice(0, 3).map(s => `- ${s}`).join('\n') : '- [Your advantages]'}
 
 **Their Advantages Over Us:**
-${weaknesses.slice(0, 2).map(w => `- Where we fall short: ${w}`).join('\n')}
+${W.length > 0 ? W.slice(0, 2).map(w => `- Where we fall short: ${w}`).join('\n') : '- [Where they are ahead of you]'}
 
 **${comp} Trap Questions:**
-*Questions to ask that expose their weaknesses*
+*Questions to ask the buyer*
 
-1. "How does ${comp} handle ${strengths[0] ? lowerCommonWords(strengths[0]) : 'your top strength'}?"
-2. "What's their approach to ${strengths[1] ? lowerCommonWords(strengths[1]) : 'your second strength'}?"
-3. "Have you looked at how they compare on [key metric]?"
+1. Ask how ${comp} compares on: ${S[0] || '[your key strength]'}
+2. Ask how ${comp} compares on: ${S[1] || '[your second strength]'}
+3. Ask how ${comp} compares on: [key metric]
 
 **"Why Not ${comp}?" Response:**
 
@@ -169,8 +173,7 @@ If prospect asks: "Why should we choose you over ${comp}?"
 
 Here's why customers choose us:
 
-1. ${strengths[0] || 'Key differentiator'} - [Brief explanation]
-2. ${strengths[1] || 'Second differentiator'} - [Brief explanation]
+${S.length > 0 ? S.slice(0, 2).map((s, n) => `${n + 1}. ${s}: [brief explanation]`).join('\n') : '1. [Your key strength]: [brief explanation]'}
 
 Would it help to talk to a customer who evaluated both?"
 \`\`\`
@@ -224,16 +227,12 @@ ${handler.redirect}"
 ### We Win When:
 ${wins.length > 0 
   ? wins.map(w => `- ✅ ${w}`).join('\n')
-  : `- ✅ ${strengths[0] || 'Our key strength'} is the priority
-- ✅ Buyer values ${strengths[1] || 'our second strength'}
-- ✅ Technical evaluation included`}
+  : S.length > 0 ? S.slice(0, 2).map(s => `- The buyer's priority is ${lowerFirstIfCommon(s)}`).join('\n') : '- Not known yet (add recent_wins)'}
 
 ### We Lose When:
 ${losses.length > 0 
   ? losses.map(l => `- ❌ ${l}`).join('\n')
-  : `- ❌ ${weaknesses[0] || 'Our gap area'} is critical requirement
-- ❌ ${weaknesses[1] || 'Price sensitivity'} dominates decision
-- ❌ Incumbent relationship too strong`}
+  : W.length > 0 ? W.slice(0, 2).map(w => `- The buyer needs what we lack: ${w}`).join('\n') : '- Not known yet (add recent_losses)'}
 
 ### Win Rate by Competitor (Track This):
 
@@ -246,21 +245,21 @@ ${competitors.map(c => `| ${c} | __% | __ deals | __ |`).join('\n')}
 ## 📝 Quick Reference Card
 
 \`\`\`
-${args.your_product.toUpperCase()} vs COMPETITION - QUICK GUIDE
+Quick guide: ${args.your_product} against the competition
 
 OUR SUPERPOWERS:
-${strengths.slice(0, 3).map(s => `• ${s}`).join('\n')}
+${S.length > 0 ? S.slice(0, 3).map(s => `• ${s}`).join('\n') : '• [Your key strengths]'}
 
 WATCH OUT FOR:
-${weaknesses.slice(0, 2).map(w => `• ${w}`).join('\n')}
+${W.length > 0 ? W.slice(0, 2).map(w => `• ${w}`).join('\n') : '• [Your main gaps]'}
 
 TOP OBJECTION HANDLERS:
-${objections.length > 0 ? objections.slice(0, 3).map((o, i) => `${i + 1}. "${o}" → Focus on [${strengths[i] || 'key value'}]`).join('\n') : 'None supplied yet: add common_objections.'}
+${objections.length > 0 ? objections.slice(0, 3).map((o, i) => `${i + 1}. "${o}" → Focus on ${S[i] ? lowerFirstIfCommon(S[i]) : '[key value]'}`).join('\n') : 'None supplied yet: add common_objections.'}
 \`\`\`
 
 ---
 
-*Competitive intelligence generated using CRAFT GTM Framework v2.0*`;
+*Competitive intelligence generated using the CRAFT GTM framework*`;
 
   return output;
 }
@@ -429,7 +428,7 @@ You'll get complete battle cards with specific handlers for each competitor and 
 
 ---
 
-*Competitive Discovery Kit generated using CRAFT GTM Framework v2.0*
+*Competitive Discovery Kit generated using the CRAFT GTM framework*
 
 ${SUGGESTION_FOOTER}`;
 }
