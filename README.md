@@ -1,5 +1,5 @@
 # @shashwatgtmalpha/craft-gtm-mcp v2.2.9
-🚀 **CRAFT GTM Framework MCP Server** - A complete redesign with intelligent analysis, metric parsing, and context-aware outputs.
+**CRAFT GTM Framework MCP Server**: a complete redesign with metric parsing, context-aware outputs, and a structured draft with placeholders where your inputs give no fact.
 
 ## Use it hosted (no install)
 
@@ -41,7 +41,7 @@ Or add to your Claude Desktop config:
 
 ## Tools and inputs
 
-Generated on 27 September 2026 from the server's own tool list (`tools/list` of craft-gtm-mcp 2.2.6, the same code as the hosted MCP address), so every tool name, title, description and input below is exactly what the server accepts. Every tool is read-only.
+Generated on 27 September 2026 from the server's own tool list and checked again on 29 September 2026 against `tools/list` of craft-gtm-mcp 2.2.9 (the same code as the hosted MCP address), so every tool name, title, description and input below is exactly what the server accepts. Every tool is read-only.
 
 | # | Tool | Title | What it does |
 |---|---|---|---|
@@ -150,11 +150,11 @@ Generated on 27 September 2026 from the server's own tool list (`tools/list` of 
 
 ## Design Principles (v2.0)
 
-1. **No blank outputs** - Every `___` or `[Define]` replaced with generated content
-2. **Context-aware** - Outputs adapt based on inputs provided
-3. **Discovery mode** - If info missing, tools ask smart questions
-4. **Actionable outputs** - Ready-to-use, not templates to fill
-5. **Progressive enhancement** - More input = richer output
+1. **No blank `___` lines**: where your inputs give no fact, the output shows a placeholder in brackets to fill in
+2. **Context-aware**: outputs adapt based on inputs provided
+3. **Discovery mode**: if information is missing, tools ask questions to find it
+4. **A structured draft with placeholders**: each tool returns a structured draft to edit, with placeholders where your inputs gave no fact
+5. **Progressive enhancement**: more input gives a richer output
 
 ## Author
 
@@ -171,7 +171,7 @@ The same tools are also available as a hosted MCP server, so they work in Claude
 
 - Server URL: `https://craft-gtm.gtmhelix.com/mcp`
 - Transport: Streamable HTTP (stateless, JSON responses). Authentication: none.
-- Setup guide: https://craft-gtm.gtmhelix.com/
+- Setup guide: https://craft-gtm.gtmhelix.com/connect/
 - In Claude: Customize, then Connectors, then Add custom connector, and paste the server URL.
 - In Claude Code: `claude mcp add --transport http craft-gtm https://craft-gtm.gtmhelix.com/mcp`
 
@@ -179,10 +179,10 @@ The npm package (stdio) and the hosted server run the same `createServer()` code
 
 ## Privacy Policy
 
-Full policy: https://craft-gtm.gtmhelix.com/privacy.html (also in [PRIVACY.md](PRIVACY.md)).
+Full policy: https://craft-gtm.gtmhelix.com/privacy/ (also in [PRIVACY.md](PRIVACY.md)).
 
 - **Data collection:** the hosted server receives only the tool name and the inputs of each tool call. The npm package runs on your computer and sends nothing to us.
 - **Use and storage:** inputs are used only to build that call's reply. Nothing is stored: no database, no files, no cache, no logging of inputs or outputs by our code.
-- **Third-party sharing:** none by us. Netlify hosts the server and processes requests under its own policy (https://www.netlify.com/privacy/). The web pages load fonts from Google Fonts.
+- **Third-party sharing:** none by us. Netlify hosts the server and processes requests under its own policy (https://www.netlify.com/privacy/). Fonts are served from this site, so loading a page contacts no one else.
 - **Retention:** we keep no tool inputs or outputs. Netlify keeps its own platform logs under its policy.
 - **Contact:** shashwat@gtmhelix.com
