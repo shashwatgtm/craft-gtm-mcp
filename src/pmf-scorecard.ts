@@ -69,9 +69,9 @@ export function generatePMFScorecard(args: {
   // Score each dimension
   const churnScore = scoreMetric(metrics.churn, b.churn, false);
   const npsScore = scoreMetric(metrics.nps, b.nps, true);
-  const ltvCacScore = scoreMetric(metrics.ltvCacRatio, b.ltvCac, true, metrics.ltvCacRatio?.toFixed(1));
-  const retentionScore = scoreMetric(metrics.retentionRate, b.retention, true);
-  const activationScore = scoreMetric(metrics.activationRate, b.activation, true);
+  const ltvCacScore = scoreMetric(metrics.ltvCacRatio, b.ltvCac, true, metrics.ltvCacRatio?.toFixed(1), 'x');
+  const retentionScore = scoreMetric(metrics.retentionRate, b.retention, true, undefined, '%');
+  const activationScore = scoreMetric(metrics.activationRate, b.activation, true, undefined, '%');
   
   // Calculate overall PMF score
   const scoredDimensions = [churnScore, npsScore, ltvCacScore, retentionScore, activationScore]
@@ -93,7 +93,15 @@ export function generatePMFScorecard(args: {
     pmfStage = 'Searching for PMF';
     pmfAnalysis = 'Significant gaps remain. Focus on product-market alignment.';
   } else {
-    pmfAnalysis = 'Early stage - need more data or fundamental pivots needed.';
+    pmfAnalysis = 'Early stage: more data is needed, or a pivot if the numbers you have are weak.';
+  }
+  // Run 12 (R12-21): say how many dimensions the score rests on; with fewer than 3, the stage sentence becomes a caveat.
+  // The stage name, the score and the thresholds above are unchanged.
+  const basis = `Based on ${scoredDimensions.length} of 5 dimensions.`;
+  if (scoredDimensions.length === 0) {
+    pmfAnalysis = 'Not scored yet: none of your metrics matched. Add the missing ones listed below.';
+  } else if (scoredDimensions.length < 3) {
+    pmfAnalysis = 'Too few metrics to judge fit yet: add the missing ones listed below.';
   }
   
   // Build actionable recommendations
@@ -103,13 +111,13 @@ export function generatePMFScorecard(args: {
     recommendations.push('CHURN: Implement churn prediction model, conduct exit interviews, improve onboarding');
   }
   if (npsScore.label === 'MISSING') {
-    recommendations.push('NPS: Start measuring NPS immediately - critical PMF signal');
+    recommendations.push('NPS: Start measuring NPS now, a critical PMF signal');
   } else if (npsScore.score < 6) {
     recommendations.push('NPS: Focus on detractor feedback, address top 3 pain points');
     suggestsCounts = true;
   }
   if (ltvCacScore.label === 'MISSING') {
-    recommendations.push('LTV:CAC: Calculate unit economics - essential for scaling decisions');
+    recommendations.push('LTV:CAC: Calculate unit economics, essential for scaling decisions');
   } else if (ltvCacScore.score < 6) {
     recommendations.push('UNIT ECONOMICS: Either reduce CAC (improve conversion) or increase LTV (upsell/retention)');
   }
@@ -152,6 +160,7 @@ export function generatePMFScorecard(args: {
 |-------|-------|--------|
 | **${pmfStage}** | **${overallScore}/10** | ${overallScore >= 7 ? 'Yes' : overallScore >= 5 ? 'Note' : 'No'} |
 
+${basis}
 ${pmfAnalysis}
 The score is the average of the dimensions scored below (missing data is left out), each judged against an example benchmark.
 
@@ -219,7 +228,7 @@ ${feedbackAnalysis ? `---\n\n## Qualitative Signals\n\n${feedbackAnalysis}\n` : 
 
 ## Priority Actions
 
-${recommendations.length > 0 ? recommendations.map((r, i) => `${i + 1}. ${r}`).join('\n\n') : 'All dimensions scoring well - focus on scaling!'}
+${recommendations.length > 0 ? recommendations.map((r, i) => `${i + 1}. ${r}`).join('\n\n') : 'All dimensions scoring well: focus on scaling.'}
 
 ---
 

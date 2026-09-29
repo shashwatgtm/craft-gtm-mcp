@@ -360,23 +360,23 @@ export function parseMetrics(metricsText: string): ParsedMetrics {
   return metrics;
 }
 
-export function scoreMetric(value: number | undefined, benchmarks: { low: number; medium: number; high: number }, higherIsBetter: boolean = true, shown?: string): { score: number; label: string; analysis: string } {
+export function scoreMetric(value: number | undefined, benchmarks: { low: number; medium: number; high: number }, higherIsBetter: boolean = true, shown?: string, unit: string = ''): { score: number; label: string; analysis: string } {
   if (value === undefined) {
-    return { score: 0, label: 'MISSING', analysis: 'Data not provided - unable to score' };
+    return { score: 0, label: 'MISSING', analysis: 'Data not provided: not scored' };
   }
   // How the value is printed (the score always uses the exact value)
-  const v = shown ?? String(value);
+  const v = (shown ?? String(value)) + unit;
 
   // The benchmark figures are the tool's example ranges, so each one is labelled.
   if (higherIsBetter) {
-    if (value >= benchmarks.high) return { score: 9, label: 'EXCELLENT', analysis: `${v} is at or above the excellent mark of ${benchmarks.high} ${EXAMPLE_FIGURE}` };
-    if (value >= benchmarks.medium) return { score: 7, label: 'GOOD', analysis: `${v} meets healthy benchmark of ${benchmarks.medium} ${EXAMPLE_FIGURE}` };
-    if (value >= benchmarks.low) return { score: 5, label: 'DEVELOPING', analysis: `${v} is below target of ${benchmarks.medium} ${EXAMPLE_FIGURE}` };
-    return { score: 3, label: 'CRITICAL', analysis: `${v} is significantly below minimum of ${benchmarks.low} ${EXAMPLE_FIGURE}` };
+    if (value >= benchmarks.high) return { score: 9, label: 'EXCELLENT', analysis: `${v} is at or above the excellent mark of ${benchmarks.high}${unit} ${EXAMPLE_FIGURE}` };
+    if (value >= benchmarks.medium) return { score: 7, label: 'GOOD', analysis: `${v} meets the healthy benchmark of ${benchmarks.medium}${unit} ${EXAMPLE_FIGURE}` };
+    if (value >= benchmarks.low) return { score: 5, label: 'DEVELOPING', analysis: `${v} is below the target of ${benchmarks.medium}${unit} ${EXAMPLE_FIGURE}` };
+    return { score: 3, label: 'CRITICAL', analysis: `${v} is significantly below the minimum of ${benchmarks.low}${unit} ${EXAMPLE_FIGURE}` };
   } else {
     if (value <= benchmarks.low) return { score: 9, label: 'EXCELLENT', analysis: `${v}% is at or below the excellent mark of ${benchmarks.low}% ${EXAMPLE_FIGURE}` };
     if (value <= benchmarks.medium) return { score: 7, label: 'GOOD', analysis: `${v}% is acceptable (benchmark: <${benchmarks.medium}%) ${EXAMPLE_FIGURE}` };
-    if (value <= benchmarks.high) return { score: 5, label: 'DEVELOPING', analysis: `${v}% is elevated against the example benchmark - needs attention` };
+    if (value <= benchmarks.high) return { score: 5, label: 'DEVELOPING', analysis: `${v}% is elevated against the example benchmark: it needs attention` };
     return { score: 3, label: 'CRITICAL', analysis: `${v}% significantly exceeds maximum of ${benchmarks.high}% ${EXAMPLE_FIGURE}` };
   }
 }
