@@ -22,6 +22,9 @@ const MAX_NAME = 100;
 const LONG_TEXT = {
   "craft_gtm_analyzer": [
     "document_content"
+  ],
+  "competitive_intel": [
+    "competitor_details"
   ]
 };
 // Answers are never cached (privacy page: web and MCP answers are sent with Cache-Control: no-store).
