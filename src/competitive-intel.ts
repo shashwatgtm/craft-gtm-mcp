@@ -383,12 +383,12 @@ Ask your sales reps:
 
 For each competitor (${competitors.join(', ')}):
 
-- [ ] Review their website messaging - what do they claim?
-- [ ] Check G2/Capterra reviews - what do customers praise/complain about?
-- [ ] Look at their case studies - which industries/sizes do they focus on?
-- [ ] Find their pricing (if public) - how does it compare?
-- [ ] Check LinkedIn - how big is their team? Which roles are they hiring?
-- [ ] Search news - any recent funding, acquisitions, or product launches?
+- [ ] Review their website messaging: what do they claim?
+- [ ] Check G2/Capterra reviews: what do customers praise/complain about?
+- [ ] Look at their case studies: which industries/sizes do they focus on?
+- [ ] Find their pricing (if public): how does it compare?
+- [ ] Check LinkedIn: how big is their team? Which roles are they hiring?
+- [ ] Search news: any recent funding, acquisitions, or product launches?
 
 ---
 
