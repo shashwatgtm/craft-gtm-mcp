@@ -136,7 +136,7 @@ export function generateLaunchCommander(args: {
   // Budget-appropriate tactics
   const budgetTactics: Record<string, string[]> = {
     bootstrap: ['Organic social', 'Content marketing', 'Community building', 'Partner co-marketing', 'Email marketing'],
-    moderate: ['Targeted paid ads', 'Small event/webinar', 'Limited influencer', 'Retargeting', 'Content syndication'],
+    moderate: ['Targeted paid ads', 'Small event/webinar', 'A few influencer posts', 'Retargeting', 'Content syndication'],
     well_funded: ['Multi-channel paid', 'Large events', 'Influencer campaigns', 'PR agency', 'ABM programs']
   };
   
@@ -189,7 +189,9 @@ ${!launchDate
   ? '*No exact launch date: the task due dates below count back from today, as if launching today. Add a launch date (YYYY-MM-DD) for a real schedule.*\n\n'
   : isFlexible
     ? `*Planning mode: the task due dates below count back from an assumed launch date of ${formatDate(launchDate)}.*\n\n`
-    : ''}`;
+    : ''}*Task dates are suggestions spread across each phase: move them to fit your launch day.*
+
+`;
 
   // Generate detailed timeline - use current date as reference if no launch date
   const referenceDate = launchDate || new Date();
@@ -232,7 +234,7 @@ ${!launchDate
 | Element | Content |
 |---------|---------|
 | Primary Pain Point | [Define for ${segment}] |
-| Key Message | "For ${segment}, ${args.product_feature} provides..." |
+| Key Message | "For ${segment}, ${args.product_feature} [what it does for them]." |
 | Proof Point | [Case study/metric for ${segment}] |
 | CTA | [Specific action for ${segment}] |
 | Primary Channel | ${channels[0] || 'TBD'} |
@@ -240,16 +242,32 @@ ${!launchDate
 `;
   }
 
+  // Run 12 (R12-21): the user's goals go in the Target column of the row they match; other rows ask for a target,
+  // and a goal that matches no row gets a row of its own. The goals are printed as typed.
+  const goalList = parseListItems(args.goals);
+  const used = new Set<number>();
+  const pick = (re: RegExp): string => {
+    const i = goalList.findIndex((g, n) => !used.has(n) && re.test(g));
+    if (i < 0) return '[set a target]';
+    used.add(i);
+    return goalList[i];
+  };
+  const rows = [
+    ['Awareness', pick(/view|impression|visit|traffic|reach|download|follower/i), 'Analytics'],
+    ['Engagement', pick(/sign-?up|trial|ctr|click|lead|demo|registr|attend/i), 'CRM/Analytics'],
+    ['Adoption', pick(/activat|usage|active user|adopt|conversion|retention/i), 'Product Analytics'],
+    ['Revenue', pick(/pipeline|revenue|\$|closed|arr|mrr|deal|sales/i), 'CRM'],
+  ];
+  goalList.forEach((g, n) => { if (!used.has(n)) rows.push(['Other goal', g, '[Tracking method]']); });
+  const metricRows = rows.map(r => `| ${r[0]} | ${r[1]} | ${r[2]} |`).join('\n');
+
   output += `---
 
 ## Success Metrics
 
 | Metric | Target | Tracking Method |
 |--------|--------|-----------------|
-| Awareness | [Views/Impressions] | Analytics |
-| Engagement | [CTR/Signups] | CRM/Analytics |
-| Adoption | [Activations/Usage] | Product Analytics |
-| Revenue | [Pipeline/Closed] | CRM |
+${metricRows}
 
 ---
 
