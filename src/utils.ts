@@ -412,6 +412,21 @@ export interface CRAFTAnalysis {
   timeline: { found: string[]; score: number; gaps: string[] };
 }
 
+// Run 16 R16-13 (D46): keyword matches are whole words (a keyword is not inside a longer word), and each distinct
+// word is counted and listed once per area. Two matches are the same word when they agree after lowercasing,
+// trimming punctuation at the ends and collapsing spaces ("Owner" and "Owner:" are one word).
+const wordKey = (m: string): string => m.toLowerCase().replace(/^[^a-z0-9]+|[^a-z0-9]+$/g, '').replace(/\s+/g, ' ');
+function addDistinct(found: string[], matches: string[]): void {
+  const seen = new Set(found.map(wordKey));
+  for (const m of matches) {
+    const text = m.trim();
+    const key = wordKey(text);
+    if (seen.has(key)) continue;
+    seen.add(key);
+    found.push(text);
+  }
+}
+
 export function analyzeCRAFTDimensions(content: string): CRAFTAnalysis {
   const analysis: CRAFTAnalysis = {
     character: { found: [], score: 0, gaps: [] },
@@ -425,7 +440,7 @@ export function analyzeCRAFTDimensions(content: string): CRAFTAnalysis {
   
   // CHARACTER patterns
   const rolePatterns = [
-    /\b(marketing|sales|product|engineering|cs|customer success|growth|content|demand gen|ops)\s*(manager|director|lead|head|vp|chief|team|specialist)/gi,
+    /\b(marketing|sales|product|engineering|cs|customer success|growth|content|demand gen|ops)\b\s*\b(manager|director|lead|head|vp|chief|team|specialist)\b/gi,
     /\b(cmo|ceo|cto|coo|cro|vp|director|manager|lead|owner)\b/gi,
     /\bresponsible\s+(?:for|party|team|person)\b/gi,
     /\b(?:who|team|person|role)\s+(?:will|should|must|owns|executes|leads)\b/gi,
@@ -437,7 +452,7 @@ export function analyzeCRAFTDimensions(content: string): CRAFTAnalysis {
     for (const pattern of rolePatterns) {
       const matches = line.match(pattern);
       if (matches) {
-        analysis.character.found.push(...matches.map(m => m.trim()));
+        addDistinct(analysis.character.found, matches);
       }
     }
   }
@@ -454,16 +469,16 @@ export function analyzeCRAFTDimensions(content: string): CRAFTAnalysis {
   const resultPatterns = [
     /\b(kpi|metric|goal|target|objective|okr|success\s*criteria)\b/gi,
     /\b(increase|decrease|improve|reduce|achieve|reach|hit)\s+\d+/gi,
-    /\d+%?\s*(increase|decrease|improvement|reduction|growth)/gi,
-    /\$[\d,]+\s*(revenue|arr|mrr|pipeline|savings)/gi,
-    /\b(roi|conversion|retention|churn|nps|csat)\s*[:\s]*\d+/gi
+    /\d+%?\s*(increase|decrease|improvement|reduction|growth)\b/gi,
+    /\$[\d,]+\s*(revenue|arr|mrr|pipeline|savings)\b/gi,
+    /\b(roi|conversion|retention|churn|nps|csat)\b\s*[:\s]*\d+/gi
   ];
   
   for (const line of lines) {
     for (const pattern of resultPatterns) {
       const matches = line.match(pattern);
       if (matches) {
-        analysis.result.found.push(...matches.map(m => m.trim()));
+        addDistinct(analysis.result.found, matches);
       }
     }
   }
@@ -489,7 +504,7 @@ export function analyzeCRAFTDimensions(content: string): CRAFTAnalysis {
     for (const pattern of artifactPatterns) {
       const matches = line.match(pattern);
       if (matches) {
-        analysis.artifact.found.push(...matches.map(m => m.trim()));
+        addDistinct(analysis.artifact.found, matches);
       }
     }
   }
@@ -506,14 +521,14 @@ export function analyzeCRAFTDimensions(content: string): CRAFTAnalysis {
     /\b(constraint|limitation|scope|boundary|requirement|assumption)\b/gi,
     /\b(budget|resource|headcount|bandwidth|capacity)\b/gi,
     /\b(context|background|situation|current\s*state)\b/gi,
-    /\bfor\s+(enterprise|smb|mid-market|startup|b2b|b2c)/gi
+    /\bfor\s+(enterprise|smb|mid-market|startup|b2b|b2c)\b/gi
   ];
   
   for (const line of lines) {
     for (const pattern of framePatterns) {
       const matches = line.match(pattern);
       if (matches) {
-        analysis.frame.found.push(...matches.map(m => m.trim()));
+        addDistinct(analysis.frame.found, matches);
       }
     }
   }
@@ -526,9 +541,9 @@ export function analyzeCRAFTDimensions(content: string): CRAFTAnalysis {
   
   // TIMELINE patterns
   const timelinePatterns = [
-    /\b(q[1-4]|quarter|month|week|day|year)\s*\d*/gi,
+    /\b(q[1-4]|quarter|month|week|day|year)\b\s*\d*/gi,
     /\b(deadline|due|by|until|milestone|phase|sprint)\b/gi,
-    /\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\s*\d*/gi,
+    /\b(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\b\s*\d*/gi,
     /\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}/g,
     /\b(timeline|schedule|roadmap|plan|calendar)\b/gi
   ];
@@ -537,7 +552,7 @@ export function analyzeCRAFTDimensions(content: string): CRAFTAnalysis {
     for (const pattern of timelinePatterns) {
       const matches = line.match(pattern);
       if (matches) {
-        analysis.timeline.found.push(...matches.map(m => m.trim()));
+        addDistinct(analysis.timeline.found, matches);
       }
     }
   }
