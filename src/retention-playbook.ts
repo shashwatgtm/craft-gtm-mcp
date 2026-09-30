@@ -70,7 +70,7 @@ export function generateRetentionPlaybook(args: {
         action: 'Feature request logging + workaround education + roadmap preview (if applicable)',
         owner: capacity.highTouch > 30 ? 'CSM with Product input' : 'Support with escalation',
         timing: 'Within 48 hours',
-        email: `Subject: About the feature you mentioned...\n\nHi [Name],\n\nThanks for sharing your feedback about [specific feature]. I wanted to follow up personally.\n\nWhile I can't promise timelines, I've shared your use case with our product team. [Only if true and provable: In the meantime, here's a workaround that some customers use: [workaround]]\n\nWould it help to walk through this together?\n\n[Your name]`
+        email: `Subject: About the feature you mentioned...\n\nHi [Name],\n\nThanks for sharing your feedback about [specific feature]. I wanted to follow up personally.\n\nWhile I can't promise timelines, [Only if true and provable: I've shared your use case with our product team.] [Only if true and provable: In the meantime, here's a workaround that some customers use: [workaround]]\n\nWould it help to walk through this together?\n\n[Your name]`
       };
     }
     
