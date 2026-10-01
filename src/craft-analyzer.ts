@@ -6,7 +6,9 @@ export function generateCRAFTAnalyzer(args: {
   intended_audience?: string;
   desired_outcome?: string;
 }): string {
-  const content = args.document_content;
+  // Run 18 (R18-26, P05-WS-01): leading and trailing whitespace is not part of the document, so it is not measured or shown
+  // (the web form already trims it in netlify/functions/api.mjs). Interior whitespace is kept exactly.
+  const content = args.document_content.trim();
   const docType = args.document_type;
   const audience = args.intended_audience || 'Not specified';
   const outcome = args.desired_outcome || 'Not specified';

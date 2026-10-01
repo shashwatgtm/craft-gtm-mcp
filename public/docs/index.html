@@ -206,7 +206,7 @@
   <ul class="hx-prose">
     <li>Address: <code>https://craft-gtm.gtmhelix.com/mcp</code> (Streamable HTTP, stateless, JSON responses). GET returns 405 by design.</li>
     <li>Authentication: none. Every tool is marked read-only (<code>readOnlyHint: true</code>, <code>destructiveHint: false</code>) and has a title.</li>
-    <li>Rate limit: 300 requests per minute per IP address. Server: <code>craft-gtm-mcp</code> version 2.2.13.</li>
+    <li>Rate limit: 300 requests per minute per IP address. Server: <code>craft-gtm-mcp</code> version 2.2.14.</li>
     <li>Limits: 262,144 bytes per call; text fields up to 4,000 characters, except the document fields <code>document_content</code> (CRAFT GTM Analyzer) and <code>competitor_details</code> (Competitive Intel), which take up to 100,000; one call per request (no batches). A call over a limit is refused before the tool runs.</li>
     <li>Local use: <code>npx -y @shashwatgtmalpha/craft-gtm-mcp</code> runs these tools over stdio (npm can lag behind this site until a new version is published).</li>
   </ul>
@@ -248,13 +248,14 @@
 <tr><td>2.2.10</td><td>29 September 2026</td><td>GitHub, commit 00bc46a</td></tr>
 <tr><td>2.2.11</td><td>29 September 2026</td><td>GitHub, commit 168f785</td></tr>
 <tr><td>2.2.12</td><td>30 September 2026</td><td>GitHub, commit cd4c9ba</td></tr>
-<tr><td>2.2.13 (this site)</td><td>30 September 2026</td><td>GitHub, commit 9a6b8b8</td></tr>
+<tr><td>2.2.13</td><td>30 September 2026</td><td>GitHub, commit 9a6b8b8</td></tr>
+<tr><td>2.2.14 (this site)</td><td>2 October 2026</td><td>GitHub, commit pending</td></tr>
   </tbody></table></div>
 </section>
 
 <section class="hx-section" aria-labelledby="ref-h">
   <h2 id="ref-h">Tool reference</h2>
-  <p class="hx-sub">Generated from the server's own input schemas, version 2.2.13.</p>
+  <p class="hx-sub">Generated from the server's own input schemas, version 2.2.14.</p>
 </section>
 <section class="hx-section" id="pmf-scorecard" aria-labelledby="d-pmf-scorecard">
   <h3 id="d-pmf-scorecard">PMF Scorecard</h3>
