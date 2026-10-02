@@ -172,7 +172,7 @@
    "about": {
     "@id": "https://craft-gtm.gtmhelix.com/#app"
    },
-   "dateModified": "2026-09-30",
+   "dateModified": "2026-10-02",
    "inLanguage": "en",
    "primaryImageOfPage": "https://craft-gtm.gtmhelix.com/og.png"
   },
@@ -220,13 +220,13 @@
     <div class="crop"><span class="cm tl" aria-hidden="true"></span><span class="cm tr" aria-hidden="true"></span><span class="cm bl" aria-hidden="true"></span><span class="cm br" aria-hidden="true"></span><h1 id="h1">CRAFT GTM docs</h1></div>
     <div class="hx-hero-text"><div class="hx10-split-text">
       <p class="sub">The MCP address, the REST API behind the web forms, and every field of all 8 tools.</p>
-      <p class="hx-byline">By <a href="https://gtmhelix.com/about/" rel="author">Shashwat Ghosh</a>, Co-Founder and Fractional CMO, Helix&nbsp;GTM&nbsp;Consulting · Last updated <time datetime="2026-09-30">30 September 2026</time></p>
+      <p class="hx-byline">By <a href="https://gtmhelix.com/about/" rel="author">Shashwat Ghosh</a>, Co-Founder and Fractional CMO, Helix&nbsp;GTM&nbsp;Consulting · Last updated <time datetime="2026-10-02">2 October 2026</time></p>
     </div></div>
   </div>
 </section>
 
 <div class="hx-body">
-<section class="hx-section" aria-labelledby="try-h"><h2 id="try-h">Try these prompts</h2><div class="hx-panel"><ol><li>Use CRAFT GTM to score our product-market fit. Product: a scheduling tool for clinics, target market: SMB SaaS. Metrics: MRR $40K, churn 4% monthly, NPS 38, CAC $600, LTV $4,200.</li><li>Build a launch plan with CRAFT GTM for our new analytics add-on, a feature launch on 2026-11-15, for mid-market finance teams. Goals: 300 trials and $80K pipeline.</li><li>Create a customer interview kit for churn interviews with operations managers at SaaS companies about our workflow automation product.</li><li>Use CRAFT GTM to make battle cards for our product Acme Notes against Competitor A and Competitor B. Recent wins: faster setup. Recent losses: missing SSO.</li></ol></div></section>
+<section class="hx-section" aria-labelledby="try-h"><h2 id="try-h">Try these prompts</h2><div class="hx-panel"><ol><li>Use CRAFT GTM to score our product-market fit. Product: Shelfwalk, a field sales app for consumer goods brands and their distributors; target market: enterprise SaaS. Metrics: MRR $60K, churn 1.5% monthly, NPS 44, CAC $9,000, LTV $72,000.</li><li>Build a launch plan with CRAFT GTM for Shelfwalk&#x27;s new order suggestions for field reps, a feature launch on 2026-11-15, for packaged food and personal care brands. Goals: 40 brand demos and $300K pipeline.</li><li>Create a customer interview kit for churn interviews with heads of sales operations at consumer goods brands about our field sales app.</li><li>Use CRAFT GTM to make battle cards for Shelfwalk against Competitor A and Competitor B. Recent wins: offline order capture. Recent losses: buyers wanted billing and sales in one system.</li></ol></div></section>
 <section class="hx-section" aria-labelledby="mcp-h">
   <h2 id="mcp-h">MCP server</h2>
   <ul class="hx-prose">
@@ -243,7 +243,7 @@
   <p class="hx-prose">Send <code>POST https://craft-gtm.gtmhelix.com/api/tools/&lt;tool name&gt;</code> with a JSON body <code>{"input": {...}}</code>. The answer is JSON: <code>{"ok": true, "tool": "...", "title": "...", "text": "..."}</code>, where <code>text</code> is the same Markdown the MCP tool returns. The endpoint calls the same server code as the MCP address.</p>
   <div class="win "><div class="win-bar"><span class="t">Terminal</span><span class="wb" aria-hidden="true"><i></i><i></i></span></div><div class="win-body"><pre class="hx-code-block hx11-in-win">curl -s -X POST https://craft-gtm.gtmhelix.com/api/tools/pmf_scorecard \
   -H "Content-Type: application/json" \
-  -d '{&quot;input&quot;: {&quot;product&quot;: &quot;ExampleCo Scheduler, scheduling software for clinics&quot;, &quot;target_market&quot;: &quot;smb_saas&quot;, &quot;current_metrics&quot;: &quot;MRR: $40K, Churn: 4%, NPS: 38, CAC: $600, LTV: $4200, Retention: 90%&quot;, &quot;time_in_market&quot;: &quot;1_2_years&quot;}}'</pre></div></div>
+  -d '{&quot;input&quot;: {&quot;product&quot;: &quot;Shelfwalk, a field sales app for consumer goods brands and their distributors&quot;, &quot;target_market&quot;: &quot;enterprise_saas&quot;, &quot;current_metrics&quot;: &quot;MRR: $60K, Churn: 1.5%, NPS: 44, CAC: $9000, LTV: $72000, Retention: 95%&quot;, &quot;time_in_market&quot;: &quot;1_2_years&quot;}}'</pre></div></div>
   <ul class="hx-prose">
     <li>Errors: 400 with <code>errors</code> (missing or invalid fields), 404 for an unknown tool, 405 for methods other than POST, 413 above 32,000 bytes, 422 when the tool itself refuses the input (<code>ok</code> is false and <code>error</code> holds the tool's message), 429 when the rate limit is reached, 500 if the tool fails.</li>
     <li>Limits: 30 requests per minute per IP address; the whole request up to 32,000 bytes; top-level text fields up to 6,000 characters and top-level lists up to 50 items.</li>
