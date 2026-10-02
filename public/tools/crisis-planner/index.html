@@ -22,7 +22,7 @@
 <meta name="twitter:description" content="Write a playbook for each crisis from your company, industry, customer base and how sensitive your data is. Free in a browser or Claude, with no sign-in.">
 <meta name="twitter:image" content="https://craft-gtm.gtmhelix.com/og.png">
 <meta name="twitter:creator" content="@Shashwat_Ghosh">
-<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="preload" href="/assets/fonts/Archivo-latin-1.woff2?v=8f704806db" as="font" type="font/woff2" crossorigin>
@@ -211,7 +211,7 @@
    "@type": "WebApplication",
    "@id": "https://craft-gtm.gtmhelix.com/tools/crisis-planner/#app",
    "name": "Crisis Planner (CRAFT GTM)",
-   "description": "Generate crisis playbooks. Know your risks? Get specific playbooks. Not sure what to plan for? The tool uses a default set of common crises for your industry (not ranked by likelihood).",
+   "description": "Generate crisis playbooks. Know your risks? Get specific playbooks. Not sure what to plan for? The tool uses a default set of common crises for your sector (not ranked by likelihood). Each compliance item you list is used in the notification steps.",
    "url": "https://craft-gtm.gtmhelix.com/tools/crisis-planner/",
    "applicationCategory": "BusinessApplication",
    "browserRequirements": "Any modern browser; works without JavaScript",
@@ -280,14 +280,15 @@
 
 <div class="hx-body">
 <section class="hx-section hx-run-sec" id="run" aria-label="Run Crisis Planner">
-  <div class="win hx-form-win"><div class="win-bar"><span class="t">Run Crisis Planner</span><span class="wb" aria-hidden="true"><i></i><i></i></span></div><form class="hx-form" method="post" action="/api/tools/crisis_planner" data-tool="crisis_planner" data-title="Crisis Planner"><p class="hx-help">You need: Company, Industry, Customer base, Data sensitivity. You can add: Potential crises, Company size, Compliance requirements.</p>
+  <div class="win hx-form-win"><div class="win-bar"><span class="t">Run Crisis Planner</span><span class="wb" aria-hidden="true"><i></i><i></i></span></div><form class="hx-form" method="post" action="/api/tools/crisis_planner" data-tool="crisis_planner" data-title="Crisis Planner"><p class="hx-help">You need: Company, Industry, Customer base, Data sensitivity. You can add: Potential crises, Company size, Compliance requirements, Business model.</p>
 <div class="hx-field"><label for="f-company">Company <span class="hx-req" aria-hidden="true">*</span></label><input id="f-company" name="company" type="text" maxlength="6000" data-kind="string" required aria-required="true" aria-describedby="f-company-help"><p class="hx-help" id="f-company-help">Company name</p></div>
-<div class="hx-field"><label for="f-industry">Industry <span class="hx-req" aria-hidden="true">*</span></label><select id="f-industry" name="industry" data-kind="string" required aria-required="true" aria-describedby="f-industry-help"><option value="" disabled selected>Choose one</option><option value="fintech">Fintech</option><option value="healthtech">Health tech</option><option value="saas">SaaS</option><option value="ecommerce">E-commerce</option><option value="enterprise">Enterprise</option><option value="consumer">Consumer</option><option value="other">Other</option></select><p class="hx-help" id="f-industry-help">Industry affects which crises to prioritize</p></div>
+<div class="hx-field"><label for="f-industry">Industry <span class="hx-req" aria-hidden="true">*</span></label><select id="f-industry" name="industry" data-kind="string" required aria-required="true" aria-describedby="f-industry-help"><option value="" disabled selected>Choose one</option><option value="fintech">Fintech</option><option value="saas">SaaS</option><option value="logistics_tech">Logistics tech</option><option value="vertical_saas">Vertical SaaS</option><option value="ai_native">Ai native</option><option value="ites">Ites</option><option value="telecom">Telecom</option><option value="software">Software</option><option value="cybersecurity">Cybersecurity</option><option value="ecommerce">E-commerce</option><option value="enterprise">Enterprise</option><option value="consumer">Consumer</option><option value="other">Other</option></select><p class="hx-help" id="f-industry-help">Industry affects which crises to prioritize</p></div>
 <div class="hx-field"><label for="f-customer_base">Customer base <span class="hx-req" aria-hidden="true">*</span></label><select id="f-customer_base" name="customer_base" data-kind="string" required aria-required="true" aria-describedby="f-customer_base-help"><option value="" disabled selected>Choose one</option><option value="b2b_enterprise">B2B enterprise</option><option value="b2b_smb">B2B small and mid-size business</option><option value="b2c_consumer">B2C consumer</option><option value="mixed">Mixed</option></select><p class="hx-help" id="f-customer_base-help">Customer type affects communication approach</p></div>
 <div class="hx-field"><label for="f-data_sensitivity">Data sensitivity <span class="hx-req" aria-hidden="true">*</span></label><select id="f-data_sensitivity" name="data_sensitivity" data-kind="string" required aria-required="true" aria-describedby="f-data_sensitivity-help"><option value="" disabled selected>Choose one</option><option value="high_pii_financial">High: personal or financial data</option><option value="medium_business_data">Medium: business data</option><option value="low_general">Low: general information</option></select><p class="hx-help" id="f-data_sensitivity-help">Data sensitivity affects security protocols</p></div>
-<div class="hx-field"><label for="f-potential_crises">Potential crises <span class="hx-opt">(optional)</span></label><textarea id="f-potential_crises" name="potential_crises" rows="3" maxlength="6000" data-kind="string" aria-describedby="f-potential_crises-help"></textarea><p class="hx-help" id="f-potential_crises-help">OPTIONAL: Crisis types to plan for (comma-separated). If not provided, the tool uses a default set of common crises for your industry (not ranked by likelihood). Options: data_breach, service_outage, pr_incident, executive_departure, security_vulnerability, regulatory_action, product_safety, customer_data_exposure</p></div>
+<div class="hx-field"><label for="f-potential_crises">Potential crises <span class="hx-opt">(optional)</span></label><textarea id="f-potential_crises" name="potential_crises" rows="3" maxlength="6000" data-kind="string" aria-describedby="f-potential_crises-help"></textarea><p class="hx-help" id="f-potential_crises-help">OPTIONAL: Crisis types to plan for (comma-separated). If not provided, the tool uses a default set of common crises for your sector (not ranked by likelihood). Options: data_breach, service_outage, sla_breach, regulatory_action, fraud_incident, ai_wrong_action, pr_incident, executive_departure, security_vulnerability, customer_data_exposure, product_safety</p></div>
 <div class="hx-field"><label for="f-company_size">Company size <span class="hx-opt">(optional)</span></label><select id="f-company_size" name="company_size" data-kind="string" aria-describedby="f-company_size-help"><option value="">Not specified</option><option value="startup_under_50">Startup, under 50</option><option value="scaleup_50_200">Scale-up, 50 to 200</option><option value="midsize_200_1000">Mid-size, 200 to 1,000</option><option value="enterprise_1000_plus">Enterprise, 1,000 or more</option></select><p class="hx-help" id="f-company_size-help">Affects response team structure</p></div>
-<div class="hx-field"><label for="f-compliance_requirements">Compliance requirements <span class="hx-opt">(optional)</span></label><textarea id="f-compliance_requirements" name="compliance_requirements" rows="3" maxlength="6000" data-kind="string" aria-describedby="f-compliance_requirements-help"></textarea><p class="hx-help" id="f-compliance_requirements-help">Optional: Relevant compliance (GDPR, HIPAA, SOC2, etc.)</p></div>
+<div class="hx-field"><label for="f-compliance_requirements">Compliance requirements <span class="hx-opt">(optional)</span></label><textarea id="f-compliance_requirements" name="compliance_requirements" rows="3" maxlength="6000" data-kind="string" aria-describedby="f-compliance_requirements-help"></textarea><p class="hx-help" id="f-compliance_requirements-help">Optional: Relevant compliance, comma-separated (for example ISO 27001, SOC 2, GDPR). Each item is named in the notification steps</p></div>
+<div class="hx-field"><label for="f-business_model">Business model <span class="hx-opt">(optional)</span></label><select id="f-business_model" name="business_model" data-kind="string" aria-describedby="f-business_model-help"><option value="">Not specified</option><option value="saas">SaaS</option><option value="services">Services</option><option value="connectivity">Connectivity</option><option value="transactions">Transactions</option><option value="marketplace">Marketplace</option><option value="hardware_software">Hardware software</option><option value="investment">Investment</option></select><p class="hx-help" id="f-business_model-help">Optional: how you earn revenue, so the advice fits it (saas, services, connectivity, transactions, marketplace, hardware_software or investment). Leave it out and the tool reads it from your other inputs and says how it read it</p></div>
     <div class="hx-hp" aria-hidden="true"><label for="hp-crisis_planner">Leave this empty</label><input id="hp-crisis_planner" name="leave_this_empty" type="text" tabindex="-1" autocomplete="off"></div>
     <div class="hx-actions">
       <button type="submit" class="hx-btn">Run Crisis Planner</button>
@@ -317,7 +318,7 @@
 
 <section class="hx-section" aria-labelledby="ex-h">
   <h2 id="ex-h">Example answer</h2>
-  <p class="hx-prose">From version 2.2.13 of this tool, with the inputs behind <em>Fill in an example</em>. Your own inputs give a different result.</p>
+  <p class="hx-prose">From version 2.2.15 of this tool, with the inputs behind <em>Fill in an example</em>. Your own inputs give a different result.</p>
   <article class="hxr hxr-example" aria-labelledby="ex-t">
     <header class="hxr-head">
       <p class="hxr-tag">CRAFT GTM report</p>
@@ -332,8 +333,10 @@
 <p><strong>Company Size:</strong> scale-up (50 to 200)</p>
 <p><strong>Customer Base:</strong> B2B enterprise</p>
 <p><strong>Data Sensitivity:</strong> medium (business data)</p>
+<p><em>Sector: SaaS (from your choice). Business model: software subscription (the usual model in this sector, assumed; set Business model to change it).</em></p>
 <hr>
 <h5 class="hxr-h3">Crisis Response Team</h5>
+<p><em>In SaaS the words your customers use are activation, time to value, net revenue retention, renewal, expansion and onboarding: use them in customer messages, and name the measures they watch (activation rate, time to value and net revenue retention).</em></p>
 <p><strong>Incident Commander:</strong> CEO or designated VP</p>
 <p><strong>Core Team (Always Activated):</strong></p>
 <ul>
@@ -363,12 +366,13 @@
 <li value="3"><strong>Diagnose</strong>: Root cause identification started</li>
 <li value="4"><strong>Notify support team</strong>: Prepare for volume</li>
 </ol>
+<p><strong>Sector impact check:</strong> the first measures to move in SaaS are activation rate, time to value and net revenue retention: tell customers which of them you see affected.</p>
 <p><strong>Active Incident (15 minutes to resolution):</strong> Example figures: replace with your own.</p>
-<div class="hx-table"><table><thead><tr><th>Time</th><th>Status Update</th><th>Channel</th></tr></thead><tbody><tr><td>15 min</td><td>"Identified: [description]"</td><td>Status page</td></tr><tr><td>30 min</td><td>"Working on fix, ETA [X]"</td><td>Status page + X (Twitter)</td></tr><tr><td>60 min</td><td>Progress update or revised ETA</td><td>Status + Email to affected</td></tr><tr><td>Every 30 min</td><td>Continued updates until resolved</td><td>Status</td></tr></tbody></table></div>
+<div class="hx-table"><table><thead><tr><th>Time</th><th>Status Update</th><th>Channel</th></tr></thead><tbody><tr><td>15 min</td><td>"Identified: [description]"</td><td>Status page</td></tr><tr><td>30 min</td><td>"Working on fix, ETA [X]"</td><td>Status page + direct update from the account owner</td></tr><tr><td>60 min</td><td>Progress update or revised ETA</td><td>Status + Email to affected</td></tr><tr><td>Every 30 min</td><td>Continued updates until resolved</td><td>Status</td></tr></tbody></table></div>
 <hr>
 <h6 class="hxr-h4">Security incident: data breach</h6>
 <p><strong>Severity Assessment:</strong> Example figures: replace with your own.</p>
-<div class="hx-table"><table><thead><tr><th>Factor</th><th>High</th><th>Medium</th><th>Low</th></tr></thead><tbody><tr><td>Data exposed</td><td>PII, financial, health</td><td>Business data</td><td>No customer data</td></tr><tr><td>Customers affected</td><td>&gt;1000 or enterprise</td><td>100-1000</td><td>&lt;100</td></tr><tr><td>Attack ongoing</td><td>Yes</td><td>Unknown</td><td>Contained</td></tr></tbody></table></div>
+<div class="hx-table"><table><thead><tr><th>Factor</th><th>High</th><th>Medium</th><th>Low</th></tr></thead><tbody><tr><td>Data exposed</td><td>PII, financial, credentials</td><td>Business data</td><td>No customer data</td></tr><tr><td>Customers affected</td><td>&gt;1000 or enterprise</td><td>100-1000</td><td>&lt;100</td></tr><tr><td>Attack ongoing</td><td>Yes</td><td>Unknown</td><td>Contained</td></tr></tbody></table></div>
 <p><strong>Immediate Response (0-4 hours):</strong> (Example figure: replace with your own)</p>
 <ol>
 <li value="1"><strong>Activate incident response team</strong>: CEO or designated VP as incident commander</li>
@@ -382,7 +386,7 @@
 <li value="1">Determine scope: What data, how many customers, how long exposed</li>
 <li value="2">Identify attack vector and close vulnerability</li>
 <li value="3">Engage forensics (internal or external)</li>
-<li value="4">Prepare regulatory notification for applicable authorities by the deadline that applies to you (it differs by law and country)</li>
+<li value="4">Prepare regulatory notification for the authorities that apply to you by the deadline that applies to you (it differs by law and country)</li>
 <li value="5">Draft customer communication (DO NOT SEND YET)</li>
 </ol>
 <p><strong>Notification Phase (24-72 hours):</strong> (Example figure: replace with your own)</p>
@@ -391,23 +395,8 @@
 <h6 class="hxr-h4">Security incident: security vulnerability</h6>
 <p>Use the data breach steps above.</p>
 <hr>
-<h6 class="hxr-h4">Crisis: customer data exposure</h6>
-<p><strong>Initial Assessment (First 30 minutes):</strong> (Example figure: replace with your own)</p>
-<ol>
-<li value="1">What happened? (Facts only, no speculation)</li>
-<li value="2">Who is affected? (Customers, employees, partners)</li>
-<li value="3">What's the current status? (Ongoing vs. contained)</li>
-<li value="4">What are the legal/compliance implications?</li>
-<li value="5">What's the reputational risk?</li>
-</ol>
-<p><strong>Response Team:</strong></p>
-<ul>
-<li>Incident Commander: CEO or designated VP</li>
-<li>Core Team: CTO, VP Customer Success, VP Marketing/Comms, Legal</li>
-<li>Extended (as needed): HR, Engineering Lead, Support Lead</li>
-</ul>
-<p><strong>Communication Timeline:</strong> Example figures: replace with your own.</p>
-<div class="hx-table"><table><thead><tr><th>Phase</th><th>Timing</th><th>Actions</th></tr></thead><tbody><tr><td>Acknowledge</td><td>&lt;2 hours</td><td>Internal brief, holding statement ready</td></tr><tr><td>Respond</td><td>2-24 hours</td><td>Stakeholder communications</td></tr><tr><td>Resolve</td><td>24-72 hours</td><td>Full resolution or clear plan</td></tr><tr><td>Review</td><td>1-2 weeks</td><td>Post-incident review</td></tr></tbody></table></div>
+<h6 class="hxr-h4">Security incident: customer data exposure</h6>
+<p>Use the data breach steps above.</p>
 <hr>
 <h5 class="hxr-h3">General Crisis Principles</h5>
 <h6 class="hxr-h4">Communication Principles</h6>

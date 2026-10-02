@@ -22,7 +22,7 @@
 <meta name="twitter:description" content="Get retention strategies for each churn reason from a customer segment, business model and churn rate. Free in a browser or Claude, with no sign-in.">
 <meta name="twitter:image" content="https://craft-gtm.gtmhelix.com/og.png">
 <meta name="twitter:creator" content="@Shashwat_Ghosh">
-<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="preload" href="/assets/fonts/Archivo-latin-1.woff2?v=8f704806db" as="font" type="font/woff2" crossorigin>
@@ -211,7 +211,7 @@
    "@type": "WebApplication",
    "@id": "https://craft-gtm.gtmhelix.com/tools/retention-playbook/#app",
    "name": "Retention Playbook (CRAFT GTM)",
-   "description": "Generate retention strategies. Has DISCOVERY MODE: if you don't know WHY people churn, get a churn analysis framework first.",
+   "description": "Generate retention strategies. Has DISCOVERY MODE: if you don't know WHY people churn, get a churn analysis framework first. Health signals and interventions follow the business model, each churn reason gets its own answer, and your current interventions and data signals are used.",
    "url": "https://craft-gtm.gtmhelix.com/tools/retention-playbook/",
    "applicationCategory": "BusinessApplication",
    "browserRequirements": "Any modern browser; works without JavaScript",
@@ -280,14 +280,16 @@
 
 <div class="hx-body">
 <section class="hx-section hx-run-sec" id="run" aria-label="Run Retention Playbook">
-  <div class="win hx-form-win"><div class="win-bar"><span class="t">Run Retention Playbook</span><span class="wb" aria-hidden="true"><i></i><i></i></span></div><form class="hx-form" method="post" action="/api/tools/retention_playbook" data-tool="retention_playbook" data-title="Retention Playbook"><p class="hx-help">You need: Customer segment, Business model, Current churn rate. You can add: Churn reasons, Available data signals, CS team size, Current interventions.</p>
+  <div class="win hx-form-win"><div class="win-bar"><span class="t">Run Retention Playbook</span><span class="wb" aria-hidden="true"><i></i><i></i></span></div><form class="hx-form" method="post" action="/api/tools/retention_playbook" data-tool="retention_playbook" data-title="Retention Playbook"><p class="hx-help">You need: Customer segment, Business model, Current churn rate. You can add: Churn reasons, Available data signals, CS team size, Current interventions, Product, Industry.</p>
 <div class="hx-field"><label for="f-customer_segment">Customer segment <span class="hx-req" aria-hidden="true">*</span></label><input id="f-customer_segment" name="customer_segment" type="text" maxlength="6000" data-kind="string" required aria-required="true" aria-describedby="f-customer_segment-help"><p class="hx-help" id="f-customer_segment-help">Customer segment to focus on</p></div>
-<div class="hx-field"><label for="f-business_model">Business model <span class="hx-req" aria-hidden="true">*</span></label><select id="f-business_model" name="business_model" data-kind="string" required aria-required="true" aria-describedby="f-business_model-help"><option value="" disabled selected>Choose one</option><option value="saas_subscription">SaaS subscription</option><option value="usage_based">Usage-based</option><option value="marketplace">Marketplace</option><option value="transactional">Transactional</option><option value="freemium">Freemium</option><option value="enterprise_contract">Enterprise contract</option></select><p class="hx-help" id="f-business_model-help">Business model affects health score weighting</p></div>
+<div class="hx-field"><label for="f-business_model">Business model <span class="hx-req" aria-hidden="true">*</span></label><select id="f-business_model" name="business_model" data-kind="string" required aria-required="true" aria-describedby="f-business_model-help"><option value="" disabled selected>Choose one</option><option value="saas_subscription">SaaS subscription</option><option value="usage_based">Usage-based</option><option value="marketplace">Marketplace</option><option value="transactional">Transactional</option><option value="freemium">Freemium</option><option value="enterprise_contract">Enterprise contract</option><option value="services_contract">Services contract</option><option value="connectivity_contract">Connectivity contract</option><option value="investment_mandate">Investment mandate</option></select><p class="hx-help" id="f-business_model-help">Business model affects health score weighting. enterprise_contract is read further from your text when it names services, connectivity or investment</p></div>
 <div class="hx-field"><label for="f-current_churn_rate">Current churn rate <span class="hx-req" aria-hidden="true">*</span></label><textarea id="f-current_churn_rate" name="current_churn_rate" rows="3" maxlength="6000" data-kind="string" required aria-required="true" aria-describedby="f-current_churn_rate-help"></textarea><p class="hx-help" id="f-current_churn_rate-help">Current churn rate (e.g., &#x27;5%&#x27; or &#x27;5% monthly&#x27;)</p></div>
 <div class="hx-field"><label for="f-churn_reasons">Churn reasons <span class="hx-opt">(optional)</span></label><textarea id="f-churn_reasons" name="churn_reasons" rows="3" maxlength="6000" data-kind="string" aria-describedby="f-churn_reasons-help"></textarea><p class="hx-help" id="f-churn_reasons-help">OPTIONAL: Known churn reasons (comma-separated). If you don&#x27;t know, leave blank to get discovery mode with churn analysis framework</p></div>
-<div class="hx-field"><label for="f-available_data_signals">Available data signals <span class="hx-opt">(optional)</span></label><textarea id="f-available_data_signals" name="available_data_signals" rows="3" maxlength="6000" data-kind="string" aria-describedby="f-available_data_signals-help"></textarea><p class="hx-help" id="f-available_data_signals-help">What usage data you can track (comma-separated). E.g., &#x27;login frequency, feature usage, support tickets, NPS responses&#x27;</p></div>
+<div class="hx-field"><label for="f-available_data_signals">Available data signals <span class="hx-opt">(optional)</span></label><textarea id="f-available_data_signals" name="available_data_signals" rows="3" maxlength="6000" data-kind="string" aria-describedby="f-available_data_signals-help"></textarea><p class="hx-help" id="f-available_data_signals-help">What you can track (comma-separated). E.g., &#x27;login frequency, support tickets, SLA attainment, QBR attendance&#x27;</p></div>
 <div class="hx-field"><label for="f-cs_team_size">CS team size <span class="hx-opt">(optional)</span></label><select id="f-cs_team_size" name="cs_team_size" data-kind="string" aria-describedby="f-cs_team_size-help"><option value="">Not specified</option><option value="no_dedicated_cs">No dedicated customer success team</option><option value="small_1_3">Small, 1 to 3</option><option value="medium_4_10">Medium, 4 to 10</option><option value="large_10_plus">Large, 10 or more</option></select><p class="hx-help" id="f-cs_team_size-help">CS team capacity affects intervention strategy</p></div>
-<div class="hx-field"><label for="f-current_interventions">Current interventions <span class="hx-opt">(optional)</span></label><textarea id="f-current_interventions" name="current_interventions" rows="3" maxlength="6000" data-kind="string" aria-describedby="f-current_interventions-help"></textarea><p class="hx-help" id="f-current_interventions-help">Optional: What retention tactics you already do</p></div>
+<div class="hx-field"><label for="f-current_interventions">Current interventions <span class="hx-opt">(optional)</span></label><textarea id="f-current_interventions" name="current_interventions" rows="3" maxlength="6000" data-kind="string" aria-describedby="f-current_interventions-help"></textarea><p class="hx-help" id="f-current_interventions-help">Optional: What retention tactics you already do (listed and compared with the playbook)</p></div>
+<div class="hx-field"><label for="f-product">Product <span class="hx-opt">(optional)</span></label><textarea id="f-product" name="product" rows="3" maxlength="6000" data-kind="string" aria-describedby="f-product-help"></textarea><p class="hx-help" id="f-product-help">Optional: Your product or company name, used in the title and the email drafts</p></div>
+<div class="hx-field"><label for="f-industry">Industry <span class="hx-opt">(optional)</span></label><select id="f-industry" name="industry" data-kind="string" aria-describedby="f-industry-help"><option value="">Not specified</option><option value="logistics_tech">Logistics tech</option><option value="fintech">Fintech</option><option value="saas">SaaS</option><option value="vertical_saas">Vertical SaaS</option><option value="ai_native">Ai native</option><option value="ites">Ites</option><option value="telecom">Telecom</option><option value="software">Software</option><option value="cybersecurity">Cybersecurity</option><option value="other">Other</option></select><p class="hx-help" id="f-industry-help">Optional: the sector you sell into, so the answer uses that sector&#x27;s buyers, measures and objections. Leave it out and the tool reads the sector from your other inputs and names what it read</p></div>
     <div class="hx-hp" aria-hidden="true"><label for="hp-retention_playbook">Leave this empty</label><input id="hp-retention_playbook" name="leave_this_empty" type="text" tabindex="-1" autocomplete="off"></div>
     <div class="hx-actions">
       <button type="submit" class="hx-btn">Run Retention Playbook</button>
@@ -317,7 +319,7 @@
 
 <section class="hx-section" aria-labelledby="ex-h">
   <h2 id="ex-h">Example answer</h2>
-  <p class="hx-prose">From version 2.2.13 of this tool, with the inputs behind <em>Fill in an example</em>. Your own inputs give a different result.</p>
+  <p class="hx-prose">From version 2.2.15 of this tool, with the inputs behind <em>Fill in an example</em>. Your own inputs give a different result.</p>
   <article class="hxr hxr-example" aria-labelledby="ex-t">
     <header class="hxr-head">
       <p class="hxr-tag">CRAFT GTM report</p>
@@ -330,6 +332,7 @@
 <p><strong>Business Model:</strong> SaaS subscription</p>
 <p><strong>Current Churn Rate:</strong> 1.5% monthly (HEALTHY, judged against example benchmarks)</p>
 <p><strong>CS Team Capacity:</strong> small (1 to 3)</p>
+<p><em>Sector: read from your inputs as vertical SaaS. Business model: software subscription (from Business model).</em></p>
 <hr>
 <h5 class="hxr-h3">Churn Severity Assessment</h5>
 <div class="hx-table"><table><thead><tr><th>Metric</th><th>Value</th><th>Status (against example benchmarks)</th></tr></thead><tbody><tr><td>Monthly Churn</td><td>1.5%</td><td>HEALTHY</td></tr><tr><td>Annual Revenue at Risk (your monthly churn, annualized)</td><td>~18% (monthly churn times twelve, not compounded)</td><td>Monitor</td></tr><tr><td>Benchmark (SaaS subscription)</td><td>3-5% (Example figure: replace with your own)</td><td>-</td></tr></tbody></table></div>
@@ -337,6 +340,7 @@
 <h5 class="hxr-h3">Health Score Model (SaaS subscription)</h5>
 <p>Example figures: replace with your own. The weights and thresholds below are illustrations to adapt to your data.</p>
 <div class="hx-table"><table><thead><tr><th>Signal</th><th>Weight</th><th>How to Track</th><th>Threshold</th></tr></thead><tbody><tr><td>login frequency</td><td>25%</td><td>Need to add</td><td>Red &lt; 30, Yellow 30-70, Green &gt; 70</td></tr><tr><td>feature adoption</td><td>30%</td><td>Need to add</td><td>Red &lt; 30, Yellow 30-70, Green &gt; 70</td></tr><tr><td>support tickets</td><td>15%</td><td>Need to add</td><td>Red &lt; 30, Yellow 30-70, Green &gt; 70</td></tr><tr><td>billing health</td><td>10%</td><td>Need to add</td><td>Red &lt; 30, Yellow 30-70, Green &gt; 70</td></tr><tr><td>engagement trend</td><td>20%</td><td>Need to add</td><td>Red &lt; 30, Yellow 30-70, Green &gt; 70</td></tr></tbody></table></div>
+<p>No data signals were given: every row above says "Need to add" until you name what you can track.</p>
 <h6 class="hxr-h4">Health Score Calculation</h6>
 <p>Example figures: replace with your own.</p>
 <pre><code>Health Score = (login_frequency × 0.25) + (feature_adoption × 0.3) + (support_tickets × 0.15) + (billing_health × 0.1) + (engagement_trend × 0.2)
@@ -353,13 +357,13 @@ Risk Levels (Example figures: replace with your own):
 <p><strong>Intervention Protocol:</strong></p>
 <div class="hx-table"><table><thead><tr><th>Element</th><th>Detail</th></tr></thead><tbody><tr><td>Action</td><td>Onboarding reset + use case discovery call + quick-win identification</td></tr><tr><td>Owner</td><td>CS team, after an automated nurture</td></tr><tr><td>Timing</td><td>When pattern detected (Day 7, 14, 21 of low engagement)</td></tr><tr><td>Success Metric</td><td>Retention rate of triggered customers</td></tr></tbody></table></div>
 <p><strong>Ready-to-Use Email Template:</strong></p>
-<pre><code>Subject: Getting more out of [Product]
+<pre><code>Subject: Getting more out of your account
 
 Hi [Name],
 
-I noticed your team hasn't been using [Product] as much recently. Sometimes that means we didn't nail the initial setup.
+I noticed your team hasn't been using your service as much recently. Sometimes that means we didn't nail the initial setup.
 
-I'd love to understand your goals better and show you a quick win that might change how you see the product. [Only if true and provable: Teams like yours typically see [specific outcome] within the first month when we get this right.]
+I'd love to understand your goals better and show you a quick win that might change how you see the service. [Only if true and provable: Teams like yours typically see [specific outcome] within the first month when we get this right.]
 
 15 minutes: worth it? (Example figure: replace with your own)
 
@@ -368,7 +372,7 @@ I'd love to understand your goals better and show you a quick win that might cha
 <h6 class="hxr-h4">2. "distributor data not synced"</h6>
 <p><strong>Trigger:</strong> "distributor data not synced" identified in customer feedback</p>
 <p><strong>Intervention Protocol:</strong></p>
-<div class="hx-table"><table><thead><tr><th>Element</th><th>Detail</th></tr></thead><tbody><tr><td>Action</td><td>Personalized outreach + root cause analysis</td></tr><tr><td>Owner</td><td>CS team, after an automated check-in</td></tr><tr><td>Timing</td><td>Within 48 hours of signal</td></tr><tr><td>Success Metric</td><td>Retention rate of triggered customers</td></tr></tbody></table></div>
+<div class="hx-table"><table><thead><tr><th>Element</th><th>Detail</th></tr></thead><tbody><tr><td>Action</td><td>Personalized outreach + root cause analysis. Name the distributor systems involved and agree how stock and orders flow back before the rollout.</td></tr><tr><td>Owner</td><td>CS team, after an automated check-in</td></tr><tr><td>Timing</td><td>Within 48 hours of signal</td></tr><tr><td>Success Metric</td><td>Retention rate of triggered customers</td></tr></tbody></table></div>
 <p><strong>Ready-to-Use Email Template:</strong></p>
 <pre><code>Subject: Quick check-in
 
@@ -376,7 +380,7 @@ Hi [Name],
 
 I wanted to reach out personally because your feedback matters to us.
 
-You mentioned [the problem, in the customer's words]. I'd love to understand this better and see if there's anything we can do.
+You told us: "distributor data not synced". I'd love to understand this better and see if there's anything we can do.
 
 Do you have 10 minutes this week?
 
@@ -391,6 +395,13 @@ Do you have 10 minutes this week?
 <hr>
 <h5 class="hxr-h3">Metrics &amp; Monitoring</h5>
 <div class="hx-table"><table><thead><tr><th>Metric</th><th>Target (Example figures: replace with your own)</th><th>Current</th><th>Tracking</th></tr></thead><tbody><tr><td>Monthly Churn Rate</td><td>&lt;3%</td><td>1.5%</td><td>Billing system</td></tr><tr><td>Health Score Coverage</td><td>100%</td><td>-</td><td>CS platform</td></tr><tr><td>Intervention Response Rate</td><td>&gt;50%</td><td>-</td><td>Email/call tracking</td></tr><tr><td>Save Rate (at-risk to retained)</td><td>&gt;30%</td><td>-</td><td>CS platform</td></tr><tr><td>Time to First Value</td><td>&lt;7 days</td><td>-</td><td>Product analytics</td></tr></tbody></table></div>
+<hr>
+<h6 class="hxr-h4">Sector notes: vertical SaaS</h6>
+<ul>
+<li><strong>Objections this sector often raises:</strong> reps will not use another app; our dms vendor bundles a sales app; distributor data is not in sync; a national rollout takes too long.</li>
+<li><strong>Words this buyer uses:</strong> distributor, outlet, beat plan, secondary sales, general trade, SKU, order capture, retail execution, DMS, trade scheme.</li>
+<li><strong>A proof point that lands:</strong> Secondary sales or productive calls in the pilot region against a comparable region without the product.</li>
+</ul>
 <hr>
 <p><em>Retention playbook generated for regional consumer goods brands using the CRAFT GTM framework</em></p>
 <p><em>Optimized for SaaS subscription business model with small (1 to 3) CS team</em></p>

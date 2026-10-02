@@ -22,7 +22,7 @@
 <meta name="twitter:description" content="Score your product-market fit from your target market and metrics such as MRR, churn, NPS, CAC and LTV. Free in a browser or Claude, with no sign-in.">
 <meta name="twitter:image" content="https://craft-gtm.gtmhelix.com/og.png">
 <meta name="twitter:creator" content="@Shashwat_Ghosh">
-<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="preload" href="/assets/fonts/Archivo-latin-1.woff2?v=8f704806db" as="font" type="font/woff2" crossorigin>
@@ -211,7 +211,7 @@
    "@type": "WebApplication",
    "@id": "https://craft-gtm.gtmhelix.com/tools/pmf-scorecard/#app",
    "name": "PMF Scorecard (CRAFT GTM)",
-   "description": "Generate a Product-Market Fit scorecard. Parses the metrics you provide (MRR, churn, NPS, CAC, LTV, retention, activation and similar) and scores each dimension against built-in benchmark ranges.",
+   "description": "Generate a Product-Market Fit scorecard. Parses the metrics you provide (MRR, ACV, churn, NPS, CAC, LTV, retention, activation and similar) and scores each dimension against example benchmark ranges. Reads the business model from your inputs and leaves the activation score out for services, connectivity and investment businesses. Quotes your customer feedback and answers it.",
    "url": "https://craft-gtm.gtmhelix.com/tools/pmf-scorecard/",
    "applicationCategory": "BusinessApplication",
    "browserRequirements": "Any modern browser; works without JavaScript",
@@ -280,12 +280,13 @@
 
 <div class="hx-body">
 <section class="hx-section hx-run-sec" id="run" aria-label="Run PMF Scorecard">
-  <div class="win hx-form-win"><div class="win-bar"><span class="t">Run PMF Scorecard</span><span class="wb" aria-hidden="true"><i></i><i></i></span></div><form class="hx-form" method="post" action="/api/tools/pmf_scorecard" data-tool="pmf_scorecard" data-title="PMF Scorecard"><p class="hx-help">You need: Product, Target market, Current metrics. You can add: Time in market, Customer feedback.</p>
+  <div class="win hx-form-win"><div class="win-bar"><span class="t">Run PMF Scorecard</span><span class="wb" aria-hidden="true"><i></i><i></i></span></div><form class="hx-form" method="post" action="/api/tools/pmf_scorecard" data-tool="pmf_scorecard" data-title="PMF Scorecard"><p class="hx-help">You need: Product, Target market, Current metrics. You can add: Time in market, Customer feedback, Business model.</p>
 <div class="hx-field"><label for="f-product">Product <span class="hx-req" aria-hidden="true">*</span></label><textarea id="f-product" name="product" rows="3" maxlength="6000" data-kind="string" required aria-required="true" aria-describedby="f-product-help"></textarea><p class="hx-help" id="f-product-help">Product name and brief description</p></div>
-<div class="hx-field"><label for="f-target_market">Target market <span class="hx-req" aria-hidden="true">*</span></label><select id="f-target_market" name="target_market" data-kind="string" required aria-required="true" aria-describedby="f-target_market-help"><option value="" disabled selected>Choose one</option><option value="enterprise_saas">Enterprise SaaS</option><option value="smb_saas">SMB SaaS</option><option value="consumer">Consumer</option><option value="marketplace">Marketplace</option><option value="fintech">Fintech</option><option value="healthtech">Health tech</option><option value="other">Other</option></select><p class="hx-help" id="f-target_market-help">Target market segment (e.g., &#x27;Enterprise SaaS&#x27;, &#x27;SMB&#x27;, &#x27;Consumer&#x27;)</p></div>
+<div class="hx-field"><label for="f-target_market">Target market <span class="hx-req" aria-hidden="true">*</span></label><select id="f-target_market" name="target_market" data-kind="string" required aria-required="true" aria-describedby="f-target_market-help"><option value="" disabled selected>Choose one</option><option value="enterprise_saas">Enterprise SaaS</option><option value="smb_saas">SMB SaaS</option><option value="consumer">Consumer</option><option value="marketplace">Marketplace</option><option value="fintech">Fintech</option><option value="logistics_tech">Logistics tech</option><option value="vertical_saas">Vertical SaaS</option><option value="ai_native">Ai native</option><option value="ites">Ites</option><option value="telecom">Telecom</option><option value="software">Software</option><option value="cybersecurity">Cybersecurity</option><option value="other">Other</option></select><p class="hx-help" id="f-target_market-help">Target market segment (for example enterprise SaaS, telecom or logistics tech)</p></div>
 <div class="hx-field"><label for="f-current_metrics">Current metrics <span class="hx-req" aria-hidden="true">*</span></label><textarea id="f-current_metrics" name="current_metrics" rows="3" maxlength="6000" data-kind="string" required aria-required="true" aria-describedby="f-current_metrics-help"></textarea><p class="hx-help" id="f-current_metrics-help">Your current numbers, for example: MRR $50K, churn 3%, NPS 45.</p></div>
 <div class="hx-field"><label for="f-time_in_market">Time in market <span class="hx-opt">(optional)</span></label><select id="f-time_in_market" name="time_in_market" data-kind="string" aria-describedby="f-time_in_market-help"><option value="">Not specified</option><option value="pre_launch">Pre-launch</option><option value="0_6_months">0 to 6 months</option><option value="6_12_months">6 to 12 months</option><option value="1_2_years">1 to 2 years</option><option value="2_plus_years">2 years or more</option></select><p class="hx-help" id="f-time_in_market-help">How long the product has been in market (shown in the scorecard)</p></div>
-<div class="hx-field"><label for="f-customer_feedback">Customer feedback <span class="hx-opt">(optional)</span></label><textarea id="f-customer_feedback" name="customer_feedback" rows="3" maxlength="6000" data-kind="string" aria-describedby="f-customer_feedback-help"></textarea><p class="hx-help" id="f-customer_feedback-help">Optional: Qualitative feedback themes (e.g., &#x27;Users love X but struggle with Y&#x27;)</p></div>
+<div class="hx-field"><label for="f-customer_feedback">Customer feedback <span class="hx-opt">(optional)</span></label><textarea id="f-customer_feedback" name="customer_feedback" rows="3" maxlength="6000" data-kind="string" aria-describedby="f-customer_feedback-help"></textarea><p class="hx-help" id="f-customer_feedback-help">Optional: Qualitative feedback themes, one per line or separated by semicolons (for example &#x27;Customers like X; they struggle with Y&#x27;). Each theme is quoted and answered</p></div>
+<div class="hx-field"><label for="f-business_model">Business model <span class="hx-opt">(optional)</span></label><select id="f-business_model" name="business_model" data-kind="string" aria-describedby="f-business_model-help"><option value="">Not specified</option><option value="saas">SaaS</option><option value="services">Services</option><option value="connectivity">Connectivity</option><option value="transactions">Transactions</option><option value="marketplace">Marketplace</option><option value="hardware_software">Hardware software</option><option value="investment">Investment</option></select><p class="hx-help" id="f-business_model-help">Optional: how you earn revenue, so the advice fits it (saas, services, connectivity, transactions, marketplace, hardware_software or investment). Leave it out and the tool reads it from your other inputs and says how it read it</p></div>
     <div class="hx-hp" aria-hidden="true"><label for="hp-pmf_scorecard">Leave this empty</label><input id="hp-pmf_scorecard" name="leave_this_empty" type="text" tabindex="-1" autocomplete="off"></div>
     <div class="hx-actions">
       <button type="submit" class="hx-btn">Run PMF Scorecard</button>
@@ -315,7 +316,7 @@
 
 <section class="hx-section" aria-labelledby="ex-h">
   <h2 id="ex-h">Example answer</h2>
-  <p class="hx-prose">From version 2.2.13 of this tool, with the inputs behind <em>Fill in an example</em>. Your own inputs give a different result.</p>
+  <p class="hx-prose">From version 2.2.15 of this tool, with the inputs behind <em>Fill in an example</em>. Your own inputs give a different result.</p>
   <article class="hxr hxr-example" aria-labelledby="ex-t">
     <header class="hxr-head">
       <p class="hxr-tag">CRAFT GTM report</p>
@@ -328,6 +329,7 @@
 <p><strong>Market Segment:</strong> Enterprise SaaS</p>
 <p><strong>Time in Market:</strong> 1 to 2 years</p>
 <p><strong>Analysis Date:</strong> 2026-10-02</p>
+<p><em>Sector: read from your inputs as vertical SaaS. Business model: software subscription (from your market choice; set Business model to change it).</em></p>
 <hr>
 <h5 class="hxr-h3">Overall PMF Assessment</h5>
 <div class="hx-table"><table><thead><tr><th>Stage</th><th>Score</th><th>Status</th></tr></thead><tbody><tr><td><strong>Emerging PMF</strong></td><td><strong>7.5/10</strong></td><td>Yes</td></tr></tbody></table></div>
@@ -336,7 +338,7 @@
 <p>The score is the average of the dimensions scored below (missing data is left out), each judged against an example benchmark.</p>
 <hr>
 <h5 class="hxr-h3">Dimension Scores</h5>
-<p>Each score and status compares your value with an example benchmark for the enterprise SaaS market segment.</p>
+<p>Each score and status compares your value with an example benchmark. Benchmark ranges: the example ranges for the enterprise SaaS market segment.</p>
 <h6 class="hxr-h4">1. Customer Retention (Churn)</h6>
 <div class="hx-table"><table><thead><tr><th>Metric</th><th>Your Value</th><th>Score</th><th>Benchmark (Example figures: replace with your own)</th><th>Status</th></tr></thead><tbody><tr><td>Monthly Churn</td><td>1.5%</td><td>7/10</td><td>&lt;3% target</td><td>GOOD</td></tr></tbody></table></div>
 <p><strong>Analysis:</strong> 1.5% is acceptable (benchmark: &lt;3%) (Example figure: replace with your own)</p>
@@ -363,16 +365,24 @@
 <h5 class="hxr-h3">Priority Actions</h5>
 <ol>
 <li value="1">NPS: Focus on detractor feedback, address top 3 pain points</li>
-<li value="2">ACTIVATION: Define and track "aha moment" metric</li>
+<li value="2">ACTIVATION: Define and track the first action that shows a customer got value (your activation event)</li>
 </ol>
+<hr>
+<h5 class="hxr-h3">Sector Reading</h5>
+<h6 class="hxr-h4">Sector notes: vertical SaaS</h6>
+<ul>
+<li><strong>What this sector measures:</strong> secondary sales, productive calls, lines per call, outlet coverage, strike rate, order fill rate, distributor claim settlement time.</li>
+<li><strong>Words this buyer uses:</strong> distributor, outlet, beat plan, secondary sales, general trade, SKU, order capture, retail execution, DMS, trade scheme.</li>
+<li><strong>A proof point that lands:</strong> Secondary sales or productive calls in the pilot region against a comparable region without the product.</li>
+</ul>
 <hr>
 <h5 class="hxr-h3">Data Gaps to Fill</h5>
 <ul>
-<li>[ ] Activation rate (define your "aha moment")</li>
+<li>[ ] Activation rate (the first action that shows a customer got value)</li>
 </ul>
 <hr>
 <p><em>Scorecard generated using the CRAFT GTM framework</em></p>
-<p><em>Benchmarks are example ranges for the enterprise SaaS market segment. Time in market (1 to 2 years) does not change the benchmarks or scores.</em></p>
+<p><em>Benchmark ranges: the example ranges for the enterprise SaaS market segment. Time in market (1 to 2 years) does not change the benchmarks or scores.</em></p>
 <p>Suggested timings, lengths and counts: adjust them to your own.</p></div></details>
     <footer class="hxr-foot"><span>Built by Shashwat Ghosh</span><span>https://craft-gtm.gtmhelix.com/tools/pmf-scorecard/</span></footer>
   </article>

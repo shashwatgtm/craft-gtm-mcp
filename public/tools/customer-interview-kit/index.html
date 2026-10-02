@@ -22,7 +22,7 @@
 <meta name="twitter:description" content="Prepare a guide for your customer interviews from the kind of conversation, your product and the role you will speak to. Free, no sign-in.">
 <meta name="twitter:image" content="https://craft-gtm.gtmhelix.com/og.png">
 <meta name="twitter:creator" content="@Shashwat_Ghosh">
-<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="preload" href="/assets/fonts/Archivo-latin-1.woff2?v=8f704806db" as="font" type="font/woff2" crossorigin>
@@ -211,7 +211,7 @@
    "@type": "WebApplication",
    "@id": "https://craft-gtm.gtmhelix.com/tools/customer-interview-kit/#app",
    "name": "Customer Interview Kit (CRAFT GTM)",
-   "description": "Generate interview guides that ADAPT based on interview type, industry, and product complexity. Includes synthesis templates.",
+   "description": "Generate interview guides for the interview type, the sector (chosen, or read from your inputs) and the product complexity. Questions use the sector's own language, your hypotheses are kept whole, and synthesis templates are included.",
    "url": "https://craft-gtm.gtmhelix.com/tools/customer-interview-kit/",
    "applicationCategory": "BusinessApplication",
    "browserRequirements": "Any modern browser; works without JavaScript",
@@ -280,13 +280,14 @@
 
 <div class="hx-body">
 <section class="hx-section hx-run-sec" id="run" aria-label="Run Customer Interview Kit">
-  <div class="win hx-form-win"><div class="win-bar"><span class="t">Run Customer Interview Kit</span><span class="wb" aria-hidden="true"><i></i><i></i></span></div><form class="hx-form" method="post" action="/api/tools/customer_interview_kit" data-tool="customer_interview_kit" data-title="Customer Interview Kit"><p class="hx-help">You need: Interview type, Product context, Target persona. You can add: Industry, Product complexity, Key hypotheses.</p>
+  <div class="win hx-form-win"><div class="win-bar"><span class="t">Run Customer Interview Kit</span><span class="wb" aria-hidden="true"><i></i><i></i></span></div><form class="hx-form" method="post" action="/api/tools/customer_interview_kit" data-tool="customer_interview_kit" data-title="Customer Interview Kit"><p class="hx-help">You need: Interview type, Product context, Target persona. You can add: Industry, Product complexity, Key hypotheses, Business model.</p>
 <div class="hx-field"><label for="f-interview_type">Interview type <span class="hx-req" aria-hidden="true">*</span></label><select id="f-interview_type" name="interview_type" data-kind="string" required aria-required="true" aria-describedby="f-interview_type-help"><option value="" disabled selected>Choose one</option><option value="discovery">Discovery</option><option value="validation">Validation</option><option value="feedback">Feedback</option><option value="churn">Churn</option><option value="win_loss">Win or loss</option><option value="persona_research">Persona research</option></select><p class="hx-help" id="f-interview_type-help">Type of interview determines question focus</p></div>
 <div class="hx-field"><label for="f-product_context">Product context <span class="hx-req" aria-hidden="true">*</span></label><textarea id="f-product_context" name="product_context" rows="3" maxlength="6000" data-kind="string" required aria-required="true" aria-describedby="f-product_context-help"></textarea><p class="hx-help" id="f-product_context-help">Product/service being researched</p></div>
-<div class="hx-field"><label for="f-industry">Industry <span class="hx-opt">(optional)</span></label><select id="f-industry" name="industry" data-kind="string" aria-describedby="f-industry-help"><option value="">Not specified</option><option value="saas">SaaS</option><option value="fintech">Fintech</option><option value="healthtech">Health tech</option><option value="ecommerce">E-commerce</option><option value="marketplace">Marketplace</option><option value="enterprise_software">Enterprise software</option><option value="consumer">Consumer</option><option value="other">Other</option></select><p class="hx-help" id="f-industry-help">Industry affects terminology and context</p></div>
+<div class="hx-field"><label for="f-industry">Industry <span class="hx-opt">(optional)</span></label><select id="f-industry" name="industry" data-kind="string" aria-describedby="f-industry-help"><option value="">Not specified</option><option value="saas">SaaS</option><option value="fintech">Fintech</option><option value="logistics_tech">Logistics tech</option><option value="vertical_saas">Vertical SaaS</option><option value="ai_native">Ai native</option><option value="ites">Ites</option><option value="telecom">Telecom</option><option value="software">Software</option><option value="cybersecurity">Cybersecurity</option><option value="ecommerce">E-commerce</option><option value="marketplace">Marketplace</option><option value="enterprise_software">Enterprise software</option><option value="consumer">Consumer</option><option value="other">Other</option></select><p class="hx-help" id="f-industry-help">Industry affects terminology and context. Leave it out and the sector is read from your other inputs</p></div>
 <div class="hx-field"><label for="f-product_complexity">Product complexity <span class="hx-opt">(optional)</span></label><select id="f-product_complexity" name="product_complexity" data-kind="string" aria-describedby="f-product_complexity-help"><option value="">Not specified</option><option value="simple">Simple</option><option value="moderate">Moderate</option><option value="complex">Complex</option><option value="highly_technical">Highly technical</option></select><p class="hx-help" id="f-product_complexity-help">Affects technical depth of questions</p></div>
 <div class="hx-field"><label for="f-target_persona">Target persona <span class="hx-req" aria-hidden="true">*</span></label><textarea id="f-target_persona" name="target_persona" rows="3" maxlength="6000" data-kind="string" required aria-required="true" aria-describedby="f-target_persona-help"></textarea><p class="hx-help" id="f-target_persona-help">Who you&#x27;re interviewing (role/title)</p></div>
-<div class="hx-field"><label for="f-key_hypotheses">Key hypotheses <span class="hx-opt">(optional)</span></label><textarea id="f-key_hypotheses" name="key_hypotheses" rows="3" maxlength="6000" data-kind="string" aria-describedby="f-key_hypotheses-help"></textarea><p class="hx-help" id="f-key_hypotheses-help">Optional: Hypotheses to validate during interview</p></div>
+<div class="hx-field"><label for="f-key_hypotheses">Key hypotheses <span class="hx-opt">(optional)</span></label><textarea id="f-key_hypotheses" name="key_hypotheses" rows="3" maxlength="6000" data-kind="string" aria-describedby="f-key_hypotheses-help"></textarea><p class="hx-help" id="f-key_hypotheses-help">Optional: Hypotheses to validate during interview, one per line or separated by semicolons</p></div>
+<div class="hx-field"><label for="f-business_model">Business model <span class="hx-opt">(optional)</span></label><select id="f-business_model" name="business_model" data-kind="string" aria-describedby="f-business_model-help"><option value="">Not specified</option><option value="saas">SaaS</option><option value="services">Services</option><option value="connectivity">Connectivity</option><option value="transactions">Transactions</option><option value="marketplace">Marketplace</option><option value="hardware_software">Hardware software</option><option value="investment">Investment</option></select><p class="hx-help" id="f-business_model-help">Optional: how you earn revenue, so the advice fits it (saas, services, connectivity, transactions, marketplace, hardware_software or investment). Leave it out and the tool reads it from your other inputs and says how it read it</p></div>
     <div class="hx-hp" aria-hidden="true"><label for="hp-customer_interview_kit">Leave this empty</label><input id="hp-customer_interview_kit" name="leave_this_empty" type="text" tabindex="-1" autocomplete="off"></div>
     <div class="hx-actions">
       <button type="submit" class="hx-btn">Run Customer Interview Kit</button>
@@ -316,7 +317,7 @@
 
 <section class="hx-section" aria-labelledby="ex-h">
   <h2 id="ex-h">Example answer</h2>
-  <p class="hx-prose">From version 2.2.13 of this tool, with the inputs behind <em>Fill in an example</em>. Your own inputs give a different result.</p>
+  <p class="hx-prose">From version 2.2.15 of this tool, with the inputs behind <em>Fill in an example</em>. Your own inputs give a different result.</p>
   <article class="hxr hxr-example" aria-labelledby="ex-t">
     <header class="hxr-head">
       <p class="hxr-tag">CRAFT GTM report</p>
@@ -330,6 +331,7 @@
 <p><strong>Product Context:</strong> Field sales app for consumer goods brands and their distributors</p>
 <p><strong>Industry:</strong> enterprise software</p>
 <p><strong>Complexity Level:</strong> moderate</p>
+<p><em>Sector: read from your inputs as vertical SaaS. Business model: software subscription (read from your inputs; set Business model to change it).</em></p>
 <hr>
 <h5 class="hxr-h3">Pre-Interview Checklist</h5>
 <ul>
@@ -355,7 +357,7 @@
 <li>Can you tell me about your experience with us overall?</li>
 <li>When did you first start thinking about leaving?</li>
 </ul>
-<p><strong>Industry-specific opener:</strong> "How much of a challenge is long implementation for you in enterprise software?"</p>
+<p><strong>Industry-specific opener:</strong> "How do you measure secondary sales today, and how much does it vary?"</p>
 <hr>
 <h5 class="hxr-h3">Core Questions (25-30 min)</h5>
 <h6 class="hxr-h4">Main Line of Inquiry</h6>
@@ -368,22 +370,26 @@
 </ol>
 <h6 class="hxr-h4">Moderate-Level Technical Questions</h6>
 <ol>
-<li value="1">Walk me through your typical workflow with field sales app for consumer goods brands and their distributors.</li>
+<li value="1">Walk me through your typical workflow with the product.</li>
 <li value="2">What integrations are most important to you?</li>
 <li value="3">How do you measure success with tools like this?</li>
 </ol>
-<h6 class="hxr-h4">Industry-Specific Questions (enterprise software)</h6>
+<h6 class="hxr-h4">Industry-Specific Questions (vertical SaaS)</h6>
 <ol>
-<li value="1">How do you currently handle deployment?</li>
-<li value="2">What's your process for customization?</li>
-<li value="3">How do IT and Procurement collaborate on this?</li>
-<li value="4">What training challenges have you faced?</li>
+<li value="1">How do your reps capture orders in the outlet today, and how does that reach the distributor?</li>
+<li value="2">How do you see secondary sales by outlet and by SKU today, and how late is that view?</li>
+<li value="3">What share of your outlets does a rep cover in a typical beat, and who plans the beats?</li>
+<li value="4">How are trade schemes communicated to reps and checked at the outlet?</li>
+<li value="5">Which distributor systems (DMS) and ERP must the sales app work with?</li>
+<li value="6">How do National Sales Head, Head of Distribution and Regional Sales Manager take part in this decision, and who has the final say?</li>
 </ol>
+<p><em>Who usually decides in this sector: The National Sales Head or Managing Director signs; the Head of Sales Operations champions; regional managers and field reps use it; distributors hold the stock and order data; IT checks the ERP and DMS integration.</em></p>
+<p><em>Words this buyer uses: distributor, outlet, beat plan, secondary sales, general trade, SKU, order capture, retail execution, DMS, trade scheme. Use them where they are true for the person you interview.</em></p>
 <hr>
 <h5 class="hxr-h3">Probing Questions (Use as needed)</h5>
 <p><em>Follow the energy: when they light up or seem frustrated, probe deeper</em></p>
 <ul>
-<li>You mentioned [reason]. When did that become a problem?</li>
+<li>They gave a main reason for leaving. Ask: "When did that first become a problem?"</li>
 <li>Did you reach out to support about this? What happened?</li>
 <li>What would have needed to change for you to stay?</li>
 <li>How did you make the final decision? Who was involved?</li>
@@ -434,12 +440,12 @@ FOLLOW-UP ACTIONS:
 <p>After conducting multiple interviews, map findings to:</p>
 <h6 class="hxr-h4">ICP Signals</h6>
 <p>Example figures: replace with your own. Tally the Count column against your own number of interviews.</p>
-<div class="hx-table"><table><thead><tr><th>Signal</th><th>Count</th><th>Implication</th></tr></thead><tbody><tr><td>[Common pain point]</td><td>/10</td><td>Include in messaging</td></tr><tr><td>[Common objection]</td><td>/10</td><td>Address proactively</td></tr><tr><td>[Feature request]</td><td>/10</td><td>Product input</td></tr></tbody></table></div>
+<div class="hx-table"><table><thead><tr><th>Signal</th><th>Count</th><th>Implication</th></tr></thead><tbody><tr><td>Most common pain point</td><td>/10</td><td>Include in messaging</td></tr><tr><td>Most common objection</td><td>/10</td><td>Address proactively</td></tr><tr><td>Most requested feature</td><td>/10</td><td>Product input</td></tr></tbody></table></div>
 <h6 class="hxr-h4">Persona Insights</h6>
 <div class="hx-table"><table><thead><tr><th>Attribute</th><th>Pattern</th><th>Source Quotes</th></tr></thead><tbody><tr><td>Goals</td><td></td><td></td></tr><tr><td>Challenges</td><td></td><td></td></tr><tr><td>Decision criteria</td><td></td><td></td></tr><tr><td>Information sources</td><td></td><td></td></tr></tbody></table></div>
 <hr>
 <p><em>Interview kit generated for churn interviews using the CRAFT GTM framework</em></p>
-<p><em>Customized for enterprise software industry at moderate complexity level</em></p>
+<p><em>Customized for vertical SaaS at moderate complexity level</em></p>
 <p>Suggested timings, lengths and counts: adjust them to your own.</p></div></details>
     <footer class="hxr-foot"><span>Built by Shashwat Ghosh</span><span>https://craft-gtm.gtmhelix.com/tools/customer-interview-kit/</span></footer>
   </article>

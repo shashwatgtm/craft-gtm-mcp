@@ -22,7 +22,7 @@
 <meta name="twitter:description" content="Build a launch plan with a timeline from what you are releasing, its type, target segments and goals. Free in a browser or Claude, with no sign-in.">
 <meta name="twitter:image" content="https://craft-gtm.gtmhelix.com/og.png">
 <meta name="twitter:creator" content="@Shashwat_Ghosh">
-<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="preload" href="/assets/fonts/Archivo-latin-1.woff2?v=8f704806db" as="font" type="font/woff2" crossorigin>
@@ -211,7 +211,7 @@
    "@type": "WebApplication",
    "@id": "https://craft-gtm.gtmhelix.com/tools/launch-commander/#app",
    "name": "Launch Commander (CRAFT GTM)",
-   "description": "Generate a context-aware launch plan. Have a date? Get a detailed timeline. Still planning? Enter 'TBD' or a quarter such as 'Q2 2027' for a flexible plan.",
+   "description": "Generate a context-aware launch plan. Have a date? Get a detailed timeline. Still planning? Enter 'TBD' or a quarter such as 'Q2 2027' for a flexible plan. Tasks and the messaging table follow the sector and business model read from your inputs, and each goal is filed under its own metric.",
    "url": "https://craft-gtm.gtmhelix.com/tools/launch-commander/",
    "applicationCategory": "BusinessApplication",
    "browserRequirements": "Any modern browser; works without JavaScript",
@@ -280,15 +280,17 @@
 
 <div class="hx-body">
 <section class="hx-section hx-run-sec" id="run" aria-label="Run Launch Commander">
-  <div class="win hx-form-win"><div class="win-bar"><span class="t">Run Launch Commander</span><span class="wb" aria-hidden="true"><i></i><i></i></span></div><form class="hx-form" method="post" action="/api/tools/launch_commander" data-tool="launch_commander" data-title="Launch Commander"><p class="hx-help">You need: Product feature, Launch type, Target segments, Goals. You can add: Launch date, Available channels, Team size, Budget level.</p>
+  <div class="win hx-form-win"><div class="win-bar"><span class="t">Run Launch Commander</span><span class="wb" aria-hidden="true"><i></i><i></i></span></div><form class="hx-form" method="post" action="/api/tools/launch_commander" data-tool="launch_commander" data-title="Launch Commander"><p class="hx-help">You need: Product feature, Launch type, Target segments, Goals. You can add: Launch date, Available channels, Team size, Budget level, Business model, Industry.</p>
 <div class="hx-field"><label for="f-product_feature">Product feature <span class="hx-req" aria-hidden="true">*</span></label><textarea id="f-product_feature" name="product_feature" rows="3" maxlength="6000" data-kind="string" required aria-required="true" aria-describedby="f-product_feature-help"></textarea><p class="hx-help" id="f-product_feature-help">What you&#x27;re launching (product/feature name and description)</p></div>
 <div class="hx-field"><label for="f-launch_date">Launch date <span class="hx-opt">(optional)</span></label><textarea id="f-launch_date" name="launch_date" rows="3" maxlength="6000" data-kind="string" aria-describedby="f-launch_date-help"></textarea><p class="hx-help" id="f-launch_date-help">Target launch date. Accepts: &#x27;YYYY-MM-DD&#x27;, &#x27;Q1 2027&#x27;, &#x27;March 2027&#x27;, or &#x27;TBD&#x27; for planning mode</p></div>
 <div class="hx-field"><label for="f-launch_type">Launch type <span class="hx-req" aria-hidden="true">*</span></label><select id="f-launch_type" name="launch_type" data-kind="string" required aria-required="true" aria-describedby="f-launch_type-help"><option value="" disabled selected>Choose one</option><option value="major_release">Major release</option><option value="feature_launch">Feature launch</option><option value="beta_launch">Beta launch</option><option value="product_update">Product update</option><option value="market_expansion">Market expansion</option></select><p class="hx-help" id="f-launch_type-help">Type of launch determines plan complexity</p></div>
 <div class="hx-field"><label for="f-target_segments">Target segments <span class="hx-req" aria-hidden="true">*</span></label><textarea id="f-target_segments" name="target_segments" rows="3" maxlength="6000" data-kind="string" required aria-required="true" aria-describedby="f-target_segments-help"></textarea><p class="hx-help" id="f-target_segments-help">Target customer segments (comma-separated)</p></div>
-<div class="hx-field"><label for="f-goals">Goals <span class="hx-req" aria-hidden="true">*</span></label><textarea id="f-goals" name="goals" rows="3" maxlength="6000" data-kind="string" required aria-required="true" aria-describedby="f-goals-help"></textarea><p class="hx-help" id="f-goals-help">Launch success metrics (e.g., &#x27;500 signups, $50k pipeline, 10% trial conversion, 1000 downloads&#x27;)</p></div>
+<div class="hx-field"><label for="f-goals">Goals <span class="hx-req" aria-hidden="true">*</span></label><textarea id="f-goals" name="goals" rows="3" maxlength="6000" data-kind="string" required aria-required="true" aria-describedby="f-goals-help"></textarea><p class="hx-help" id="f-goals-help">Launch success metrics (for example &#x27;40 qualified meetings, $300K pipeline, 5 reference customers&#x27;)</p></div>
 <div class="hx-field"><label for="f-available_channels">Available channels <span class="hx-opt">(optional)</span></label><textarea id="f-available_channels" name="available_channels" rows="3" maxlength="6000" data-kind="string" aria-describedby="f-available_channels-help"></textarea><p class="hx-help" id="f-available_channels-help">Optional: Marketing channels available (comma-separated). E.g., &#x27;email, linkedin, blog, webinar, PR, paid_ads, community&#x27;</p></div>
 <div class="hx-field"><label for="f-team_size">Team size <span class="hx-opt">(optional)</span></label><select id="f-team_size" name="team_size" data-kind="string" aria-describedby="f-team_size-help"><option value="">Not specified</option><option value="solo">Solo</option><option value="small_2_5">Small, 2 to 5</option><option value="medium_6_15">Medium, 6 to 15</option><option value="large_15_plus">Large, 15 or more</option></select><p class="hx-help" id="f-team_size-help">Marketing/GTM team size affects task distribution</p></div>
 <div class="hx-field"><label for="f-budget_level">Budget level <span class="hx-opt">(optional)</span></label><select id="f-budget_level" name="budget_level" data-kind="string" aria-describedby="f-budget_level-help"><option value="">Not specified</option><option value="bootstrap">Bootstrapped</option><option value="moderate">Moderate</option><option value="well_funded">Well funded</option></select><p class="hx-help" id="f-budget_level-help">Budget affects recommended tactics</p></div>
+<div class="hx-field"><label for="f-business_model">Business model <span class="hx-opt">(optional)</span></label><select id="f-business_model" name="business_model" data-kind="string" aria-describedby="f-business_model-help"><option value="">Not specified</option><option value="saas">SaaS</option><option value="services">Services</option><option value="connectivity">Connectivity</option><option value="transactions">Transactions</option><option value="marketplace">Marketplace</option><option value="hardware_software">Hardware software</option><option value="investment">Investment</option></select><p class="hx-help" id="f-business_model-help">Optional: how you earn revenue, so the advice fits it (saas, services, connectivity, transactions, marketplace, hardware_software or investment). Leave it out and the tool reads it from your other inputs and says how it read it</p></div>
+<div class="hx-field"><label for="f-industry">Industry <span class="hx-opt">(optional)</span></label><select id="f-industry" name="industry" data-kind="string" aria-describedby="f-industry-help"><option value="">Not specified</option><option value="logistics_tech">Logistics tech</option><option value="fintech">Fintech</option><option value="saas">SaaS</option><option value="vertical_saas">Vertical SaaS</option><option value="ai_native">Ai native</option><option value="ites">Ites</option><option value="telecom">Telecom</option><option value="software">Software</option><option value="cybersecurity">Cybersecurity</option><option value="other">Other</option></select><p class="hx-help" id="f-industry-help">Optional: the sector you sell into, so the answer uses that sector&#x27;s buyers, measures and objections. Leave it out and the tool reads the sector from your other inputs and names what it read</p></div>
     <div class="hx-hp" aria-hidden="true"><label for="hp-launch_commander">Leave this empty</label><input id="hp-launch_commander" name="leave_this_empty" type="text" tabindex="-1" autocomplete="off"></div>
     <div class="hx-actions">
       <button type="submit" class="hx-btn">Run Launch Commander</button>
@@ -318,7 +320,7 @@
 
 <section class="hx-section" aria-labelledby="ex-h">
   <h2 id="ex-h">Example answer</h2>
-  <p class="hx-prose">From version 2.2.13 of this tool, with the inputs behind <em>Fill in an example</em>. Your own inputs give a different result.</p>
+  <p class="hx-prose">From version 2.2.15 of this tool, with the inputs behind <em>Fill in an example</em>. Your own inputs give a different result.</p>
   <article class="hxr hxr-example" aria-labelledby="ex-t">
     <header class="hxr-head">
       <p class="hxr-tag">CRAFT GTM report</p>
@@ -332,6 +334,7 @@
 <p><strong>Launch Date:</strong> 2026-11-15</p>
 <p><strong>Team Size:</strong> small (2 to 5)</p>
 <p><strong>Budget Level:</strong> moderate</p>
+<p><em>Sector: not clear from your inputs (name the industry for sector notes). Business model: not clear from your inputs; set Business model (saas, services, connectivity, transactions, marketplace, Hardware software or investment) for advice that fits it.</em></p>
 <hr>
 <h5 class="hxr-h3">Launch Goals</h5>
 <ul>
@@ -378,12 +381,12 @@
 <hr>
 <h5 class="hxr-h3">Segment Messaging Matrix</h5>
 <h6 class="hxr-h4">packaged food brands</h6>
-<div class="hx-table"><table><thead><tr><th>Element</th><th>Content</th></tr></thead><tbody><tr><td>Primary Pain Point</td><td>[Define for packaged food brands]</td></tr><tr><td>Key Message</td><td>"For packaged food brands, Shelfwalk order suggestions for field reps [what it does for them]."</td></tr><tr><td>Proof Point</td><td>[Case study/metric for packaged food brands]</td></tr><tr><td>CTA</td><td>[Specific action for packaged food brands]</td></tr><tr><td>Primary Channel</td><td>email</td></tr></tbody></table></div>
+<div class="hx-table"><table><thead><tr><th>Element</th><th>Content</th></tr></thead><tbody><tr><td>Primary Pain Point</td><td>Not supplied for packaged food brands. Add the pain you solve for this segment.</td></tr><tr><td>Key Message</td><td>Lead with "Shelfwalk order suggestions for field reps" for packaged food brands. Add the outcome you can prove.</td></tr><tr><td>Proof Point</td><td>Not supplied: add a customer result for packaged food brands.</td></tr><tr><td>CTA</td><td>Not supplied: name the one action you want from packaged food brands.</td></tr><tr><td>Primary Channel</td><td>email</td></tr></tbody></table></div>
 <h6 class="hxr-h4">personal care brands</h6>
-<div class="hx-table"><table><thead><tr><th>Element</th><th>Content</th></tr></thead><tbody><tr><td>Primary Pain Point</td><td>[Define for personal care brands]</td></tr><tr><td>Key Message</td><td>"For personal care brands, Shelfwalk order suggestions for field reps [what it does for them]."</td></tr><tr><td>Proof Point</td><td>[Case study/metric for personal care brands]</td></tr><tr><td>CTA</td><td>[Specific action for personal care brands]</td></tr><tr><td>Primary Channel</td><td>email</td></tr></tbody></table></div>
+<div class="hx-table"><table><thead><tr><th>Element</th><th>Content</th></tr></thead><tbody><tr><td>Primary Pain Point</td><td>Not supplied for personal care brands. Add the pain you solve for this segment.</td></tr><tr><td>Key Message</td><td>Lead with "Shelfwalk order suggestions for field reps" for personal care brands. Add the outcome you can prove.</td></tr><tr><td>Proof Point</td><td>Not supplied: add a customer result for personal care brands.</td></tr><tr><td>CTA</td><td>Not supplied: name the one action you want from personal care brands.</td></tr><tr><td>Primary Channel</td><td>email</td></tr></tbody></table></div>
 <hr>
 <h5 class="hxr-h3">Success Metrics</h5>
-<div class="hx-table"><table><thead><tr><th>Metric</th><th>Target</th><th>Tracking Method</th></tr></thead><tbody><tr><td>Awareness</td><td>[set a target]</td><td>Analytics</td></tr><tr><td>Engagement</td><td>40 brand demos</td><td>CRM/Analytics</td></tr><tr><td>Adoption</td><td>[set a target]</td><td>Product Analytics</td></tr><tr><td>Revenue</td><td>$300K pipeline</td><td>CRM</td></tr></tbody></table></div>
+<div class="hx-table"><table><thead><tr><th>Metric</th><th>Target</th><th>Tracking Method</th></tr></thead><tbody><tr><td>Awareness</td><td>No goal given for this metric: add a target if it matters</td><td>Analytics</td></tr><tr><td>Engagement</td><td>40 brand demos</td><td>CRM/Analytics</td></tr><tr><td>Adoption</td><td>No goal given for this metric: add a target if it matters</td><td>Product or service usage data</td></tr><tr><td>Revenue</td><td>$300K pipeline</td><td>CRM</td></tr></tbody></table></div>
 <hr>
 <h5 class="hxr-h3">Risk Mitigation</h5>
 <div class="hx-table"><table><thead><tr><th>Risk</th><th>Mitigation</th><th>Owner</th></tr></thead><tbody><tr><td>Launch delay</td><td>Build in a buffer week</td><td>Lead</td></tr><tr><td>Low awareness</td><td>Have a backup paid campaign ready</td><td>Team</td></tr><tr><td>Technical issues</td><td>Document a rollback plan</td><td>Engineering</td></tr><tr><td>Competitive response</td><td>Update the battle cards</td><td>Sales</td></tr></tbody></table></div>

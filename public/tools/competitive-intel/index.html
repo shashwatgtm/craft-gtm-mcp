@@ -22,7 +22,7 @@
 <meta name="twitter:description" content="Build a battle card for each competitor from your product and competitors, plus any wins, losses or objections. Free in a browser or Claude, no sign-in.">
 <meta name="twitter:image" content="https://craft-gtm.gtmhelix.com/og.png">
 <meta name="twitter:creator" content="@Shashwat_Ghosh">
-<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="preload" href="/assets/fonts/Archivo-latin-1.woff2?v=8f704806db" as="font" type="font/woff2" crossorigin>
@@ -211,7 +211,7 @@
    "@type": "WebApplication",
    "@id": "https://craft-gtm.gtmhelix.com/tools/competitive-intel/#app",
    "name": "Competitive Intel (CRAFT GTM)",
-   "description": "Generate battle cards. If you know your strengths/weaknesses, get complete battle cards. If you only know competitors and win/loss stories, we'll derive your positioning.",
+   "description": "Generate battle cards, one per competitor, from your strengths, weaknesses, competitor details, objections, wins and losses. Each competitor detail goes to the competitor it names, each objection gets its own answer, and strengths and gaps taken from wins and losses are your own words.",
    "url": "https://craft-gtm.gtmhelix.com/tools/competitive-intel/",
    "applicationCategory": "BusinessApplication",
    "browserRequirements": "Any modern browser; works without JavaScript",
@@ -280,15 +280,17 @@
 
 <div class="hx-body">
 <section class="hx-section hx-run-sec" id="run" aria-label="Run Competitive Intel">
-  <div class="win hx-form-win"><div class="win-bar"><span class="t">Run Competitive Intel</span><span class="wb" aria-hidden="true"><i></i><i></i></span></div><form class="hx-form" method="post" action="/api/tools/competitive_intel" data-tool="competitive_intel" data-title="Competitive Intel"><p class="hx-help">You need: Your product, Competitors. You can add: Your strengths, Your weaknesses, Competitor details, Common objections, Recent wins, Recent losses.</p>
+  <div class="win hx-form-win"><div class="win-bar"><span class="t">Run Competitive Intel</span><span class="wb" aria-hidden="true"><i></i><i></i></span></div><form class="hx-form" method="post" action="/api/tools/competitive_intel" data-tool="competitive_intel" data-title="Competitive Intel"><p class="hx-help">You need: Your product, Competitors. You can add: Your strengths, Your weaknesses, Competitor details, Common objections, Recent wins, Recent losses, Business model, Industry.</p>
 <div class="hx-field"><label for="f-your_product">Your product <span class="hx-req" aria-hidden="true">*</span></label><textarea id="f-your_product" name="your_product" rows="3" maxlength="6000" data-kind="string" required aria-required="true" aria-describedby="f-your_product-help"></textarea><p class="hx-help" id="f-your_product-help">Your product name and brief description</p></div>
 <div class="hx-field"><label for="f-competitors">Competitors <span class="hx-req" aria-hidden="true">*</span></label><textarea id="f-competitors" name="competitors" rows="3" maxlength="6000" data-kind="string" required aria-required="true" aria-describedby="f-competitors-help"></textarea><p class="hx-help" id="f-competitors-help">Competitor names (comma-separated). Will generate battle card for EACH</p></div>
-<div class="hx-field"><label for="f-your_strengths">Your strengths <span class="hx-opt">(optional)</span></label><textarea id="f-your_strengths" name="your_strengths" rows="3" maxlength="6000" data-kind="string" aria-describedby="f-your_strengths-help"></textarea><p class="hx-help" id="f-your_strengths-help">OPTIONAL: What you do better (comma-separated). Will be DERIVED from wins/losses if not provided</p></div>
-<div class="hx-field"><label for="f-your_weaknesses">Your weaknesses <span class="hx-opt">(optional)</span></label><textarea id="f-your_weaknesses" name="your_weaknesses" rows="3" maxlength="6000" data-kind="string" aria-describedby="f-your_weaknesses-help"></textarea><p class="hx-help" id="f-your_weaknesses-help">OPTIONAL: Where competitors beat you (comma-separated). Will be DERIVED from wins/losses if not provided</p></div>
-<div class="hx-field"><label for="f-competitor_details">Competitor details <span class="hx-opt">(optional)</span></label><textarea id="f-competitor_details" name="competitor_details" rows="3" maxlength="6000" data-kind="string" aria-describedby="f-competitor_details-help f-competitor_details-limit"></textarea><p class="hx-help" id="f-competitor_details-help">Optional: Any known details about competitors. E.g., &#x27;Competitor A is cheaper, Competitor B targets enterprise&#x27;</p><p class="hx-help" id="f-competitor_details-limit">Up to 6,000 characters in this form. For a longer document, use CRAFT GTM in Claude, which takes up to 100,000.</p></div>
+<div class="hx-field"><label for="f-your_strengths">Your strengths <span class="hx-opt">(optional)</span></label><textarea id="f-your_strengths" name="your_strengths" rows="3" maxlength="6000" data-kind="string" aria-describedby="f-your_strengths-help"></textarea><p class="hx-help" id="f-your_strengths-help">OPTIONAL: What you do better (comma-separated). Taken from your wins, in your own words, if not provided</p></div>
+<div class="hx-field"><label for="f-your_weaknesses">Your weaknesses <span class="hx-opt">(optional)</span></label><textarea id="f-your_weaknesses" name="your_weaknesses" rows="3" maxlength="6000" data-kind="string" aria-describedby="f-your_weaknesses-help"></textarea><p class="hx-help" id="f-your_weaknesses-help">OPTIONAL: Where competitors beat you (comma-separated). Taken from your losses, in your own words, if not provided</p></div>
+<div class="hx-field"><label for="f-competitor_details">Competitor details <span class="hx-opt">(optional)</span></label><textarea id="f-competitor_details" name="competitor_details" rows="3" maxlength="6000" data-kind="string" aria-describedby="f-competitor_details-help f-competitor_details-limit"></textarea><p class="hx-help" id="f-competitor_details-help">Optional: Any known details about competitors, one per line or separated by semicolons. E.g., &#x27;Competitor A is cheaper; Competitor B targets enterprise&#x27;. Each detail goes to the competitor it names</p><p class="hx-help" id="f-competitor_details-limit">Up to 6,000 characters in this form. For a longer document, use CRAFT GTM in Claude, which takes up to 100,000.</p></div>
 <div class="hx-field"><label for="f-common_objections">Common objections <span class="hx-opt">(optional)</span></label><textarea id="f-common_objections" name="common_objections" rows="3" maxlength="6000" data-kind="string" aria-describedby="f-common_objections-help"></textarea><p class="hx-help" id="f-common_objections-help">Sales objections you hear (comma-separated). E.g., &#x27;too expensive, missing X feature, competitor has better Y&#x27;</p></div>
-<div class="hx-field"><label for="f-recent_wins">Recent wins <span class="hx-opt">(optional)</span></label><textarea id="f-recent_wins" name="recent_wins" rows="3" maxlength="6000" data-kind="string" aria-describedby="f-recent_wins-help"></textarea><p class="hx-help" id="f-recent_wins-help">Why customers chose you over competitors: will be used to DERIVE strengths</p></div>
-<div class="hx-field"><label for="f-recent_losses">Recent losses <span class="hx-opt">(optional)</span></label><textarea id="f-recent_losses" name="recent_losses" rows="3" maxlength="6000" data-kind="string" aria-describedby="f-recent_losses-help"></textarea><p class="hx-help" id="f-recent_losses-help">Why you lost deals to competitors: will be used to DERIVE weaknesses</p></div>
+<div class="hx-field"><label for="f-recent_wins">Recent wins <span class="hx-opt">(optional)</span></label><textarea id="f-recent_wins" name="recent_wins" rows="3" maxlength="6000" data-kind="string" aria-describedby="f-recent_wins-help"></textarea><p class="hx-help" id="f-recent_wins-help">Why customers chose you over competitors: used as your strengths when none are given</p></div>
+<div class="hx-field"><label for="f-recent_losses">Recent losses <span class="hx-opt">(optional)</span></label><textarea id="f-recent_losses" name="recent_losses" rows="3" maxlength="6000" data-kind="string" aria-describedby="f-recent_losses-help"></textarea><p class="hx-help" id="f-recent_losses-help">Why you lost deals to competitors: used as your gaps when none are given</p></div>
+<div class="hx-field"><label for="f-business_model">Business model <span class="hx-opt">(optional)</span></label><select id="f-business_model" name="business_model" data-kind="string" aria-describedby="f-business_model-help"><option value="">Not specified</option><option value="saas">SaaS</option><option value="services">Services</option><option value="connectivity">Connectivity</option><option value="transactions">Transactions</option><option value="marketplace">Marketplace</option><option value="hardware_software">Hardware software</option><option value="investment">Investment</option></select><p class="hx-help" id="f-business_model-help">Optional: how you earn revenue, so the advice fits it (saas, services, connectivity, transactions, marketplace, hardware_software or investment). Leave it out and the tool reads it from your other inputs and says how it read it</p></div>
+<div class="hx-field"><label for="f-industry">Industry <span class="hx-opt">(optional)</span></label><select id="f-industry" name="industry" data-kind="string" aria-describedby="f-industry-help"><option value="">Not specified</option><option value="logistics_tech">Logistics tech</option><option value="fintech">Fintech</option><option value="saas">SaaS</option><option value="vertical_saas">Vertical SaaS</option><option value="ai_native">Ai native</option><option value="ites">Ites</option><option value="telecom">Telecom</option><option value="software">Software</option><option value="cybersecurity">Cybersecurity</option><option value="other">Other</option></select><p class="hx-help" id="f-industry-help">Optional: the sector you sell into, so the answer uses that sector&#x27;s buyers, measures and objections. Leave it out and the tool reads the sector from your other inputs and names what it read</p></div>
     <div class="hx-hp" aria-hidden="true"><label for="hp-competitive_intel">Leave this empty</label><input id="hp-competitive_intel" name="leave_this_empty" type="text" tabindex="-1" autocomplete="off"></div>
     <div class="hx-actions">
       <button type="submit" class="hx-btn">Run Competitive Intel</button>
@@ -318,7 +320,7 @@
 
 <section class="hx-section" aria-labelledby="ex-h">
   <h2 id="ex-h">Example answer</h2>
-  <p class="hx-prose">From version 2.2.13 of this tool, with the inputs behind <em>Fill in an example</em>. Your own inputs give a different result.</p>
+  <p class="hx-prose">From version 2.2.15 of this tool, with the inputs behind <em>Fill in an example</em>. Your own inputs give a different result.</p>
   <article class="hxr hxr-example" aria-labelledby="ex-t">
     <header class="hxr-head">
       <p class="hxr-tag">CRAFT GTM report</p>
@@ -328,12 +330,13 @@
     <div class="hxr-actions"><button type="button" class="hx-btn hx-btn-ghost" data-print>Print or save as PDF</button></div>
     <details class="hx-run"><summary>Show the full result</summary><div class="hxr-body hx-result-body hx-output"><h4 class="hxr-h2">Competitive Battle Cards</h4>
 <h5 class="hxr-h3">Shelfwalk</h5>
+<p><em>Sector: not clear from your inputs (name the industry for sector notes). Business model: software subscription (read from your inputs; set Business model to change it).</em></p>
 <hr>
 <h5 class="hxr-h3">Your Competitive Position</h5>
 <h6 class="hxr-h4">When We Win</h6>
 <ol>
-<li value="1"><strong>works offline on low-end phones</strong></li>
-<li value="2"><strong>order suggestions for every outlet</strong></li>
+<li value="1"><strong>Works offline on low-end phones</strong></li>
+<li value="2"><strong>Order suggestions for every outlet</strong></li>
 </ol>
 <p><strong>Recent Win Patterns:</strong></p>
 <ul>
@@ -342,7 +345,7 @@
 </ul>
 <h6 class="hxr-h4">When We Lose</h6>
 <ol>
-<li value="1"><strong>no built-in distributor billing yet</strong></li>
+<li value="1"><strong>No built-in distributor billing yet</strong></li>
 </ol>
 <p><strong>Recent Loss Patterns:</strong></p>
 <ul>
@@ -351,89 +354,93 @@
 <hr>
 <h5 class="hxr-h3">Competitor Battle Cards</h5>
 <h6 class="hxr-h4">1. Competitor A</h6>
+<p><strong>Known Intel:</strong> none of your competitor details names Competitor A. Add a detail that does.</p>
 <p><strong>Head-to-Head Comparison:</strong></p>
-<div class="hx-table"><table><thead><tr><th>Dimension</th><th>Shelfwalk</th><th>Competitor A</th></tr></thead><tbody><tr><td>works offline on low-end phones</td><td>Strong</td><td>[Your rating]</td></tr><tr><td>order suggestions for every outlet</td><td>Strong</td><td>[Your rating]</td></tr><tr><td>Our gap: no built-in distributor billing yet</td><td>Gap for us</td><td>[Your rating]</td></tr></tbody></table></div>
+<div class="hx-table"><table><thead><tr><th>Dimension</th><th>Shelfwalk</th><th>Competitor A</th></tr></thead><tbody><tr><td>Works offline on low-end phones</td><td>Your strength</td><td>Not assessed: add what you know</td></tr><tr><td>Order suggestions for every outlet</td><td>Your strength</td><td>Not assessed: add what you know</td></tr><tr><td>Our gap: No built-in distributor billing yet</td><td>Gap for us</td><td>Not assessed: add what you know</td></tr></tbody></table></div>
 <p><strong>Our Advantages Over Competitor A:</strong></p>
 <ul>
-<li>works offline on low-end phones</li>
-<li>order suggestions for every outlet</li>
+<li>Works offline on low-end phones</li>
+<li>Order suggestions for every outlet</li>
 </ul>
-<p><strong>Their Advantages Over Us:</strong></p>
+<p><strong>Where Competitor A May Be Ahead:</strong></p>
 <ul>
-<li>Where we fall short: no built-in distributor billing yet</li>
+<li>Where we fall short: No built-in distributor billing yet</li>
 </ul>
 <p><strong>Competitor A Trap Questions:</strong></p>
 <p><em>Questions to ask the buyer</em></p>
 <ol>
-<li value="1">Ask how Competitor A compares on: works offline on low-end phones</li>
-<li value="2">Ask how Competitor A compares on: order suggestions for every outlet</li>
-<li value="3">Ask how Competitor A compares on: [key metric]</li>
+<li value="1">Ask how Competitor A handles "Works offline on low-end phones"</li>
+<li value="2">Ask how Competitor A handles "Order suggestions for every outlet"</li>
+<li value="3">Ask what result the buyer measures today, and how Competitor A improves it</li>
 </ol>
 <p><strong>"Why Not Competitor A?" Response:</strong></p>
 <pre><code>If prospect asks: "Why should we choose you over Competitor A?"
 
-"That's a great question, and Competitor A is solid at [acknowledge their strength].
+First acknowledge one real strength of Competitor A. Then say:
 
-Here's why customers choose us:
+"That's a fair question, and I'd rather answer it than dodge it. Here's why customers choose us:
 
-1. works offline on low-end phones: [brief explanation]
-2. order suggestions for every outlet: [brief explanation]
+1. Works offline on low-end phones: add one line on what this means for this buyer
+2. Order suggestions for every outlet: add one line on what this means for this buyer
 
 [Only if true and provable: Would it help to talk to a customer who evaluated both?]"</code></pre>
 <hr>
 <h6 class="hxr-h4">2. Competitor B</h6>
+<p><strong>Known Intel:</strong> none of your competitor details names Competitor B. Add a detail that does.</p>
 <p><strong>Head-to-Head Comparison:</strong></p>
-<div class="hx-table"><table><thead><tr><th>Dimension</th><th>Shelfwalk</th><th>Competitor B</th></tr></thead><tbody><tr><td>works offline on low-end phones</td><td>Strong</td><td>[Your rating]</td></tr><tr><td>order suggestions for every outlet</td><td>Strong</td><td>[Your rating]</td></tr><tr><td>Our gap: no built-in distributor billing yet</td><td>Gap for us</td><td>[Your rating]</td></tr></tbody></table></div>
+<div class="hx-table"><table><thead><tr><th>Dimension</th><th>Shelfwalk</th><th>Competitor B</th></tr></thead><tbody><tr><td>Works offline on low-end phones</td><td>Your strength</td><td>Not assessed: add what you know</td></tr><tr><td>Order suggestions for every outlet</td><td>Your strength</td><td>Not assessed: add what you know</td></tr><tr><td>Our gap: No built-in distributor billing yet</td><td>Gap for us</td><td>Not assessed: add what you know</td></tr></tbody></table></div>
 <p><strong>Our Advantages Over Competitor B:</strong></p>
 <ul>
-<li>works offline on low-end phones</li>
-<li>order suggestions for every outlet</li>
+<li>Works offline on low-end phones</li>
+<li>Order suggestions for every outlet</li>
 </ul>
-<p><strong>Their Advantages Over Us:</strong></p>
+<p><strong>Where Competitor B May Be Ahead:</strong></p>
 <ul>
-<li>Where we fall short: no built-in distributor billing yet</li>
+<li>Where we fall short: No built-in distributor billing yet</li>
 </ul>
 <p><strong>Competitor B Trap Questions:</strong></p>
 <p><em>Questions to ask the buyer</em></p>
 <ol>
-<li value="1">Ask how Competitor B compares on: works offline on low-end phones</li>
-<li value="2">Ask how Competitor B compares on: order suggestions for every outlet</li>
-<li value="3">Ask how Competitor B compares on: [key metric]</li>
+<li value="1">Ask how Competitor B handles "Works offline on low-end phones"</li>
+<li value="2">Ask how Competitor B handles "Order suggestions for every outlet"</li>
+<li value="3">Ask what result the buyer measures today, and how Competitor B improves it</li>
 </ol>
 <p><strong>"Why Not Competitor B?" Response:</strong></p>
 <pre><code>If prospect asks: "Why should we choose you over Competitor B?"
 
-"That's a great question, and Competitor B is solid at [acknowledge their strength].
+First acknowledge one real strength of Competitor B. Then say:
 
-Here's why customers choose us:
+"That's a fair question, and I'd rather answer it than dodge it. Here's why customers choose us:
 
-1. works offline on low-end phones: [brief explanation]
-2. order suggestions for every outlet: [brief explanation]
+1. Works offline on low-end phones: add one line on what this means for this buyer
+2. Order suggestions for every outlet: add one line on what this means for this buyer
 
 [Only if true and provable: Would it help to talk to a customer who evaluated both?]"</code></pre>
 <hr>
 <h5 class="hxr-h3">Objection Handlers</h5>
 <h6 class="hxr-h4">1. "our distributor system has a free sales app"</h6>
-<p><strong>Acknowledge:</strong> "I appreciate you raising that concern about "our distributor system has a free sales app"."</p>
-<p><strong>Counter:</strong> "Here's how we address that: works offline on low-end phones [how it helps with this]. [Your example]"</p>
-<p><strong>Redirect:</strong> "Can you tell me more about why that's a concern for your situation?"</p>
+<p><strong>Acknowledge:</strong> "I appreciate you raising that concern."</p>
+<p><strong>Counter:</strong> "On 'our distributor system has a free sales app': what we would put against it is works offline on low-end phones."</p>
+<p><strong>Redirect:</strong> "Can you tell me more about why that is a concern in your situation?"</p>
+<p><strong>Answer pattern:</strong> Ask what lies behind it and what would change their mind, then answer with evidence from a similar customer only if you have it.</p>
 <p><strong>Full Response:</strong></p>
-<pre><code>"I appreciate you raising that concern about "our distributor system has a free sales app".
+<pre><code>"I appreciate you raising that concern.
 
-Here's how we address that: works offline on low-end phones [how it helps with this]. [Your example]
+On 'our distributor system has a free sales app': what we would put against it is works offline on low-end phones.
 
-Can you tell me more about why that's a concern for your situation?"</code></pre>
+Can you tell me more about why that is a concern in your situation?"</code></pre>
 <hr>
 <h6 class="hxr-h4">2. "reps will not use another app"</h6>
-<p><strong>Acknowledge:</strong> "It makes sense to evaluate options thoroughly."</p>
-<p><strong>Counter:</strong> "What sets us apart is works offline on low-end phones. [Only if true and provable: Customers who've compared us often find that [specific advantage].]"</p>
-<p><strong>Redirect:</strong> "What's most important to you in making this decision?"</p>
+<p><strong>Acknowledge:</strong> "I appreciate you raising that concern."</p>
+<p><strong>Counter:</strong> "On 'reps will not use another app': what we would put against it is works offline on low-end phones."</p>
+<p><strong>Redirect:</strong> "Can you tell me more about why that is a concern in your situation?"</p>
+<p><strong>Answer pattern:</strong> Agree a small pilot with the people who will use it, and decide up front how adoption is measured.</p>
 <p><strong>Full Response:</strong></p>
-<pre><code>"It makes sense to evaluate options thoroughly.
+<pre><code>"I appreciate you raising that concern.
 
-What sets us apart is works offline on low-end phones. [Only if true and provable: Customers who've compared us often find that [specific advantage].]
+On 'reps will not use another app': what we would put against it is works offline on low-end phones.
 
-What's most important to you in making this decision?"</code></pre>
+Can you tell me more about why that is a concern in your situation?"</code></pre>
 <hr>
 <h5 class="hxr-h3">Win/Loss Analysis</h5>
 <h6 class="hxr-h4">We Win When:</h6>
@@ -446,21 +453,22 @@ What's most important to you in making this decision?"</code></pre>
 <li>wanted billing and sales in one system</li>
 </ul>
 <h6 class="hxr-h4">Win Rate by Competitor (Track This):</h6>
-<div class="hx-table"><table><thead><tr><th>Competitor</th><th>Win Rate</th><th>Sample Size</th><th>Trend</th></tr></thead><tbody><tr><td>Competitor A</td><td>__%</td><td>__ deals</td><td>__</td></tr><tr><td>Competitor B</td><td>__%</td><td>__ deals</td><td>__</td></tr></tbody></table></div>
+<p>No deal counts were supplied, so the table is empty until you add them.</p>
+<div class="hx-table"><table><thead><tr><th>Competitor</th><th>Win Rate</th><th>Sample Size</th><th>Trend</th></tr></thead><tbody><tr><td>Competitor A</td><td>not supplied</td><td>not supplied</td><td>not supplied</td></tr><tr><td>Competitor B</td><td>not supplied</td><td>not supplied</td><td>not supplied</td></tr></tbody></table></div>
 <hr>
 <h5 class="hxr-h3">Quick Reference Card</h5>
 <pre><code>Quick guide: Shelfwalk against the competition
 
-OUR SUPERPOWERS:
-• works offline on low-end phones
-• order suggestions for every outlet
+OUR STRENGTHS:
+• Works offline on low-end phones
+• Order suggestions for every outlet
 
 WATCH OUT FOR:
-• no built-in distributor billing yet
+• No built-in distributor billing yet
 
 TOP OBJECTION HANDLERS:
-1. "our distributor system has a free sales app" → Focus on works offline on low-end phones
-2. "reps will not use another app" → Focus on order suggestions for every outlet</code></pre>
+1. "our distributor system has a free sales app" → Ask what lies behind it and what would change their mind, then answer with evidence from a similar customer only if you have it
+2. "reps will not use another app" → Agree a small pilot with the people who will use it, and decide up front how adoption is measured</code></pre>
 <hr>
 <p><em>Competitive intelligence generated using the CRAFT GTM framework</em></p></div></details>
     <footer class="hxr-foot"><span>Built by Shashwat Ghosh</span><span>https://craft-gtm.gtmhelix.com/tools/competitive-intel/</span></footer>
