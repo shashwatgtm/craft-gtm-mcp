@@ -1,7 +1,36 @@
 import { describeChoice, readableChoice, EXAMPLE_FIGURE, EXAMPLE_FIGURES, SUGGESTION_FOOTER } from './utils.js';
+import { readContext, splitItems, q, andList, capEcho } from './context.js';
 
 // Every rate, fee, deal count and staff count in the tier definitions is an example figure.
 const hasFigure = (text: string): boolean => /\d/.test(text);
+// Run 19 (D80): a one-line definition for every KPI the program structures list (no figure).
+const KPI_DEFINITION: Record<string, string> = {
+  'Partner-sourced revenue': 'Revenue from deals a partner sourced',
+  'Deals registered': 'Deals a partner registered with you',
+  'Certification completion': 'Share of partner staff who finish certification',
+  'Partner NPS': 'Partner satisfaction score',
+  'Referrals submitted': 'Referrals partners send you',
+  'Referral-to-opportunity rate': 'Share of referrals that become qualified opportunities',
+  'Referral revenue': 'Revenue from closed referred deals',
+  'Active referrers': 'Partners who referred at least once in the period',
+  'Integration usage': 'Customers actively using the integration',
+  'Joint customers': 'Customers you share with the partner',
+  'Co-marketing leads': 'Leads from joint campaigns',
+  'Integration NPS': 'Satisfaction of customers using the integration',
+  'Implementations delivered': 'Projects the partner delivered',
+  'Customer satisfaction': 'Satisfaction of customers the partner served',
+  'Expansion revenue influenced': 'Expansion revenue where the partner took part',
+  'Certified consultants': 'Partner staff who hold your certification',
+  'Clicks': 'Visits from partner links',
+  'Conversions': 'Sales or leads from those visits',
+  'Revenue': 'Revenue from partner-driven sales',
+  'EPC (earnings per click)': 'Partner earnings divided by clicks',
+  'Fraud rate': 'Share of partner sales that are reversed or invalid',
+  'Volume usage': 'Volume the partner runs through your product',
+  'Revenue per partner': 'Revenue divided by active partners',
+  'Partner customer satisfaction': 'Satisfaction of the partner\'s own customers',
+  'Contract value': 'Total value of partner contracts',
+};
 // Run 12 (R12-21): money with thousands commas; the amount itself is unchanged.
 const money = (n: number): string => '$' + Math.round(n).toLocaleString('en-US');
 
@@ -13,9 +42,14 @@ export function generatePartnerArchitect(args: {
   your_deal_size: string;
   partner_support_capacity?: string;
   existing_partners?: string;
+  business_model?: string;
+  industry?: string;
 }): string {
   const partnerModel = args.partner_model;
   const supportCapacity = args.partner_support_capacity || 'moderate';
+  // Run 19 (D80): the sector and the business model are read from the inputs; the stated goal and the existing partners are used.
+  const ctx = readContext({ model: args.business_model, vertical: args.industry }, args.company, args.product, args.partner_goals, args.existing_partners);
+  const existingPartners = splitItems(args.existing_partners);
   
   // Parse deal size for commission calculations
   const dealSizeRead = readAmount(args.your_deal_size);
@@ -108,11 +142,14 @@ export function generatePartnerArchitect(args: {
 **Average Deal Size:** ${dealSizeShown}
 **Support Capacity:** ${describeChoice(args.partner_support_capacity, supportCapacity)}
 
+${ctx.line}
+
 ---
 
 ## Program Overview
 
 ${program.overview}
+${partnerModel === 'affiliate' || partnerModel === 'referral' ? (ctx.v && /enterprise/i.test(ctx.v.salesMotion) ? `\n*Sector note: deals in ${ctx.v.name} run as enterprise sales with a buying committee, so ${partnerModel} partners usually bring leads, not closed deals. Measure qualified opportunities, not only referrals.*\n` : '') : ''}${ctx.model === 'services' || ctx.model === 'connectivity' || ctx.model === 'investment' ? `\n*The deal size you gave is treated as the annual contract value. Check how your contract term and notice period change what a partner should earn.*\n` : ''}
 
 ${supportAdjustments[supportCapacity] || ''}
 
@@ -162,11 +199,28 @@ Based on ${dealSizeBasis} (checked against example deal-size thresholds):
 
 | Metric | Definition | Target | Tracking |
 |--------|------------|--------|----------|
-${program.kpis.map((kpi, i) => `| ${kpi} | [Define measurement] | ${i === program.kpis.findIndex(k => /revenue/i.test(k)) ? args.partner_goals : '[Set target]'} | [Tool/dashboard] |`).join('\n')}
+| Your stated goal | The goal you gave for partners | ${args.partner_goals} | Your CRM or partner portal |
+${program.kpis.map((kpi) => `| ${kpi} | ${KPI_DEFINITION[kpi] || 'Define how you will measure it'} | Set your target | Your CRM or partner portal |`).join('\n')}
 
 ---
 
-## Onboarding Flow
+${existingPartners.length ? `## Your Existing Partners
+
+${existingPartners.map((x) => `- ${q(x)}`).join('\n')}
+
+You gave no details beyond this, so none is placed in a tier. Check each against the tier requirements above: until a partner meets them it sits in the first tier (${program.tiers[0].name}).
+
+---
+
+` : ''}${ctx.v ? `## Partners That Fit This Sector
+
+In ${ctx.v.name}: ${ctx.v.committee}
+
+Partners who already advise, integrate with or sell to ${andList(ctx.v.buyerRoles.slice(0, 4))} reach the buying committee faster. Words this buyer uses, for partner materials: ${ctx.v.vocabulary.join(', ')}. A joint proof point that lands: ${ctx.v.proofShape}
+
+---
+
+` : ''}## Onboarding Flow
 
 ### Day 0-7: Welcome & Setup
 - [ ] Partner agreement signed
@@ -202,7 +256,7 @@ Hi [Name],
 
 [Only if true and provable: I've been following [Partner Company]'s work in [space].] I think there's a strong opportunity for us to work together.
 
-${args.company} helps [value prop]. Partners ${partnerModel === 'reseller' ? 'can expand their revenue by offering our solution alongside their services' : partnerModel === 'referral' ? 'earn a commission on each closed deal (see the tiers above)' : partnerModel === 'integration_tech' ? 'can increase their product value through deep integration' : 'can grow their business with our tools'}.
+${args.company}'s product for partners: ${capEcho(args.product, 160).short}. Partners ${partnerModel === 'reseller' ? 'can expand their revenue by offering our solution alongside their services' : partnerModel === 'referral' ? 'earn a commission on each closed deal (see the tiers above)' : partnerModel === 'integration_tech' ? 'can increase their product value through deep integration' : 'can grow their business with our tools'}.
 ${partnerModel === 'reseller' ? `\nWith deals averaging ${args.your_deal_size}, partners at the Silver tier would earn about ${money(dealSize * 0.20 * 5)} a quarter. ${EXAMPLE_FIGURE}\n` : ''}
 Would you be open to a 15-minute call to explore fit?
 

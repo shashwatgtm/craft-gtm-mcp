@@ -21,7 +21,7 @@ test("retention_playbook: the product-team email makes no unbracketed claim that
 });
 
 test("pmf_scorecard: no empty 'Additional Metrics Detected' table when no extra metric is found", async () => {
-  const r = await call("pmf_scorecard", { product: "ExampleCo Scheduler", target_market: "smb_saas", current_metrics: "Our buyers are operations leaders at mid-size clinic groups." });
+  const r = await call("pmf_scorecard", { product: "Shelfwalk", target_market: "smb_saas", current_metrics: "Our buyers are operations leaders at mid-size delivery fleets." });
   if (/## Additional Metrics Detected/.test(r.text)) {
     const sec = r.text.split("## Additional Metrics Detected")[1].split("\n---")[0];
     assert.doesNotMatch(sec, /\|--------\|-------\|-------\|\s*$/);

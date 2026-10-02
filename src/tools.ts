@@ -1,38 +1,54 @@
 import { Tool } from "@modelcontextprotocol/sdk/types.js";
+import { MODEL_CHOICES, SECTOR_CHOICES } from "./context.js";
+
+// Run 19 (D80): the optional business_model input is the same in every tool that reads a business model from the inputs.
+const businessModelProp = {
+  type: "string",
+  description: "Optional: how you earn revenue, so the advice fits it (saas, services, connectivity, transactions, marketplace, hardware_software or investment). Leave it out and the tool reads it from your other inputs and says how it read it",
+  enum: MODEL_CHOICES
+};
+
+// Run 19 (D80, problem 8): the sector can be named, so the answer uses that sector's buyers, measures and objections.
+const industryProp = {
+  type: "string",
+  description: "Optional: the sector you sell into, so the answer uses that sector's buyers, measures and objections. Leave it out and the tool reads the sector from your other inputs and names what it read",
+  enum: [...Object.keys(SECTOR_CHOICES), "other"]
+};
 
 export const tools: Tool[] = [
   {
     name: "pmf_scorecard",
-    description: "Generate a Product-Market Fit scorecard. Parses the metrics you provide (MRR, churn, NPS, CAC, LTV, retention, activation and similar) and scores each dimension against built-in benchmark ranges.",
+    description: "Generate a Product-Market Fit scorecard. Parses the metrics you provide (MRR, ACV, churn, NPS, CAC, LTV, retention, activation and similar) and scores each dimension against example benchmark ranges. Reads the business model from your inputs and leaves the activation score out for services, connectivity and investment businesses. Quotes your customer feedback and answers it.",
     inputSchema: {
       type: "object",
       properties: {
         product: { type: "string", description: "Product name and brief description" },
-        target_market: { 
-          type: "string", 
-          description: "Target market segment (e.g., 'Enterprise SaaS', 'SMB', 'Consumer')",
-          enum: ["enterprise_saas", "smb_saas", "consumer", "marketplace", "fintech", "healthtech", "other"]
+        target_market: {
+          type: "string",
+          description: "Target market segment (for example enterprise SaaS, telecom or logistics tech)",
+          enum: ["enterprise_saas", "smb_saas", "consumer", "marketplace", "fintech", "logistics_tech", "vertical_saas", "ai_native", "ites", "telecom", "software", "cybersecurity", "other"]
         },
-        current_metrics: { 
-          type: "string", 
-          description: "Your current metrics (will be PARSED). Include any of: MRR, ARR, churn rate, NPS, CAC, LTV, retention rate, activation rate, DAU/MAU, trial conversion, revenue growth. Example: 'MRR: $50K, Churn: 3%, NPS: 45, CAC: $500, LTV: $3000, Retention: 92%'"
+        current_metrics: {
+          type: "string",
+          description: "Your current metrics (will be PARSED). Include any of: MRR, ARR, ACV, churn rate, NPS, CAC, LTV, retention rate, activation rate, DAU/MAU, trial conversion, revenue growth. Example: 'MRR: $50K, Churn: 3%, NPS: 45, CAC: $500, LTV: $3000, Retention: 92%'. A figure that no rule scores is listed as not scored"
         },
-        time_in_market: { 
-          type: "string", 
+        time_in_market: {
+          type: "string",
           description: "How long the product has been in market (shown in the scorecard)",
           enum: ["pre_launch", "0_6_months", "6_12_months", "1_2_years", "2_plus_years"]
         },
-        customer_feedback: { 
-          type: "string", 
-          description: "Optional: Qualitative feedback themes (e.g., 'Users love X but struggle with Y')" 
-        }
+        customer_feedback: {
+          type: "string",
+          description: "Optional: Qualitative feedback themes, one per line or separated by semicolons (for example 'Customers like X; they struggle with Y'). Each theme is quoted and answered"
+        },
+        business_model: businessModelProp
       },
       required: ["product", "target_market", "current_metrics"]
     }
   },
   {
     name: "launch_commander",
-    description: "Generate a context-aware launch plan. Have a date? Get a detailed timeline. Still planning? Enter 'TBD' or a quarter such as 'Q2 2027' for a flexible plan.",
+    description: "Generate a context-aware launch plan. Have a date? Get a detailed timeline. Still planning? Enter 'TBD' or a quarter such as 'Q2 2027' for a flexible plan. Tasks and the messaging table follow the sector and business model read from your inputs, and each goal is filed under its own metric.",
     inputSchema: {
       type: "object",
       properties: {
@@ -44,7 +60,7 @@ export const tools: Tool[] = [
           enum: ["major_release", "feature_launch", "beta_launch", "product_update", "market_expansion"]
         },
         target_segments: { type: "string", description: "Target customer segments (comma-separated)" },
-        goals: { type: "string", description: "Launch success metrics (e.g., '500 signups, $50k pipeline, 10% trial conversion, 1000 downloads')" },
+        goals: { type: "string", description: "Launch success metrics (for example '40 qualified meetings, $300K pipeline, 5 reference customers')" },
         available_channels: {
           type: "string",
           description: "Optional: Marketing channels available (comma-separated). E.g., 'email, linkedin, blog, webinar, PR, paid_ads, community'"
@@ -58,14 +74,16 @@ export const tools: Tool[] = [
           type: "string",
           description: "Budget affects recommended tactics",
           enum: ["bootstrap", "moderate", "well_funded"]
-        }
+        },
+        business_model: businessModelProp,
+        industry: industryProp
       },
       required: ["product_feature", "launch_type", "target_segments", "goals"]
     }
   },
   {
     name: "customer_interview_kit",
-    description: "Generate interview guides that ADAPT based on interview type, industry, and product complexity. Includes synthesis templates.",
+    description: "Generate interview guides for the interview type, the sector (chosen, or read from your inputs) and the product complexity. Questions use the sector's own language, your hypotheses are kept whole, and synthesis templates are included.",
     inputSchema: {
       type: "object",
       properties: {
@@ -77,8 +95,8 @@ export const tools: Tool[] = [
         product_context: { type: "string", description: "Product/service being researched" },
         industry: {
           type: "string",
-          description: "Industry affects terminology and context",
-          enum: ["saas", "fintech", "healthtech", "ecommerce", "marketplace", "enterprise_software", "consumer", "other"]
+          description: "Industry affects terminology and context. Leave it out and the sector is read from your other inputs",
+          enum: ["saas", "fintech", "logistics_tech", "vertical_saas", "ai_native", "ites", "telecom", "software", "cybersecurity", "ecommerce", "marketplace", "enterprise_software", "consumer", "other"]
         },
         product_complexity: {
           type: "string",
@@ -86,45 +104,48 @@ export const tools: Tool[] = [
           enum: ["simple", "moderate", "complex", "highly_technical"]
         },
         target_persona: { type: "string", description: "Who you're interviewing (role/title)" },
-        key_hypotheses: { type: "string", description: "Optional: Hypotheses to validate during interview" }
+        key_hypotheses: { type: "string", description: "Optional: Hypotheses to validate during interview, one per line or separated by semicolons" },
+        business_model: businessModelProp
       },
       required: ["interview_type", "product_context", "target_persona"]
     }
   },
   {
     name: "retention_playbook",
-    description: "Generate retention strategies. Has DISCOVERY MODE: if you don't know WHY people churn, get a churn analysis framework first.",
+    description: "Generate retention strategies. Has DISCOVERY MODE: if you don't know WHY people churn, get a churn analysis framework first. Health signals and interventions follow the business model, each churn reason gets its own answer, and your current interventions and data signals are used.",
     inputSchema: {
       type: "object",
       properties: {
         customer_segment: { type: "string", description: "Customer segment to focus on" },
         business_model: {
           type: "string",
-          description: "Business model affects health score weighting",
-          enum: ["saas_subscription", "usage_based", "marketplace", "transactional", "freemium", "enterprise_contract"]
+          description: "Business model affects health score weighting. enterprise_contract is read further from your text when it names services, connectivity or investment",
+          enum: ["saas_subscription", "usage_based", "marketplace", "transactional", "freemium", "enterprise_contract", "services_contract", "connectivity_contract", "investment_mandate"]
         },
         current_churn_rate: { type: "string", description: "Current churn rate (e.g., '5%' or '5% monthly')" },
-        churn_reasons: { 
-          type: "string", 
+        churn_reasons: {
+          type: "string",
           description: "OPTIONAL: Known churn reasons (comma-separated). If you don't know, leave blank to get discovery mode with churn analysis framework"
         },
         available_data_signals: {
           type: "string",
-          description: "What usage data you can track (comma-separated). E.g., 'login frequency, feature usage, support tickets, NPS responses'"
+          description: "What you can track (comma-separated). E.g., 'login frequency, support tickets, SLA attainment, QBR attendance'"
         },
         cs_team_size: {
           type: "string",
           description: "CS team capacity affects intervention strategy",
           enum: ["no_dedicated_cs", "small_1_3", "medium_4_10", "large_10_plus"]
         },
-        current_interventions: { type: "string", description: "Optional: What retention tactics you already do" }
+        current_interventions: { type: "string", description: "Optional: What retention tactics you already do (listed and compared with the playbook)" },
+        product: { type: "string", description: "Optional: Your product or company name, used in the title and the email drafts" },
+        industry: industryProp
       },
       required: ["customer_segment", "business_model", "current_churn_rate"]
     }
   },
   {
     name: "partner_architect",
-    description: "Design partner programs that ADAPT based on partner model type. Different structures for resellers vs referrals vs integrations vs affiliates.",
+    description: "Design partner programs that ADAPT based on partner model type. Different structures for resellers vs referrals vs integrations vs affiliates. Uses your stated goal, existing partners and deal size, and names the partner types that fit your sector's buying committee.",
     inputSchema: {
       type: "object",
       properties: {
@@ -135,9 +156,9 @@ export const tools: Tool[] = [
           description: "Partner type determines program structure",
           enum: ["reseller", "referral", "integration_tech", "agency_si", "affiliate", "oem_white_label"]
         },
-        partner_goals: { type: "string", description: "Revenue/growth targets from partners" },
-        your_deal_size: { 
-          type: "string", 
+        partner_goals: { type: "string", description: "Revenue/growth targets from partners (shown as the target of the first KPI row)" },
+        your_deal_size: {
+          type: "string",
           description: "Average deal size as one amount (e.g., '$5000 ACV', '$5K' or '$500/month'; a range is refused). It scales the example commission amounts; the example rates are fixed"
         },
         partner_support_capacity: {
@@ -145,22 +166,24 @@ export const tools: Tool[] = [
           description: "How much partner support can you provide?",
           enum: ["minimal_self_serve", "moderate", "high_touch"]
         },
-        existing_partners: { type: "string", description: "Optional: Current partner types/count" }
+        existing_partners: { type: "string", description: "Optional: Current partner types/count, one per line or separated by semicolons (listed in the plan)" },
+        business_model: businessModelProp,
+        industry: industryProp
       },
       required: ["company", "product", "partner_model", "partner_goals", "your_deal_size"]
     }
   },
   {
     name: "crisis_planner",
-    description: "Generate crisis playbooks. Know your risks? Get specific playbooks. Not sure what to plan for? The tool uses a default set of common crises for your industry (not ranked by likelihood).",
+    description: "Generate crisis playbooks. Know your risks? Get specific playbooks. Not sure what to plan for? The tool uses a default set of common crises for your sector (not ranked by likelihood). Each compliance item you list is used in the notification steps.",
     inputSchema: {
       type: "object",
       properties: {
         company: { type: "string", description: "Company name" },
-        industry: { 
-          type: "string", 
+        industry: {
+          type: "string",
           description: "Industry affects which crises to prioritize",
-          enum: ["fintech", "healthtech", "saas", "ecommerce", "enterprise", "consumer", "other"]
+          enum: ["fintech", "saas", "logistics_tech", "vertical_saas", "ai_native", "ites", "telecom", "software", "cybersecurity", "ecommerce", "enterprise", "consumer", "other"]
         },
         customer_base: {
           type: "string",
@@ -174,21 +197,22 @@ export const tools: Tool[] = [
         },
         potential_crises: {
           type: "string",
-          description: "OPTIONAL: Crisis types to plan for (comma-separated). If not provided, the tool uses a default set of common crises for your industry (not ranked by likelihood). Options: data_breach, service_outage, pr_incident, executive_departure, security_vulnerability, regulatory_action, product_safety, customer_data_exposure"
+          description: "OPTIONAL: Crisis types to plan for (comma-separated). If not provided, the tool uses a default set of common crises for your sector (not ranked by likelihood). Options: data_breach, service_outage, sla_breach, regulatory_action, fraud_incident, ai_wrong_action, pr_incident, executive_departure, security_vulnerability, customer_data_exposure, product_safety"
         },
         company_size: {
           type: "string",
           description: "Affects response team structure",
           enum: ["startup_under_50", "scaleup_50_200", "midsize_200_1000", "enterprise_1000_plus"]
         },
-        compliance_requirements: { type: "string", description: "Optional: Relevant compliance (GDPR, HIPAA, SOC2, etc.)" }
+        compliance_requirements: { type: "string", description: "Optional: Relevant compliance, comma-separated (for example ISO 27001, SOC 2, GDPR). Each item is named in the notification steps" },
+        business_model: businessModelProp
       },
       required: ["company", "industry", "customer_base", "data_sensitivity"]
     }
   },
   {
     name: "competitive_intel",
-    description: "Generate battle cards. If you know your strengths/weaknesses, get complete battle cards. If you only know competitors and win/loss stories, we'll derive your positioning.",
+    description: "Generate battle cards, one per competitor, from your strengths, weaknesses, competitor details, objections, wins and losses. Each competitor detail goes to the competitor it names, each objection gets its own answer, and strengths and gaps taken from wins and losses are your own words.",
     inputSchema: {
       type: "object",
       properties: {
@@ -199,34 +223,36 @@ export const tools: Tool[] = [
         },
         your_strengths: {
           type: "string",
-          description: "OPTIONAL: What you do better (comma-separated). Will be DERIVED from wins/losses if not provided"
+          description: "OPTIONAL: What you do better (comma-separated). Taken from your wins, in your own words, if not provided"
         },
         your_weaknesses: {
           type: "string",
-          description: "OPTIONAL: Where competitors beat you (comma-separated). Will be DERIVED from wins/losses if not provided"
+          description: "OPTIONAL: Where competitors beat you (comma-separated). Taken from your losses, in your own words, if not provided"
         },
         competitor_details: {
           type: "string",
-          description: "Optional: Any known details about competitors. E.g., 'Competitor A is cheaper, Competitor B targets enterprise'"
+          description: "Optional: Any known details about competitors, one per line or separated by semicolons. E.g., 'Competitor A is cheaper; Competitor B targets enterprise'. Each detail goes to the competitor it names"
         },
         common_objections: {
           type: "string",
           description: "Sales objections you hear (comma-separated). E.g., 'too expensive, missing X feature, competitor has better Y'"
         },
-        recent_wins: { type: "string", description: "Why customers chose you over competitors: will be used to DERIVE strengths" },
-        recent_losses: { type: "string", description: "Why you lost deals to competitors: will be used to DERIVE weaknesses" }
+        recent_wins: { type: "string", description: "Why customers chose you over competitors: used as your strengths when none are given" },
+        recent_losses: { type: "string", description: "Why you lost deals to competitors: used as your gaps when none are given" },
+        business_model: businessModelProp,
+        industry: industryProp
       },
       required: ["your_product", "competitors"]
     }
   },
   {
     name: "craft_gtm_analyzer",
-    description: "Analyze a GTM document against the CRAFT framework. Parses the content, identifies gaps, scores each dimension and suggests sections to add.",
+    description: "Analyze a GTM document against the CRAFT framework. Scores each dimension only on what the plan contains (Timeline counts real dates, durations and quarters), shows the plan's own line for each, names only the elements that are missing and suggests sections to add.",
     inputSchema: {
       type: "object",
       properties: {
-        document_content: { 
-          type: "string", 
+        document_content: {
+          type: "string",
           description: "The GTM document/plan to analyze. Paste full content: it will be PARSED and EVALUATED"
         },
         document_type: {
@@ -235,7 +261,8 @@ export const tools: Tool[] = [
           enum: ["gtm_strategy", "launch_plan", "campaign_brief", "quarterly_plan", "project_proposal", "marketing_plan"]
         },
         intended_audience: { type: "string", description: "Optional: Who will read/approve this document" },
-        desired_outcome: { type: "string", description: "Optional: What action should this document drive" }
+        desired_outcome: { type: "string", description: "Optional: What action should this document drive" },
+        industry: industryProp
       },
       required: ["document_content", "document_type"]
     }

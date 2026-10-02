@@ -16,7 +16,7 @@ const call = async (name, args) => {
 };
 const analyze = (document_content) => call("craft_gtm_analyzer", { document_content, document_type: "gtm_strategy" });
 
-const DOC = "Q3 GTM plan for ExampleCo. Target: mid-market SaaS finance teams. Channel: outbound plus webinars. Budget 40k. Goal: 30 SQLs per month by September. Owner: VP Marketing.";
+const DOC = "Q3 GTM plan for Shelfwalk. Target: mid-market SaaS finance teams. Channel: outbound plus webinars. Budget 40k. Goal: 30 SQLs per month by September. Owner: VP Marketing.";
 const LONG = (DOC + " ").repeat(5).trim();
 const PADS = {
   "trailing space": ["", "   "],

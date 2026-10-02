@@ -1,4 +1,5 @@
-import { parseListItems, describeChoice, readableChoice, lowerFirstIfCommon, EXAMPLE_FIGURES, SUGGESTION_FOOTER } from './utils.js';
+import { describeChoice, readableChoice, EXAMPLE_FIGURES, SUGGESTION_FOOTER } from './utils.js';
+import { readContext, splitItems, q, andList, shortName } from './context.js';
 
 export function generateCustomerInterviewKit(args: {
   interview_type: string;
@@ -7,33 +8,27 @@ export function generateCustomerInterviewKit(args: {
   product_complexity?: string;
   target_persona: string;
   key_hypotheses?: string;
+  business_model?: string;
 }): string {
   const interviewType = args.interview_type;
-  const industry = args.industry || 'saas';
   const complexity = args.product_complexity || 'moderate';
-  const hypotheses = args.key_hypotheses ? parseListItems(args.key_hypotheses) : [];
+  // Run 19 (D80, problem 2): a hypothesis is a sentence. It is split by line or semicolon, never at a comma inside it.
+  const hypotheses = splitItems(args.key_hypotheses);
   // Readable names for display ("enterprise_software" -> "enterprise software")
   const typeName = readableChoice(interviewType);
-  const industryName = readableChoice(industry);
   const complexityName = readableChoice(complexity);
-  
-  // Industry-specific terminology and context
-  const industryContext: Record<string, { terms: string[]; painPoints: string[]; stakeholders: string[] }> = {
-    saas: {
-      terms: ['subscription', 'churn', 'onboarding', 'feature adoption', 'integrations'],
-      painPoints: ['tool sprawl', 'integration issues', 'user adoption', 'ROI justification'],
-      stakeholders: ['IT', 'Finance', 'End users', 'Procurement']
-    },
-    fintech: {
-      terms: ['compliance', 'reconciliation', 'audit trail', 'security', 'regulations'],
-      painPoints: ['regulatory burden', 'manual processes', 'fraud risk', 'reporting'],
-      stakeholders: ['Compliance', 'Risk', 'Finance', 'Legal']
-    },
-    healthtech: {
-      terms: ['HIPAA', 'EHR integration', 'patient outcomes', 'clinical workflow', 'interoperability'],
-      painPoints: ['compliance burden', 'data silos', 'clinician burnout', 'patient engagement'],
-      stakeholders: ['Clinicians', 'IT', 'Compliance', 'Administration']
-    },
+
+  // Run 19 (D80, problems 4 and 8): the sector is the one chosen, else read from what you typed; the questions come from the
+  // sector data file (src/verticals.ts). With no sector the generic questions below are used and the answer says so.
+  const ctx = readContext({ model: args.business_model, vertical: args.industry }, args.product_context, args.target_persona, args.key_hypotheses);
+  const v = ctx.v;
+  const industryName = args.industry ? readableChoice(args.industry) : v ? `${v.name} (read from your inputs)` : 'not stated (generic questions are used: set industry or name the sector)';
+  const product = shortName(args.product_context) ?? 'the product';
+  const subscription = ctx.model === 'saas' || ctx.model === null;
+  const leave = subscription ? 'cancel' : 'end the contract or not renew';
+
+  // Generic context for the choices that are not one of the owner's verticals (ecommerce, marketplace, enterprise software, consumer, other)
+  const genericContext: Record<string, { terms: string[]; painPoints: string[]; stakeholders: string[] }> = {
     ecommerce: {
       terms: ['conversion', 'cart abandonment', 'fulfillment', 'inventory', 'customer lifetime value'],
       painPoints: ['abandoned carts', 'returns', 'inventory management', 'shipping costs'],
@@ -60,9 +55,10 @@ export function generateCustomerInterviewKit(args: {
       stakeholders: ['Decision maker', 'End user', 'Influencer', 'Procurement']
     }
   };
-  
-  const ctx = industryContext[industry] || industryContext.other;
-  
+  const generic = genericContext[args.industry && genericContext[args.industry] ? args.industry : 'other'];
+  const personaLower = args.target_persona.trim().toLowerCase();
+  const otherRoles = v ? v.buyerRoles.filter((r) => r.toLowerCase() !== personaLower).slice(0, 3) : generic.stakeholders.slice(0, 2);
+
   // Complexity-based question depth
   const technicalQuestions: Record<string, string[]> = {
     simple: [
@@ -71,7 +67,7 @@ export function generateCustomerInterviewKit(args: {
       'How easy was it to get started?'
     ],
     moderate: [
-      `Walk me through your typical workflow with ${lowerFirstIfCommon(args.product_context)}.`,
+      `Walk me through your typical workflow with ${product}.`,
       'What integrations are most important to you?',
       'How do you measure success with tools like this?'
     ],
@@ -90,23 +86,23 @@ export function generateCustomerInterviewKit(args: {
   
   const techQuestions = technicalQuestions[complexity] || technicalQuestions.moderate;
   
-  // Interview type-specific question sets
+  // Interview type-specific question sets (no fill-in brackets: where the interviewer must use the interviewee's own words, the line says so)
   const questionSets: Record<string, { opening: string[]; core: string[]; probing: string[]; closing: string[] }> = {
     discovery: {
       opening: [
         `Tell me about your role as ${args.target_persona}. What does a typical week look like?`,
         `What are your top 3 priorities this quarter?`,
-        `How long have you been dealing with [problem area]?`
+        `How long has this problem been on your team's list, and who noticed it first?`
       ],
       core: [
-        `Walk me through the last time you experienced [problem]. What happened?`,
+        `Walk me through the last time you hit this problem. What happened?`,
         `What solutions have you tried? What worked and didn't work?`,
         `How are you solving this problem today?`,
         `What would "perfect" look like for you?`,
-        `How does this problem impact your ${ctx.stakeholders.slice(0, 2).join(' and ')}?`
+        `Who else is affected or involved: ${andList(otherRoles)}?`
       ],
       probing: [
-        `You mentioned [X]. Can you tell me more about that?`,
+        `Pick something they just said that sounded important and ask: "Can you tell me more about that?"`,
         `Why is that important to you specifically?`,
         `What happens if this problem isn't solved?`,
         `How much time/money does this cost you currently?`,
@@ -121,17 +117,17 @@ export function generateCustomerInterviewKit(args: {
     validation: {
       opening: [
         `Thanks for taking the time. I'd love to show you what we're building and get your honest reaction.`,
-        `Before I show you anything, tell me: what's your current biggest challenge with ${ctx.terms[0]}?`
+        `Before I show you anything, tell me: what's your current biggest challenge in this area?`
       ],
       core: [
-        `[Show solution] What's your initial reaction?`,
+        `Show the solution, then ask: What's your initial reaction?`,
         `How excited would you be to try this (scale 1 to 10)? Why that number?`,
         `What would need to change for that to be a 10?`,
         `How does this compare to what you're using today?`,
         `Would this solve the problem you mentioned earlier?`
       ],
       probing: [
-        `You seemed [reaction] when I showed [feature]. Tell me more.`,
+        `When I showed the main feature, what was your first reaction? What did you expect to see instead?`,
         `What concerns do you have?`,
         `Who else would need to approve using something like this?`,
         `What would stop you from trying this tomorrow?`,
@@ -140,32 +136,32 @@ export function generateCustomerInterviewKit(args: {
       closing: [
         `Would you be willing to be a beta tester?`,
         `Who else should I talk to about this?`,
-        `Can I follow up in [timeframe] with updates?`
+        `Can I follow up in a few weeks with updates?`
       ]
     },
     feedback: {
       opening: [
         `Thanks for being a customer! How has your experience been overall?`,
-        `What initially made you decide to use ${args.product_context}?`,
-        `How long have you been using the product?`
+        `What initially made you decide to use ${product}?`,
+        `How long have you been using it?`
       ],
       core: [
-        `What's the #1 thing you love about the product?`,
+        `What's the #1 thing you value about it?`,
         `What's the #1 thing that frustrates you?`,
-        `What feature do you use most? Least?`,
-        `Has the product delivered on what you expected?`,
-        `How has it impacted your work on ${ctx.painPoints[0]}?`
+        `What do you use most? Least?`,
+        `Has it delivered on what you expected?`,
+        `How has it affected your work on ${v ? v.metrics[0] : generic.painPoints[0]}?`
       ],
       probing: [
-        `You mentioned [feature]. What specifically about it works/doesn't work?`,
-        `If you could add one feature, what would it be?`,
+        `Pick a feature they mentioned and ask: "What specifically about it works or doesn't work?"`,
+        `If you could add one thing, what would it be?`,
         `Have you recommended us to others? Why/why not?`,
         `What would make you a raving fan?`,
         `How does our support compare to other vendors?`
       ],
       closing: [
         `Would you be open to being a reference/case study?`,
-        `How likely are you to recommend us (scale 0 to 10)? [NPS]`,
+        `How likely are you to recommend us (scale 0 to 10)? Note the score.`,
         `What advice would you give our product team?`
       ]
     },
@@ -176,14 +172,14 @@ export function generateCustomerInterviewKit(args: {
         `When did you first start thinking about leaving?`
       ],
       core: [
-        `What was the primary reason you decided to cancel?`,
+        `What was the primary reason you decided to ${leave}?`,
         `Were there any secondary reasons?`,
         `What did you switch to? What made that option better?`,
         `Was there anything we could have done to keep you?`,
-        `Did you feel you got value from the product?`
+        `Did you feel you got value from ${product}?`
       ],
       probing: [
-        `You mentioned [reason]. When did that become a problem?`,
+        `They gave a main reason for leaving. Ask: "When did that first become a problem?"`,
         `Did you reach out to support about this? What happened?`,
         `What would have needed to change for you to stay?`,
         `How did you make the final decision? Who was involved?`,
@@ -203,21 +199,21 @@ export function generateCustomerInterviewKit(args: {
       ],
       core: [
         `What were your top criteria when evaluating options?`,
-        `Which vendors did you consider? [FOR WINS: Why did you choose us?] [FOR LOSSES: Why did you choose [competitor]?]`,
+        `Which vendors did you consider? For a win: why did you choose us? For a loss: why did you choose the other vendor?`,
         `What was the deciding factor?`,
         `How did pricing factor into the decision?`,
         `What did you think of our sales process?`
       ],
       probing: [
-        `You mentioned [criterion]. Why was that so important?`,
-        `How did we compare on [specific area]?`,
-        `What did [competitor] do well that we didn't?`,
+        `Which criterion mattered most, and why was it so important?`,
+        `How did we compare on that criterion?`,
+        `What did the vendor you chose do well that we didn't?`,
         `What could our sales team have done better?`,
         `Were there any surprises during the evaluation?`
       ],
       closing: [
         `What advice would you give us for similar evaluations?`,
-        `[FOR LOSSES: What would need to change for you to consider us in the future?]`,
+        `If this was a loss: what would need to change for you to consider us in the future?`,
         `Can I share this feedback with our team?`
       ]
     },
@@ -251,7 +247,7 @@ export function generateCustomerInterviewKit(args: {
   
   const questions = questionSets[interviewType] || questionSets.discovery;
   
-  // Build hypothesis validation questions
+  // Build hypothesis validation questions: each hypothesis is quoted whole
   let hypothesisSection = '';
   if (hypotheses.length > 0) {
     hypothesisSection = `
@@ -260,25 +256,40 @@ export function generateCustomerInterviewKit(args: {
 ## Hypothesis Validation Questions
 
 ${hypotheses.map((h, i) => `
-### Hypothesis ${i + 1}: ${h}
+### Hypothesis ${i + 1}: ${q(h)}
 
 | To Validate | Ask |
 |-------------|-----|
-| Confirm problem exists | "How often do you experience [problem from hypothesis]?" |
-| Understand severity | "How painful is this (scale 1 to 10)?" |
-| Test assumption | "You mentioned [related topic]. Is [hypothesis] true for you?" |
-| Find counter-evidence | "What would make [hypothesis] NOT true?" |
+| Confirm it is true | "Is this true for you: '${h.replace(/^["']|["']$/g, '').replace(/[.]$/, '')}'? When did you last see it?" |
+| Understand severity | "How painful is this (scale 1 to 10)? What does it cost you?" |
+| Test assumption | "Tell me about the last time it happened. What did you do?" |
+| Find counter-evidence | "What would make this NOT true for you?" |
 `).join('')}
 `;
   }
+
+  // Questions in the sector's own language (from the data file), else the generic set
+  const sectorQuestions = v
+    ? [...v.discovery, `How do ${andList(otherRoles)} take part in this decision, and who has the final say?`]
+    : [
+        `How do you currently handle ${generic.terms[0]}?`,
+        `What's your process for ${generic.terms[1]}?`,
+        `How do ${generic.stakeholders[0]} and ${generic.stakeholders[1]} collaborate on this?`,
+        `What ${generic.terms[2]} challenges have you faced?`
+      ];
+  const opener = v
+    ? `How do you measure ${v.metrics[0]} today, and how much does it vary?`
+    : `How much of a challenge is ${generic.painPoints[0]} for you?`;
 
   return `# Customer Interview Kit
 ## ${typeName.toUpperCase()} Interview
 
 **Target Persona:** ${args.target_persona}
 **Product Context:** ${args.product_context}
-**Industry:** ${describeChoice(args.industry, industry)}
+**Industry:** ${industryName}
 **Complexity Level:** ${describeChoice(args.product_complexity, complexity)}
+
+${ctx.line}
 
 ---
 
@@ -313,7 +324,7 @@ ${hypotheses.length > 0 ? `4. Validate/invalidate key hypotheses` : ''}
 
 ${questions.opening.map(q => `- ${q}`).join('\n')}
 
-**Industry-specific opener:** "How much of a challenge is ${ctx.painPoints[0]} for you${industry === 'other' ? '' : ` in ${industryName}`}?"
+**Industry-specific opener:** "${opener}"
 
 ---
 
@@ -327,13 +338,10 @@ ${questions.core.map((q, i) => `${i + 1}. ${q}`).join('\n')}
 
 ${techQuestions.map((q, i) => `${i + 1}. ${q}`).join('\n')}
 
-### Industry-Specific Questions (${industryName})
+### Industry-Specific Questions (${v ? v.name : industryName})
 
-1. ${industry === 'saas' ? 'How do you manage your software subscriptions today?' : `How do you currently handle ${ctx.terms[0]}?`}
-2. ${industry === 'saas' ? (interviewType === 'churn' ? `What's your process for ${ctx.terms[3]}?` : "What's your process for handling churn?") : `What's your process for ${ctx.terms[1]}?`}
-3. How do ${ctx.stakeholders[0]} and ${ctx.stakeholders[1]} collaborate on this?
-4. What ${ctx.terms[2]} challenges have you faced?
-
+${sectorQuestions.map((x, i) => `${i + 1}. ${x}`).join('\n')}
+${v ? `\n*Who usually decides in this sector: ${v.committee}*\n\n*Words this buyer uses: ${v.vocabulary.join(', ')}. Use them where they are true for the person you interview.*\n` : ''}
 ---
 
 ## Probing Questions (Use as needed)
@@ -401,9 +409,9 @@ After conducting multiple interviews, map findings to:
 ${EXAMPLE_FIGURES} Tally the Count column against your own number of interviews.
 | Signal | Count | Implication |
 |--------|-------|-------------|
-| [Common pain point] | /10 | Include in messaging |
-| [Common objection] | /10 | Address proactively |
-| [Feature request] | /10 | Product input |
+| Most common pain point | /10 | Include in messaging |
+| Most common objection | /10 | Address proactively |
+| Most requested feature | /10 | Product input |
 
 ### Persona Insights
 | Attribute | Pattern | Source Quotes |
@@ -416,7 +424,7 @@ ${EXAMPLE_FIGURES} Tally the Count column against your own number of interviews.
 ---
 
 *Interview kit generated for ${typeName} interviews using the CRAFT GTM framework*
-*Customized for ${industryName} industry at ${complexityName} complexity level*
+*Customized for ${v ? v.name : industryName} at ${complexityName} complexity level*
 
 ${SUGGESTION_FOOTER}`;
 }

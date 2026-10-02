@@ -1,10 +1,17 @@
 import { parseListItems, describeChoice, readableChoice, EXAMPLE_FIGURE, EXAMPLE_FIGURES, SUGGESTION_FOOTER } from './utils.js';
+import { readContext, q, andList } from './context.js';
 
-// Default crises by industry
+// Default crises by industry (run 19, D80: the owner's verticals; no health-sector crisis types)
 const DEFAULT_CRISES: Record<string, string[]> = {
-  fintech: ['data_breach', 'service_outage', 'regulatory_action', 'fraud_incident'],
-  healthtech: ['data_breach', 'hipaa_violation', 'service_outage', 'clinical_safety'],
+  fintech: ['data_breach', 'service_outage', 'fraud_incident', 'regulatory_action'],
   saas: ['service_outage', 'data_breach', 'security_vulnerability', 'customer_data_exposure'],
+  logistics_tech: ['service_outage', 'data_breach', 'sla_breach', 'regulatory_action'],
+  vertical_saas: ['service_outage', 'data_breach', 'customer_data_exposure', 'regulatory_action'],
+  ai_native: ['ai_wrong_action', 'data_breach', 'service_outage', 'regulatory_action'],
+  ites: ['sla_breach', 'data_breach', 'service_outage', 'executive_departure'],
+  telecom: ['service_outage', 'sla_breach', 'security_vulnerability', 'regulatory_action'],
+  software: ['security_vulnerability', 'service_outage', 'data_breach', 'pr_incident'],
+  cybersecurity: ['security_vulnerability', 'data_breach', 'service_outage', 'pr_incident'],
   ecommerce: ['service_outage', 'payment_breach', 'supply_chain_failure', 'pr_incident'],
   enterprise: ['data_breach', 'service_outage', 'executive_departure', 'regulatory_action'],
   consumer: ['pr_incident', 'product_safety', 'data_breach', 'service_outage'],
@@ -19,11 +26,16 @@ export function generateCrisisPlanner(args: {
   potential_crises?: string;
   company_size?: string;
   compliance_requirements?: string;
+  business_model?: string;
 }): string {
   const companySize = args.company_size || 'scaleup_50_200';
   const customerBase = args.customer_base;
   const dataSensitivity = args.data_sensitivity;
   const compliance = args.compliance_requirements || '';
+  // Run 19 (D80): each compliance item you list is named in the steps that need it; the tool names no authority of its own.
+  const complianceItems = parseListItems(compliance);
+  const complianceText = complianceItems.length ? andList(complianceItems) : '';
+  const ctx = readContext({ model: args.business_model, vertical: args.industry }, args.company, args.potential_crises, compliance);
   
   // Use provided crises or suggest defaults based on industry
   let crises: string[];
@@ -49,12 +61,18 @@ export function generateCrisisPlanner(args: {
     enterprise_1000_plus: { lead: 'Chief Communications Officer or Crisis Team Lead', core: ['CEO (briefed)', 'CISO', 'General Counsel', 'VP Comms', 'VP Customer', 'Regional VPs'], extended: ['PR Agency', 'Legal external', 'HR', 'All department heads'] }
   };
   
-  const team = teamStructure[companySize] || teamStructure.scaleup_50_200;
+  const baseTeam = teamStructure[companySize] || teamStructure.scaleup_50_200;
+  // Run 19 (D80): with personal or financial data at stake, the core team has a security lead and a data protection lead.
+  const team = { ...baseTeam, core: [...baseTeam.core] };
+  if (dataSensitivity === 'high_pii_financial') {
+    if (!team.core.some((m) => /CISO|security/i.test(m))) team.core.push('CISO or security lead');
+    if (!team.core.some((m) => /data protection|DPO/i.test(m))) team.core.push('Data protection lead (DPO)');
+  }
 
   // Run 12 (R12-21): a heading names the kind of crisis once ("Service outage"), and the crisis as typed only when it differs.
   // Acronyms in the default crisis names are written in capitals ("pr incident" is the PR heading itself).
   const heading = (kind: string, name: string): string => {
-    const shown = name.trim().replace(/\bpr\b/gi, 'PR').replace(/\bhipaa\b/gi, 'HIPAA');
+    const shown = name.trim().replace(/\bpr\b/gi, 'PR');
     const same = shown.toLowerCase() === kind.toLowerCase() || (kind.startsWith('PR ') && shown === 'PR incident');
     return same ? kind : `${kind}: ${shown}`;
   };
@@ -67,11 +85,104 @@ export function generateCrisisPlanner(args: {
     const crisisLower = crisisType.toLowerCase();
     const crisisName = crisisType.replace(/_/g, ' ');
 
+    // SLA breach (run 19): checked before the breach test below, because the words "sla_breach" hold "breach"
+    if (/\bsla\b|sla_|service[ _]level/.test(crisisLower)) {
+      return `### ${heading('SLA breach', crisisName)}
+
+**What counts as a breach:** read the service-level clauses of each affected contract first; the credits and the notice duties differ by contract.
+
+**Immediate Response (0-4 hours):** ${EXAMPLE_FIGURE}
+1. **Confirm the breach**: which contracts, which service-level clause, which period
+2. **Name an incident owner**: ${team.lead} as sponsor, the delivery head as owner
+3. **Tell the account owner first**: no client hears it from a report before they hear it from a person
+4. **Start the incident log**: facts, times, decisions
+
+**Recovery (4-24 hours):** ${EXAMPLE_FIGURE}
+1. Find the root cause and what restores the service level
+2. Work out the service credits owed under each contract
+3. Agree a recovery plan with dates the client can check
+
+**Notification Phase:** ${EXAMPLE_FIGURES}
+| Audience | Channel | Message Focus | Owner |
+|----------|---------|---------------|-------|
+| Client service owner | Call from the account owner | What happened, the recovery plan with dates | Account team |
+| Client leadership | Executive call | Impact, credits, what changes | ${team.lead} |
+| Delivery teams | Internal brief | Facts, roles, what not to promise | Delivery head |
+${ctx.v ? `\n**Sector note:** in ${ctx.v.name} the usual measures are ${andList(ctx.v.metrics.slice(0, 3))}: put the ones in your contracts on the recovery plan.\n` : ''}
+---
+`;
+    }
+
+    // Regulatory action (run 19): uses the compliance items you listed
+    if (/regulat/.test(crisisLower)) {
+      return `### ${heading('Regulatory action', crisisName)}
+
+**Compliance items you listed:** ${complianceText ? complianceText : 'none (add compliance_requirements to name them here)'}
+
+**Immediate Response (0-24 hours):** ${EXAMPLE_FIGURE}
+1. **Log the notice**: who received it, when, and what it asks for
+2. **Legal counsel owns the response**: ${team.lead} sponsors it
+3. **Preserve records**: stop routine deletion of anything the notice may cover
+4. **One channel to the authority**: one named person, no side conversations
+${complianceItems.length ? `5. **Map the notice to each item you listed** (${complianceText}): which requirement it touches and which control or report answers it` : '5. **Map the notice to each requirement you have**: which control or report answers it'}
+
+**Response Timeline:** ${EXAMPLE_FIGURES}
+| Phase | Timing | Actions |
+|-------|--------|---------|
+| Acknowledge | As the notice requires | Confirm receipt through counsel |
+| Facts | First week | Collect facts only; do not speculate |
+| Respond | By the date in the notice | Counsel-approved answer with evidence |
+| Review | After closure | Fix the control gap and update the register |
+
+---
+`;
+    }
+
+    // Fraud incident (run 19)
+    if (/fraud/.test(crisisLower)) {
+      return `### ${heading('Fraud incident', crisisName)}
+
+**Immediate Response (0-4 hours):** ${EXAMPLE_FIGURE}
+1. **Contain**: block the affected credentials, accounts or instruments; hold payouts under review
+2. **Preserve evidence**: logs and transaction records before any clean-up
+3. **Size the exposure**: which customers, which amounts, which period
+4. **Name the owner**: ${team.lead} as incident commander, with the security lead
+
+**Notification Phase:** ${EXAMPLE_FIGURES}
+| Audience | Channel | Message Focus | Owner |
+|----------|---------|---------------|-------|
+| Affected customers | ${customerBase === 'b2b_enterprise' ? 'Call from the account owner' : 'Email'} | What happened, what is held, what they should do | ${customerBase === 'b2b_enterprise' ? 'Account team' : 'Customer comms'} |
+| Banking and payment partners | Formal notice per your agreements | Facts and actions taken | Legal |
+| Regulators | Per the duty that applies to you${complianceItems.length ? ` (you listed ${complianceText})` : ''} | Counsel-approved notification | Legal |
+
+---
+`;
+    }
+
+    // AI wrong action (run 19)
+    if (/ai_wrong|wrong[ _]action|ai[ _]error|hallucinat/.test(crisisLower)) {
+      return `### ${heading('AI wrong action', crisisName)}
+
+**Immediate Response (0-2 hours):** ${EXAMPLE_FIGURE}
+1. **Pause the automation** that took the action; send the affected action type to human review
+2. **Find the affected cases** from the audit trail: what the AI did, on whose request, with what data
+3. **Stop anything that moves money or changes a record** until a person approves it
+4. **Name the owner**: ${team.lead} with the data or AI lead
+
+**Correction (2-24 hours):** ${EXAMPLE_FIGURE}
+1. Reverse or correct each affected case, and record who approved it
+2. Tell each affected customer what happened and what was fixed
+3. Add the failing cases to your evaluation set before the automation is switched back on
+4. Re-enable in stages with a person approving each action until the evaluation passes
+
+---
+`;
+    }
+
     // Data breach / Security incident
-    if (crisisLower.includes('breach') || crisisLower.includes('security') || crisisLower.includes('hack')) {
-      // The legal notification deadline differs by law and country, so no deadline is stated as fact.
-      const regulatoryBody = compliance.toLowerCase().includes('hipaa') ? 'HHS' :
-                            compliance.toLowerCase().includes('gdpr') ? 'relevant DPA' : 'applicable authorities';
+    if (crisisLower.includes('breach') || crisisLower.includes('security') || crisisLower.includes('hack') || crisisLower.includes('exposure')) {
+      // The legal notification deadline differs by law and country, so no deadline is stated as fact, and no authority is named.
+      const regulatoryBody = 'the authorities that apply to you';
 
       if (securityDone) {
         return `### ${heading('Security incident', crisisName)}
@@ -87,7 +198,7 @@ Use the ${securityDone} steps above.
 **Severity Assessment:** ${EXAMPLE_FIGURES}
 | Factor | High | Medium | Low |
 |--------|------|--------|-----|
-| Data exposed | PII, financial, health | Business data | No customer data |
+| Data exposed | PII, financial, credentials | Business data | No customer data |
 | Customers affected | >1000 or enterprise | 100-1000 | <100 |
 | Attack ongoing | Yes | Unknown | Contained |
 
@@ -102,7 +213,7 @@ Use the ${securityDone} steps above.
 1. Determine scope: What data, how many customers, how long exposed
 2. Identify attack vector and close vulnerability
 3. Engage forensics (internal or external)
-4. Prepare regulatory notification for ${regulatoryBody} by the deadline that applies to you (it differs by law and country)
+4. ${complianceItems.length ? `Check the notification duty and deadline of each item you listed (${complianceText}); they differ by law and country, and counsel confirms them` : `Prepare regulatory notification for ${regulatoryBody} by the deadline that applies to you (it differs by law and country)`}
 5. Draft customer communication (DO NOT SEND YET)
 
 **Notification Phase (24-72 hours):** ${EXAMPLE_FIGURE}
@@ -135,11 +246,11 @@ Use the ${securityDone} steps above.
 3. **Diagnose**: Root cause identification started
 4. **Notify support team**: Prepare for volume
 
-**Active Incident (15 minutes to resolution):** ${EXAMPLE_FIGURES}
+${ctx.v ? `**Sector impact check:** the first measures to move in ${ctx.v.name} are ${andList(ctx.v.metrics.slice(0, 3))}: tell customers which of them you see affected.\n\n` : ''}**Active Incident (15 minutes to resolution):** ${EXAMPLE_FIGURES}
 | Time | Status Update | Channel |
 |------|---------------|---------|
 | 15 min | "Identified: [description]" | Status page |
-| 30 min | "Working on fix, ETA [X]" | Status page + X (Twitter) |
+| 30 min | "Working on fix, ETA [X]" | ${customerBase === 'b2c_consumer' || customerBase === 'mixed' ? 'Status page + social channels' : 'Status page + direct update from the account owner'} |
 | 60 min | Progress update or revised ETA | Status + Email to affected |
 | Every 30 min | Continued updates until resolved | Status |
 
@@ -148,7 +259,7 @@ Use the ${securityDone} steps above.
     }
     
     // PR/Reputation incident
-    if (crisisLower.includes('pr') || crisisLower.includes('reputation') || crisisLower.includes('media') || crisisLower.includes('social')) {
+    if (/(^|[^a-z])pr([^a-z]|$)/.test(crisisLower) || crisisLower.includes('reputation') || crisisLower.includes('media') || crisisLower.includes('social')) {
       return `### ${heading('PR or reputation incident', crisisName)}
 
 **Severity Assessment:**
@@ -194,7 +305,7 @@ Use the ${securityDone} steps above.
 2. **Internal announcement first**: Employees hear from leadership, not media
 3. **Prepare external communications**: Customers, investors, partners
 4. **Identify interim leadership**: Clear chain of command
-5. **Personal outreach to key accounts**: ${customerBase === 'b2b_enterprise' ? 'Call top 20 accounts' : 'Prepare customer FAQ'}
+5. **Personal outreach to key accounts**: ${customerBase === 'b2b_enterprise' ? 'Call your top accounts' : 'Prepare customer FAQ'}
 
 ---
 `;
@@ -233,6 +344,8 @@ Use the ${securityDone} steps above.
     // Default playbook
     return `### ${heading('Crisis', crisisName)}
 
+**Your crisis, in your words:** ${q(crisisType)}
+
 **Initial Assessment (First 30 minutes):** ${EXAMPLE_FIGURE}
 1. What happened? (Facts only, no speculation)
 2. Who is affected? (Customers, employees, partners)
@@ -264,12 +377,13 @@ ${crisesNote}
 **Company Size:** ${describeChoice(args.company_size, companySize)}
 **Customer Base:** ${readableChoice(customerBase)}
 **Data Sensitivity:** ${readableChoice(dataSensitivity)}
-${compliance ? `**Compliance Requirements:** ${compliance}` : ''}
+${compliance ? `**Compliance Requirements:** ${compliance}\n` : ''}
+${ctx.line}
 
 ---
 
 ## Crisis Response Team
-
+${ctx.v ? `\n*In ${ctx.v.name} the words your customers use are ${andList(ctx.v.vocabulary.slice(0, 6))}: use them in customer messages, and name the measures they watch (${andList(ctx.v.metrics.slice(0, 3))}).*\n` : ''}
 **Incident Commander:** ${team.lead}
 
 **Core Team (Always Activated):**

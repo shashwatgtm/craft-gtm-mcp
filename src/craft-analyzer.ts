@@ -1,10 +1,12 @@
-import { analyzeCRAFTDimensions } from './utils.js';
+import { analyzeCRAFTDimensions, type CRAFTDimension } from './utils.js';
+import { andList, readContext } from './context.js';
 
 export function generateCRAFTAnalyzer(args: {
   document_content: string;
   document_type: string;
   intended_audience?: string;
   desired_outcome?: string;
+  industry?: string;
 }): string {
   // Run 18 (R18-26, P05-WS-01): leading and trailing whitespace is not part of the document, so it is not measured or shown
   // (the web form already trims it in netlify/functions/api.mjs). Interior whitespace is kept exactly.
@@ -29,6 +31,7 @@ export function generateCRAFTAnalyzer(args: {
   else { rating = 'SIGNIFICANT GAPS'; }
   
   // Run 12 (R12-21): the terms each dimension looks for, named when a dimension scores under 7 with no gap listed.
+  // Run 19 (D80, problem 5): the answer names only what the plan lacks and says what it does have.
   const TERMS: Record<string, string> = {
     character: 'owners, roles and teams',
     result: 'measurable goals and targets',
@@ -36,9 +39,21 @@ export function generateCRAFTAnalyzer(args: {
     frame: 'budget, constraints and assumptions',
     timeline: 'dates, deadlines and milestones',
   };
-  // No gap listed: "well-defined" only at 7 or more; below that, say which terms to add.
-  const noGap = (key: string, score: number, strong: string): string =>
-    score >= 7 ? `- ${strong}` : `- Partly covered: few ${key.charAt(0).toUpperCase() + key.slice(1)} terms found (${TERMS[key]}); add them`;
+  const noGap = (key: string, d: CRAFTDimension, strong: string): string => {
+    if (d.score >= 7) return `- ${strong}`;
+    const have = d.groupsFound.length ? `found ${andList(d.groupsFound)}` : 'found little';
+    return d.groupsMissing.length
+      ? `- Partly covered: ${have}; not found: ${andList(d.groupsMissing)}`
+      : `- Partly covered: ${have}, but only ${d.found.length} term${d.found.length === 1 ? '' : 's'} matched; add more detail`;
+  };
+  // The body of one dimension: what the plan contains (its own line), the gaps, the recommended section.
+  const body = (key: string, d: CRAFTDimension, strong: string, foundLabel: string): string => `**${foundLabel}:**
+${d.found.length > 0 ? d.found.slice(0, 5).map(f => `- "${f}"`).join('\n') : '- None'}
+${d.evidence.length > 0 ? `\n**Your plan's own line${d.evidence.length > 1 ? 's' : ''}:**\n${d.evidence.map(e => `> ${e}`).join('\n')}\n` : ''}
+**Gaps identified:**
+${d.gaps.length > 0 ? d.gaps.map(g => `- ${g}`).join('\n') : noGap(key, d, strong)}
+
+${d.gaps.length > 0 ? `\n**Recommended improvement:**\n${generateImprovement(key, d.gaps)}` : ''}`;
 
   // Generate improved sections for gaps
   const generateImprovement = (dimension: string, gaps: string[]): string => {
@@ -154,85 +169,37 @@ Scores come from a keyword check, not a reading of the plan: check each gap agai
 ### C: CHARACTER (Who executes?)
 **Score: ${analysis.character.score}/10**
 
-**Words matched:**
-${analysis.character.found.length > 0 
-  ? analysis.character.found.slice(0, 5).map(f => `- "${f}"`).join('\n')
-  : '- None'}
-
-**Gaps identified:**
-${analysis.character.gaps.length > 0 
-  ? analysis.character.gaps.map(g => `- ${g}`).join('\n')
-  : noGap('character', analysis.character.score, 'Character dimension is well-defined')}
-
-${analysis.character.gaps.length > 0 ? `\n**Recommended improvement:**\n${generateImprovement('character', analysis.character.gaps)}` : ''}
+${body('character', analysis.character, 'Character dimension is well-defined', 'Words matched')}
 
 ---
 
 ### R: RESULT (What does success look like?)
 **Score: ${analysis.result.score}/10**
 
-**Words matched:**
-${analysis.result.found.length > 0 
-  ? analysis.result.found.slice(0, 5).map(f => `- "${f}"`).join('\n')
-  : '- None'}
-
-**Gaps identified:**
-${analysis.result.gaps.length > 0 
-  ? analysis.result.gaps.map(g => `- ${g}`).join('\n')
-  : noGap('result', analysis.result.score, 'Results are well-defined')}
-
-${analysis.result.gaps.length > 0 ? `\n**Recommended improvement:**\n${generateImprovement('result', analysis.result.gaps)}` : ''}
+${body('result', analysis.result, 'Results are well-defined', 'Words matched')}
 
 ---
 
 ### A: ARTIFACT (What gets produced?)
 **Score: ${analysis.artifact.score}/10**
 
-**Words matched:**
-${analysis.artifact.found.length > 0 
-  ? analysis.artifact.found.slice(0, 5).map(f => `- "${f}"`).join('\n')
-  : '- None'}
-
-**Gaps identified:**
-${analysis.artifact.gaps.length > 0 
-  ? analysis.artifact.gaps.map(g => `- ${g}`).join('\n')
-  : noGap('artifact', analysis.artifact.score, 'Artifacts are well-defined')}
-
-${analysis.artifact.gaps.length > 0 ? `\n**Recommended improvement:**\n${generateImprovement('artifact', analysis.artifact.gaps)}` : ''}
+${body('artifact', analysis.artifact, 'Artifacts are well-defined', 'Words matched')}
 
 ---
 
 ### F: FRAME (Context & constraints)
 **Score: ${analysis.frame.score}/10**
 
-**Words matched:**
-${analysis.frame.found.length > 0 
-  ? analysis.frame.found.slice(0, 5).map(f => `- "${f}"`).join('\n')
-  : '- None'}
-
-**Gaps identified:**
-${analysis.frame.gaps.length > 0 
-  ? analysis.frame.gaps.map(g => `- ${g}`).join('\n')
-  : noGap('frame', analysis.frame.score, 'Frame/context is well-defined')}
-
-${analysis.frame.gaps.length > 0 ? `\n**Recommended improvement:**\n${generateImprovement('frame', analysis.frame.gaps)}` : ''}
+${body('frame', analysis.frame, 'Frame/context is well-defined', 'Words matched')}
 
 ---
 
 ### T: TIMELINE (When does it happen?)
 **Score: ${analysis.timeline.score}/10**
 
-**Words matched:**
-${analysis.timeline.found.length > 0 
-  ? analysis.timeline.found.slice(0, 5).map(f => `- "${f}"`).join('\n')
-  : '- None'}
+${body('timeline', analysis.timeline, 'Timeline is well-defined', 'Words matched')}
 
-**Gaps identified:**
-${analysis.timeline.gaps.length > 0 
-  ? analysis.timeline.gaps.map(g => `- ${g}`).join('\n')
-  : noGap('timeline', analysis.timeline.score, 'Timeline is well-defined')}
-
-${analysis.timeline.gaps.length > 0 ? `\n**Recommended improvement:**\n${generateImprovement('timeline', analysis.timeline.gaps)}` : ''}
+*Timeline scores dates, quarters (such as Q1) and durations with a number (such as 30 days). Words such as by, plan, quarter, month or milestone are not dates and are not scored.*
 
 ---
 
@@ -242,15 +209,15 @@ ${analysis.timeline.gaps.length > 0 ? `\n**Recommended improvement:**\n${generat
 
   // Prioritize improvements by lowest scores
   const dimensions = [
-    { name: 'Character', key: 'character', score: analysis.character.score, gaps: analysis.character.gaps },
-    { name: 'Result', key: 'result', score: analysis.result.score, gaps: analysis.result.gaps },
-    { name: 'Artifact', key: 'artifact', score: analysis.artifact.score, gaps: analysis.artifact.gaps },
-    { name: 'Frame', key: 'frame', score: analysis.frame.score, gaps: analysis.frame.gaps },
-    { name: 'Timeline', key: 'timeline', score: analysis.timeline.score, gaps: analysis.timeline.gaps }
+    { name: 'Character', key: 'character', score: analysis.character.score, gaps: analysis.character.gaps, missing: analysis.character.groupsMissing },
+    { name: 'Result', key: 'result', score: analysis.result.score, gaps: analysis.result.gaps, missing: analysis.result.groupsMissing },
+    { name: 'Artifact', key: 'artifact', score: analysis.artifact.score, gaps: analysis.artifact.gaps, missing: analysis.artifact.groupsMissing },
+    { name: 'Frame', key: 'frame', score: analysis.frame.score, gaps: analysis.frame.gaps, missing: analysis.frame.groupsMissing },
+    { name: 'Timeline', key: 'timeline', score: analysis.timeline.score, gaps: analysis.timeline.gaps, missing: analysis.timeline.groupsMissing }
   ].filter(d => d.score < 7).sort((a, b) => a.score - b.score);
   // The recommended action for a dimension: its first gap, or the generic action when it lists none
   // (a dimension can score below 7 with no gap listed, for example Frame with one match).
-  const actionFor = (d: { key: string; gaps: string[] }): string => d.gaps[0] || `Add ${TERMS[d.key]}`;
+  const actionFor = (d: { key: string; gaps: string[]; missing: string[] }): string => d.gaps[0] || (d.missing.length ? `Add ${andList(d.missing)}` : `Add ${TERMS[d.key]}`);
 
   if (dimensions.length === 0) {
     output += `**Document is well-structured!** All CRAFT dimensions score 7/10 or higher.\n\n`;
@@ -260,6 +227,51 @@ ${analysis.timeline.gaps.length > 0 ? `\n**Recommended improvement:**\n${generat
       output += `| ${i + 1} | ${d.name} | ${d.score}/10 | ${actionFor(d)} |\n`;
     });
   }
+
+  // Run 19 (D80, problem 8): a sector check from the sector data file. It is not a score: it names the deciders and the measures
+  // of the sector that the plan itself names, and those it does not.
+  const sectorCtx = readContext({ vertical: args.industry }, content, args.intended_audience, args.desired_outcome);
+  const planLower = content.toLowerCase();
+  const roleNamed = (role: string): boolean => {
+    const acronym = /^Chief .* Officer$/.test(role) ? role.split(' ').filter((w) => /^[A-Z]/.test(w) && w !== 'Officer').map((w) => w[0]).join('') + 'O' : '';
+    return planLower.includes(role.toLowerCase()) || (acronym.length >= 3 && new RegExp(`\\b${acronym}\\b`, 'i').test(content));
+  };
+  const sectorCheck = sectorCtx.v
+    ? (() => {
+        const v = sectorCtx.v!;
+        const rolesNamed = v.buyerRoles.filter(roleNamed);
+        const rolesMissing = v.buyerRoles.filter((r) => !roleNamed(r));
+        const metricsNamed = v.metrics.filter((m) => planLower.includes(m.toLowerCase()));
+        return `## Sector Check
+
+*Sector: ${sectorCtx.sector}. This is not part of the score.*
+
+- **Who usually decides:** ${v.committee}
+- **Deciders your plan names:** ${rolesNamed.length ? andList(rolesNamed) : 'none of the usual roles'}. **Not named:** ${rolesMissing.length ? andList(rolesMissing) : 'none'}.
+- **What this sector measures:** ${v.metrics.join(', ')}. **Your plan names:** ${metricsNamed.length ? andList(metricsNamed) : 'none of them'}.
+- **A proof point that lands:** ${v.proofShape}
+- **Words this buyer uses:** ${v.vocabulary.join(', ')}.
+`;
+      })()
+    : `## Sector Check
+
+The sector was not clear from your plan. Name the buyer's industry in the plan to get a check against that sector's deciders and measures.
+`;
+  output += `
+---
+
+${sectorCheck}`;
+
+  // Run 19: a risk the plan names without any response is flagged; a plan that names none is asked for two.
+  output += `
+---
+
+## Risks in Your Plan
+
+${analysis.risks.length === 0
+  ? 'No risk is named in the plan: name the top two and how you would respond to each.'
+  : analysis.risks.map(r => r.answered ? `- Risk with a response: "${r.line.replace(/[.]$/, '')}"` : `- Risk named without a response: "${r.line.replace(/[.]$/, '')}". Add a response, an owner and the signal that triggers it.`).join('\n')}
+`;
 
   output += `
 ---

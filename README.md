@@ -1,9 +1,9 @@
-# @shashwatgtmalpha/craft-gtm-mcp v2.2.14
+# @shashwatgtmalpha/craft-gtm-mcp v2.2.15
 **CRAFT GTM Framework MCP Server**: a complete redesign with metric parsing, context-aware outputs, and a structured draft with placeholders where your inputs give no fact.
 
 ## Use it hosted (no install)
 
-Add `https://craft-gtm.gtmhelix.com/mcp` to Claude or ChatGPT as a custom connector. It needs no sign-in and always runs the newest version (2.2.14). The same tools run as a free web app with a form per tool at https://craft-gtm.gtmhelix.com/, and the setup steps are at https://craft-gtm.gtmhelix.com/connect/.
+Add `https://craft-gtm.gtmhelix.com/mcp` to Claude or ChatGPT as a custom connector. It needs no sign-in and always runs the newest version (2.2.15). The same tools run as a free web app with a form per tool at https://craft-gtm.gtmhelix.com/, and the setup steps are at https://craft-gtm.gtmhelix.com/connect/.
 
 The npm package below is an older version (2.0.1 on npm on 27 September 2026) until the next npm release. Use it only if you need a local stdio server.
 
@@ -41,18 +41,18 @@ Or add to your Claude Desktop config:
 
 ## Tools and inputs
 
-Generated on 27 September 2026 from the server's own tool list and checked again on 2 October 2026 against `tools/list` of craft-gtm-mcp 2.2.14 (the same code as the hosted MCP address), so every tool name, title, description and input below is exactly what the server accepts. Every tool is read-only.
+Generated on 27 September 2026 from the server's own tool list and checked again on 2 October 2026 against `tools/list` of craft-gtm-mcp 2.2.15 (the same code as the hosted MCP address), so every tool name, title, description and input below is exactly what the server accepts. Every tool is read-only.
 
 | # | Tool | Title | What it does |
 |---|---|---|---|
-| 1 | `pmf_scorecard` | PMF Scorecard | Generate a Product-Market Fit scorecard. Parses the metrics you provide (MRR, churn, NPS, CAC, LTV, retention, activation and similar) and scores each dimension against built-in benchmark ranges. |
-| 2 | `launch_commander` | Launch Commander | Generate a context-aware launch plan. Have a date? Get a detailed timeline. Still planning? Enter 'TBD' or a quarter such as 'Q2 2027' for a flexible plan. |
-| 3 | `customer_interview_kit` | Customer Interview Kit | Generate interview guides that ADAPT based on interview type, industry, and product complexity. Includes synthesis templates. |
-| 4 | `retention_playbook` | Retention Playbook | Generate retention strategies. Has DISCOVERY MODE: if you don't know WHY people churn, get a churn analysis framework first. |
-| 5 | `partner_architect` | Partner Architect | Design partner programs that ADAPT based on partner model type. Different structures for resellers vs referrals vs integrations vs affiliates. |
-| 6 | `crisis_planner` | Crisis Planner | Generate crisis playbooks. Know your risks? Get specific playbooks. Not sure what to plan for? The tool uses a default set of common crises for your industry (not ranked by likelihood). |
-| 7 | `competitive_intel` | Competitive Intel | Generate battle cards. If you know your strengths/weaknesses, get complete battle cards. If you only know competitors and win/loss stories, we'll derive your positioning. |
-| 8 | `craft_gtm_analyzer` | CRAFT GTM Analyzer | Analyze a GTM document against the CRAFT framework. Parses the content, identifies gaps, scores each dimension and suggests sections to add. |
+| 1 | `pmf_scorecard` | PMF Scorecard | Generate a Product-Market Fit scorecard. Parses the metrics you provide (MRR, ACV, churn, NPS, CAC, LTV, retention, activation and similar) and scores each dimension against example benchmark ranges. Reads the business model from your inputs and leaves the activation score out for services, connectivity and investment businesses. Quotes your customer feedback and answers it. |
+| 2 | `launch_commander` | Launch Commander | Generate a context-aware launch plan. Have a date? Get a detailed timeline. Still planning? Enter 'TBD' or a quarter such as 'Q2 2027' for a flexible plan. Tasks and the messaging table follow the sector and business model read from your inputs, and each goal is filed under its own metric. |
+| 3 | `customer_interview_kit` | Customer Interview Kit | Generate interview guides for the interview type, the sector (chosen, or read from your inputs) and the product complexity. Questions use the sector's own language, your hypotheses are kept whole, and synthesis templates are included. |
+| 4 | `retention_playbook` | Retention Playbook | Generate retention strategies. Has DISCOVERY MODE: if you don't know WHY people churn, get a churn analysis framework first. Health signals and interventions follow the business model, each churn reason gets its own answer, and your current interventions and data signals are used. |
+| 5 | `partner_architect` | Partner Architect | Design partner programs that ADAPT based on partner model type. Different structures for resellers vs referrals vs integrations vs affiliates. Uses your stated goal, existing partners and deal size, and names the partner types that fit your sector's buying committee. |
+| 6 | `crisis_planner` | Crisis Planner | Generate crisis playbooks. Know your risks? Get specific playbooks. Not sure what to plan for? The tool uses a default set of common crises for your sector (not ranked by likelihood). Each compliance item you list is used in the notification steps. |
+| 7 | `competitive_intel` | Competitive Intel | Generate battle cards, one per competitor, from your strengths, weaknesses, competitor details, objections, wins and losses. Each competitor detail goes to the competitor it names, each objection gets its own answer, and strengths and gaps taken from wins and losses are your own words. |
+| 8 | `craft_gtm_analyzer` | CRAFT GTM Analyzer | Analyze a GTM document against the CRAFT framework. Scores each dimension only on what the plan contains (Timeline counts real dates, durations and quarters), shows the plan's own line for each, names only the elements that are missing and suggests sections to add. |
 
 ### Inputs of each tool
 
@@ -61,10 +61,11 @@ Generated on 27 September 2026 from the server's own tool list and checked again
 | Input | Required | Type | Description |
 |---|---|---|---|
 | `product` | Yes | string | Product name and brief description |
-| `target_market` | Yes | one of: `enterprise_saas`, `smb_saas`, `consumer`, `marketplace`, `fintech`, `healthtech`, `other` | Target market segment (e.g., 'Enterprise SaaS', 'SMB', 'Consumer') |
-| `current_metrics` | Yes | string | Your current metrics (will be PARSED). Include any of: MRR, ARR, churn rate, NPS, CAC, LTV, retention rate, activation rate, DAU/MAU, trial conversion, revenue growth. Example: 'MRR: $50K, Churn: 3%, NPS: 45, CAC: $500, LTV: $3000, Retention: 92%' |
+| `target_market` | Yes | one of: `enterprise_saas`, `smb_saas`, `consumer`, `marketplace`, `fintech`, `logistics_tech`, `vertical_saas`, `ai_native`, `ites`, `telecom`, `software`, `cybersecurity`, `other` | Target market segment (for example enterprise SaaS, telecom or logistics tech) |
+| `current_metrics` | Yes | string | Your current metrics (will be PARSED). Include any of: MRR, ARR, ACV, churn rate, NPS, CAC, LTV, retention rate, activation rate, DAU/MAU, trial conversion, revenue growth. Example: 'MRR: $50K, Churn: 3%, NPS: 45, CAC: $500, LTV: $3000, Retention: 92%'. A figure that no rule scores is listed as not scored |
 | `time_in_market` | No | one of: `pre_launch`, `0_6_months`, `6_12_months`, `1_2_years`, `2_plus_years` | How long the product has been in market (shown in the scorecard) |
-| `customer_feedback` | No | string | Optional: Qualitative feedback themes (e.g., 'Users love X but struggle with Y') |
+| `customer_feedback` | No | string | Optional: Qualitative feedback themes, one per line or separated by semicolons (for example 'Customers like X; they struggle with Y'). Each theme is quoted and answered |
+| `business_model` | No | one of: `saas`, `services`, `connectivity`, `transactions`, `marketplace`, `hardware_software`, `investment` | Optional: how you earn revenue, so the advice fits it (saas, services, connectivity, transactions, marketplace, hardware_software or investment). Leave it out and the tool reads it from your other inputs and says how it read it |
 
 #### 2. Launch Commander (`launch_commander`)
 
@@ -73,11 +74,13 @@ Generated on 27 September 2026 from the server's own tool list and checked again
 | `product_feature` | Yes | string | What you're launching (product/feature name and description) |
 | `launch_type` | Yes | one of: `major_release`, `feature_launch`, `beta_launch`, `product_update`, `market_expansion` | Type of launch determines plan complexity |
 | `target_segments` | Yes | string | Target customer segments (comma-separated) |
-| `goals` | Yes | string | Launch success metrics (e.g., '500 signups, $50k pipeline, 10% trial conversion, 1000 downloads') |
+| `goals` | Yes | string | Launch success metrics (for example '40 qualified meetings, $300K pipeline, 5 reference customers') |
 | `launch_date` | No | string | Target launch date. Accepts: 'YYYY-MM-DD', 'Q1 2027', 'March 2027', or 'TBD' for planning mode |
 | `available_channels` | No | string | Optional: Marketing channels available (comma-separated). E.g., 'email, linkedin, blog, webinar, PR, paid_ads, community' |
 | `team_size` | No | one of: `solo`, `small_2_5`, `medium_6_15`, `large_15_plus` | Marketing/GTM team size affects task distribution |
 | `budget_level` | No | one of: `bootstrap`, `moderate`, `well_funded` | Budget affects recommended tactics |
+| `business_model` | No | one of: `saas`, `services`, `connectivity`, `transactions`, `marketplace`, `hardware_software`, `investment` | Optional: how you earn revenue, so the advice fits it (saas, services, connectivity, transactions, marketplace, hardware_software or investment). Leave it out and the tool reads it from your other inputs and says how it read it |
+| `industry` | No | one of: `logistics_tech`, `fintech`, `saas`, `vertical_saas`, `ai_native`, `ites`, `telecom`, `software`, `cybersecurity`, `other` | Optional: the sector you sell into, so the answer uses that sector's buyers, measures and objections. Leave it out and the tool reads the sector from your other inputs and names what it read |
 
 #### 3. Customer Interview Kit (`customer_interview_kit`)
 
@@ -86,21 +89,24 @@ Generated on 27 September 2026 from the server's own tool list and checked again
 | `interview_type` | Yes | one of: `discovery`, `validation`, `feedback`, `churn`, `win_loss`, `persona_research` | Type of interview determines question focus |
 | `product_context` | Yes | string | Product/service being researched |
 | `target_persona` | Yes | string | Who you're interviewing (role/title) |
-| `industry` | No | one of: `saas`, `fintech`, `healthtech`, `ecommerce`, `marketplace`, `enterprise_software`, `consumer`, `other` | Industry affects terminology and context |
+| `industry` | No | one of: `saas`, `fintech`, `logistics_tech`, `vertical_saas`, `ai_native`, `ites`, `telecom`, `software`, `cybersecurity`, `ecommerce`, `marketplace`, `enterprise_software`, `consumer`, `other` | Industry affects terminology and context. Leave it out and the sector is read from your other inputs |
 | `product_complexity` | No | one of: `simple`, `moderate`, `complex`, `highly_technical` | Affects technical depth of questions |
-| `key_hypotheses` | No | string | Optional: Hypotheses to validate during interview |
+| `key_hypotheses` | No | string | Optional: Hypotheses to validate during interview, one per line or separated by semicolons |
+| `business_model` | No | one of: `saas`, `services`, `connectivity`, `transactions`, `marketplace`, `hardware_software`, `investment` | Optional: how you earn revenue, so the advice fits it (saas, services, connectivity, transactions, marketplace, hardware_software or investment). Leave it out and the tool reads it from your other inputs and says how it read it |
 
 #### 4. Retention Playbook (`retention_playbook`)
 
 | Input | Required | Type | Description |
 |---|---|---|---|
 | `customer_segment` | Yes | string | Customer segment to focus on |
-| `business_model` | Yes | one of: `saas_subscription`, `usage_based`, `marketplace`, `transactional`, `freemium`, `enterprise_contract` | Business model affects health score weighting |
+| `business_model` | Yes | one of: `saas_subscription`, `usage_based`, `marketplace`, `transactional`, `freemium`, `enterprise_contract`, `services_contract`, `connectivity_contract`, `investment_mandate` | Business model affects health score weighting. enterprise_contract is read further from your text when it names services, connectivity or investment |
 | `current_churn_rate` | Yes | string | Current churn rate (e.g., '5%' or '5% monthly') |
 | `churn_reasons` | No | string | OPTIONAL: Known churn reasons (comma-separated). If you don't know, leave blank to get discovery mode with churn analysis framework |
-| `available_data_signals` | No | string | What usage data you can track (comma-separated). E.g., 'login frequency, feature usage, support tickets, NPS responses' |
+| `available_data_signals` | No | string | What you can track (comma-separated). E.g., 'login frequency, support tickets, SLA attainment, QBR attendance' |
 | `cs_team_size` | No | one of: `no_dedicated_cs`, `small_1_3`, `medium_4_10`, `large_10_plus` | CS team capacity affects intervention strategy |
-| `current_interventions` | No | string | Optional: What retention tactics you already do |
+| `current_interventions` | No | string | Optional: What retention tactics you already do (listed and compared with the playbook) |
+| `product` | No | string | Optional: Your product or company name, used in the title and the email drafts |
+| `industry` | No | one of: `logistics_tech`, `fintech`, `saas`, `vertical_saas`, `ai_native`, `ites`, `telecom`, `software`, `cybersecurity`, `other` | Optional: the sector you sell into, so the answer uses that sector's buyers, measures and objections. Leave it out and the tool reads the sector from your other inputs and names what it read |
 
 #### 5. Partner Architect (`partner_architect`)
 
@@ -109,22 +115,25 @@ Generated on 27 September 2026 from the server's own tool list and checked again
 | `company` | Yes | string | Your company name |
 | `product` | Yes | string | Product partners will sell/integrate |
 | `partner_model` | Yes | one of: `reseller`, `referral`, `integration_tech`, `agency_si`, `affiliate`, `oem_white_label` | Partner type determines program structure |
-| `partner_goals` | Yes | string | Revenue/growth targets from partners |
+| `partner_goals` | Yes | string | Revenue/growth targets from partners (shown as the target of the first KPI row) |
 | `your_deal_size` | Yes | string | Average deal size as one amount (e.g., '$5000 ACV', '$5K' or '$500/month'; a range is refused). It scales the example commission amounts; the example rates are fixed |
 | `partner_support_capacity` | No | one of: `minimal_self_serve`, `moderate`, `high_touch` | How much partner support can you provide? |
-| `existing_partners` | No | string | Optional: Current partner types/count |
+| `existing_partners` | No | string | Optional: Current partner types/count, one per line or separated by semicolons (listed in the plan) |
+| `business_model` | No | one of: `saas`, `services`, `connectivity`, `transactions`, `marketplace`, `hardware_software`, `investment` | Optional: how you earn revenue, so the advice fits it (saas, services, connectivity, transactions, marketplace, hardware_software or investment). Leave it out and the tool reads it from your other inputs and says how it read it |
+| `industry` | No | one of: `logistics_tech`, `fintech`, `saas`, `vertical_saas`, `ai_native`, `ites`, `telecom`, `software`, `cybersecurity`, `other` | Optional: the sector you sell into, so the answer uses that sector's buyers, measures and objections. Leave it out and the tool reads the sector from your other inputs and names what it read |
 
 #### 6. Crisis Planner (`crisis_planner`)
 
 | Input | Required | Type | Description |
 |---|---|---|---|
 | `company` | Yes | string | Company name |
-| `industry` | Yes | one of: `fintech`, `healthtech`, `saas`, `ecommerce`, `enterprise`, `consumer`, `other` | Industry affects which crises to prioritize |
+| `industry` | Yes | one of: `fintech`, `saas`, `logistics_tech`, `vertical_saas`, `ai_native`, `ites`, `telecom`, `software`, `cybersecurity`, `ecommerce`, `enterprise`, `consumer`, `other` | Industry affects which crises to prioritize |
 | `customer_base` | Yes | one of: `b2b_enterprise`, `b2b_smb`, `b2c_consumer`, `mixed` | Customer type affects communication approach |
 | `data_sensitivity` | Yes | one of: `high_pii_financial`, `medium_business_data`, `low_general` | Data sensitivity affects security protocols |
-| `potential_crises` | No | string | OPTIONAL: Crisis types to plan for (comma-separated). If not provided, the tool uses a default set of common crises for your industry (not ranked by likelihood). Options: data_breach, service_outage, pr_incident, executive_departure, security_vulnerability, regulatory_action, product_safety, customer_data_exposure |
+| `potential_crises` | No | string | OPTIONAL: Crisis types to plan for (comma-separated). If not provided, the tool uses a default set of common crises for your sector (not ranked by likelihood). Options: data_breach, service_outage, sla_breach, regulatory_action, fraud_incident, ai_wrong_action, pr_incident, executive_departure, security_vulnerability, customer_data_exposure, product_safety |
 | `company_size` | No | one of: `startup_under_50`, `scaleup_50_200`, `midsize_200_1000`, `enterprise_1000_plus` | Affects response team structure |
-| `compliance_requirements` | No | string | Optional: Relevant compliance (GDPR, HIPAA, SOC2, etc.) |
+| `compliance_requirements` | No | string | Optional: Relevant compliance, comma-separated (for example ISO 27001, SOC 2, GDPR). Each item is named in the notification steps |
+| `business_model` | No | one of: `saas`, `services`, `connectivity`, `transactions`, `marketplace`, `hardware_software`, `investment` | Optional: how you earn revenue, so the advice fits it (saas, services, connectivity, transactions, marketplace, hardware_software or investment). Leave it out and the tool reads it from your other inputs and says how it read it |
 
 #### 7. Competitive Intel (`competitive_intel`)
 
@@ -132,12 +141,14 @@ Generated on 27 September 2026 from the server's own tool list and checked again
 |---|---|---|---|
 | `your_product` | Yes | string | Your product name and brief description |
 | `competitors` | Yes | string | Competitor names (comma-separated). Will generate battle card for EACH |
-| `your_strengths` | No | string | OPTIONAL: What you do better (comma-separated). Will be DERIVED from wins/losses if not provided |
-| `your_weaknesses` | No | string | OPTIONAL: Where competitors beat you (comma-separated). Will be DERIVED from wins/losses if not provided |
-| `competitor_details` | No | string | Optional: Any known details about competitors. E.g., 'Competitor A is cheaper, Competitor B targets enterprise' |
+| `your_strengths` | No | string | OPTIONAL: What you do better (comma-separated). Taken from your wins, in your own words, if not provided |
+| `your_weaknesses` | No | string | OPTIONAL: Where competitors beat you (comma-separated). Taken from your losses, in your own words, if not provided |
+| `competitor_details` | No | string | Optional: Any known details about competitors, one per line or separated by semicolons. E.g., 'Competitor A is cheaper; Competitor B targets enterprise'. Each detail goes to the competitor it names |
 | `common_objections` | No | string | Sales objections you hear (comma-separated). E.g., 'too expensive, missing X feature, competitor has better Y' |
-| `recent_wins` | No | string | Why customers chose you over competitors: will be used to DERIVE strengths |
-| `recent_losses` | No | string | Why you lost deals to competitors: will be used to DERIVE weaknesses |
+| `recent_wins` | No | string | Why customers chose you over competitors: used as your strengths when none are given |
+| `recent_losses` | No | string | Why you lost deals to competitors: used as your gaps when none are given |
+| `business_model` | No | one of: `saas`, `services`, `connectivity`, `transactions`, `marketplace`, `hardware_software`, `investment` | Optional: how you earn revenue, so the advice fits it (saas, services, connectivity, transactions, marketplace, hardware_software or investment). Leave it out and the tool reads it from your other inputs and says how it read it |
+| `industry` | No | one of: `logistics_tech`, `fintech`, `saas`, `vertical_saas`, `ai_native`, `ites`, `telecom`, `software`, `cybersecurity`, `other` | Optional: the sector you sell into, so the answer uses that sector's buyers, measures and objections. Leave it out and the tool reads the sector from your other inputs and names what it read |
 
 #### 8. CRAFT GTM Analyzer (`craft_gtm_analyzer`)
 
@@ -147,6 +158,7 @@ Generated on 27 September 2026 from the server's own tool list and checked again
 | `document_type` | Yes | one of: `gtm_strategy`, `launch_plan`, `campaign_brief`, `quarterly_plan`, `project_proposal`, `marketing_plan` | Type of document (shown in the analysis) |
 | `intended_audience` | No | string | Optional: Who will read/approve this document |
 | `desired_outcome` | No | string | Optional: What action should this document drive |
+| `industry` | No | one of: `logistics_tech`, `fintech`, `saas`, `vertical_saas`, `ai_native`, `ites`, `telecom`, `software`, `cybersecurity`, `other` | Optional: the sector you sell into, so the answer uses that sector's buyers, measures and objections. Leave it out and the tool reads the sector from your other inputs and names what it read |
 
 ## Design Principles (v2.0)
 

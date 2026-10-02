@@ -1,4 +1,5 @@
 import { formatDate, addDays, calculateDaysUntil, parseListItems, describeChoice, EXAMPLE_FIGURE } from './utils.js';
+import { readContext, sectorNotes, q, andList, capEcho } from './context.js';
 
 interface Phase {
   name: string;
@@ -63,6 +64,8 @@ export function generateLaunchCommander(args: {
   available_channels?: string;
   team_size?: string;
   budget_level?: string;
+  business_model?: string;
+  industry?: string;
 }): string {
   const { date: launchDate, isFlexible, displayDate } = parseLaunchDate(args.launch_date);
   const launchType = args.launch_type || 'feature_launch';
@@ -71,6 +74,28 @@ export function generateLaunchCommander(args: {
   const channels = args.available_channels ? parseListItems(args.available_channels) : ['email', 'linkedin', 'blog'];
   const segments = parseListItems(args.target_segments);
   const daysUntilLaunch = launchDate ? calculateDaysUntil(launchDate.toISOString()) : null;
+  // Run 19 (D80, problems 4 and 8): the sector and the business model are read from the inputs; a launch to a sales-led buyer
+  // (services, connectivity, investment, hardware plus software, or a sector whose deals run through a buying committee)
+  // gets no consumer or software-only tasks.
+  const ctx = readContext({ model: args.business_model, vertical: args.industry }, args.product_feature, args.target_segments, args.goals);
+  const salesLed = (ctx.model !== null && ctx.model !== 'saas' && ctx.model !== 'marketplace') || (ctx.v !== null && ctx.v.id !== 'saas' && ctx.v.id !== 'software');
+  const subscription = ctx.model === 'saas' || ctx.model === null;
+  const SWAP: Record<string, string> = {
+    'waitlist campaign': 'Early-access list of named accounts',
+    'influencer outreach': 'Customer and peer advocate outreach',
+    'product hunt (if applicable)': 'Analyst and trade-press briefings',
+    'social campaign': 'LinkedIn posts from your experts and customers',
+    'social posts': 'LinkedIn posts from your experts and customers',
+    'a few influencer posts': 'Posts from customers and your own experts',
+    'influencer campaigns': 'Customer-advocate programme',
+    'help docs': 'Customer guide and runbook',
+  };
+  const adaptTask = (task: string): string => {
+    const k = task.toLowerCase();
+    if (salesLed && SWAP[k]) return SWAP[k];
+    if (!subscription && /^in-app (notification|message)$/.test(k)) return 'Account-team briefing for existing customers';
+    return task;
+  };
   
   // Define phase structure based on launch type
   // (weekRange is the heading shown in planning mode; the offsets drive the dates)
@@ -116,7 +141,8 @@ export function generateLaunchCommander(args: {
       if (channels.some(ch => taskLower.includes(ch.toLowerCase()))) return true;
       if (['position', 'messaging', 'strategy', 'feedback', 'metric', 'monitor', 'plan', 'brief'].some(word => taskLower.includes(word))) return true;
       if (taskLower.includes('webinar') && !channels.some(ch => ch.includes('webinar'))) return false;
-      if (taskLower.includes('pr') && !channels.some(ch => ch.includes('pr'))) return false;
+      // Run 19: "pr" is the word PR or press, not the letters inside prep, program or pricing.
+      if (/\b(pr|press)\b/.test(taskLower) && !channels.some(ch => ch.toLowerCase().includes('pr'))) return false;
       if (taskLower.includes('paid') && !channels.some(ch => ch.includes('paid'))) return false;
       return true;
     });
@@ -140,7 +166,7 @@ export function generateLaunchCommander(args: {
     well_funded: ['Multi-channel paid', 'Large events', 'Influencer campaigns', 'PR agency', 'ABM programs']
   };
   
-  const availableTactics = budgetTactics[budgetLevel] || budgetTactics.moderate;
+  const availableTactics = (budgetTactics[budgetLevel] || budgetTactics.moderate).map(adaptTask);
 
   // Days until launch: counted from today to the user's date. A quarter or a month
   // (planning mode) is counted to an assumed mid-month day, so that figure is an example.
@@ -152,13 +178,16 @@ export function generateLaunchCommander(args: {
   }
 
   // Build the launch plan
+  const featureHead = capEcho(args.product_feature, 120);
   let output = `# Launch Command Center
-## ${args.product_feature}
-
+## ${featureHead.short}
+${featureHead.capped ? `\n**What you are launching (as you wrote it):** ${args.product_feature.trim()}\n` : ''}
 **Launch Type:** ${launchType.replace(/_/g, ' ').toUpperCase()}
 **Launch Date:** ${displayDate}${daysNote}
 **Team Size:** ${describeChoice(args.team_size, teamSize)}
 **Budget Level:** ${describeChoice(args.budget_level, budgetLevel)}
+
+${ctx.line}
 
 ---
 
@@ -196,7 +225,13 @@ ${!launchDate
   // Generate detailed timeline - use current date as reference if no launch date
   const referenceDate = launchDate || new Date();
   
-  for (const phase of selectedPhases) {
+  // Run 19 (rule B82): tasks from the sector data file (who decides, what proof lands, the usual objections), one per early phase.
+  const sectorTasks: string[] = ctx.v ? [
+    `Brief the buying committee: ${andList(ctx.v.buyerRoles.slice(0, 4))}`,
+    `Prepare the proof point: ${ctx.v.proofShape}`,
+    `Prepare sales answers to the usual objections: ${andList(ctx.v.objections.slice(0, 3).map(o => o.objection.toLowerCase()))}`,
+  ] : [];
+  for (const [pi, phase] of selectedPhases.entries()) {
     const phaseStart = addDays(referenceDate, phase.startOffset);
     const phaseEnd = addDays(referenceDate, phase.endOffset);
     const isCurrentPhase = launchDate ? (new Date() >= phaseStart && new Date() <= phaseEnd) : false;
@@ -208,7 +243,8 @@ ${!launchDate
 |------|-------|-----|--------|
 `;
     
-    const filteredTasks = filterTasksByChannels(phase.tasks);
+    const extra = sectorTasks.filter((_, t) => Math.min(t, selectedPhases.length - 1) === pi);
+    const filteredTasks = [...filterTasksByChannels(phase.tasks.map(adaptTask)), ...extra];
     filteredTasks.forEach((task, i) => {
       const taskDate = addDays(phaseStart, Math.floor((i / filteredTasks.length) * (phase.endOffset - phase.startOffset)));
       const isPast = taskDate < new Date();
@@ -229,36 +265,37 @@ ${!launchDate
 `;
 
   for (const segment of segments) {
+    const vocab = ctx.v ? ` Use the words this buyer uses: ${andList(ctx.v.vocabulary.slice(0, 5))}.` : '';
     output += `### ${segment}
 
 | Element | Content |
 |---------|---------|
-| Primary Pain Point | [Define for ${segment}] |
-| Key Message | "For ${segment}, ${args.product_feature} [what it does for them]." |
-| Proof Point | [Case study/metric for ${segment}] |
-| CTA | [Specific action for ${segment}] |
-| Primary Channel | ${channels[0] || 'TBD'} |
+| Primary Pain Point | Not supplied for ${segment}. ${ctx.v ? `Ask: "${ctx.v.discovery[0]}"` : 'Add the pain you solve for this segment.'} |
+| Key Message | Lead with ${q(featureHead.short)} for ${segment}.${vocab} Add the outcome you can prove. |
+| Proof Point | ${ctx.v ? ctx.v.proofShape : `Not supplied: add a customer result for ${segment}.`} |
+| CTA | Not supplied: name the one action you want from ${segment}. |
+| Primary Channel | ${channels[0] || 'Not chosen'} |
 
 `;
   }
 
   // Run 12 (R12-21): the user's goals go in the Target column of the row they match; other rows ask for a target,
   // and a goal that matches no row gets a row of its own. The goals are printed as typed.
+  // Run 19 (D80, problem 3): each goal is filed under its own metric, one by one (money, meetings and sign-ups, reach, adoption,
+  // other). Before, the first row that matched filled itself, so "40 qualified meetings with National Sales Heads" went to Revenue.
   const goalList = parseListItems(args.goals);
-  const used = new Set<number>();
-  const pick = (re: RegExp): string => {
-    const i = goalList.findIndex((g, n) => !used.has(n) && re.test(g));
-    if (i < 0) return '[set a target]';
-    used.add(i);
-    return goalList[i];
-  };
-  const rows = [
-    ['Awareness', pick(/view|impression|visit|traffic|reach|download|follower/i), 'Analytics'],
-    ['Engagement', pick(/sign-?up|trial|ctr|click|lead|demo|registr|attend/i), 'CRM/Analytics'],
-    ['Adoption', pick(/activat|usage|active user|adopt|conversion|retention/i), 'Product Analytics'],
-    ['Revenue', pick(/pipeline|revenue|\$|closed|arr|mrr|deal|sales/i), 'CRM'],
-  ];
-  goalList.forEach((g, n) => { if (!used.has(n)) rows.push(['Other goal', g, '[Tracking method]']); });
+  const kindOf = (g: string): string =>
+    /pipeline|revenue|\$|closed|\barr\b|\bmrr\b|bookings?|deal value/i.test(g) ? 'Revenue'
+    : /meeting|demo|sign-?up|trial|\bleads?\b|registr|attend|click|\bctr\b|opportunit|\bcalls?\b|inquir|enquir/i.test(g) ? 'Engagement'
+    : /view|impression|visit|traffic|reach|download|follower|aware/i.test(g) ? 'Awareness'
+    : /activat|usage|active user|adopt|conversion|retention|rollout|renew|reference|go-?live|live sites?/i.test(g) ? 'Adoption'
+    : 'Other goal';
+  const tracking: Record<string, string> = { Awareness: 'Analytics', Engagement: 'CRM/Analytics', Adoption: 'Product or service usage data', Revenue: 'CRM', 'Other goal': 'Name the source (not supplied)' };
+  const rows = ['Awareness', 'Engagement', 'Adoption', 'Revenue'].map((kind) => {
+    const mine = goalList.filter((g) => kindOf(g) === kind);
+    return [kind, mine.length ? mine.join('; ') : 'No goal given for this metric: add a target if it matters', tracking[kind]];
+  });
+  goalList.filter((g) => kindOf(g) === 'Other goal').forEach((g) => rows.push(['Other goal', g, tracking['Other goal']]));
   const metricRows = rows.map(r => `| ${r[0]} | ${r[1]} | ${r[2]} |`).join('\n');
 
   output += `---
@@ -271,7 +308,7 @@ ${metricRows}
 
 ---
 
-## Risk Mitigation
+${ctx.v ? `${sectorNotes(ctx.v, 'objections')}\n\n---\n\n` : ''}## Risk Mitigation
 
 | Risk | Mitigation | Owner |
 |------|------------|-------|

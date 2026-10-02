@@ -1,4 +1,19 @@
 import { parseListItems, describeChoice, readableChoice, lowerFirstIfCommon, cap, EXAMPLE_FIGURE, EXAMPLE_FIGURES, SUGGESTION_FOOTER } from './utils.js';
+import { readContext, splitItems, q, answerFor, sectorNotes, shortName, capEcho, type BusinessModel } from './context.js';
+
+// Run 19 (D80): the business model chosen is mapped to the model class the tool reasons with. enterprise_contract is read further
+// from the typed text (services, connectivity or investment) when it can be.
+const MODEL_OF_CHOICE: Record<string, BusinessModel | undefined> = {
+  saas_subscription: 'saas', usage_based: 'saas', freemium: 'saas', marketplace: 'marketplace', transactional: 'transactions',
+  services_contract: 'services', connectivity_contract: 'connectivity', investment_mandate: 'investment',
+};
+
+// Signals for a contract that is not a software subscription. No weights are invented for them: the answer splits 100% equally.
+const CONTRACT_SIGNALS: Record<string, string[]> = {
+  services: ['sla_attainment', 'ticket_backlog_trend', 'service_review_attendance', 'executive_engagement', 'renewal_sentiment'],
+  connectivity: ['uptime_and_repair_time', 'incident_trend', 'executive_engagement', 'new_sites_or_links_requested', 'renewal_sentiment'],
+  investment: ['reporting_engagement', 'mandate_size_trend', 'sponsor_engagement', 'risk_review_attendance', 'renewal_sentiment'],
+};
 
 export function generateRetentionPlaybook(args: {
   customer_segment: string;
@@ -8,11 +23,24 @@ export function generateRetentionPlaybook(args: {
   available_data_signals?: string;
   cs_team_size?: string;
   current_interventions?: string;
+  product?: string;
+  industry?: string;
 }): string {
   const businessModel = args.business_model;
   const csTeamSize = args.cs_team_size || 'small_1_3';
   const churnReasons = args.churn_reasons ? parseListItems(args.churn_reasons) : [];
   const dataSignals = args.available_data_signals ? parseListItems(args.available_data_signals) : [];
+  const currentInterventions = splitItems(args.current_interventions);
+  const product = args.product ? (shortName(args.product) ?? args.product.trim()) : '';
+  const productRef = product || 'your service';
+  const accountRef = product || 'your account';
+
+  // The model class and the sector, read from the inputs
+  const ctx = readContext({ model: MODEL_OF_CHOICE[businessModel], vertical: args.industry }, args.customer_segment, args.product, args.churn_reasons, args.available_data_signals);
+  const contractModel = ctx.model === 'services' || ctx.model === 'connectivity' || ctx.model === 'investment' ? ctx.model : null;
+  // Product-led wording (login and feature signals, in-app messages, day-based lifecycle) only when the model is a software or
+  // product relationship; a contract whose kind is not clear gets the contract wording.
+  const subscription = !contractModel && (['saas_subscription', 'usage_based', 'freemium', 'marketplace', 'transactional'].includes(businessModel) || (businessModel === 'enterprise_contract' && ctx.model === 'saas'));
   
   // Parse churn rate
   const churnMatch = args.current_churn_rate.match(/(\d+(?:\.\d+)?)/);
@@ -25,7 +53,7 @@ export function generateRetentionPlaybook(args: {
 
   // DISCOVERY MODE: If no churn reasons provided
   if (churnReasons.length === 0) {
-    return generateChurnDiscoveryKit(args.customer_segment, businessModel, churnRate, churnSeverity, csTeamShown);
+    return generateChurnDiscoveryKit(args.customer_segment, businessModel, churnRate, churnSeverity, csTeamShown, contractModel, subscription, product, ctx.line, ctx.v);
   }
   
   // Business model-specific health score weights
@@ -38,7 +66,12 @@ export function generateRetentionPlaybook(args: {
     enterprise_contract: { executive_engagement: 25, feature_adoption: 25, support_nps: 20, expansion_signals: 15, renewal_sentiment: 15 }
   };
   
-  const weights = healthScoreWeights[businessModel] || healthScoreWeights.saas_subscription;
+  // Run 19 (D80, problem 4): a contract for services, connectivity or investment gets its own signals with an equal split of 100%
+  // (computed from the list, no invented weights).
+  const weights: Record<string, number> = contractModel
+    ? Object.fromEntries(CONTRACT_SIGNALS[contractModel].map((s) => [s, Math.round((100 / CONTRACT_SIGNALS[contractModel].length) * 10) / 10]))
+    : (healthScoreWeights[businessModel] || healthScoreWeights.saas_subscription);
+  const equalWeights = contractModel !== null;
   
   // CS team capacity determines intervention approach
   const interventionCapacity: Record<string, { highTouch: number; automated: number; scaledTouch: number }> = {
@@ -50,31 +83,69 @@ export function generateRetentionPlaybook(args: {
   
   const capacity = interventionCapacity[csTeamSize] || interventionCapacity.small_1_3;
   
+  // Run 19 (D80, problem 5): a reason is matched on whole words (before, "use" matched "because" and "ready" matched "already").
+  const has = (text: string, re: RegExp): boolean => re.test(text.toLowerCase());
+  const adoptionTrigger = subscription
+    ? `Low login frequency OR <30% feature adoption ${EXAMPLE_FIGURE}`
+    : contractModel === 'connectivity' ? 'Sites not live in the planned wave, or the same incident again and again'
+    : contractModel === 'investment' ? 'Falling attendance at reviews or fewer reports opened'
+    : 'Fewer requests raised, fewer service reviews attended, or reports unread';
+
   // Generate specific intervention for each churn reason
   const generateIntervention = (reason: string): { trigger: string; action: string; owner: string; timing: string; email: string } => {
-    const reasonLower = reason.toLowerCase();
-    
-    if (reasonLower.includes('price') || reasonLower.includes('cost') || reasonLower.includes('expensive')) {
+    const sector = answerFor(reason, ctx.v);
+
+    if (has(reason, /\b(bundl\w*|consolidat\w*|one vendor|single vendor|suite)\b/)) {
+      return {
+        trigger: 'A bundled or consolidated offer from another vendor appears in the account',
+        action: `Outcome comparison, not a feature list. ${sector}`,
+        owner: capacity.highTouch > 30 ? 'CSM with the account executive' : 'CS team, with the account executive',
+        timing: 'Within 1 week of the signal',
+        email: `Subject: Comparing the outcome, not the bundle\n\nHi [Name],\n\nI understand another vendor has offered a bundled package. That can look simpler on paper.\n\nBefore you decide, I'd like to compare what each option delivers for the results you care about, and what the bundle leaves to manual work.\n\nWould a 20-minute comparison with your team help?\n\n[Your name]`
+      };
+    }
+
+    if (has(reason, /\b(price|prices|pricing|cost|costs|expensive|cheaper|discount\w*|rates?)\b/)) {
       return {
         trigger: 'Price objection identified (survey, support ticket, or cancellation reason)',
         action: 'Value demonstration call + ROI analysis',
         owner: capacity.highTouch > 30 ? 'CSM' : 'CS team, after an automated email',
         timing: 'Within 24 hours of signal',
-        email: `Subject: Getting more value from ${lowerFirstIfCommon(args.customer_segment)}\n\nHi [Name],\n\nI noticed you mentioned concerns about cost. I'd love to show you the features that could deliver the most value for your team.\n\n[Only if true and provable: Many teams in your situation found that [specific feature] alone saves [X hours/dollars] per month.]\n\nWould you be open to a quick 15-minute call to ensure you're getting maximum value?\n\n[Your name]`
+        email: `Subject: Getting more value from ${accountRef}\n\nHi [Name],\n\nI noticed you mentioned concerns about cost. I'd love to show you what ${productRef} could deliver for your team at the price you pay.\n\n[Only if true and provable: Many customers in your situation found that [specific result] alone saves [X hours or money] per month.]\n\nWould you be open to a quick 15-minute call to ensure you're getting maximum value?\n\n[Your name]`
       };
     }
     
-    if (reasonLower.includes('feature') || reasonLower.includes('missing') || reasonLower.includes('capability')) {
+    if (has(reason, /\b(features?|missing|capabilit\w*)\b/)) {
       return {
         trigger: 'Feature gap mentioned in support/feedback/survey',
         action: 'Feature request logging + workaround education + roadmap preview (if applicable)',
         owner: capacity.highTouch > 30 ? 'CSM with Product input' : 'Support with escalation',
         timing: 'Within 48 hours',
-        email: `Subject: About the feature you mentioned...\n\nHi [Name],\n\nThanks for sharing your feedback about [specific feature]. I wanted to follow up personally.\n\nWhile I can't promise timelines, [Only if true and provable: I've shared your use case with our product team.] [Only if true and provable: In the meantime, here's a workaround that some customers use: [workaround]]\n\nWould it help to walk through this together?\n\n[Your name]`
+        email: `Subject: About what you told us was missing\n\nHi [Name],\n\nThanks for sharing your feedback about what ${productRef} is missing. I wanted to follow up personally.\n\nWhile I can't promise timelines, [Only if true and provable: I've shared your use case with our product team.] [Only if true and provable: In the meantime, here's a workaround that some customers use: [workaround]]\n\nWould it help to walk through this together?\n\n[Your name]`
       };
     }
     
-    if (reasonLower.includes('support') || reasonLower.includes('help') || reasonLower.includes('response')) {
+    if (has(reason, /\b(sla|service levels?|service credits?|credits?|uptime|outages?|incidents?|repair\w*|downtime)\b/)) {
+      return {
+        trigger: 'Service levels missed, credits claimed or disputed, or the same incident again',
+        action: `Service recovery review: root cause, a recovery plan with dates, and a report the customer can check. ${sector}`,
+        owner: 'Service owner + CSM',
+        timing: 'Within 48 hours of the signal, then at the next review',
+        email: `Subject: Service levels for ${accountRef}\n\nHi [Name],\n\nI saw that service levels have not met what we agreed. I'd like to walk you through the cause and a recovery plan with dates.\n\nCould we find 30 minutes this week with your service owner?\n\n[Your name]`
+      };
+    }
+
+    if (has(reason, /\b(key \w+ left|champion|sponsor|contact left|attrition|turnover|resign\w*)\b/)) {
+      return {
+        trigger: 'A key person on either side leaves or changes role',
+        action: `Name a backup for each key role, show the knowledge transfer, and find the new champion. ${sector}`,
+        owner: capacity.highTouch > 30 ? 'CSM with the account executive' : 'CS team, with the account executive',
+        timing: 'Within 1 week of the change',
+        email: `Subject: Continuity for ${accountRef}\n\nHi [Name],\n\nI know there has been a change in the team. I'd like to confirm who covers each key role and how knowledge is being passed on, so nothing slips.\n\nCould we meet this week to go through it?\n\n[Your name]`
+      };
+    }
+
+    if (has(reason, /\b(support|help|response|tickets?)\b/)) {
       return {
         trigger: 'Multiple support tickets OR low CSAT on support interaction',
         action: 'Executive escalation + dedicated support channel + satisfaction recovery',
@@ -84,42 +155,57 @@ export function generateRetentionPlaybook(args: {
       };
     }
     
-    if (reasonLower.includes('competitor') || reasonLower.includes('switch') || reasonLower.includes('alternative')) {
+    if (has(reason, /\b(competitors?|switch\w*|alternatives?|rivals?|incumbents?)\b/)) {
       return {
         trigger: 'Competitor mention in any customer touchpoint',
-        action: 'Competitive win-back campaign + differentiation call',
+        action: `Competitive win-back campaign + differentiation call. ${sector}`,
         owner: capacity.highTouch > 30 ? 'CSM or Account Exec' : 'CS team, with automated comparison content',
         timing: 'Within 4 hours if identified',
         email: `Subject: Before you decide...\n\nHi [Name],\n\nI understand you're evaluating other options. That's smart: you should always explore what's best for your team.\n\nBefore you make a final decision, I'd love to share some context. [Only if true and provable: Customers who've made similar evaluations told us we do [key differentiator] better than alternatives.]\n\nWorth a quick call?\n\n[Your name]`
       };
     }
     
-    if (reasonLower.includes('use') || reasonLower.includes('adopt') || reasonLower.includes('engagement') || reasonLower.includes('not using')) {
+    if (has(reason, /\b(adopt\w*|usage|engagement|unused|not using|low use|(?:do|does|did|will|would) not use|won't use)\b/)) {
       return {
-        trigger: `Low login frequency OR <30% feature adoption ${EXAMPLE_FIGURE}`,
-        action: 'Onboarding reset + use case discovery call + quick-win identification',
+        trigger: adoptionTrigger,
+        action: subscription ? 'Onboarding reset + use case discovery call + quick-win identification' : 'Service review + use case discovery call + quick-win identification',
         owner: capacity.highTouch > 30 ? 'CSM' : 'CS team, after an automated nurture',
-        timing: 'When pattern detected (Day 7, 14, 21 of low engagement)',
-        email: `Subject: Getting more out of [Product]\n\nHi [Name],\n\nI noticed your team hasn't been using [Product] as much recently. Sometimes that means we didn't nail the initial setup.\n\nI'd love to understand your goals better and show you a quick win that might change how you see the product. [Only if true and provable: Teams like yours typically see [specific outcome] within the first month when we get this right.]\n\n15 minutes: worth it? ${EXAMPLE_FIGURE}\n\n[Your name]`
+        timing: subscription ? 'When pattern detected (Day 7, 14, 21 of low engagement)' : 'At the next service review, or within 2 weeks of the signal',
+        email: `Subject: Getting more out of ${accountRef}\n\nHi [Name],\n\nI noticed your team hasn't been using ${productRef} as much recently. Sometimes that means we didn't nail the initial setup.\n\nI'd love to understand your goals better and show you a quick win that might change how you see the service. [Only if true and provable: Teams like yours typically see [specific outcome] within the first month when we get this right.]\n\n15 minutes: worth it? ${EXAMPLE_FIGURE}\n\n[Your name]`
       };
     }
     
-    // Default intervention
+    // Default intervention: the reason is quoted, and the sector's answer pattern is given when one fits
     return {
-      trigger: `"${reason}" identified in customer feedback`,
-      action: 'Personalized outreach + root cause analysis',
+      trigger: `${q(capEcho(reason, 120).short)} identified in customer feedback`,
+      action: `Personalized outreach + root cause analysis. ${sector}`,
       owner: capacity.highTouch > 30 ? 'CSM' : 'CS team, after an automated check-in',
       timing: 'Within 48 hours of signal',
-      email: `Subject: Quick check-in\n\nHi [Name],\n\nI wanted to reach out personally because your feedback matters to us.\n\nYou mentioned [the problem, in the customer's words]. I'd love to understand this better and see if there's anything we can do.\n\nDo you have 10 minutes this week?\n\n[Your name]`
+      email: `Subject: Quick check-in\n\nHi [Name],\n\nI wanted to reach out personally because your feedback matters to us.\n\nYou told us: ${q(capEcho(reason, 200).short)}. I'd love to understand this better and see if there's anything we can do.\n\nDo you have 10 minutes this week?\n\n[Your name]`
     };
   };
 
+  // Which of the user's data signals each model signal can use (a signal word of 4 or more letters found in what the user typed)
+  const signalWords = (key: string): string[] => key.split('_').filter((w) => w.length >= 4 && !['trend', 'rate', 'requested', 'sentiment'].includes(w));
+  const trackedFor = (key: string): string | null => dataSignals.find((ds) => signalWords(key).some((w) => ds.toLowerCase().includes(w.slice(0, 4)))) ?? null;
+  const usedSignals = new Set<string>();
+  const signalRows = Object.entries(weights).map(([signal, weight]) => {
+    const tracked = trackedFor(signal);
+    if (tracked) usedSignals.add(tracked);
+    return `| ${signal.replace(/_/g, ' ')} | ${weight}% | ${tracked ? `Available: you track ${q(tracked)}` : 'Need to add'} | Red < 30, Yellow 30-70, Green > 70 |`;
+  }).join('\n');
+  const unusedSignals = dataSignals.filter((ds) => !usedSignals.has(ds));
+
+  const segmentHead = capEcho(args.customer_segment, 100);
+  const heading = `${product ? `${product}: ` : ''}${cap(lowerFirstIfCommon(segmentHead.short))}`;
   let output = `# Retention Playbook
-## ${cap(lowerFirstIfCommon(args.customer_segment))}
+## ${heading}
 
 **Business Model:** ${readableChoice(businessModel)}
 **Current Churn Rate:** ${args.current_churn_rate} (${churnSeverity}, judged against example benchmarks)
 **CS Team Capacity:** ${csTeamShown}
+${segmentHead.capped ? `**Customer segment (as you wrote it):** ${args.customer_segment.trim()}\n` : ''}
+${ctx.line}
 
 ---
 
@@ -129,20 +215,17 @@ export function generateRetentionPlaybook(args: {
 |--------|-------|--------|
 | Monthly Churn | ${churnRate}% | ${churnSeverity} |
 | Annual Revenue at Risk (your monthly churn, annualized) | ~${(churnRate * 12).toFixed(0)}% (monthly churn times twelve, not compounded) | ${churnRate * 12 > 50 ? 'Urgent' : 'Monitor'} |
-| Benchmark (${readableChoice(businessModel)}) | ${businessModel === 'saas_subscription' ? '3-5%' : businessModel === 'consumer' ? '5-8%' : '4-6%'} ${EXAMPLE_FIGURE} | - |
+| Benchmark (${readableChoice(businessModel)}) | ${contractModel ? 'No example benchmark for this model: set your own' : `${businessModel === 'saas_subscription' ? '3-5%' : businessModel === 'consumer' ? '5-8%' : '4-6%'} ${EXAMPLE_FIGURE}`} | - |
 
 ---
 
 ## Health Score Model (${readableChoice(businessModel)})
 
-${EXAMPLE_FIGURES} The weights and thresholds below are illustrations to adapt to your data.
+${equalWeights ? `The signals below are for ${contractModel === 'services' ? 'a services' : contractModel === 'connectivity' ? 'a connectivity' : 'an investment'} contract. The weights are an equal split of 100%, computed from the number of signals: set your own weights from your data.` : `${EXAMPLE_FIGURES} The weights and thresholds below are illustrations to adapt to your data.`}
 | Signal | Weight | How to Track | Threshold |
 |--------|--------|--------------|-----------|
-${Object.entries(weights).map(([signal, weight]) => {
-  const available = dataSignals.some(ds => ds.toLowerCase().includes(signal.split('_')[0]));
-  return `| ${signal.replace(/_/g, ' ')} | ${weight}% | ${available ? 'Available' : 'Need to add'} | Red < 30, Yellow 30-70, Green > 70 |`;
-}).join('\n')}
-
+${signalRows}
+${dataSignals.length ? `\n**Signals you said you can track:** ${dataSignals.map((d) => q(d)).join(', ')}.${unusedSignals.length ? ` Not matched to a signal above: ${unusedSignals.map((d) => q(d)).join(', ')}. They are not in the weights; add them as signals, or use them in your reviews.` : ' Every one is matched to a signal above.'}\n` : '\nNo data signals were given: every row above says "Need to add" until you name what you can track.\n'}
 ### Health Score Calculation
 
 ${EXAMPLE_FIGURES}
@@ -158,7 +241,7 @@ Risk Levels (${EXAMPLE_FIGURES.replace(/\.$/, '')}):
 
 ---
 
-## Churn Reason Interventions
+${currentInterventions.length ? `## What You Already Do\n\n${currentInterventions.map((x) => `- ${q(x)}`).join('\n')}\n\nCheck each one against the churn reasons below: keep what answers a reason, and use the playbook for the reasons nothing you do answers yet.\n\n---\n\n` : ''}## Churn Reason Interventions
 
 `;
 
@@ -197,20 +280,26 @@ ${EXAMPLE_FIGURES} The allocation is a starting split for this team size.
 |-------------------|------------|-------------|
 | High-Touch | ${capacity.highTouch}% | Personal calls, custom solutions, executive involvement |
 | Scaled Touch | ${capacity.scaledTouch}% | 1:many webinars, office hours, community |
-| Automated | ${capacity.automated}% | Email sequences, in-app messages, self-serve |
+| Automated | ${capacity.automated}% | ${subscription ? 'Email sequences, in-app messages, self-serve' : 'Email sequences, scheduled reports, portal updates'} |
 
 ---
 
-## Lifecycle Intervention Timing
+## ${subscription ? 'Lifecycle Intervention Timing' : 'Contract Lifecycle Timing'}
 
-| Touchpoint | Timing | Action | Goal |
+${subscription ? `| Touchpoint | Timing | Action | Goal |
 |------------|--------|--------|------|
 | Onboarding Check | Day 7 | Adoption check + quick win | Activate |
 | First Value Review | Day 30 | Success metrics review | Confirm value |
 | Expansion Probe | Day 60 | Use case expansion | Deepen |
 | QBR (if applicable) | Day 90 | Business review | Renew signal |
 | Pre-Renewal | 60 days before renewal | Renewal conversation | Retain |
-| At-Risk Intervention | When triggered | Health score-based | Save |
+| At-Risk Intervention | When triggered | Health score-based | Save |` : `| Touchpoint | Timing | Action | Goal |
+|------------|--------|--------|------|
+| Go-live check | When the service goes live | Confirm it is live as contracted | Activate |
+| First service review | After go-live, at the first review | Review service levels and open issues with the owner | Confirm value |
+| Regular review | On the schedule in your contract | Review reports, incidents and requests | Deepen |
+| Pre-renewal | Early enough to act (your contract's notice period decides) | Renewal conversation with the sponsor | Retain |
+| At-risk intervention | When triggered | Health score or incident based | Save |`}
 
 ---
 
@@ -218,15 +307,15 @@ ${EXAMPLE_FIGURES} The allocation is a starting split for this team size.
 
 | Metric | Target (${EXAMPLE_FIGURES.replace(/\.$/, '')}) | Current | Tracking |
 |--------|--------|---------|----------|
-| Monthly Churn Rate | <${businessModel === 'saas_subscription' ? '3' : '5'}% | ${churnRate}% | Billing system |
+| Monthly Churn Rate | ${contractModel ? 'Set your own' : `<${businessModel === 'saas_subscription' ? '3' : '5'}%`} | ${churnRate}% | Billing system |
 | Health Score Coverage | 100% | - | CS platform |
 | Intervention Response Rate | >50% | - | Email/call tracking |
 | Save Rate (at-risk to retained) | >30% | - | CS platform |
-| Time to First Value | <${businessModel === 'enterprise_contract' ? '30' : '7'} days | - | Product analytics |
+| ${subscription ? 'Time to First Value' : 'Time to go-live'} | ${subscription ? `<${businessModel === 'enterprise_contract' ? '30' : '7'} days` : 'Set your own'} | - | ${subscription ? 'Product analytics' : 'Project plan'} |
 
----
+${ctx.v ? `---\n\n${sectorNotes(ctx.v, 'objections')}\n\n` : ''}---
 
-*Retention playbook generated for ${lowerFirstIfCommon(args.customer_segment)} using the CRAFT GTM framework*
+*Retention playbook generated for ${product ? `${product}, ` : ''}${lowerFirstIfCommon(segmentHead.short)} using the CRAFT GTM framework*
 *Optimized for ${readableChoice(businessModel)} business model with ${csTeamShown} CS team*
 
 ${SUGGESTION_FOOTER}`;
@@ -240,7 +329,12 @@ function generateChurnDiscoveryKit(
   businessModel: string,
   churnRate: number,
   severity: string,
-  csTeamShown: string
+  csTeamShown: string,
+  contractModel: 'services' | 'connectivity' | 'investment' | null,
+  subscription: boolean,
+  product: string,
+  contextLine: string,
+  v: import('./context.js').Vertical | null
 ): string {
   const commonReasons: Record<string, string[]> = {
     saas_subscription: ['Price/value mismatch', 'Missing features', 'Poor support', 'Competitor switch', 'Low usage/adoption', 'Champion left', 'Budget cuts', 'Poor onboarding'],
@@ -248,12 +342,16 @@ function generateChurnDiscoveryKit(
     marketplace: ['Low supply/demand', 'Trust issues', 'Fee concerns', 'Better platform', 'Quality issues'],
     transactional: ['Price sensitivity', 'Product quality', 'Delivery issues', 'Customer service', 'Found alternatives'],
     freemium: ['Never converted', 'Feature limits frustrating', 'Found free alternative', 'Not enough value to pay'],
-    enterprise_contract: ['Executive sponsor left', 'Failed implementation', 'Poor ROI', 'Vendor consolidation', 'Contract terms']
+    enterprise_contract: ['Executive sponsor left', 'Failed implementation', 'Poor ROI', 'Vendor consolidation', 'Contract terms'],
+    services: ['Service level misses', 'Key people left', 'Price or rate pressure', 'Competitor or offshore alternative', 'Scope changed', 'Governance or reporting gaps', 'Transition problems', 'Vendor consolidation'],
+    connectivity: ['Outages and slow repairs', 'Price per site', 'Migration or cut-over pain', 'Competitor or operator switch', 'Contract end and re-tender', 'Security overlay gaps'],
+    investment: ['Performance against the agreed benchmark', 'Fee pressure', 'Reporting or explainability gaps', 'Mandate or allocation change', 'Key contact left', 'Risk concerns'],
   };
 
-  const reasons = commonReasons[businessModel] || commonReasons.saas_subscription;
+  const reasons = (contractModel && commonReasons[contractModel]) || commonReasons[businessModel] || commonReasons[businessModel === 'services_contract' ? 'services' : businessModel === 'connectivity_contract' ? 'connectivity' : businessModel === 'investment_mandate' ? 'investment' : 'saas_subscription'];
+  const leave = subscription ? 'churned' : 'ended or did not renew';
 
-  return `# Churn Discovery Kit: ${segment}
+  return `# Churn Discovery Kit: ${capEcho(segment, 100).short}${product ? ` (${product})` : ''}
 
 ## Current Situation
 
@@ -263,6 +361,8 @@ function generateChurnDiscoveryKit(
 | **Business Model** | ${readableChoice(businessModel)} | |
 | **CS Team** | ${csTeamShown} | |
 
+${contextLine}
+
 **You haven't provided churn reasons.** To build an effective retention playbook, you need to understand WHY customers leave.
 
 Here's a framework to discover your churn reasons:
@@ -271,7 +371,7 @@ Here's a framework to discover your churn reasons:
 
 ## Step 1: Churn Survey Template
 
-Send this to recently churned customers, within 7 days of churn (Example figure: replace with your own):
+Send this to customers who recently ${leave}, within 7 days (Example figure: replace with your own):
 
 **Subject:** Quick question: we'd love your feedback
 
@@ -281,7 +381,7 @@ Send this to recently churned customers, within 7 days of churn (Example figure:
 > We're sorry to see you go. To help us improve, would you mind sharing the main reason you decided to leave?
 >
 > [SINGLE SELECT: pick ONE]
-${reasons.map((r, i) => `> - ${r}`).join('\n')}
+${reasons.map((r) => `> - ${r}`).join('\n')}
 > - Other: ___________
 >
 > Any additional feedback is greatly appreciated.
@@ -307,7 +407,7 @@ For high-value churns, do a 15-minute call:
 
 ### Future (3 min)
 7. "Is there anything that would bring you back?"
-8. "What would you tell someone considering our product?"
+8. "What would you tell someone considering ${product ? product : 'our service'}?"
 
 ---
 
@@ -315,18 +415,21 @@ For high-value churns, do a 15-minute call:
 
 Before customers tell you why they left, your data might already show patterns:
 
-### Usage Signals to Check
-- [ ] Login frequency trend (30/60/90 days before churn) ${EXAMPLE_FIGURE}
+### ${subscription ? 'Usage Signals to Check' : 'Service Signals to Check'}
+${subscription ? `- [ ] Login frequency trend (30/60/90 days before churn) ${EXAMPLE_FIGURE}
 - [ ] Feature adoption (which features did churns NOT use?)
 - [ ] Support ticket volume and sentiment
 - [ ] Time since last meaningful action
-- [ ] NPS or CSAT scores
+- [ ] NPS or CSAT scores` : `- [ ] Service-level reports in the months before the contract ended ${EXAMPLE_FIGURE}
+- [ ] Incidents, repair times or missed targets
+- [ ] Support ticket volume and sentiment
+- [ ] Changes of contact or sponsor on the customer side
+- [ ] NPS or CSAT scores`}
 
 ### Correlation Analysis
 - [ ] Churn by customer size (SMB vs Enterprise)
 - [ ] Churn by acquisition channel
-- [ ] Churn by first feature used
-- [ ] Churn by onboarding completion rate
+${subscription ? '- [ ] Churn by first feature used\n- [ ] Churn by onboarding completion rate' : '- [ ] Churn by contract term and renewal date\n- [ ] Churn by how long go-live took'}
 - [ ] Churn by CSM assignment
 
 ---
@@ -345,16 +448,16 @@ ${reasons.map((r, i) => `### ${i + 1}. ${r}
 
 ---
 
-## Next Steps
+${v ? `${sectorNotes(v, 'objections')}\n\n---\n\n` : ''}## Next Steps
 
-1. **Send churn survey** to last 20 churned customers ${EXAMPLE_FIGURE}
+1. **Send churn survey** to the last 20 customers who ${leave} ${EXAMPLE_FIGURE}
 2. **Conduct 5 churn interviews** with highest-value losses ${EXAMPLE_FIGURE}
 3. **Pull data** on the signals above
 4. **Come back to this tool** with your top 3-5 churn reasons ${EXAMPLE_FIGURE}
 
 **Once you have churn reasons, run this tool again with:**
 \`\`\`
-churn_reasons: "[reason 1], [reason 2], [reason 3]"
+churn_reasons: "reason 1, reason 2, reason 3"
 \`\`\`
 
 You'll get a complete playbook with specific interventions for each reason.
@@ -362,7 +465,7 @@ You'll get a complete playbook with specific interventions for each reason.
 ---
 
 *Churn Discovery Kit generated using the CRAFT GTM framework*
-*For ${lowerFirstIfCommon(segment)} in ${readableChoice(businessModel)} model*
+*For ${lowerFirstIfCommon(capEcho(segment, 100).short)} in ${readableChoice(businessModel)} model*
 
 ${SUGGESTION_FOOTER}`;
 }
@@ -376,7 +479,27 @@ function getSignalsForReason(reason: string): string {
     'Low usage/adoption': 'Login frequency dropping, few features used, short sessions',
     'Champion left': 'Primary contact changed, new stakeholder questions basics',
     'Budget cuts': 'Delayed payments, contract negotiation requests, downgrade inquiries',
-    'Poor onboarding': `Churns within 30 days ${EXAMPLE_FIGURE}, incomplete setup, never hit first milestone`
+    'Poor onboarding': `Churns within 30 days ${EXAMPLE_FIGURE}, incomplete setup, never hit first milestone`,
+    'Service level misses': 'Service-level reports below target, credits requested, escalations to your management',
+    'Key people left': 'Requests to keep named people, complaints about changes in the team, more rework',
+    'Price or rate pressure': 'Rate-card comparisons, requests for a cheaper scope, procurement asking for a re-tender',
+    'Competitor or offshore alternative': 'Questions about other providers, requests for a rate benchmark',
+    'Scope changed': 'Change requests, work outside the statement of work, unclear ownership',
+    'Governance or reporting gaps': 'Missed reviews, reports not read, no named service owner on either side',
+    'Transition problems': 'Delays against the transition plan, knowledge gaps, parallel run extended',
+    'Vendor consolidation': 'Procurement talking about fewer vendors, a rival offering a wider package',
+    'Outages and slow repairs': 'Repeated incidents on the same sites, long repair times, service credits paid',
+    'Price per site': 'Rate-card comparisons by site, requests to cut low-use sites',
+    'Migration or cut-over pain': 'Sites slipping from their wave, rollback requests, branch complaints',
+    'Competitor or operator switch': 'Questions about another operator, requests for site-by-site quotes',
+    'Contract end and re-tender': 'A tender or RFP announced, procurement contact replaces the network owner',
+    'Security overlay gaps': 'Security team raising findings the service does not cover',
+    'Performance against the agreed benchmark': 'Performance below the agreed reference for several review periods',
+    'Fee pressure': 'Requests to renegotiate fees, comparison with other managers',
+    'Reporting or explainability gaps': 'Questions the reports cannot answer, requests for more detail on how decisions are made',
+    'Mandate or allocation change': 'Reallocation by the client, a new investment committee, a changed policy',
+    'Key contact left': 'Primary contact changed, new stakeholder asks for basics again',
+    'Risk concerns': 'Risk or compliance asking for more documentation or limits',
   };
   return signals[reason] || 'Check support tickets and usage data for mentions';
 }
@@ -390,7 +513,27 @@ function getInterventionForReason(reason: string): string {
     'Low usage/adoption': 'Reactivation campaign, training session, success milestone push',
     'Champion left': 'New champion discovery, executive sponsorship renewal, value resell',
     'Budget cuts': 'Downgrade options, payment flexibility, value justification for leadership',
-    'Poor onboarding': 'Onboarding restart, dedicated implementation support, quick win focus'
+    'Poor onboarding': 'Onboarding restart, dedicated implementation support, quick win focus',
+    'Service level misses': 'Root-cause review with the service owner, a recovery plan with dates, a report the client can check',
+    'Key people left': 'Name the backup for each key role, show the knowledge transfer, agree a team review',
+    'Price or rate pressure': 'Compare the total cost of the outcome, not the rate; offer a scope or term option instead of a cut',
+    'Competitor or offshore alternative': 'Total-cost comparison on the outcome, staged transition proof, references from similar clients',
+    'Scope changed': 'Re-baseline the scope, agree the change process, name the owner on both sides',
+    'Governance or reporting gaps': 'Reset the review cadence, name the owners, agree the reports the client reads',
+    'Transition problems': 'Recovery plan against the transition milestones, extra knowledge transfer, exit criteria for each stage',
+    'Vendor consolidation': 'Compare the outcome the buyer needs from each option, not the size of the bundle',
+    'Outages and slow repairs': 'Incident review per site, a repair-time commitment you can meet, a fallback link plan',
+    'Price per site': 'Total cost per site including outages and management time',
+    'Migration or cut-over pain': 'Wave plan with a rollback rule for each wave, fallback links, a named owner per region',
+    'Competitor or operator switch': 'Start with the sites where service is worst; let the results make the case',
+    'Contract end and re-tender': 'Open the renewal early with the network owner and procurement together, and bring service records',
+    'Security overlay gaps': 'Show how network and security controls are managed together and who responds to an incident',
+    'Performance against the agreed benchmark': 'A review of the drivers of the gap with the sponsor, and what changes next',
+    'Fee pressure': 'Agree reporting and scope instead of a fee cut',
+    'Reporting or explainability gaps': 'Add the explanation the client asks for to every report',
+    'Mandate or allocation change': 'Meet the new decision makers early and restate the agreed purpose',
+    'Key contact left': 'New champion discovery, executive sponsorship renewal',
+    'Risk concerns': 'Prepare the documentation and limits risk and compliance ask for, before they ask',
   };
   return interventions[reason] || 'Direct outreach to understand and address concern';
 }
