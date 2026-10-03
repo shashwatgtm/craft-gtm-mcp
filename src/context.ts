@@ -163,7 +163,8 @@ export function readContext(opts: { model?: unknown; hintModel?: BusinessModel |
     // A seller read as AI native whose words are about portfolios, securities and forecasts for investors manages or advises on money: the investment model.
     if (v && v.id === 'ai-native' && how !== 'read' || (v && v.id === 'ai-native' && model === 'saas' && how === 'read')) {
       const t = sellerTexts.join(' ');
-      if ((t.match(/\b(?:portfolios?|securities|forecast ranges?|investment|asset allocators?|alpha|factor exposures?)\b/gi) ?? []).length >= 2 && !/\b(?:platform|software|saas|subscription|api)\b/i.test(t)) { model = 'investment'; how = 'read'; }
+      const tb = `${t} ${(input.buyer ?? []).filter((x): x is string => typeof x === 'string').join(' ')}`;
+      if ((tb.match(/\b(?:portfolios?|securities|forecast ranges?|investment|asset allocators?|pensions?|endowments?|wealth managers?|alpha|factor exposures?)\b/gi) ?? []).length >= 2 && !/\b(?:platform|software|saas|subscription|api)\b/i.test(t)) { model = 'investment'; how = 'read'; }
     }
     if (v && v.id === 'ites' && model === 'saas' && how === 'read') {
       const sellerText = (input.seller ?? []).filter((x): x is string => typeof x === 'string').join(' ');

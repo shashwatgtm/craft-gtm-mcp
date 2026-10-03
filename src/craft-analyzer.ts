@@ -311,7 +311,7 @@ ${matters.length ? matters.map((m) => `- **${m.title}:** ${m.detail}`).join('\n'
   };
   // A plan whose buyers are asset allocators, a CIO and portfolio managers is an investment sale even when the product words name no sector.
   const investPlan = !sectorCtx.v && ((content.match(/\b(asset allocators?|portfolio managers?|investment committees?|investment managers?|wealth managers?|pensions?|endowments?)\b/gi) ?? []).length >= 2);
-  const checkV = sectorCtx.v ?? (investPlan ? profileFor(VERTICALS.find((x) => x.id === 'fintech')!, 'investment') : null);
+  const checkV = sectorCtx.v ?? (investPlan ? profileFor(VERTICALS.find((x) => x.id === 'ai-native')!, 'investment') : null);
   const sectorCheck = checkV
     ? (() => {
         const v = checkV;
