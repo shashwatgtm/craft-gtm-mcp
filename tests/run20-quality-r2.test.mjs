@@ -97,7 +97,7 @@ test("craft_gtm_analyzer: 'Asset allocators' is not a content asset; the role in
   assert.match(t, /### A: ARTIFACT[^\n]*\n\*\*Score: 0\/10/);
   assert.match(t, /Deciders your plan names:[^\n]*Head of IT Infrastructure/);
   assert.doesNotMatch(t, /Not named:[^\n]*Head of IT Infrastructure/);
-  assert.match(t, /Your plan names:\*\* uptime per site/);
+  assert.match(t, /Your plan names:\*\* uptime\b/);   // run 21b: the neutral telecom entry names "uptime"; "uptime per site" belongs to the connectivity sub-type
 });
 test("craft_gtm_analyzer: a long risk line is not cut inside a word", async () => {
   const t = (await call("craft_gtm_analyzer", { document_content: "Plan.\nRisks: How is it different from a corporate credit card?; How is it different from a bank debit card?; How long does it take to set up my account and connect it to the ledger?", document_type: "quarterly_plan" })).text;

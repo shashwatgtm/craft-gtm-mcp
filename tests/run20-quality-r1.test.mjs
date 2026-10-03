@@ -306,7 +306,7 @@ test("acronyms keep their capitals when a sector objection or proof is lower-cas
   const r = await call("launch_commander", { product_feature: "Lanehop: route planning and dispatch for delivery fleets", launch_type: "feature_launch", target_segments: "Retail", goals: "ten hypothetical meetings", industry: "logistics_tech" });
   assert.match(r.text, /we already have a TMS/);
   assert.doesNotMatch(r.text, /we already have a tms/);
-  const p = await call("partner_architect", { company: "Vaultline", product: "Vaultline", partner_model: "referral", partner_goals: "pipeline", your_deal_size: "$80,000", industry: "cybersecurity" });
+  const p = await call("partner_architect", { company: "Vaultline", product: "Vaultline cloud security posture management", partner_model: "referral", partner_goals: "pipeline", your_deal_size: "$80,000", industry: "cybersecurity" });   // run 21b: the SIEM objection belongs to the cloud security sub-type, so the product is named
   assert.match(p.text, /integration with our SIEM and ticketing/);
   assert.match(p.text, /Subject: Referral partnership with Vaultline\n/);
 });
