@@ -208,7 +208,11 @@ export function generateCompetitiveIntel(args: {
   };
 
   const productHead = capEcho(args.your_product, 120);
-  const productName = shortName(args.your_product) ?? capEcho(args.your_product, 40).short;
+  // run 21c round 3: a long plain description is named by the words before its first joining word ("Freight visibility platform"), not cut at 40 characters
+  const headWords = args.your_product.trim().split(/\s+/);
+  const joinAt = headWords.findIndex((w, i) => i >= 1 && /^(?:that|which|who|where|for|with|by|from|connects?|helps?|lets?|gives?|makes?|builds?|runs?|designs?|turns?|unifies?|joins?|uses?)$/i.test(w));
+  const nounName = joinAt >= 1 && joinAt <= 4 ? headWords.slice(0, joinAt).join(' ') : null;
+  const productName = shortName(args.your_product) ?? nounName ?? capEcho(args.your_product, 40).short;
   let output = `# Competitive Battle Cards
 ## ${productHead.short}
 ${productHead.capped ? `\n**Your product (as you wrote it):** ${args.your_product.trim()}\n` : ''}
