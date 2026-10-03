@@ -32,6 +32,9 @@ export function q(s: string): string {
   return `"${s.trim().replace(/^"|"$/g, '').replace(/[.]$/, '')}"`;
 }
 
+// The model names of the shared reader, with "payments" taken out of the per-transaction label: a shipping or marketplace seller is per-transaction too.
+const MODEL_LABEL: Record<BusinessModel, string> = { ...MODEL_NAME, transactions: 'per-transaction (volume based)' };
+
 export interface Context { v: Vertical | null; model: BusinessModel | null; how: 'input' | 'hint' | 'read' | 'sector' | 'unknown'; sector: string; line: string; buyerV: Vertical | null }
 
 // Words that the shared reader takes for a sector word but that mean something else in these phrases: "per security" and "securities"
@@ -98,7 +101,7 @@ export function readContext(opts: { model?: unknown; hintModel?: BusinessModel |
     // when the sector is ITeS and the seller's words name services work, the model is services.
     if (v && v.id === 'ites' && model === 'saas' && how === 'read') {
       const sellerText = (input.seller ?? []).filter((x): x is string => typeof x === 'string').join(' ');
-      if (/\b(?:managed services?|it services|engineering services|consulting|outsourc\w*|systems? integrat\w*|contact cent(?:re|er)s?|service desk)\b/i.test(sellerText) && !/\b(?:saas|subscriptions?|per seat|per user)\b/i.test(sellerText)) { model = 'services'; how = 'read'; }
+      if (/\b(?:managed services?|it services|engineering services|consulting|outsourc\w*|systems? integrat\w*|contact cent(?:re|er)s?|service desk|back[- ]office|business process|collections services|customer experience(?: and \w+)? services|designs?,? builds?,? and runs?)\b/i.test(sellerText) && !/\b(?:saas|subscriptions?|per seat|per user)\b/i.test(sellerText)) { model = 'services'; how = 'read'; }
     }
     if (v && v.id === 'telecom' && model === 'saas' && how === 'read') {
       const sellerText = (input.seller ?? []).filter((x): x is string => typeof x === 'string').join(' ');
@@ -113,7 +116,7 @@ export function readContext(opts: { model?: unknown; hintModel?: BusinessModel |
   const vAdj = v && model === 'investment' ? investmentView(v) : v;
   const sector = vAdj ? `${chosen ? `${vAdj!.name} (from your choice)` : `read from your inputs as ${vAdj!.name}`}` : `not clear from your inputs${buyerSide || ' (name the industry for sector notes)'}`;
   const mtxt = model
-    ? `${MODEL_NAME[model]} (${how === 'input' ? 'from business_model' : how === 'hint' ? 'from your market choice; set business_model to change it' : how === 'sector' ? 'the usual model in this sector, assumed; set business_model to change it' : 'read from your inputs; set business_model to change it'})`
+    ? `${MODEL_LABEL[model]} (${how === 'input' ? 'from business_model' : how === 'hint' ? 'from your market choice; set business_model to change it' : how === 'sector' ? 'the usual model in this sector, assumed; set business_model to change it' : 'read from your inputs; set business_model to change it'})`
     : 'not clear from your inputs; set business_model (saas, services, connectivity, transactions, marketplace, hardware_software or investment) for advice that fits it';
   return { v: vAdj, model, how, sector, line: `*Sector: ${sector}. Business model: ${mtxt}.*`, buyerV };
 }
@@ -124,7 +127,7 @@ export function sectorNotes(v: Vertical | null, what: 'committee' | 'metrics' | 
   const out = [`### Sector notes: ${v.name}`];
   if (what === 'committee' || what === 'all') out.push(`- **Who usually decides:** ${v.committee}`);
   if (what === 'metrics' || what === 'all') out.push(`- **What this sector measures:** ${v.metrics.join(', ')}.`);
-  if (what === 'objections' || what === 'all') out.push(`- **Objections this sector often raises:** ${v.objections.map((o) => o.objection.toLowerCase()).join('; ')}.`);
+  if (what === 'objections' || what === 'all') out.push(`- **Objections this sector often raises:** ${v.objections.map((o) => lcFirst(o.objection)).join('; ')}.`);
   out.push(`- **Words this buyer uses:** ${v.vocabulary.join(', ')}.`);
   out.push(`- **A proof point that lands:** ${v.proofShape}`);
   return out.join('\n');

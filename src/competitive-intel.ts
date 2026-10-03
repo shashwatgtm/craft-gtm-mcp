@@ -115,7 +115,8 @@ export function generateCompetitiveIntel(args: {
     const hit = competitors.map((c) => ({ c, n: [...longWords(g)].filter((w) => longWords(c).has(w)).length })).sort((x, y) => y.n - x.n)[0];
     // else the one competitor that shares a word of six letters or more that no other competitor's text has ("spreadsheets")
     const unique = competitors.filter((c) => [...longWords(g)].some((w) => w.length >= 6 && longWords(c).has(w) && !competitors.some((o) => o !== c && longWords(o).has(w))));
-    if (hit && hit.n >= 2) (byCompetitor[hit.c] ??= []).push(g);
+    const sharing = competitors.filter((c) => [...longWords(g)].filter((w) => longWords(c).has(w)).length >= 2);
+    if (hit && hit.n >= 2) sharing.forEach((c) => (byCompetitor[c] ??= []).push(g));
     else if (unique.length === 1) (byCompetitor[unique[0]] ??= []).push(g);
     else generalLeft.push(g);
   }

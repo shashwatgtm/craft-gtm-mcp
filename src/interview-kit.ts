@@ -15,9 +15,9 @@ const ROLE_FOCUS: Array<{ re: RegExp; label: string; questions: string[] }> = [
     'Where do policy breaches or errors in spend, claims or invoices show up first, and who finds them?',
     'What did your last audit ask for that took days to produce?',
     'Which systems must anything new post into, and who owns that integration?'] },
-  { re: /\b(ciso|security|soc\b|risk and compliance|compliance)\b/i, label: 'security leader', questions: [
+  { re: /\b(ciso|security|soc\b|risk and compliance|compliance)\b/i, label: 'security role', questions: [
     'Walk me through last week: how many alerts or findings reached the team, and which ones were worked on?',
-    'Which assets, clouds or exposures are you least sure about today?',
+    'Which findings keep coming back, and what stops the team from closing them?',
     'What did the last audit or incident show that your tools did not?',
     'How would you know a new tool had paid off after three months: fewer alerts, faster fixes, or better audit evidence?'] },
   { re: /\b(cio|cto\b|chief (?:information|technology)|head of (?:it|technology|infrastructure)|it (?:head|director|manager|operations)|infrastructure|network (?:head|manager|lead|engineer)|vp it)\b/i, label: 'IT and infrastructure leader', questions: [
@@ -163,7 +163,7 @@ export function generateCustomerInterviewKit(args: {
   const questionSets: Record<string, { opening: string[]; core: string[]; probing: string[]; closing: string[] }> = {
     discovery: {
       opening: [
-        `Tell me about your role as ${args.target_persona}. What does a typical week look like?`,
+        `Tell me about your role (${args.target_persona}). What does a typical week look like?`,
         `What are your top 3 priorities this quarter?`,
         `How long has this problem been on your team's list, and who noticed it first?`
       ],
@@ -318,6 +318,9 @@ export function generateCustomerInterviewKit(args: {
   };
   
   const questions = questionSets[interviewType] || questionSets.discovery;
+  const norm = (t: string): string => t.toLowerCase().replace(/[^a-z ]/g, '').split(' ').slice(0, 8).join(' ');
+  const seen = new Set<string>();
+  const fresh = (list: string[]): string[] => list.filter((x) => { const k = norm(x); if (seen.has(k)) return false; seen.add(k); return true; });
   
   // Build hypothesis validation questions: each hypothesis is quoted whole. A line that starts "objections to test:" is an objection, not a claim.
   let hypothesisSection = '';
@@ -373,6 +376,11 @@ ${(() => { let inObjections = false; return hypotheses.map((raw, i) => {
     ? `How do you measure ${measures[0]} today, and how much does it vary?`
     : `How much of a challenge is ${generic.painPoints[0]} for you?`;
 
+  const coreList = fresh(questions.core);
+  const techList = fresh(techQuestions);
+  const sectorList = fresh(sectorQuestions);
+  const roleList = focus ? fresh(focus.questions) : [];
+
   return `# Customer Interview Kit
 ## ${typeName.toUpperCase()} Interview
 
@@ -424,16 +432,16 @@ ${questions.opening.map(q => `- ${q}`).join('\n')}
 
 ### Main Line of Inquiry
 
-${questions.core.map((q, i) => `${i + 1}. ${q}`).join('\n')}
+${coreList.map((q, i) => `${i + 1}. ${q}`).join('\n')}
 
 ### ${complexityName.charAt(0).toUpperCase() + complexityName.slice(1)}-Level Technical Questions
 
-${techQuestions.map((q, i) => `${i + 1}. ${q}`).join('\n')}
+${techList.map((q, i) => `${i + 1}. ${q}`).join('\n')}
 
 ### Industry-Specific Questions (${investing ? `${v ? `${v.name}, ` : ''}investment decision makers` : v ? v.name : industryName})
 
-${sectorQuestions.map((x, i) => `${i + 1}. ${x}`).join('\n')}
-${focus ? `\n### Questions for ${/^[aeiou]/i.test(focus.label) ? 'an' : 'a'} ${focus.label} (${args.target_persona})\n\n${focus.questions.map((x, i) => `${i + 1}. ${x}`).join('\n')}\n` : ''}
+${sectorList.map((x, i) => `${i + 1}. ${x}`).join('\n')}
+${focus && roleList.length ? `\n### Questions for ${/^[aeiou]/i.test(focus.label) ? 'an' : 'a'} ${focus.label} (${args.target_persona})\n\n${roleList.map((x, i) => `${i + 1}. ${x}`).join('\n')}\n` : ''}
 ${v && !investing ? `\n*Who usually decides in this sector: ${v.committee}*\n\n*Words this buyer uses: ${v.vocabulary.join(', ')}. Use them where they are true for the person you interview.*\n` : ''}
 ---
 

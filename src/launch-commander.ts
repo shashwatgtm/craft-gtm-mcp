@@ -345,6 +345,7 @@ ${!launchDate
 ${pb ? `*The pain points, proof and next step below come from what ${ctx.v!.name} buyers usually look for: confirm each with the segment in your first conversations. The product description is yours.*\n\n` : `*No sector was clear from your inputs, so the pain point is a question to ask. Name the industry (the industry input) to get sector pain points, proof and next steps.*\n\n`}`;
 
   const restShort = product.rest ? capEcho(product.rest, 220).short : '';
+  const capabilities = product.rest ? splitPhrases(product.rest).map((c) => c.replace(/^(?:and|with)\s+/i, '').replace(/[.]$/, '')).filter((c) => c.split(/\s+/).length >= 2 && c.split(/\s+/).length <= 10 && !/,|\b(?:that|which|who|whose|when|where)\b/i.test(c)) : [];
   output += `**The product, in your words:** "${product.name.replace(/[.]$/, '')}"${restShort ? `: "${restShort}"` : ''}\n\n`;
   segments.forEach((segment, si) => {
     const pains = pb ? [pb.pains[si % pb.pains.length], pb.pains[(si + 1) % pb.pains.length]] : [];
@@ -357,7 +358,7 @@ ${pb ? `*The pain points, proof and next step below come from what ${ctx.v!.name
 | Element | Content |
 |---------|---------|
 | Primary Pain Point | ${pb ? `Usually: ${pains[0]}; also ${pains[1]}. Confirm which one ${segment} feels most.` : `Not known from your inputs. Ask ${segment}: "What does this problem cost you today, and who owns the number?"`} |
-| Key Message | ${pb ? `Show ${segment} how ${q(product.name)} deals with ${pains[0]}${metric ? `, and measure the result by ${metric}` : ''}.${vocab ? ` Use the words this buyer uses (${vocab}).` : ''}` : `Lead with ${q(product.name)} for ${segment}${restShort ? `, in your words: "${restShort}"` : ''}. Add the outcome you can prove.`}${buyerNamed ? ` Write it for the ${buyerNamed}.` : ''} |${seg ? `\n| What the buying process usually involves | For ${segment}: ${seg.review}. Have the answers ready before they are asked. |` : ''}
+| Key Message | ${pb ? `Show ${segment} how ${q(product.name)} deals with ${pains[0]}${capabilities.length ? `: lead with ${q(capabilities[(si * 2) % capabilities.length])}${capabilities.length > 1 ? ` and ${q(capabilities[(si * 2 + 1) % capabilities.length])}` : ''}` : ''}${metric ? `, and measure the result by ${metric}` : ''}.${vocab ? ` Use the words this buyer uses (${vocab}).` : ''}` : `Lead with ${q(product.name)} for ${segment}${restShort ? `, in your words: "${restShort}"` : ''}. Add the outcome you can prove.`}${buyerNamed ? ` Write it for the ${buyerNamed}.` : ''} |${seg ? `\n| What the buying process usually involves | For ${segment}: ${seg.review}. Have the answers ready before they are asked. |` : ''}
 | Proof Point | ${ctx.v ? `Collect from ${aAn(segment)} ${segment} customer: ${lower1(ctx.v.proofShape)}` : `A before and after from one ${segment} customer on the goal you set.`} |
 | CTA | ${pb ? `${pb.cta}.` : `Ask ${segment} for one next step: a working session on their own data or process.`} |
 | Primary Channel | ${channelsGiven[0] ?? (pb ? pb.channels[0] : channels[0])} |

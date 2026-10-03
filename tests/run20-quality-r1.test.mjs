@@ -297,3 +297,20 @@ test("pmf_scorecard: an asset manager is not scored with customer-support automa
   assert.doesNotMatch(r.text, /a investment/);
   assert.match(r.text, /assets under mandate|performance against the agreed benchmark/);
 });
+
+// ---------------------------------------------------------------------------------------------------------------------
+// small text rules
+test("acronyms keep their capitals when a sector objection or proof is lower-cased into a sentence", async () => {
+  const r = await call("launch_commander", { product_feature: "Lanehop: route planning and dispatch for delivery fleets", launch_type: "feature_launch", target_segments: "Retail", goals: "ten hypothetical meetings", industry: "logistics_tech" });
+  assert.match(r.text, /we already have a TMS/);
+  assert.doesNotMatch(r.text, /we already have a tms/);
+  const p = await call("partner_architect", { company: "Vaultline", product: "Vaultline", partner_model: "referral", partner_goals: "pipeline", your_deal_size: "$80,000", industry: "cybersecurity" });
+  assert.match(p.text, /integration with our SIEM and ticketing/);
+  assert.match(p.text, /Subject: Referral partnership with Vaultline\n/);
+});
+test("a proof claim in the feedback is classified as proof, a quote as a quote, and friction as friction", async () => {
+  const r = await call("pmf_scorecard", { product: "Lanehop", target_market: "logistics_tech", current_metrics: "Churn: 2%, NPS: 41", customer_feedback: "Cut cost per delivery by a fifth at one hub (hypothetical result); CIO of a retailer: the rollout was on time (customer quote); drivers say the app is slow to open" });
+  assert.match(r.text, /\| Result or recognition \|/);
+  assert.match(r.text, /\| Customer quote \|/);
+  assert.match(r.text, /\| Friction \|/);
+});

@@ -156,7 +156,7 @@ export function generatePMFScorecard(args: {
   const feedbackRows = feedbackItems.map((item) => {
     const pos = POSITIVE.test(item); const neg = NEGATIVE.test(item);
     const proof = RESULT.test(item) && !neg;
-    const quote = !proof && /\bquote\b|\bsays?\b|\bthanks?\b|\btold us\b/i.test(item);
+    const quote = !proof && !neg && /\bquote\b|\bsays?\b|\bthanks?\b|\btold us\b/i.test(item);
     const signal = proof ? 'Result or recognition' : quote ? 'Customer quote' : pos && neg ? 'Mixed' : neg ? 'Friction' : pos ? 'Positive' : 'Note';
     const proofLine = ctx.v ? ` A proof point that lands here: ${lcFirst(ctx.v.proofShape)}` : '';
     const next = quote

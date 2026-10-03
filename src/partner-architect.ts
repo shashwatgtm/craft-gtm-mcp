@@ -1,5 +1,5 @@
 import { describeChoice, readableChoice, EXAMPLE_FIGURE, EXAMPLE_FIGURES, SUGGESTION_FOOTER } from './utils.js';
-import { readContext, splitItems, q, andList, capEcho, cleanCompanyName } from './context.js';
+import { readContext, splitItems, q, andList, capEcho, cleanCompanyName, lcFirst } from './context.js';
 import { PLAYBOOKS, segmentKinds } from './sector-playbooks.js';
 
 // Every rate, fee, deal count and staff count in the tier definitions is an example figure.
@@ -33,6 +33,7 @@ const KPI_DEFINITION: Record<string, string> = {
   'Contract value': 'Total value of partner contracts',
 };
 // Run 12 (R12-21): money with thousands commas; the amount itself is unchanged.
+const cap1 = (t: string): string => t.charAt(0).toUpperCase() + t.slice(1);
 const money = (n: number): string => '$' + Math.round(n).toLocaleString('en-US');
 
 export function generatePartnerArchitect(args: {
@@ -258,7 +259,7 @@ ${(() => {
 
 ### Day 7-30: Enable
 - [ ] ${partnerModel === 'reseller' || partnerModel === 'agency_si' ? 'Certification started/completed' : 'Training materials reviewed'}
-- [ ] ${partnerModel === 'integration_tech' ? 'Integration development started' : 'Sales materials accessed'}
+- [ ] ${partnerModel === 'integration_tech' ? 'Integration development started' : 'Sales materials accessed'}${ctx.v ? `\n- [ ] Walk through the objections buyers in ${ctx.v.name} raise: ${andList(ctx.v.objections.slice(0, 3).map((o) => lcFirst(o.objection)))}` : ''}
 - [ ] First ${partnerModel === 'affiliate' ? 'campaigns launched' : partnerModel === 'integration_tech' ? 'API calls made' : 'prospect identified'}
 
 ### Day 30-60: Activate
@@ -278,7 +279,7 @@ ${(() => {
 ### Recruitment Email Template
 
 \`\`\`
-Subject: ${partnerModel.replace(/_/g, ' ')} partnership with ${args.company}${firstKind ? `: ${firstKind}` : ''}
+Subject: ${cap1(partnerModel.replace(/_/g, ' '))} partnership with ${args.company}
 
 Hello,
 
