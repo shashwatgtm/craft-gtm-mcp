@@ -105,6 +105,8 @@ export function andList(list: string[]): string {
 /** The short name at the start of a product description ("Shelfwalk, a field sales app" gives "Shelfwalk"), or null when the text starts with a long phrase. */
 export function shortName(text: string | undefined): string | null {
   if (!text) return null;
+  // Run 20 (D086): a text that starts with a bracket or an opening quote, such as the "[image removed: alt]" or the quoted instruction the echo safeguard writes, is not cut at its colon.
+  if (/^\s*[\[\u201C]/.test(text)) return null;
   const head = text.split(/[,:]|\s[-\u2013]\s/)[0].trim();
   const words = head.split(/\s+/).filter(Boolean);
   if (!words.length || words.length > 4 || /^(a|an|the|our|my|your)\b/i.test(head)) return null;

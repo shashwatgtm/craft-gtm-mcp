@@ -11,6 +11,7 @@ import {
 } from "@modelcontextprotocol/sdk/types.js";
 
 import { tools } from "./tools.js";
+import { neutraliseDeep } from "./echo-safe.js";
 import { generatePMFScorecard } from "./pmf-scorecard.js";
 import { generateLaunchCommander } from "./launch-commander.js";
 import { generateCustomerInterviewKit } from "./interview-kit.js";
@@ -152,7 +153,10 @@ export function createServer(): Server {
 
   // Call tool handler
   server.setRequestHandler(CallToolRequestSchema, async (request) => {
-    const { name, arguments: args } = request.params;
+    const { name } = request.params;
+    // Run 20 (D086): the one place where a tools/call reaches a tool, on both the hosted path (netlify/functions/mcp.mjs) and the
+    // stdio path (src/index.ts), because both use this server. Markup in what the user typed is made inert once, here; the words stay.
+    const args = neutraliseDeep(request.params.arguments);
 
     const problem = checkRequiredInputs(name, args as Record<string, unknown> | undefined);
     if (problem) {
