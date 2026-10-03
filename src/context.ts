@@ -81,7 +81,10 @@ function billingPlatform(input: ReaderInput, r: ReturnType<typeof explainSector>
   return r;
 }
 function readSector(input: ReaderInput): ReturnType<typeof explainSector> {
-  const r = billingPlatform(input, headTrade(input, explainSector(input)));
+  // Run 21b: when the product category noun named a sub-type (customer service software, a messaging platform, construction management software ...) no local layer below overrides it.
+  const first = explainSector(input);
+  if (first.vertical && first.vertical.subtype && (first.source === 'seller' || first.source === 'context')) return first;
+  const r = billingPlatform(input, headTrade(input, first));
   if (!(r.vertical && r.vertical.id === 'ai-native' && r.source === 'seller')) return r;
   const maskedSeller = (input.seller ?? []).map((t) => (typeof t === 'string' ? t.replace(AI_WORDS, ' ') : t));
   const m = explainSector({ ...input, seller: maskedSeller });
