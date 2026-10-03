@@ -363,6 +363,8 @@ test("a 3,000 character product text is capped in the heading and the table, and
     const heading = r.text.split("\n").find((l) => l.startsWith("## "));
     assert.ok(heading.length < 220, `${tool}: heading is ${heading.length} characters`);
     assert.equal(r.text.split(long).length - 1, 1, `${tool}: the full text appears once`);
-    assert.ok(r.text.length < long.length * 3, `${tool}: the answer does not repeat the text`);
+    // Run 20 round 1: the plan itself grew (sector tasks, a filled messaging matrix), so the bound is three times the text plus 3,000 characters
+    // for that content. The text is still printed in full only once (checked above).
+    assert.ok(r.text.length < long.length * 3 + 3000, `${tool}: the answer does not repeat the text`);
   }
 });

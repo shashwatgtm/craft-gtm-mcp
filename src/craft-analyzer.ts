@@ -1,5 +1,6 @@
-import { analyzeCRAFTDimensions, type CRAFTDimension } from './utils.js';
-import { andList, readContext } from './context.js';
+import { analyzeCRAFTDimensions, isMarketLine, type CRAFTDimension } from './utils.js';
+import { andList, readContext, q, qc, splitPhrases } from './context.js';
+import { answerFor } from './context.js';
 
 export function generateCRAFTAnalyzer(args: {
   document_content: string;
@@ -12,9 +13,25 @@ export function generateCRAFTAnalyzer(args: {
   // (the web form already trims it in netlify/functions/api.mjs). Interior whitespace is kept exactly.
   const content = args.document_content.trim();
   const docType = args.document_type;
+  // Run 20: when audience or outcome is not given as an input, the plan's own Audience and Goal lines are read and shown (before, the answer said
+  // "Not specified" for a plan that states both).
+  const labelled = content.split('\n').map((l) => { const m = l.match(/^\s*([A-Za-z][A-Za-z /&'-]{1,40}):\s*(.+)$/); return m ? { label: m[1].trim(), text: m[2].trim() } : null; }).filter((x): x is { label: string; text: string } => !!x);
+  const planAudience = labelled.find((x) => /^(?:target )?audience$|^icp$|^segments?$/i.test(x.label));
+  const planGoal = labelled.find((x) => /^(?:goals?|objectives?|targets?|outcomes?|success(?: criteria| metrics?)?)$/i.test(x.label));
   const audience = args.intended_audience || 'Not specified';
   const outcome = args.desired_outcome || 'Not specified';
+  const audienceShown = args.intended_audience || (planAudience ? `not given as an input; your plan's own Audience line says: ${qc(planAudience.text, 160)}` : 'not given, and the plan has no Audience line');
+  const outcomeShown = args.desired_outcome || (planGoal ? `not given as an input; your plan's own ${planGoal.label} line says: ${qc(planGoal.text, 200)}` : 'not given, and the plan has no Goal line');
   
+  // The plan is read in its parts when it is labelled (Message and How we differ are the seller's words; Buyer roles are job titles; Audience is the buyer);
+  // a plan with no such lines is read whole, as deal text. Its Goal line is not read: it often lists the segments, which are the buyer's sector, not yours.
+  const byLabel = (re: RegExp): string[] => labelled.filter((x) => re.test(x.label)).map((x) => x.text);
+  const sellerLines = byLabel(/^(?:message|messaging|positioning|how we differ|differentiat\w+|what we sell|offer|product)$/i);
+  const readInput = sellerLines.length || planAudience
+    ? { seller: [content.split('\n')[0], ...sellerLines], role: byLabel(/^buyer(?:s| roles?)?$|^personas?$/i), buyer: [args.intended_audience, planAudience?.text] }
+    : { context: [content, args.desired_outcome], buyer: [args.intended_audience] };
+  const sectorCtx = readContext({ vertical: args.industry }, readInput);
+  const sectorCtx0 = sectorCtx;
   // Perform CRAFT analysis
   const analysis = analyzeCRAFTDimensions(content);
   
@@ -61,70 +78,70 @@ ${d.gaps.length > 0 ? `\n**Recommended improvement:**\n${generateImprovement(key
     
     switch (dimension) {
       case 'character':
-        return `**Add this section:**
+        return `**Add this section (fill the empty cells):**
 \`\`\`
 ## Roles & Responsibilities
 
 | Role | Responsibility | Name/Team |
 |------|---------------|-----------|
-| Owner | Overall accountability | [Add name] |
-| Executor | Day-to-day execution | [Add team] |
-| Approver | Sign-off authority | [Add name] |
-| Consulted | Input needed | [Add names] |
-| Informed | Keep updated | [Add groups] |
+| Owner | Overall accountability |  |
+| Executor | Day-to-day execution |  |
+| Approver | Sign-off authority |  |
+| Consulted | Input needed |  |
+| Informed | Keep updated |  |
 \`\`\``;
       
       case 'result':
-        return `**Add this section:**
+        return `**Add this section (fill the empty cells):**
 \`\`\`
 ## Success Metrics
 
 | KPI | Current | Target | Timeline |
 |-----|---------|--------|----------|
-| Primary metric | [Baseline] | [Goal] | [Date] |
-| Secondary metric | [Baseline] | [Goal] | [Date] |
-| Leading indicator | [Baseline] | [Goal] | [Date] |
+| Primary metric |  |  |  |
+| Secondary metric |  |  |  |
+| Leading indicator |  |  |  |
 
-Success Definition: [Specific, measurable outcome]
+Success Definition (one measurable outcome, with a date):
 \`\`\``;
       
       case 'artifact':
-        return `**Add this section:**
+        return `**Add this section (fill the empty cells):**
 \`\`\`
 ## Deliverables
 
 | Deliverable | Description | Owner | Due Date |
 |-------------|-------------|-------|----------|
-| [Output 1] | [What it is] | [Who] | [When] |
-| [Output 2] | [What it is] | [Who] | [When] |
+|  |  |  |  |
+|  |  |  |  |
 \`\`\``;
       
       case 'frame':
-        return `**Add this section:**
+        return `**Add this section (fill the empty cells):**
 \`\`\`
 ## Context & Constraints
 
-**Target Audience:** [Who this is for]
-**Budget:** [$X or resource allocation]
-**Resources Available:** [Team, tools, budget]
-**Constraints:** [Limitations to work within]
-**Assumptions:** [What we're assuming to be true]
+**Target Audience:** (use the audience line of your plan)
+**Budget:** 
+**Resources Available:** 
+**Constraints:** 
+**Assumptions:** 
 \`\`\``;
       
       case 'timeline':
-        return `**Add this section:**
+        return `**Add this section (fill the empty cells):**
 \`\`\`
 ## Timeline & Milestones
 
 | Phase | Milestone | Date | Status |
 |-------|-----------|------|--------|
-| Phase 1 | [Milestone] | [Date] | [ ] |
-| Phase 2 | [Milestone] | [Date] | [ ] |
-| Phase 3 | [Milestone] | [Date] | [ ] |
+| Phase 1 |  |  |  |
+| Phase 2 |  |  |  |
+| Phase 3 |  |  |  |
 
 Key Deadlines:
-- [Date]: [Deliverable/milestone]
-- [Date]: [Deliverable/milestone]
+- : 
+- : 
 \`\`\``;
       
       default:
@@ -132,14 +149,44 @@ Key Deadlines:
     }
   };
   
+  // Run 20: what the plan states, line by line, and the gaps that matter for a go-to-market plan (read from the plan's own lines).
+  const countsFor = (label: string, text: string): string => {
+    if (isMarketLine(`${label}: ${text}`)) return /^(?:message|messaging|positioning|how we differ|differentiat\w+|proof|references?|testimonials?|quotes?|case stud)/i.test(label) ? 'Not scored (describes your product or your customers)' : 'Frame only (describes your customers and market, not who runs the plan)';
+    if (/^(?:goals?|objectives?|targets?|outcomes?|success|kpis?|okrs?)/i.test(label)) return 'Result';
+    if (/^(?:owner|owners|responsible|accountable|lead|team|raci)/i.test(label)) return 'Character';
+    if (/^(?:budget|resources?|headcount|constraints?|assumptions?)/i.test(label)) return 'Frame';
+    if (/^(?:timeline|dates?|schedule|milestones?|deadline)/i.test(label)) return 'Timeline';
+    if (/^risks?/i.test(label)) return 'Risks section';
+    return 'Read for all five areas';
+  };
+  const stated = labelled.slice(0, 10).map((x) => ({ ...x, counts: countsFor(x.label, x.text) }));
+  const ownText = content.split('\n').filter((l) => !isMarketLine(l)).join('\n');
+  const buyerLine = labelled.find((x) => /^buyer(?:s| roles?)?$/i.test(x.label));
+  const matters: Array<{ title: string; detail: string }> = [];
+  if (analysis.character.found.length === 0) matters.push({ title: 'Nobody on your side is named to run the plan', detail: `${buyerLine ? `The line ${qc(`${buyerLine.label}: ${buyerLine.text}`, 90)} names the customer's roles, which are not owners. ` : ''}Name who owns the goal and who does each piece of the work.` });
+  if (!/\b(email|e-mail|linkedin|outbound|inbound|webinars?|events?|conferences?|roundtables?|partners?|referrals?|paid|ads|seo|abm|account-based|sdrs?|cold|calls?|social|community|press|field|direct|content|newsletter)\b/i.test(ownText)) matters.push({ title: 'No channel is named', detail: 'Say where the first conversations come from (outbound, events, partners, referrals, paid, content), and who is reached first.' });
+  const hasNumberGoal = planGoal && /\d/.test(planGoal.text);
+  if (hasNumberGoal && !/\b(win rate|close rate|conversion|meetings?|opportunit\w*|funnel|demos?|mqls?|sqls?|stage)\b/i.test(ownText.replace(planGoal!.text, ''))) matters.push({ title: 'The goal is not traced to activity', detail: `${qc(planGoal!.text, 150)} is a result, but no win rate, meeting count or stage conversion is stated, so it cannot be traced back to the work that would produce it. Work backwards from the goal: deals needed, opportunities needed, meetings needed.` });
+  if (analysis.timeline.found.length === 0) matters.push({ title: 'No dates', detail: `${analysis.timelineWords.length ? `Only the words ${andList(analysis.timelineWords.slice(0, 3).map((w) => q(w)))} appear` : 'No period or date appears'}${/\bnext quarter\b/i.test(ownText) ? ' (the plan says "next quarter")' : ''}. Put a date on the first meeting, the pilot or first delivery, and the review.` });
+  if (!analysis.frame.groupsFound.includes('a budget or resources')) matters.push({ title: 'No budget or headcount', detail: 'State what money and people the plan has, so the goal can be checked against what it costs.' });
+  if (!/\b(weekly|monthly|fortnightly|review|check-?in|cadence|stand-?up|steering)\b/i.test(ownText)) matters.push({ title: 'No review rhythm', detail: 'Say when the plan is reviewed and by whom, and which number is looked at first.' });
+  if (analysis.artifact.found.length === 0) matters.push({ title: 'No deliverables', detail: 'List what gets made (deck, one-pager, email sequence, event, case study) and who makes it.' });
+
+  // A "Risks:" line holds several risks: each one is judged and answered on its own.
+  const riskItems: Array<{ line: string; answered: boolean; pattern: string }> = [];
+  for (const r of analysis.risks) {
+    const m = r.line.match(/^\s*risks?\s*:\s*(.+)$/i);
+    if (m) for (const item of splitPhrases(m[1])) riskItems.push({ line: item, answered: false, pattern: answerFor(item, sectorCtx0.v) });
+    else riskItems.push({ ...r, pattern: r.answered ? '' : answerFor(r.line, sectorCtx0.v) });
+  }
   // Build the analysis output
   let output = `# CRAFT Document Analysis
 ## ${docType.replace(/_/g, ' ').toUpperCase()}
 
 **Document Length:** ${content.length} characters
 **Words (estimate):** ~${Math.round(content.length / 5)}, from the character count
-**Intended Audience:** ${audience}
-**Desired Outcome:** ${outcome}
+**Intended Audience:** ${audienceShown}
+**Desired Outcome:** ${outcomeShown}
 
 ---
 
@@ -148,7 +195,7 @@ Key Deadlines:
 | Rating | ${rating} |
 |--------|-------------|
 
-Scores come from a keyword check, not a reading of the plan: check each gap against your document.
+Scores come from a keyword check of the lines that describe your own plan, not a reading of the whole plan: check each gap against your document. Lines that describe your customers, market or product (Audience, Buyer roles, Message, Proof, How we differ ...) are shown below but are not scored as your owner, goal, deliverables or dates; they count only toward Frame.
 
 ---
 
@@ -203,6 +250,20 @@ ${body('timeline', analysis.timeline, 'Timeline is well-defined', 'Words matched
 
 ---
 
+## What Your Plan States
+
+${stated.length ? `| Your plan's line | Counted toward |\n|---|---|\n${stated.map((x) => `| ${qc(`${x.label}: ${x.text}`, 170)} | ${x.counts} |`).join('\n')}` : 'The plan has no labelled lines (such as "Goal:" or "Owner:"), so the tool read it as running text.'}
+
+---
+
+## Gaps That Matter For This Plan
+
+*These are not part of the score. Each is read from your plan's own lines.*
+
+${matters.length ? matters.map((m) => `- **${m.title}:** ${m.detail}`).join('\n') : '- No structural gap found by this check. Read the plan once for sense before you send it.'}
+
+---
+
 ## Priority Improvements
 
 `;
@@ -230,7 +291,6 @@ ${body('timeline', analysis.timeline, 'Timeline is well-defined', 'Words matched
 
   // Run 19 (D80, problem 8): a sector check from the sector data file. It is not a score: it names the deciders and the measures
   // of the sector that the plan itself names, and those it does not.
-  const sectorCtx = readContext({ vertical: args.industry }, { context: [content, args.desired_outcome], buyer: [args.intended_audience] });
   const planLower = content.toLowerCase();
   const roleNamed = (role: string): boolean => {
     const acronym = /^Chief .* Officer$/.test(role) ? role.split(' ').filter((w) => /^[A-Z]/.test(w) && w !== 'Officer').map((w) => w[0]).join('') + 'O' : '';
@@ -268,9 +328,9 @@ ${sectorCheck}`;
 
 ## Risks in Your Plan
 
-${analysis.risks.length === 0
+${riskItems.length === 0
   ? 'No risk is named in the plan: name the top two and how you would respond to each.'
-  : analysis.risks.map(r => r.answered ? `- Risk with a response: "${r.line.replace(/[.]$/, '')}"` : `- Risk named without a response: "${r.line.replace(/[.]$/, '')}". Add a response, an owner and the signal that triggers it.`).join('\n')}
+  : riskItems.map(r => r.answered ? `- Risk with a response: "${r.line.replace(/[.]$/, '')}"` : `- Risk named without a response: "${r.line.replace(/[.]$/, '')}". Add a response, an owner and the signal that triggers it.${r.pattern ? ` A usual response: ${r.pattern}` : ''}`).join('\n')}
 `;
 
   output += `
@@ -279,17 +339,17 @@ ${analysis.risks.length === 0
 ## Document Excerpt Analyzed
 
 \`\`\`
-${content.substring(0, 500)}${content.length > 500 ? '...\n\n[Document continues: ' + (content.length - 500) + ' more characters]' : ''}
+${content.substring(0, 500)}${content.length > 500 ? '...\n\n(The document continues: ' + (content.length - 500) + ' more characters.)' : ''}
 \`\`\`
 
 ---
 
 ## Next Steps
 
-1. ${dimensions[0] ? `Address ${dimensions[0].name}: ${actionFor(dimensions[0])}` : 'Document is well-structured: ready for review'}
-2. ${dimensions[1] ? `Improve ${dimensions[1].name}: ${actionFor(dimensions[1])}` : 'Consider adding more detail to strongest sections'}
-3. Review with ${audience !== 'Not specified' ? audience : 'intended stakeholders'}
-4. ${outcome !== 'Not specified' ? `Ensure document drives: ${outcome}` : 'Define desired outcome from this document'}
+1. ${matters[0] ? `${matters[0].title}. ${matters[0].detail}` : dimensions[0] ? `Address ${dimensions[0].name}: ${actionFor(dimensions[0])}` : 'Document is well-structured: ready for review'}
+2. ${matters[1] ? `${matters[1].title}. ${matters[1].detail}` : dimensions[1] ? `Improve ${dimensions[1].name}: ${actionFor(dimensions[1])}` : 'Consider adding more detail to strongest sections'}
+3. ${matters[2] ? `${matters[2].title}. ${matters[2].detail}` : `Review with ${audience !== 'Not specified' ? audience : planAudience ? qc(planAudience.text, 90) : 'intended stakeholders'}`}
+4. ${outcome !== 'Not specified' ? `Ensure the document drives: ${outcome}` : planGoal ? `Check that the plan drives its own goal: ${qc(planGoal.text, 120)}` : 'Define the desired outcome of this document'}
 
 ---
 

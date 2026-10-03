@@ -492,20 +492,22 @@ const RESULT_GROUPS: Group[] = [
   { label: 'a target with a number', patterns: [
     /\b(increase|decrease|improve|reduce|achieve|reach|hit)\s+\d+/gi,
     /\d+%?\s*(increase|decrease|improvement|reduction|growth)\b/gi,
-    /\b(roi|conversion|retention|churn|nps|csat)\b\s*[:\s]*\d+/gi] },
-  { label: 'a money target', optional: true, patterns: [/\$[\d,]+\s*(revenue|arr|mrr|pipeline|savings)\b/gi] },
+    /\b(roi|conversion|retention|churn|nps|csat)\b\s*[:\s]*\d+/gi,
+    // Run 20: a goal line that holds a figure ("Goal: a pipeline of $1,500,000, ten deals ...") states a target with a number.
+    /(?<=\b(?:goal|target|objective|kpi|okr|metric)s?\b[^\n]{0,80}?)\$\d+(?:,\d{3})*(?:\.\d+)?[kmb]?\b/gi] },
+  { label: 'a money target', optional: true, patterns: [/\$[\d,]+\s*(revenue|arr|mrr|pipeline|savings)\b/gi, /\bpipeline of \$\d+(?:,\d{3})*(?:\.\d+)?[kmb]?\b/gi] },
 ];
 const ARTIFACT_GROUPS: Group[] = [
-  { label: 'a deliverable or output', patterns: [/\b(deliverable|output|create|produce|build|develop|launch|publish|ship)\b/gi] },
+  { label: 'a deliverable or output', patterns: [/\b(deliverable|output|create|produce|build(?!\s+(?:an?\s+)?(?:hypothetical\s+)?pipeline)|develop|launch|publish|ship)\b/gi] },
   { label: 'a named document or tool', patterns: [/\b(document|report|dashboard|playbook|template|guide|framework|tool)\b/gi] },
   { label: 'a campaign or content asset', patterns: [/\b(campaign|content|asset|material|collateral|deck|presentation)\b/gi] },
   { label: 'a channel asset', patterns: [/\b(website|landing\s*page|email|blog|video|webinar|event)\b/gi] },
 ];
 const FRAME_GROUPS: Group[] = [
   { label: 'an audience, persona or segment', patterns: [/\b(audience|persona|icp|segment|target\s*market|buyer)\b/gi] },
-  { label: 'constraints or assumptions', patterns: [/\b(constraint|limitation|scope|boundary|requirement|assumption)\b/gi] },
+  { label: 'constraints or assumptions', patterns: [/\b(constraint|limitation|scope|boundary|requirement|assumption)\b/gi, /\b(?:figures|numbers)\b[^.\n]{0,40}\b(?:hypothetical|assumed|estimates?)\b/gi] },
   { label: 'a budget or resources', patterns: [/\b(budget|resource|headcount|bandwidth|capacity)\b/gi] },
-  { label: 'context or current state', patterns: [/\b(context|background|situation|current\s*state)\b/gi] },
+  { label: 'context or current state', patterns: [/\b(context|background|situation|current\s*state|status quo|what (?:buyers|customers) use today)\b/gi] },
   { label: 'a scope such as "for enterprise"', optional: true, patterns: [/\bfor\s+(enterprise|smb|mid-market|startup|b2b|b2c)\b/gi] },
 ];
 // Timeline: only concrete time references count: a date, a quarter or half-year code, a financial-year code, or a duration with a number.
@@ -560,17 +562,28 @@ function scoreGroups(lines: string[], groups: Group[]): { found: string[]; evide
   return { found, evidence, groupsFound, groupsMissing };
 }
 
+// Run 20 (quality round 1): a line that describes the customers, the market or the product (not the seller's own plan) is not scored as
+// the plan's owner, goal, deliverable or date. "Buyer roles: General Manager Operations" names the customer's roles, "Customer quote: ...
+// in under six months" is a customer's words, and "Proof: ... Gartner ... 7 Consecutive Years" is an award. Such lines still count for
+// Frame (audience, context). A line is of this kind when its label (the words before the first colon) says so.
+const MARKET_LABEL = /^(?:buyer|buyers|buyer roles?|persona|personas|audience|target audience|customers?|prospects?|competitors?|alternatives?|what (?:buyers|customers) use today|proof|references?|testimonials?|quotes?|case stud(?:y|ies)|message|messaging|positioning|how we differ|differentiat\w+|stakeholders?|segments?|icp)\b/i;
+export function isMarketLine(line: string): boolean {
+  const m = line.match(/^\s*([^:\n]{1,60}):/);
+  return !!m && MARKET_LABEL.test(m[1].trim());
+}
+
 export function analyzeCRAFTDimensions(content: string): CRAFTAnalysis {
   const lines = content.split('\n');
-  const make = (groups: Group[], unit: number, base: number): CRAFTDimension => {
-    const r = scoreGroups(lines, groups);
+  const ownLines = lines.filter((l) => !isMarketLine(l));
+  const make = (groups: Group[], unit: number, base: number, onlyOwn = true): CRAFTDimension => {
+    const r = scoreGroups(onlyOwn ? ownLines : lines, groups);
     return { found: r.found, score: Math.min(10, r.found.length * unit + (r.found.length > 0 ? base : 0)), gaps: [], evidence: r.evidence, groupsFound: r.groupsFound, groupsMissing: r.groupsMissing };
   };
   const analysis: CRAFTAnalysis = {
     character: make(CHARACTER_GROUPS, 2, 4),
     result: make(RESULT_GROUPS, 2, 4),
     artifact: make(ARTIFACT_GROUPS, 1, 4),
-    frame: make(FRAME_GROUPS, 1, 4),
+    frame: make(FRAME_GROUPS, 1, 4, false),
     timeline: make(TIMELINE_GROUPS, 2, 4),
     timelineWords: [],
     risks: [],
@@ -578,7 +591,7 @@ export function analyzeCRAFTDimensions(content: string): CRAFTAnalysis {
 
   if (analysis.character.found.length === 0) {
     analysis.character.gaps.push('No clear role/owner identified');
-    analysis.character.gaps.push('Add: "Owner: [Role/Name]" or "Responsible: [Team]"');
+    analysis.character.gaps.push('Add a line such as "Owner: Head of Marketing" or "Responsible: the sales team", with your own names');
   } else if (analysis.character.found.length < 2) {
     analysis.character.gaps.push('Consider adding RACI matrix for complex initiatives');
   }
@@ -602,7 +615,7 @@ export function analyzeCRAFTDimensions(content: string): CRAFTAnalysis {
   }
 
   // Structure words that are not dates are named, never scored.
-  for (const line of lines) { const m = line.match(TIMELINE_WORDS); if (m) addDistinct(analysis.timelineWords, m); }
+  for (const line of ownLines) { const m = line.match(TIMELINE_WORDS); if (m) addDistinct(analysis.timelineWords, m); }
   if (analysis.timeline.found.length === 0) {
     analysis.timeline.gaps.push(analysis.timelineWords.length
       ? `No dates, durations or quarters found. Words such as "${analysis.timelineWords.slice(0, 3).join('", "')}" are in the plan, but they are not dates`

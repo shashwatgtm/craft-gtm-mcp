@@ -1,5 +1,5 @@
 import { describeChoice, readableChoice, EXAMPLE_FIGURE, EXAMPLE_FIGURES, SUGGESTION_FOOTER } from './utils.js';
-import { readContext, splitItems, q, andList, capEcho } from './context.js';
+import { readContext, splitItems, q, andList, capEcho, cleanCompanyName } from './context.js';
 
 // Every rate, fee, deal count and staff count in the tier definitions is an example figure.
 const hasFigure = (text: string): boolean => /\d/.test(text);
@@ -48,7 +48,7 @@ export function generatePartnerArchitect(args: {
   const partnerModel = args.partner_model;
   const supportCapacity = args.partner_support_capacity || 'moderate';
   // Run 19 (D80): the sector and the business model are read from the inputs; the stated goal and the existing partners are used.
-  const ctx = readContext({ model: args.business_model, vertical: args.industry }, { seller: [args.company, args.product], context: [args.partner_goals, args.existing_partners] });
+  const ctx = readContext({ model: args.business_model, vertical: args.industry }, { seller: [cleanCompanyName(args.company), args.product], context: [args.existing_partners], buyer: [args.partner_goals] });
   const existingPartners = splitItems(args.existing_partners);
   
   // Parse deal size for commission calculations

@@ -1,5 +1,5 @@
 import { parseListItems, describeChoice, readableChoice, EXAMPLE_FIGURE, EXAMPLE_FIGURES, SUGGESTION_FOOTER } from './utils.js';
-import { readContext, q, andList } from './context.js';
+import { readContext, q, andList, cleanCompanyName } from './context.js';
 
 // Default crises by industry (run 19, D80: the owner's verticals; no health-sector crisis types)
 const DEFAULT_CRISES: Record<string, string[]> = {
@@ -35,7 +35,7 @@ export function generateCrisisPlanner(args: {
   // Run 19 (D80): each compliance item you list is named in the steps that need it; the tool names no authority of its own.
   const complianceItems = parseListItems(compliance);
   const complianceText = complianceItems.length ? andList(complianceItems) : '';
-  const ctx = readContext({ model: args.business_model, vertical: args.industry }, { seller: [args.company], context: [args.potential_crises, compliance] });
+  const ctx = readContext({ model: args.business_model, vertical: args.industry }, { seller: [cleanCompanyName(args.company)], context: [args.potential_crises, compliance] });
   
   // Use provided crises or suggest defaults based on industry
   let crises: string[];

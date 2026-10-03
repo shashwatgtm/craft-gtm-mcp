@@ -32,21 +32,60 @@ export function q(s: string): string {
   return `"${s.trim().replace(/^"|"$/g, '').replace(/[.]$/, '')}"`;
 }
 
-export interface Context { v: Vertical | null; model: BusinessModel | null; how: 'input' | 'hint' | 'read' | 'sector' | 'unknown'; sector: string; line: string }
+export interface Context { v: Vertical | null; model: BusinessModel | null; how: 'input' | 'hint' | 'read' | 'sector' | 'unknown'; sector: string; line: string; buyerV: Vertical | null }
+
+// Words that the shared reader takes for a sector word but that mean something else in these phrases: "per security" and "securities"
+// are financial instruments, and "SOC 1" is an audit report (not a security operations centre). They are replaced before reading.
+function cleanForReader(t: unknown): unknown {
+  if (typeof t !== 'string') return t;
+  return t.replace(/\b(?:per|each|every|a single|one)\s+security\b/gi, 'per holding').replace(/\bSOC\s*1\b/gi, 'audit report 1').replace(/\bsecurity\s+(selection|prices?|returns?|master)\b/gi, 'holding $1');
+}
+function cleanInput(input: ReaderInput): ReaderInput {
+  const f = (list?: unknown[]) => (Array.isArray(list) ? list.map(cleanForReader) : list);
+  return { seller: f(input.seller), context: f(input.context), role: f(input.role), buyer: f(input.buyer) };
+}
+
+// AI words (AI, AI agents, LLM ...) say how a product is built, not what trade it serves. When the seller's text also holds two or more
+// words of one trade (attack surface and dark web: cybersecurity), that trade is the sector; a lone "AI" (as in "AI test generation")
+// does not decide the sector by itself.
+const AI_WORDS = /\b(?:ai agents?|agents? that|agentic|autonomous agents?|voice agents?|ai assistants?|ai copilots?|copilots?|llms?|genai|gen ai|generative ai|ai[- ]native|ai[- ]first|foundation models?|large language models?|conversational ai|ai platform|ai models?|adaptive ai|ai[- ]powered|ai[- ]led|ai[- ]driven|ai)\b/gi;
+function readSector(input: ReaderInput): ReturnType<typeof explainSector> {
+  const r = explainSector(input);
+  if (!(r.vertical && r.vertical.id === 'ai-native' && r.source === 'seller')) return r;
+  const maskedSeller = (input.seller ?? []).map((t) => (typeof t === 'string' ? t.replace(AI_WORDS, ' ') : t));
+  const m = explainSector({ ...input, seller: maskedSeller });
+  if (m.vertical && m.vertical.id !== 'ai-native' && m.source === 'seller' && m.strong.length >= 2) return m;
+  if (r.strong.every((w) => w === 'ai')) return explainSector({ ...input, seller: [] });
+  return r;
+}
 
 /**
  * The sector and the business model read from the inputs, with one line that says how they were read.
  * Run 20 (D92): the texts are given in groups, `{ seller, context, role, buyer }` (see ReaderInput in src/verticals.ts): the seller's own
  * words (product, category, strengths) are read first, then free text about the deal, then job titles, then who the buyer is.
+ * A sector read only from the buyer's industry is NOT used as the seller's sector (a telecom provider selling to banks is not
+ * fintech): it is kept in `buyerV` and named in the line, and the tools use no sector notes for it.
  * Order for the model: the business_model input, then a hint from another input (for example a market choice), then the
  * typed text (the seller's words only), then the usual model of the sector (said to be assumed).
  */
-export function readContext(opts: { model?: unknown; hintModel?: BusinessModel | null; vertical?: string | null }, input: ReaderInput): Context {
+export function readContext(opts: { model?: unknown; hintModel?: BusinessModel | null; vertical?: string | null }, rawInput: ReaderInput): Context {
+  const input = cleanInput(rawInput);
   let chosen = opts.vertical && SECTOR_CHOICES[opts.vertical] ? VERTICALS.find((x) => x.id === SECTOR_CHOICES[opts.vertical!]) ?? null : null;
-  const read = explainSector(input);
+  const read = readSector(input);
+  // The shared reader cuts a seller text at "for ..." and counts the rest as the buyer's words, so "software for consumer brands: sales
+  // force automation, distributor management ..." reads as a buyer. When the seller's own description, read whole, names one trade with
+  // several of its words, that trade is the seller's sector.
+  const sellerTexts = (input.seller ?? []).filter((x): x is string => typeof x === 'string' && x.trim().length > 0);
+  const whole = sellerTexts.length ? explainSector({ role: [sellerTexts.join(' \n ')] }) : null;
+  const wholeTrade = whole && whole.vertical && whole.strong.length >= 2 && whole.vertical.id !== 'saas' && whole.vertical.id !== 'software' ? whole.vertical : null;
   // A broad choice (saas, software) does not hide a trade the seller's own words name (a CNAPP tool is cybersecurity, not "saas").
-  if (chosen && (chosen.id === 'saas' || chosen.id === 'software') && read.vertical && read.source === 'seller' && read.vertical.id !== chosen.id && read.vertical.id !== 'saas' && read.vertical.id !== 'software') chosen = null;
-  const v = chosen ?? read.vertical;
+  if (chosen && (chosen.id === 'saas' || chosen.id === 'software')) {
+    if (read.vertical && read.source === 'seller' && read.vertical.id !== chosen.id && read.vertical.id !== 'saas' && read.vertical.id !== 'software') chosen = null;
+    else if (wholeTrade && whole!.strong.length >= 3) chosen = null;
+  }
+  const fromBuyerOnly = !chosen && read.source === 'buyer' && !wholeTrade;
+  const v = chosen ?? (fromBuyerOnly ? null : (read.source === 'buyer' ? wholeTrade : read.vertical));
+  const buyerV = fromBuyerOnly ? read.vertical : null;
   let model: BusinessModel | null; let how: Context['how'];
   const explicit = typeof opts.model === 'string' && (BUSINESS_MODELS as string[]).includes(opts.model) ? (opts.model as BusinessModel) : null;
   if (explicit) { model = explicit; how = 'input'; }
@@ -55,12 +94,23 @@ export function readContext(opts: { model?: unknown; hintModel?: BusinessModel |
     const m = detectModel(undefined, input);
     model = m.model; how = m.how === 'read' ? 'read' : m.how === 'sector' ? 'sector' : 'unknown';
     if (how !== 'read' && chosen) { model = SECTOR_MODEL[chosen.id]; how = 'sector'; }
+    // The word "software" in a company name or "platform" in a playbook name does not make a services firm a software subscription:
+    // when the sector is ITeS and the seller's words name services work, the model is services.
+    if (v && v.id === 'ites' && model === 'saas' && how === 'read') {
+      const sellerText = (input.seller ?? []).filter((x): x is string => typeof x === 'string').join(' ');
+      if (/\b(?:managed services?|it services|engineering services|consulting|outsourc\w*|systems? integrat\w*|contact cent(?:re|er)s?|service desk)\b/i.test(sellerText) && !/\b(?:saas|subscriptions?|per seat|per user)\b/i.test(sellerText)) { model = 'services'; how = 'read'; }
+    }
+    if (v && v.id === 'telecom' && model === 'saas' && how === 'read') {
+      const sellerText = (input.seller ?? []).filter((x): x is string => typeof x === 'string').join(' ');
+      if (/\b(?:sd-?wan|mpls|leased lines?|connectivity|bandwidth|managed network|broadband|business internet)\b/i.test(sellerText) && !/\b(?:saas|subscriptions?|per seat|per user)\b/i.test(sellerText)) { model = 'connectivity'; how = 'read'; }
+    }
   }
-  const sector = v ? `${chosen ? `${v.name} (from your choice)` : `read from your inputs as ${v.name}`}` : 'not clear from your inputs (name the industry for sector notes)';
+  const buyerSide = buyerV ? ` (name it with the industry input for sector notes)` : '';
+  const sector = v ? `${chosen ? `${v.name} (from your choice)` : `read from your inputs as ${v.name}`}` : `not clear from your own words${buyerSide || ' (name the industry for sector notes)'}`;
   const mtxt = model
     ? `${MODEL_NAME[model]} (${how === 'input' ? 'from business_model' : how === 'hint' ? 'from your market choice; set business_model to change it' : how === 'sector' ? 'the usual model in this sector, assumed; set business_model to change it' : 'read from your inputs; set business_model to change it'})`
     : 'not clear from your inputs; set business_model (saas, services, connectivity, transactions, marketplace, hardware_software or investment) for advice that fits it';
-  return { v, model, how, sector, line: `*Sector: ${sector}. Business model: ${mtxt}.*` };
+  return { v, model, how, sector, line: `*Sector: ${sector}. Business model: ${mtxt}.*`, buyerV };
 }
 
 /** Sector notes: the buying committee, what the sector measures and its usual objections (no figures, rule B82). */
@@ -128,4 +178,64 @@ export function capEcho(text: string, max = 140): { short: string; capped: boole
   const cut = t.slice(0, max);
   const at = cut.lastIndexOf(' ');
   return { short: (at > max * 0.6 ? cut.slice(0, at) : cut).replace(/[,;:\s]+$/, '') + '...', capped: true };
+}
+
+
+/** A comma list that keeps a comma inside brackets or inside a number: "Competitor A (a global suite, strong on reports), Competitor B". New lines also separate items; semicolons do unless `semicolons` is false. */
+export function splitTopLevel(text: unknown, semicolons = true): string[] {
+  if (typeof text !== 'string') return [];
+  const out: string[] = []; let depth = 0; let cur = '';
+  const t = text.replace(semicolons ? /\n|;/g : /\n/g, ',');
+  for (let i = 0; i < t.length; i++) {
+    const ch = t[i];
+    if (ch === '(') depth++;
+    if (ch === ')') depth = Math.max(0, depth - 1);
+    // a comma inside a number (1,500,000) is not a separator
+    if (ch === ',' && depth === 0 && !(/\d/.test(t[i - 1] || '') && /^\d{3}(?!\d)/.test(t.slice(i + 1, i + 4)))) { out.push(cur); cur = ''; } else cur += ch;
+  }
+  out.push(cur);
+  return out.map((x) => x.trim().replace(/^[-*\u2022]\s*/, '')).filter(Boolean);
+}
+
+const ACRONYM = /^[A-Z][A-Z0-9+&/.-]+$/;
+/**
+ * A list typed as one sentence with commas (strengths, objections, goals): items separated by new lines or semicolons are kept as typed.
+ * In a comma run, a piece that opens with a joining word (which, with, and, or, but, so, that, where, from, because, including, plus),
+ * a piece made only of names or acronyms ("APAC and ANZ"), and a piece that continues a list of acronyms
+ * ("FMS or TMS in weeks" after "WMS") are joined back onto the piece before them, so no item starts or ends mid-phrase. A first piece
+ * of one or two words is joined forward.
+ */
+export function splitPhrases(text: unknown): string[] {
+  if (typeof text !== 'string') return [];
+  const lines = text.split(/\n|;/).map((x) => x.trim()).filter(Boolean);
+  const out: string[] = [];
+  for (const line of lines) {
+    const pieces = splitTopLevel(line, false);
+    const merged: string[] = [];
+    let carry = '';
+    for (let piece of pieces) {
+      if (carry) { piece = `${carry}, ${piece}`; carry = ''; }
+      const words = piece.split(/\s+/);
+      const prevLast = merged.length ? merged[merged.length - 1].replace(/\s*\(.*\)\s*$/, '').split(/\s+/).pop() ?? '' : '';
+      const joins = /^(?:which|with|and|or|but|so|that|where|from|because|including|plus|while|then)\b/i.test(piece);
+      const nameOnly = words.length <= 4 && words.every((w) => /^(?:and|or|&)$/i.test(w) || /^[A-Z][A-Za-z0-9+&/.-]*$/.test(w));
+      const acronymRun = ACRONYM.test(words[0].replace(/[,;]$/, '')) && ACRONYM.test(prevLast.replace(/[,;]$/, '')) && words.length <= 8;
+      if (merged.length && (joins || nameOnly || acronymRun)) merged[merged.length - 1] += `, ${piece}`;
+      else if (!merged.length && words.length <= 2 && pieces.length > 1) carry = piece;
+      else merged.push(piece);
+    }
+    if (carry) merged.push(carry);
+    out.push(...merged);
+  }
+  return out;
+}
+
+/** A company name without trailing corporate words (Software, Technologies, Systems, Inc, Ltd ...): "Sonata Software" is read as "Sonata", so the word Software does not set a business model. */
+export function cleanCompanyName(name: string | undefined): string {
+  return (name ?? '').replace(/\s+(?:software|technologies|technology|systems|solutions|labs|group|inc\.?|ltd\.?|limited|llc|pvt\.?|private limited|corp\.?|corporation)\b\.?/gi, '').trim();
+}
+
+/** A user text in double quotes, capped at a word boundary; a cut ends with "..." inside the quotes (q() would strip a final dot). */
+export function qc(text: string, max = 140): string {
+  return `"${capEcho(text.trim().replace(/[.]$/, ''), max).short.replace(/^"|"$/g, '')}"`;
 }

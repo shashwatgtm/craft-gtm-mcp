@@ -1,5 +1,60 @@
 import { describeChoice, readableChoice, EXAMPLE_FIGURES, SUGGESTION_FOOTER } from './utils.js';
-import { readContext, splitItems, q, andList, shortName } from './context.js';
+import { readContext, splitItems, q, andList, shortName, capEcho } from './context.js';
+import { PLAYBOOKS, MODEL_LANGUAGE } from './sector-playbooks.js';
+
+// Run 20 (quality round 1): questions for the person you interview, by the kind of role. A role is read from its title; the questions
+// are about that person's own work and measures (no figure, no claim about their company).
+const ROLE_FOCUS: Array<{ re: RegExp; label: string; questions: string[] }> = [
+  { re: /\b(portfolio manager|chief investment|investment (?:officer|director|committee)|asset (?:allocator|manager)|quant|head of investments?|\bcio\b.*invest)\b/i, label: 'investment decision maker', questions: [
+    'Walk me through how an investment idea or a signal gets from first look to a decision. Who has to agree, and what do they ask for?',
+    'What would you need to see about a model or a data source before you trusted it: its history, its explanation, or both?',
+    'How do you explain a decision to your committee, your board or your clients afterwards, and what is missing from that explanation today?',
+    'What did the last tool or data source you adopted have to pass, and who reviewed it?'] },
+  { re: /\b(cfo|finance|controller|treasur\w*|accounts? (?:payable|receivable)|accounting|audit)\b/i, label: 'finance leader', questions: [
+    'Walk me through the last month-end close: which steps took longest, and which were done by hand?',
+    'Where do policy breaches or errors in spend, claims or invoices show up first, and who finds them?',
+    'What did your last audit ask for that took days to produce?',
+    'Which systems must anything new post into, and who owns that integration?'] },
+  { re: /\b(ciso|security|soc\b|risk and compliance|compliance)\b/i, label: 'security leader', questions: [
+    'Walk me through last week: how many alerts or findings reached the team, and which ones were worked on?',
+    'Which assets, clouds or exposures are you least sure about today?',
+    'What did the last audit or incident show that your tools did not?',
+    'How would you know a new tool had paid off after three months: fewer alerts, faster fixes, or better audit evidence?'] },
+  { re: /\b(cio|cto\b|chief (?:information|technology)|head of (?:it|technology|infrastructure)|it (?:head|director|manager|operations)|infrastructure|network (?:head|manager|lead|engineer)|vp it)\b/i, label: 'IT and infrastructure leader', questions: [
+    'Which parts of your estate cause the most calls to your team: sites, links, applications or vendors?',
+    'How many providers or vendors do you manage for this today, and who is called first when something fails?',
+    'Which contracts end in the next year, and what would make you move one early?',
+    'What does a change or a migration need from your team, and when are the windows you can use?'] },
+  { re: /\b(coo|operations|last-?mile|supply chain|logistics|fleet|dispatch|transport|warehouse|hub)\b/i, label: 'operations leader', questions: [
+    'Walk me through a normal day, and then a bad one: what breaks first when volumes or plans change?',
+    'Which numbers do you look at every morning, and who produces them?',
+    'Where does work get done twice, or by hand, because two systems do not agree?',
+    'What would your team have to give up or learn for a new tool to work, and what would they push back on?'] },
+  { re: /\b(sales|revenue|cro|commercial|distribution|trade marketing|go-to-market)\b/i, label: 'sales and revenue leader', questions: [
+    'Walk me through how an order or an opportunity moves from the field or the first call to the system, and where it gets stuck.',
+    'Which numbers do you review weekly, how late are they, and who has to chase them?',
+    'What made your reps or partners drop the last tool you introduced?',
+    'Who else must agree before you change how the team sells?'] },
+  { re: /\b(engineer\w*|developer|platform|devops|qa\b|architect|product (?:manager|head|lead)|head of product|vp product)\b/i, label: 'engineering or product leader', questions: [
+    'Walk me through how a change goes from an idea to production, and where it waits.',
+    'Which tools does the team maintain itself, and how much time does that take?',
+    'What would a trial need to prove on one real project before you took it further?',
+    'Who else has a say: security, procurement, or other teams that depend on the same tools?'] },
+  { re: /\b(procurement|vendor|sourcing|purchasing)\b/i, label: 'procurement and vendor management', questions: [
+    'Walk me through how a new supplier is assessed here, from request to contract.',
+    'How are offers compared: rate card, total cost of the outcome, or something else?',
+    'What would make you stop a supplier selection late in the process?',
+    'Which references or evidence do you ask suppliers for?'] },
+  { re: /\b(customer (?:experience|service|support)|cx\b|contact cent\w*|service desk|support (?:head|manager|lead))\b/i, label: 'customer experience leader', questions: [
+    'Walk me through how a customer request is handled from the first contact to the close, and where it waits.',
+    'Which measures do you review each week, and which of them do your people feel they can change?',
+    'What would a person have to approve before an automated step answers a customer?',
+    'What happened the last time something changed in how requests are handled?'] },
+];
+function roleFocus(persona: string): { label: string; questions: string[] } | null {
+  for (const r of ROLE_FOCUS) if (r.re.test(persona)) return { label: r.label, questions: r.questions };
+  return null;
+}
 
 export function generateCustomerInterviewKit(args: {
   interview_type: string;
@@ -25,7 +80,10 @@ export function generateCustomerInterviewKit(args: {
   const industryName = args.industry ? readableChoice(args.industry) : v ? `${v.name} (read from your inputs)` : 'not stated (generic questions are used: set industry or name the sector)';
   const product = shortName(args.product_context) ?? 'the product';
   const subscription = ctx.model === 'saas' || ctx.model === null;
-  const leave = subscription ? 'cancel' : 'end the contract or not renew';
+  const lang = MODEL_LANGUAGE[ctx.model ?? 'saas'];
+  const leave = lang.leave;
+  const pb = v ? PLAYBOOKS[v.id] : null;
+  const focus = roleFocus(args.target_persona);
 
   // Generic context for the choices that are not one of the owner's verticals (ecommerce, marketplace, enterprise software, consumer, other)
   const genericContext: Record<string, { terms: string[]; painPoints: string[]; stakeholders: string[] }> = {
@@ -57,7 +115,16 @@ export function generateCustomerInterviewKit(args: {
   };
   const generic = genericContext[args.industry && genericContext[args.industry] ? args.industry : 'other'];
   const personaLower = args.target_persona.trim().toLowerCase();
-  const otherRoles = v ? v.buyerRoles.filter((r) => r.toLowerCase() !== personaLower).slice(0, 3) : generic.stakeholders.slice(0, 2);
+  // Investment decision makers (a portfolio manager, a chief investment officer) are not customer-experience buyers even when the
+  // seller is read as AI native: their measures, peers and questions come from the role, not from the support-automation sector notes.
+  const investing = ctx.model === 'investment' || focus?.label === 'investment decision maker';
+  const INVEST = {
+    metrics: ['performance against the agreed benchmark', 'risk-adjusted return', 'tracking error', 'turnover', 'how well each signal can be explained'],
+    roles: ['Chief Investment Officer', 'Head of Risk', 'Head of Compliance', 'Head of Investment Operations'],
+    discovery: ['How do you decide which signals or data sources to trust, and who signs off?', 'What does your committee need to see before it accepts a model-based input?', 'How do you judge whether a signal has added value: against which benchmark, over what period?', 'Which data may not leave your environment?', 'How do you document the reasoning behind a decision for clients, trustees or regulators?'],
+  };
+  const measures = investing ? INVEST.metrics : v ? v.metrics : [];
+  const otherRoles = investing ? INVEST.roles.filter((r) => r.toLowerCase() !== personaLower).slice(0, 3) : v ? v.buyerRoles.filter((r) => r.toLowerCase() !== personaLower).slice(0, 3) : generic.stakeholders.slice(0, 2);
 
   // Complexity-based question depth
   const technicalQuestions: Record<string, string[]> = {
@@ -84,7 +151,13 @@ export function generateCustomerInterviewKit(args: {
     ]
   };
   
-  const techQuestions = technicalQuestions[complexity] || technicalQuestions.moderate;
+  // A software buyer is asked about integrations and deployment; for services, connectivity and the other sectors the depth comes from the sector
+  // (src/sector-playbooks.ts), cut to the complexity chosen.
+  const softwareLike = ctx.model === null || ctx.model === 'saas' || ctx.model === 'hardware_software' || ctx.model === 'transactions';
+  const depth = ({ simple: 2, moderate: 3, complex: 4, highly_technical: 4 } as Record<string, number>)[complexity] ?? 3;
+  const techQuestions = pb && !(softwareLike && v && (v.id === 'software' || v.id === 'saas') && complexity !== 'simple')
+    ? [...pb.deepQuestions.slice(0, depth), ...(softwareLike && (complexity === 'complex' || complexity === 'highly_technical') ? ['What security and compliance requirements affect your decision, and who reviews them?'] : [])]
+    : (technicalQuestions[complexity] || technicalQuestions.moderate);
   
   // Interview type-specific question sets (no fill-in brackets: where the interviewer must use the interviewee's own words, the line says so)
   const questionSets: Record<string, { opening: string[]; core: string[]; probing: string[]; closing: string[] }> = {
@@ -105,8 +178,7 @@ export function generateCustomerInterviewKit(args: {
         `Pick something they just said that sounded important and ask: "Can you tell me more about that?"`,
         `Why is that important to you specifically?`,
         `What happens if this problem isn't solved?`,
-        `How much time/money does this cost you currently?`,
-        `Who else is affected by this problem?`
+        `How much time or money does this cost you currently, and where is that written down?`
       ],
       closing: [
         `If you could wave a magic wand, what would change?`,
@@ -120,7 +192,7 @@ export function generateCustomerInterviewKit(args: {
         `Before I show you anything, tell me: what's your current biggest challenge in this area?`
       ],
       core: [
-        `Show the solution, then ask: What's your initial reaction?`,
+        `Show the ${subscription ? 'solution' : 'offer'}, then ask: What's your initial reaction?`,
         `How excited would you be to try this (scale 1 to 10)? Why that number?`,
         `What would need to change for that to be a 10?`,
         `How does this compare to what you're using today?`,
@@ -134,7 +206,7 @@ export function generateCustomerInterviewKit(args: {
         `How much would you expect to pay for something like this?`
       ],
       closing: [
-        `Would you be willing to be a beta tester?`,
+        `Would you be willing to ${subscription ? 'be a beta tester' : `take part in a ${lang.pilot}`}?`,
         `Who else should I talk to about this?`,
         `Can I follow up in a few weeks with updates?`
       ]
@@ -150,7 +222,7 @@ export function generateCustomerInterviewKit(args: {
         `What's the #1 thing that frustrates you?`,
         `What do you use most? Least?`,
         `Has it delivered on what you expected?`,
-        `How has it affected your work on ${v ? v.metrics[0] : generic.painPoints[0]}?`
+        `How has it affected your work on ${measures.length ? measures[0] : generic.painPoints[0]}?`
       ],
       probing: [
         `Pick a feature they mentioned and ask: "What specifically about it works or doesn't work?"`,
@@ -247,38 +319,55 @@ export function generateCustomerInterviewKit(args: {
   
   const questions = questionSets[interviewType] || questionSets.discovery;
   
-  // Build hypothesis validation questions: each hypothesis is quoted whole
+  // Build hypothesis validation questions: each hypothesis is quoted whole. A line that starts "objections to test:" is an objection, not a claim.
   let hypothesisSection = '';
+  const metric1 = measures.length ? measures[0] : 'the cost or time it takes';
   if (hypotheses.length > 0) {
     hypothesisSection = `
 ---
 
 ## Hypothesis Validation Questions
 
-${hypotheses.map((h, i) => `
+${hypotheses.map((raw, i) => {
+  const isObjection = /^objections?\s+to\s+test\s*:/i.test(raw);
+  const h = raw.replace(/^objections?\s+to\s+test\s*:\s*/i, '');
+  const plain = h.replace(/^["']|["']$/g, '').replace(/[.]$/, '');
+  const shown = capEcho(plain, 220).short;
+  if (isObjection) return `
+### Objection ${i + 1}: ${q(h)}
+
+| To Validate | Ask |
+|-------------|-----|
+| Find where it comes from | "When did this first come up, and what happened that made it a concern?" |
+| Test how strong it is | "If this were solved, would it change your decision? What else would still stand in the way?" |
+| Find the evidence they trust | "What would you need to see to put this concern to rest, and who would need to see it?" |
+| Find counter-evidence | "Tell me about a time this concern turned out not to matter." |
+`;
+  return `
 ### Hypothesis ${i + 1}: ${q(h)}
 
 | To Validate | Ask |
 |-------------|-----|
-| Confirm it is true | "Is this true for you: '${h.replace(/^["']|["']$/g, '').replace(/[.]$/, '')}'? When did you last see it?" |
-| Understand severity | "How painful is this (scale 1 to 10)? What does it cost you?" |
-| Test assumption | "Tell me about the last time it happened. What did you do?" |
-| Find counter-evidence | "What would make this NOT true for you?" |
-`).join('')}
+| Confirm it is true | "Is this true for you: ${plain.length <= 260 ? `'${plain}'` : 'the statement above'}? When did you last see it?" |
+| Understand severity | "What does it cost you in ${metric1}, and who feels it first?" |
+| Test assumption | "Tell me about the last time it happened. What did you do, and who was involved?" |
+| Find counter-evidence | "What would make this NOT true for you, and where have you seen the opposite?" |
+`;
+}).join('')}
 `;
   }
 
   // Questions in the sector's own language (from the data file), else the generic set
-  const sectorQuestions = v
-    ? [...v.discovery, `How do ${andList(otherRoles)} take part in this decision, and who has the final say?`]
+  const sectorQuestions = v || investing
+    ? [...(investing ? INVEST.discovery : v!.discovery), `How do ${andList(otherRoles)} take part in this decision, and who has the final say?`]
     : [
         `How do you currently handle ${generic.terms[0]}?`,
         `What's your process for ${generic.terms[1]}?`,
         `How do ${generic.stakeholders[0]} and ${generic.stakeholders[1]} collaborate on this?`,
         `What ${generic.terms[2]} challenges have you faced?`
       ];
-  const opener = v
-    ? `How do you measure ${v.metrics[0]} today, and how much does it vary?`
+  const opener = measures.length
+    ? `How do you measure ${measures[0]} today, and how much does it vary?`
     : `How much of a challenge is ${generic.painPoints[0]} for you?`;
 
   return `# Customer Interview Kit
@@ -295,7 +384,7 @@ ${ctx.line}
 
 ## Pre-Interview Checklist
 
-- [ ] Reviewed persona's LinkedIn/background
+- [ ] Reviewed persona's LinkedIn/background${measures.length ? `\n- [ ] Know the measures this person is judged on (${andList(measures.slice(0, 3))}) and use them as the buyer does` : ''}
 - [ ] Tested recording equipment
 - [ ] Prepared note-taking template
 - [ ] Sent calendar invite with clear agenda
@@ -338,10 +427,11 @@ ${questions.core.map((q, i) => `${i + 1}. ${q}`).join('\n')}
 
 ${techQuestions.map((q, i) => `${i + 1}. ${q}`).join('\n')}
 
-### Industry-Specific Questions (${v ? v.name : industryName})
+### Industry-Specific Questions (${investing ? `${v ? `${v.name}, ` : ''}investment decision makers` : v ? v.name : industryName})
 
 ${sectorQuestions.map((x, i) => `${i + 1}. ${x}`).join('\n')}
-${v ? `\n*Who usually decides in this sector: ${v.committee}*\n\n*Words this buyer uses: ${v.vocabulary.join(', ')}. Use them where they are true for the person you interview.*\n` : ''}
+${focus ? `\n### Questions for ${/^[aeiou]/i.test(focus.label) ? 'an' : 'a'} ${focus.label} (${args.target_persona})\n\n${focus.questions.map((x, i) => `${i + 1}. ${x}`).join('\n')}\n` : ''}
+${v && !investing ? `\n*Who usually decides in this sector: ${v.committee}*\n\n*Words this buyer uses: ${v.vocabulary.join(', ')}. Use them where they are true for the person you interview.*\n` : ''}
 ---
 
 ## Probing Questions (Use as needed)
@@ -406,12 +496,12 @@ FOLLOW-UP ACTIONS:
 After conducting multiple interviews, map findings to:
 
 ### ICP Signals
-${EXAMPLE_FIGURES} Tally the Count column against your own number of interviews.
+Tally the Count column as "interviews that said it, out of the interviews you ran".
 | Signal | Count | Implication |
 |--------|-------|-------------|
-| Most common pain point | /10 | Include in messaging |
-| Most common objection | /10 | Address proactively |
-| Most requested feature | /10 | Product input |
+| Most common pain point | | Include in messaging |
+| Most common objection | | Address proactively |
+| ${subscription ? 'Most requested feature' : 'Most requested change to the service'} | | ${subscription ? 'Product input' : 'Service design input'} |
 
 ### Persona Insights
 | Attribute | Pattern | Source Quotes |
