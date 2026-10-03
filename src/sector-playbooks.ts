@@ -37,11 +37,11 @@ export interface Playbook {
 
 export const PLAYBOOKS: Record<VerticalId, Playbook> = {
   'logistics-tech': {
-    pains: ['dispatch plans that break when orders, drivers or roads change after vehicles have left', 'failed first-attempt deliveries caused by addresses, time windows or driver allocation', 'a cost per delivery that nobody can explain by route, hub or carrier'],
-    cta: 'Agree a pilot at one hub or city, with the baseline cost per delivery and first-attempt delivery measured before it starts',
-    launchTasks: ['Choose the pilot hub or city and write down its baseline cost per delivery and first-attempt delivery rate', 'Check the integration path with the TMS, WMS and order systems the first accounts run', 'Test the driver app offline on the phones the drivers carry'],
-    channels: ['account-based email to named operations and supply chain leaders', 'LinkedIn posts from your experts and customers', 'operations roundtable or hub visit', 'trade event or association meeting'],
-    adoption: { measure: 'hubs or cities live, drivers active in the app, and first-attempt delivery rate at the pilot hub', source: 'your dispatch and driver app data' },
+    pains: ['plans, shipments or orders that change after goods are moving, with no shared view of the change', 'exceptions (late, damaged or failed shipments) that are found late and chased by phone or email', 'a cost of moving goods that nobody can explain by lane, site or carrier'],
+    cta: 'Agree a pilot on one lane, site or customer account, with the measures you will compare written down before it starts',
+    launchTasks: ['Choose the pilot lane, site or customer account and write down its baseline measures', 'Check the integration path with the TMS, WMS and order systems the first accounts run', 'Agree with the pilot account who sees each exception and what that person does about it'],
+    channels: ['account-based email to named operations and supply chain leaders', 'LinkedIn posts from your experts and customers', 'operations roundtable or customer site visit', 'trade event or association meeting'],
+    adoption: { measure: 'accounts, lanes or sites live, users active in the product, and the pilot measures agreed at the start', source: 'your product usage data and the pilot records' },
     partners: { refer: ['supply chain and logistics consultants', 'ERP, TMS and WMS implementers who already sit with the Head of Supply Chain', '3PL and carrier networks that advise shippers'], resell: ['regional logistics software resellers', 'systems integrators with a transport practice'], integrate: ['TMS, WMS, ERP and order management vendors', 'carrier and shipper network platforms'], implement: ['ERP and supply chain systems integrators', 'logistics process consultancies'] },
     partnerWhy: 'The Head of Supply Chain and the COO already take advice from consultants and integrators who run their TMS, WMS and ERP, and a pilot needs those systems connected.',
     deepQuestions: ['What changes in your volumes during the busiest weeks, and what breaks first?', 'How is an exception recorded today (a late, damaged or failed shipment), and who sees the reasons?', 'What does a late or failed shipment cost you today, and who sees that number?', 'Which carriers, partners or sites must work together in one plan or one view?'],
@@ -57,14 +57,14 @@ export const PLAYBOOKS: Record<VerticalId, Playbook> = {
     { reason: 'A bigger logistics suite was bundled in', signal: 'The buyer\'s IT or procurement asks for a comparison with a suite they already license', action: 'Compare what planners can do each day in each tool, not the feature list' },
   ],
     renewal: 'Renewals often follow the buyer\'s peak season and budget review: bring the results on the measures agreed at the start for the busy weeks.',
-    checklist: ['Pilot hub chosen and its baseline measures written down', 'Driver app tested offline on the phones in use', 'TMS, WMS and ERP integration path confirmed with the buyer\'s IT', 'Peak-season dates known, so the pilot does not collide with them'],
+    checklist: ['Pilot scope chosen and its baseline measures written down', 'Integration path with the TMS, WMS and ERP confirmed with the buyer\'s IT', 'Who sees and acts on each exception agreed with the pilot account', 'Peak-season dates known, so the pilot does not collide with them'],
   },
   fintech: {
-    pains: ['month-end close and reconciliation that take too many manual steps', 'spend, claims or invoices that break policy and are found late', 'audit questions about approvals and controls that take days to answer'],
-    cta: 'Agree a pilot on one entity or department, with one month of the buyer\'s own transactions as the test',
-    launchTasks: ['Prepare the security and compliance pack (data residency, access controls, audit logs, certifications you actually hold)', 'Write the ERP or ledger posting guide with the finance controller\'s team in mind', 'Plan the cut-over just after a month-end close, with old and new running side by side for one cycle'],
-    channels: ['account-based email to CFOs and finance controllers', 'LinkedIn posts from your experts and customers', 'finance leaders roundtable', 'partner and accountant referrals'],
-    adoption: { measure: 'entities or departments live, and the share of transactions posted through the product', source: 'your product usage data and the buyer\'s ERP posting records' },
+    pains: ['reporting and reconciliation that take too many manual steps', 'payments, claims or records that break a rule and are found late', 'audit questions about approvals and controls that take days to answer'],
+    cta: 'Agree a pilot on one product line, entity or customer group, with a sample of the buyer\'s own data as the test',
+    launchTasks: ['Prepare the security and compliance pack (data residency, access controls, audit logs, certifications you actually hold)', 'Write the integration guide with the buyer\'s finance and technology teams in mind', 'Plan the go-live around the buyer\'s reporting dates, with old and new running side by side for one cycle'],
+    channels: ['account-based email to finance, risk and technology leaders', 'LinkedIn posts from your experts and customers', 'finance leaders roundtable', 'partner and adviser referrals'],
+    adoption: { measure: 'entities, teams or products live, and the share of the buyer\'s flows that run through the product', source: 'your product usage data and the buyer\'s own records' },
     partners: { refer: ['advisory and audit firms that advise finance, risk and compliance leaders', 'banks and payment providers that serve the same customers', 'technology consultancies that advise on regulated systems'], resell: ['financial software resellers', 'outsourced finance and operations providers'], integrate: ['banks and payment providers', 'core systems and accounting software vendors'], implement: ['systems integrators for regulated environments', 'finance transformation consultancies'] },
     partnerWhy: 'Finance, risk and technology leaders take advice from auditors, advisers and integrators, and every deal passes a security and compliance review.',
     deepQuestions: ['How are exceptions found today: as they happen, at a reporting date, or at audit?', 'What must the audit trail show that it does not show today?', 'Which countries, entities or licences must be covered from the start?', 'Which of your customers\' or partners\' systems must it connect to, and who owns each connection?'],
@@ -80,14 +80,14 @@ export const PLAYBOOKS: Record<VerticalId, Playbook> = {
     { reason: 'A provider the buyer already had was judged good enough', signal: 'The buyer asks for a comparison with the provider or the module it already runs', action: 'Compare on the journeys that fail or cost the most today, using a sample of the buyer\'s own data' },
   ],
     renewal: 'Renewals tend to follow the buyer\'s audit and budget cycle: bring the results and the record of reviews passed for the period.',
-    checklist: ['Security and compliance pack ready before the buyer asks', 'ERP posting path tested with the buyer\'s chart of accounts', 'Cut-over date agreed around a month-end close', 'Claims you make about certifications match what you hold'],
+    checklist: ['Security and compliance pack ready before the buyer asks', 'Integration path tested with the buyer\'s systems', 'Go-live date agreed around the buyer\'s reporting dates', 'Claims you make about certifications match what you hold'],
   },
   'vertical-saas': {
-    pains: ['reps who capture orders on paper or in several apps, so secondary sales are seen late', 'trade schemes that are not communicated to reps or checked in the outlet', 'distributor stock and order data that are out of sync with the company\'s view'],
-    cta: 'Agree a pilot in one region with a set of distributors, with a measured comparison region',
-    launchTasks: ['Choose the pilot region and the distributors in it, and record the baseline productive calls and outlet coverage', 'Test the app offline on the low-end phones the reps carry', 'Agree how distributor stock and orders flow back from the DMS before rollout'],
-    channels: ['account-based email to sales heads and sales operations', 'LinkedIn posts from your experts and customers', 'field visit to a pilot region', 'industry and sales leaders meetups'],
-    adoption: { measure: 'regions and reps live, and productive calls and orders captured in the app per rep', source: 'your app usage data and the buyer\'s secondary sales reports' },
+    pains: ['people who do the daily work on paper, in spreadsheets or in several tools, so the work is seen late', 'rules, prices or forms that change and do not reach the people who do the work', 'records that are out of sync with the company\'s other systems'],
+    cta: 'Agree a pilot with one team or site, with a comparison team or site to measure against',
+    launchTasks: ['Choose the pilot team or site and record the baseline for the measures you will compare', 'Test the product in the conditions the team works in (devices, network, shifts)', 'Agree how records flow between the product and the customer\'s ERP and accounting systems before rollout'],
+    channels: ['account-based email to the owner, the head of operations and department leads', 'LinkedIn posts from your experts and customers', 'visit to a pilot team or site', 'industry and association meetups'],
+    adoption: { measure: 'teams and sites live, and the share of the daily work done in the product, by role', source: 'your product usage data and the customer\'s own work records' },
     partners: { refer: ['industry consultants and advisers who sit with the owner or the head of operations', 'ERP and accounting integrators who serve the same customers'], resell: ['regional software resellers close to the trade', 'mobile device and telecom resellers serving field and site teams'], integrate: ['ERP, accounting and document systems', 'mobile device and data capture vendors'], implement: ['ERP and accounting integrators', 'change management consultancies for the teams who use the product'] },
     partnerWhy: 'The owner or the head of operations takes advice from consultants and from the ERP and accounting integrators who already work with the business, and the rollout depends on those systems being connected.',
     deepQuestions: ['What happens to work in progress when the system or the network is not available?', 'Which records must reach other systems, and who confirms they arrived?', 'Which rules, prices or forms change in a month, and how fast must everyone see the change?', 'Who changes how the work is planned or approved today, and how do the people doing it hear about it?'],
@@ -103,7 +103,7 @@ export const PLAYBOOKS: Record<VerticalId, Playbook> = {
     { reason: 'The sponsor who backed the rollout changed role', signal: 'The owner or department head who backed the rollout moves on and waves are postponed', action: 'Re-baseline the rollout plan with the new sponsor, using the results of the first team or site' },
   ],
     renewal: 'Renewals follow the customer\'s working year: show adoption by role and the work saved for the team or site that went live.',
-    checklist: ['Pilot region, distributors and comparison region agreed', 'Offline order capture tested on low-end phones', 'DMS and ERP data flow confirmed with IT', 'Rep incentives tied to orders captured in the app'],
+    checklist: ['Pilot team or site and comparison group agreed', 'Product tested in the conditions where people work', 'ERP and accounting data flow confirmed with IT', 'Routines or incentives tied to using the product'],
   },
   'ai-native': {
     pains: ['cases or decisions that need people to review a lot of routine work', 'answers that cannot be explained to a client, a regulator or an investment committee', 'doubts about accuracy, data privacy and what happens when the AI is wrong'],
@@ -153,11 +153,11 @@ export const PLAYBOOKS: Record<VerticalId, Playbook> = {
     checklist: ['Transition plan with exit criteria written', 'Governance model and report samples ready', 'References from clients with a similar scope agreed', 'Rates explained as the total cost of the outcome, not only a rate'],
   },
   telecom: {
-    pains: ['branch or site links that fail, with slow repairs and several providers to call', 'a network that is expensive to manage across many sites and many links', 'security that has to be added on top of the network, with unclear ownership of incidents'],
-    cta: 'Agree a site survey and a pilot at the sites where service is worst today, with uptime and repair time compared against the current provider',
-    launchTasks: ['Prepare the site survey checklist and the shortlist of pilot sites (the sites with the worst service first)', 'Write the wave plan with fallback links and a rollback rule for each wave', 'Prepare the rate-card comparison in cost per site, including outages and the IT team\'s time'],
-    channels: ['account-based outreach to CIOs and heads of IT infrastructure', 'account manager briefings for existing customers', 'CIO and network leaders roundtable', 'responses to requests for proposal and rate-card comparisons'],
-    adoption: { measure: 'sites live per wave, uptime per site and repair time at the pilot sites', source: 'your network operations reports' },
+    pains: ['services that fail, with slow repairs and several providers to call', 'a communications setup that is expensive to manage across many services and providers', 'security that has to be added on top, with unclear ownership of incidents'],
+    cta: 'Agree a pilot on the service where results are worst today, with service quality and repair time compared against the current provider',
+    launchTasks: ['Prepare the shortlist of pilot services or customers (the worst served first) and write down their baseline measures', 'Write the cut-over plan with a fallback and a rollback rule for each step', 'Prepare the price comparison in cost per service, including outages and the IT team\'s time'],
+    channels: ['account-based outreach to CIOs and heads of technology', 'account manager briefings for existing customers', 'CIO and technology leaders roundtable', 'responses to requests for proposal and price comparisons'],
+    adoption: { measure: 'services or customers live per step, and service quality and repair time at the pilot', source: 'your service operations reports' },
     partners: { refer: ['network and IT consultancies that advise CIOs', 'systems integrators that run migration projects'], resell: ['IT resellers and managed service providers with business customers', 'system integrators that bundle communications services into their contracts'], integrate: ['security and cloud access vendors', 'cloud providers', 'IT service management tools'], implement: ['network and systems integrators for installation and cut-over', 'field engineering partners for places outside your coverage'] },
     partnerWhy: 'The CIO and the technology head often buy communications services inside a wider IT or security project led by an integrator or consultant, who also decides which provider is included.',
     deepQuestions: ['Which services cost the most when they fail, and how do you know?', 'Who runs the services today, and how many providers do you call when something fails?', 'Which services have a fallback, and which have none?', 'Which contracts end when, and what is the notice period?'],
@@ -173,14 +173,14 @@ export const PLAYBOOKS: Record<VerticalId, Playbook> = {
     { reason: 'The switch to the new service slipped from its plan', signal: 'Customers late in their migration, rollback requests, complaints from the people who use it', action: 'Reset the migration plan with a rollback rule for each stage and a named owner per region' },
   ],
     renewal: 'Renewals follow the contract end and often a re-tender: bring the service record for the period.',
-    checklist: ['Pilot sites chosen and surveyed', 'Wave plan with rollback rules', 'Rate-card comparison in cost per site', 'Security overlay explained: who responds to an incident'],
+    checklist: ['Pilot services or customers chosen and their baseline measured', 'Cut-over plan with rollback rules', 'Price comparison in cost per service', 'Security overlay explained: who responds to an incident'],
   },
   cybersecurity: {
-    pains: ['too many alerts and findings, with no ranking by real exposure', 'unknown assets, clouds or exposures that the team only finds after an incident or an audit', 'tools that do not connect to the SIEM and ticketing the team already runs'],
+    pains: ['too many alerts and findings, with no ranking by real impact', 'gaps in what the team can see, found only after an incident or an audit', 'tools that do not connect to the SIEM and ticketing the team already runs'],
     cta: 'Agree a time-boxed proof of value on the buyer\'s own environment, with the success criteria written down first',
-    launchTasks: ['Write the proof of value plan: scope, success criteria and what will be found and closed', 'Prepare the integration notes for the SIEM, ticketing and cloud accounts the team uses', 'Prepare the briefing for the CISO and the SOC or cloud security lead, with the evidence the audit team will want'],
+    launchTasks: ['Write the proof of value plan: scope, success criteria and what will be found and closed', 'Prepare the integration notes for the SIEM, ticketing and identity systems the team uses', 'Prepare the briefing for the CISO and the SOC or security lead, with the evidence the audit team will want'],
     channels: ['account-based email to CISOs and security leads', 'LinkedIn posts from your researchers and customers', 'threat research or briefing content', 'security leaders roundtable'],
-    adoption: { measure: 'proofs of value started and converted, assets covered and findings closed during the proof', source: 'your proof of value reports and product telemetry' },
+    adoption: { measure: 'proofs of value started and converted, and findings or threats handled during the proof', source: 'your proof of value reports and product telemetry' },
     partners: { refer: ['security consultancies and audit firms that advise CISOs', 'managed security service providers that run the SOC for customers', 'cloud and IT consultancies that lead cloud migrations'], resell: ['security resellers and distributors', 'managed security providers that bundle your product into their service'], integrate: ['SIEM, SOAR and ticketing vendors', 'cloud providers and identity vendors'], implement: ['security integrators', 'incident response and advisory firms'] },
     partnerWhy: 'The CISO often follows the advice of the audit firm, the consultancy or the managed security provider that runs their SOC, and those partners also own the integrations a proof of value needs.',
     deepQuestions: ['Which assets, clouds or exposures are you least sure about today?', 'How are findings ranked, and what happens to the ones nobody has time for?', 'What did the last audit or incident show that the tools did not?', 'How would you judge a proof of value a success: coverage, noise reduction, or time to fix?'],
@@ -197,11 +197,11 @@ export const PLAYBOOKS: Record<VerticalId, Playbook> = {
     { reason: 'A platform vendor bundled a similar capability', signal: 'The buyer\'s security or IT team compares with what a platform vendor now includes', action: 'Map the overlap honestly and show what the platform capability misses in their own environment' },
   ],
     renewal: 'Renewals follow audit findings and incidents: bring the exposures found and closed, and the time they took to fix.',
-    checklist: ['Proof of value plan with written success criteria', 'Integration notes for SIEM, ticketing and cloud accounts', 'Security and privacy documentation ready before it is asked for', 'Claims about detection match what the product does today'],
+    checklist: ['Proof of value plan with written success criteria', 'Integration notes for the SIEM and ticketing the team uses', 'Security and privacy documentation ready before it is asked for', 'Claims about detection match what the product does today'],
   },
   software: {
-    pains: ['releases that are slowed by tests, builds or manual checks', 'open-source or home-made tools that someone has to keep running', 'migration work that stops teams from trying a new tool'],
-    cta: 'Start a trial with one team on one real project, and migrate one existing test suite or service during the trial',
+    pains: ['releases that are slowed by manual checks and handoffs between tools', 'open-source or home-made tools that someone has to keep running', 'migration work that stops teams from trying a new tool'],
+    cta: 'Start a trial with one team on one real project, and migrate one existing project or service during the trial',
     launchTasks: ['Publish the quickstart, the reference and one sample project that a developer can finish in one sitting', 'Write the migration guide from the open-source or in-house tools teams use now', 'Prepare the security note: what the product reads and stores, and how access is controlled'],
     channels: ['developer docs and quickstart', 'engineering blog and conference talks', 'community, forums and open-source channels', 'email to engineering leaders who already have team users'],
     adoption: { measure: 'teams that finish the quickstart, move a real project and keep using it after the trial', source: 'your product analytics and trial records' },
@@ -361,11 +361,18 @@ export const INVESTMENT_PLAYBOOK: Playbook = {
 };
 /** Run 21b step 2 (stock text): lines written for one kind of company. The entries of PLAYBOOKS above hold only lines true for every company in
  * the vertical; the lines of one kind sit here, under the sub-type id of src/verticals.ts, and replace the neutral field when the seller's own words
- * name exactly that sub-type. Only the fields below can be replaced. No figure, statistic or named company (B82). */
-export type PlaybookOverlay = Partial<Pick<Playbook, 'crises' | 'outage' | 'breach' | 'churnReasons' | 'renewal' | 'deepQuestions' | 'partners' | 'partnerWhy'>>;
+ * name exactly that sub-type. Only the fields below can be replaced (run 21b late task: the launch lines pains, cta, launchTasks, channels, adoption and checklist
+ * were moved here too, so launch_commander prints them only for the kind they were written for). No figure, statistic or named company (B82). */
+export type PlaybookOverlay = Partial<Pick<Playbook, 'crises' | 'outage' | 'breach' | 'churnReasons' | 'renewal' | 'deepQuestions' | 'partners' | 'partnerWhy' | 'pains' | 'cta' | 'launchTasks' | 'channels' | 'adoption' | 'checklist'>>;
 export const SUBTYPE_PLAYBOOKS: Record<string, PlaybookOverlay> = {
   // Logistics tech, last mile delivery (the lines the neutral entry used to hold for every logistics company).
   'last-mile': {
+    pains: ['dispatch plans that break when orders, drivers or roads change after vehicles have left', 'failed first-attempt deliveries caused by addresses, time windows or driver allocation', 'a cost per delivery that nobody can explain by route, hub or carrier'],
+    cta: 'Agree a pilot at one hub or city, with the baseline cost per delivery and first-attempt delivery measured before it starts',
+    launchTasks: ['Choose the pilot hub or city and write down its baseline cost per delivery and first-attempt delivery rate', 'Check the integration path with the TMS, WMS and order systems the first accounts run', 'Test the driver app offline on the phones the drivers carry'],
+    channels: ['account-based email to named operations and supply chain leaders', 'LinkedIn posts from your experts and customers', 'operations roundtable or hub visit', 'trade event or association meeting'],
+    adoption: { measure: 'hubs or cities live, drivers active in the app, and first-attempt delivery rate at the pilot hub', source: 'your dispatch and driver app data' },
+    checklist: ['Pilot hub chosen and its baseline measures written down', 'Driver app tested offline on the phones in use', 'TMS, WMS and ERP integration path confirmed with the buyer\'s IT', 'Peak-season dates known, so the pilot does not collide with them'],
     deepQuestions: ['What changes in your volumes during the busiest weeks, and what breaks first?', 'How do drivers and hub staff get their plan for the day, and what do they do when it changes?', 'How are failed deliveries recorded, and who sees the reasons?', 'Which carriers or fleet types (own, contracted, outsourced) must be planned together?'],
     crises: [
       { key: 'dispatch_outage', title: 'Dispatch or routing outage with vehicles on the road', what: 'planning or tracking stops while vehicles are out', first: ['Freeze the last published route plan and send it to hub leads by the fallback channel', 'Tell drivers to continue on their last plan and use the offline app mode', 'Switch dispatchers to manual allocation for orders that arrive during the outage', 'Log every order assigned by hand so it can be reconciled when service returns'], tell: [{ who: 'Operations heads at affected customers', how: 'Call from the account owner', focus: 'Which hubs and routes are affected, the fallback in use, the next update time' }, { who: 'Hub managers and drivers', how: 'Fallback channel agreed in advance', focus: 'Continue on the last plan, record exceptions' }] },
@@ -404,6 +411,12 @@ export const SUBTYPE_PLAYBOOKS: Record<string, PlaybookOverlay> = {
   },
   // Fintech, spend and expense management (the lines the neutral entry used to hold for every fintech company).
   'spend-expense': {
+    pains: ['month-end close and reconciliation that take too many manual steps', 'spend, claims or invoices that break policy and are found late', 'audit questions about approvals and controls that take days to answer'],
+    cta: 'Agree a pilot on one entity or department, with one month of the buyer\'s own transactions as the test',
+    launchTasks: ['Prepare the security and compliance pack (data residency, access controls, audit logs, certifications you actually hold)', 'Write the ERP or ledger posting guide with the finance controller\'s team in mind', 'Plan the cut-over just after a month-end close, with old and new running side by side for one cycle'],
+    channels: ['account-based email to CFOs and finance controllers', 'LinkedIn posts from your experts and customers', 'finance leaders roundtable', 'partner and accountant referrals'],
+    adoption: { measure: 'entities or departments live, and the share of transactions posted through the product', source: 'your product usage data and the buyer\'s ERP posting records' },
+    checklist: ['Security and compliance pack ready before the buyer asks', 'ERP posting path tested with the buyer\'s chart of accounts', 'Cut-over date agreed around a month-end close', 'Claims you make about certifications match what you hold'],
     deepQuestions: ['Which approvals or policy checks are done by hand today, and who signs them?', 'How are exceptions found: during the month, at close, or at audit?', 'Which entities, currencies or tax regimes must be covered from the start?', 'What must the audit trail show that it does not show today?'],
     crises: [
       { key: 'posting_error', title: 'Wrong postings, payments or reconciliation errors', what: 'transactions are posted, approved or paid wrongly and reach the customer\'s ledger', first: ['Stop the posting or payout job that produced the error', 'List every affected entity, ledger and period', 'Prepare the corrected entries and who approves them', 'Tell the finance controller before month-end close is affected'], tell: [{ who: 'Finance controller and CFO at affected customers', how: 'Call from the account owner, then a written summary', focus: 'What was posted wrongly, the corrected entries, the effect on the close' }, { who: 'Internal audit and compliance contacts', how: 'Written note', focus: 'Facts, controls that failed, the fix' }] },
@@ -438,6 +451,12 @@ export const SUBTYPE_PLAYBOOKS: Record<string, PlaybookOverlay> = {
   },
   // Vertical SaaS, FMCG retail execution (the lines the neutral entry used to hold for every vertical SaaS company).
   'fmcg-retail-execution': {
+    pains: ['reps who capture orders on paper or in several apps, so secondary sales are seen late', 'trade schemes that are not communicated to reps or checked in the outlet', 'distributor stock and order data that are out of sync with the company\'s view'],
+    cta: 'Agree a pilot in one region with a set of distributors, with a measured comparison region',
+    launchTasks: ['Choose the pilot region and the distributors in it, and record the baseline productive calls and outlet coverage', 'Test the app offline on the low-end phones the reps carry', 'Agree how distributor stock and orders flow back from the DMS before rollout'],
+    channels: ['account-based email to sales heads and sales operations', 'LinkedIn posts from your experts and customers', 'field visit to a pilot region', 'industry and sales leaders meetups'],
+    adoption: { measure: 'regions and reps live, and productive calls and orders captured in the app per rep', source: 'your app usage data and the buyer\'s secondary sales reports' },
+    checklist: ['Pilot region, distributors and comparison region agreed', 'Offline order capture tested on low-end phones', 'DMS and ERP data flow confirmed with IT', 'Rep incentives tied to orders captured in the app'],
     deepQuestions: ['How does a rep decide which outlets to visit, and who changes the beat plan?', 'What happens to an order captured in an outlet with no network?', 'How do distributors receive and confirm orders today?', 'Which schemes and price lists change in a month, and how fast must reps see them?'],
     crises: [
       { key: 'sync_failure', title: 'Order or distributor data sync failure', what: 'orders captured by reps do not reach distributors, or stock data goes wrong', first: ['Stop automatic pushes to distributor systems', 'Switch reps to offline capture with a daily upload', 'List orders captured during the failure and their status', 'Agree with each distributor how orders are replayed'], tell: [{ who: 'Sales heads and sales operations at affected customers', how: 'Call from the account owner', focus: 'Which regions and distributors are affected, how orders are protected, when sync returns' }, { who: 'Regional managers and reps', how: 'Message through the sales hierarchy', focus: 'Keep capturing orders offline, what not to re-enter' }] },
@@ -456,6 +475,12 @@ export const SUBTYPE_PLAYBOOKS: Record<string, PlaybookOverlay> = {
   },
   // Telecom, operators and enterprise connectivity (the lines the neutral entry used to hold for every telecom company).
   'operators-connectivity': {
+    pains: ['branch or site links that fail, with slow repairs and several providers to call', 'a network that is expensive to manage across many sites and many links', 'security that has to be added on top of the network, with unclear ownership of incidents'],
+    cta: 'Agree a site survey and a pilot at the sites where service is worst today, with uptime and repair time compared against the current provider',
+    launchTasks: ['Prepare the site survey checklist and the shortlist of pilot sites (the sites with the worst service first)', 'Write the wave plan with fallback links and a rollback rule for each wave', 'Prepare the rate-card comparison in cost per site, including outages and the IT team\'s time'],
+    channels: ['account-based outreach to CIOs and heads of IT infrastructure', 'account manager briefings for existing customers', 'CIO and network leaders roundtable', 'responses to requests for proposal and rate-card comparisons'],
+    adoption: { measure: 'sites live per wave, uptime per site and repair time at the pilot sites', source: 'your network operations reports' },
+    checklist: ['Pilot sites chosen and surveyed', 'Wave plan with rollback rules', 'Rate-card comparison in cost per site', 'Security overlay explained: who responds to an incident'],
     deepQuestions: ['Which sites cost the most when they go down, and how do you know?', 'Who manages the links today, and how many providers do you call for a repair?', 'Which sites have a second link, and which have none?', 'Which contracts end when, and what is the notice period?'],
     crises: [
       { key: 'network_outage', title: 'Network outage across customer sites', what: 'links or a core network fail across several customer sites at once', first: ['Open one incident and name the incident commander and the network operations lead', 'List affected sites and customers, starting with sites that have no second link', 'Fail over to the backup path where one exists, and dispatch field engineers to sites with a local fault', 'Start the service credit log from the first minute of the outage'], tell: [{ who: 'Customer network owners and CIOs', how: 'Call from the account owner, then a status update by agreed channel', focus: 'Which sites, the fallback in use, the repair plan and the next update time' }, { who: 'Customer security teams', how: 'Direct note', focus: 'Whether traffic or inspection was affected while links were down' }] },
@@ -488,8 +513,17 @@ export const SUBTYPE_PLAYBOOKS: Record<string, PlaybookOverlay> = {
     partners: { refer: ['digital agencies and consultancies that build customer messaging', 'systems integrators for contact centres and customer platforms'], resell: ['software and platform partners that bundle messaging', 'regional telecom resellers'], integrate: ['CRM, marketing and customer data platforms', 'channel providers and operators', 'fraud and identity vendors'], implement: ['systems integrators for customer platforms', 'digital agencies that build messaging flows'] },
     partnerWhy: 'Product and technology heads follow the advice of the agencies and integrators that build their customer messaging, and those partners also own the platform connections.',
   },
+  // Cybersecurity, cloud security (the lines the neutral entry used to hold for every cybersecurity company).
+  'cloud-security': {
+    pains: ['too many alerts and findings, with no ranking by real exposure', 'unknown assets, clouds or exposures that the team only finds after an incident or an audit', 'tools that do not connect to the SIEM and ticketing the team already runs'],
+    launchTasks: ['Write the proof of value plan: scope, success criteria and what will be found and closed', 'Prepare the integration notes for the SIEM, ticketing and cloud accounts the team uses', 'Prepare the briefing for the CISO and the SOC or cloud security lead, with the evidence the audit team will want'],
+    adoption: { measure: 'proofs of value started and converted, assets covered and findings closed during the proof', source: 'your proof of value reports and product telemetry' },
+    checklist: ['Proof of value plan with written success criteria', 'Integration notes for SIEM, ticketing and cloud accounts', 'Security and privacy documentation ready before it is asked for', 'Claims about detection match what the product does today'],
+  },
   // Software, testing and QA tools.
   testing: {
+    pains: ['releases that are slowed by tests, builds or manual checks', 'open-source or home-made tools that someone has to keep running', 'migration work that stops teams from trying a new tool'],
+    cta: 'Start a trial with one team on one real project, and migrate one existing test suite or service during the trial',
     deepQuestions: ['How are tests or specs written and maintained, and by whom?', 'Which tests run on every change, and which only before a release?', 'Which browsers, devices or services must tests cover, and who keeps that list?', 'How do you decide today that a failed test is a real defect?'],
     churnReasons: [
     { reason: 'The team went back to its open-source setup', signal: 'Fewer projects run through the product, builds or tests moved back to the old scripts', action: 'Compare the time spent maintaining the open-source setup with what the product removes, on one team' },
@@ -508,9 +542,12 @@ export function playbookFor(v: { id: VerticalId; name: string; subtype?: string 
 /** One line for a tool that used the neutral entry of a vertical (the seller's words named no kind of company): the lines fit any company in the
  * vertical, and the kinds that have lines of their own are named, with the input that gets them. Empty when a sub-type or a profile was read, or
  * when the vertical has no kind with lines of its own; otherwise a paragraph that starts with a blank line, to be placed after the sector line. `who` is the company or product as typed (cut short), `field` the input to fill. */
-export function kindsNote(v: { id: VerticalId; name: string; subtype?: string } | null | undefined, who: string, field: string): string {
+export const LAUNCH_FIELDS: Array<keyof PlaybookOverlay> = ['pains', 'cta', 'launchTasks', 'channels', 'adoption', 'checklist'];
+const OTHER_FIELDS: Array<keyof PlaybookOverlay> = ['crises', 'outage', 'breach', 'churnReasons', 'renewal', 'deepQuestions', 'partners', 'partnerWhy'];
+export function kindsNote(v: { id: VerticalId; name: string; subtype?: string } | null | undefined, who: string, field: string, uses: Array<keyof PlaybookOverlay> = OTHER_FIELDS): string {
   if (!v || v.subtype || /billing|investment management/i.test(v.name)) return '';
-  const kinds = SUBTYPES.filter((st) => st.vertical === v.id && SUBTYPE_PLAYBOOKS[st.id]).map((st) => st.name);
+  // Only the kinds that have lines of their own in the fields this tool prints (launch_commander prints the launch lines, the others the rest).
+  const kinds = SUBTYPES.filter((st) => st.vertical === v.id && SUBTYPE_PLAYBOOKS[st.id] && uses.some((f) => SUBTYPE_PLAYBOOKS[st.id][f] !== undefined)).map((st) => st.name);
   if (!kinds.length) return '';
   const short = who.trim().replace(/\s+/g, ' ');
   const name = short.length > 60 ? `${short.slice(0, short.lastIndexOf(' ', 60) > 20 ? short.lastIndexOf(' ', 60) : 60)}...` : short;

@@ -1,6 +1,6 @@
 import { formatDate, addDays, calculateDaysUntil, describeChoice, EXAMPLE_FIGURE } from './utils.js';
 import { readContext, sectorNotes, q, andList, capEcho, splitTopLevel, splitPhrases, lcFirst } from './context.js';
-import { playbookFor, MODEL_LANGUAGE, segmentNotes, segmentKinds } from './sector-playbooks.js';
+import { playbookFor, MODEL_LANGUAGE, segmentNotes, segmentKinds, kindsNote, LAUNCH_FIELDS } from './sector-playbooks.js';
 
 // Run 20 (quality round 1): the product text is read as a name and a description ("Name: what it does"), so a sentence is built from parts
 // and never from a text cut in the middle of a phrase.
@@ -263,7 +263,7 @@ ${featureHead.capped ? `\n**What you are launching (as you wrote it):** ${args.p
 **Team Size:** ${describeChoice(args.team_size, teamSize)}
 **Budget Level:** ${describeChoice(args.budget_level, budgetLevel)}
 
-${ctx.line}
+${ctx.line}${kindsNote(ctx.v, product.name, 'product_feature', LAUNCH_FIELDS)}
 
 ${pb ? `**How this plan is tuned:** ${ctx.v!.name} deals run through a buying committee (${lower1(ctx.v!.committee.split(';')[0])}), so the plan ${contractSale ? `swaps the software launch tasks for ${lang.pilot}, account-based outreach and reference calls` : 'adds the sector tasks (committee briefing, proof point, objection answers) to the usual launch tasks'}.${buyerNamed ? ` You named ${buyerNamed} as the buyer: the briefing and the messages below are written for that role.` : ''}\n` : ''}
 ---
