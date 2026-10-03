@@ -1,5 +1,5 @@
 import { formatDate, addDays, calculateDaysUntil, describeChoice, EXAMPLE_FIGURE } from './utils.js';
-import { readContext, sectorNotes, q, andList, capEcho, splitTopLevel, splitPhrases } from './context.js';
+import { readContext, sectorNotes, q, andList, capEcho, splitTopLevel, splitPhrases, lcFirst } from './context.js';
 import { PLAYBOOKS, MODEL_LANGUAGE, segmentNotes } from './sector-playbooks.js';
 
 // Run 20 (quality round 1): the product text is read as a name and a description ("Name: what it does"), so a sentence is built from parts
@@ -13,7 +13,7 @@ function parseProduct(text: string): { name: string; rest: string } {
   return { name: t.split(' ').length <= 8 ? t : capEcho(t, 70).short, rest: t.split(' ').length <= 8 ? '' : t };
 }
 
-const lower1 = (t: string): string => (/^[A-Z]{2,}\b/.test(t) ? t : t.charAt(0).toLowerCase() + t.slice(1));
+const lower1 = lcFirst;
 const aAn = (word: string): string => (/^[aeiou]/i.test(word.trim()) ? 'an' : 'a');
 const initials = (role: string): string => role.split(/\s+/).filter((w) => /^[A-Z]/.test(w)).map((w) => w[0]).join('');
 const upperFirst = (t: string): string => t.charAt(0).toUpperCase() + t.slice(1);

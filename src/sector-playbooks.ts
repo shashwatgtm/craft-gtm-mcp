@@ -28,7 +28,7 @@ export interface Playbook {
   outage: string;
   breach: string;
   /** Reasons customers leave, sector specific (added to the model's list). */
-  churnReasons: string[];
+  churnReasons: Array<{ reason: string; signal: string; action: string }>;
   /** A sentence about renewal in this sector. */
   renewal: string;
   /** Checks before a launch goes out. */
@@ -50,7 +50,12 @@ export const PLAYBOOKS: Record<VerticalId, Playbook> = {
     ],
     outage: 'an outage stops route planning or live tracking while vehicles are still out, so dispatchers fall back to phone calls and the last published plan',
     breach: 'exposure of customer addresses, delivery contacts, driver identities or live vehicle locations',
-    churnReasons: ['Pilot hub results did not carry over to other hubs', 'Drivers stopped using the app', 'Integration with the TMS, WMS or ERP kept breaking', 'A bigger logistics suite was bundled in'],
+    churnReasons: [
+    { reason: 'Pilot hub results did not carry over to other hubs', signal: 'Hubs after the pilot report lower first-attempt delivery than the pilot hub, and hub managers stop using the plans', action: 'Compare the pilot hub with the next hub on the same measures, and fix what differs (data, addresses, driver habits) before the next wave' },
+    { reason: 'Drivers stopped using the app', signal: 'Fewer drivers active in the app each week, more manual dispatch calls, complaints from hub leads about the phone', action: 'Visit a hub, fix the app problems drivers name, and agree with the hub lead how adoption is measured' },
+    { reason: 'Integration with the TMS, WMS or ERP kept breaking', signal: 'Repeated tickets about orders or addresses not arriving, manual re-entry by dispatchers', action: 'Name the owner of each integration on both sides and fix the data fields that fail most often' },
+    { reason: 'A bigger logistics suite was bundled in', signal: 'The buyer\'s IT or procurement asks for a comparison with a suite they already license', action: 'Compare what dispatchers can do each day in each tool (re-planning, address cleaning, driver allocation), not the feature list' },
+  ],
     renewal: 'Renewals often follow peak season: the buyer looks back at cost per delivery and first-attempt delivery for the busy weeks.',
     checklist: ['Pilot hub chosen and its baseline measures written down', 'Driver app tested offline on the phones in use', 'TMS, WMS and ERP integration path confirmed with the buyer\'s IT', 'Peak-season dates known, so the pilot does not collide with them'],
   },
@@ -68,7 +73,12 @@ export const PLAYBOOKS: Record<VerticalId, Playbook> = {
     ],
     outage: 'an outage stops approvals, card or payment processing or ERP posting, and the finance team falls back to manual approvals and spreadsheets near a close or a payment run',
     breach: 'exposure of financial records, bank details, cardholder data or employee data',
-    churnReasons: ['The ERP module closed the gap', 'A control or audit finding the product did not cover', 'Integration with the ledger kept needing fixes', 'The finance owner who chose the product left'],
+    churnReasons: [
+    { reason: 'The ERP module closed the gap', signal: 'Finance asks why the ERP module cannot do the same, or a new ERP release is planned', action: 'Show the gap between the module and the daily workflow (approvals, receipts, cards, posting) on one month of their transactions' },
+    { reason: 'A control or audit finding the product did not cover', signal: 'Internal audit or compliance raises a finding about spend controls or approvals', action: 'Map the finding to a control the product can meet, and say plainly what it cannot' },
+    { reason: 'Integration with the ledger kept needing fixes', signal: 'Repeated posting errors, manual journal entries, reconciliation delays at month end', action: 'Name the integration owner on both sides and fix the postings that fail most often before the next close' },
+    { reason: 'The finance owner who chose the product left', signal: 'The new controller or CFO asks basic questions again or reviews all vendors', action: 'Meet the new owner early with the close and reconciliation results from before and after' },
+  ],
     renewal: 'Renewals tend to follow the audit and budget cycle: bring the reconciliation and close results for the period.',
     checklist: ['Security and compliance pack ready before the buyer asks', 'ERP posting path tested with the buyer\'s chart of accounts', 'Cut-over date agreed around a month-end close', 'Claims you make about certifications match what you hold'],
   },
@@ -86,7 +96,12 @@ export const PLAYBOOKS: Record<VerticalId, Playbook> = {
     ],
     outage: 'an outage stops order capture and beat plans in the field, and reps fall back to paper and phone calls while distributors wait for orders',
     breach: 'exposure of outlet lists, order and price data, distributor terms or rep location data',
-    churnReasons: ['Reps went back to old ways of capturing orders', 'The DMS vendor\'s bundled app was good enough', 'Distributor data stayed out of sync', 'The national rollout lost its sponsor'],
+    churnReasons: [
+    { reason: 'Reps went back to old ways of capturing orders', signal: 'Orders captured in the app fall while distributors report orders by phone or paper', action: 'Visit the region, fix what reps name, and tie incentives to orders captured in the app' },
+    { reason: 'The DMS vendor\'s bundled app was good enough', signal: 'Sales operations compares the sales app with the app that comes with the distributor system', action: 'Compare what reps can do in the outlet with each app (order suggestions, schemes, stock visibility)' },
+    { reason: 'Distributor data stayed out of sync', signal: 'Stock and order numbers differ between the company and its distributors', action: 'Name the distributor systems involved and agree how stock and orders flow back, region by region' },
+    { reason: 'The national rollout lost its sponsor', signal: 'The sales head who backed the rollout changes role and waves are postponed', action: 'Re-baseline the wave plan with the new sponsor, using the pilot region\'s productive calls and coverage' },
+  ],
     renewal: 'Renewals follow the sales year: show productive calls, outlet coverage and secondary sales in the pilot region against the comparison region.',
     checklist: ['Pilot region, distributors and comparison region agreed', 'Offline order capture tested on low-end phones', 'DMS and ERP data flow confirmed with IT', 'Rep incentives tied to orders captured in the app'],
   },
@@ -104,7 +119,12 @@ export const PLAYBOOKS: Record<VerticalId, Playbook> = {
     ],
     outage: 'an outage stops scoring or automated handling, so the customer\'s people take back the work at once and review queues grow',
     breach: 'exposure of customer data used for evaluation or training, prompts, or model outputs',
-    churnReasons: ['The pilot was accurate but the explanation was not good enough for the committee', 'Data privacy review blocked production use', 'The buyer decided to build on a model API themselves', 'Cost grew with volume'],
+    churnReasons: [
+    { reason: 'The pilot was accurate but the explanation was not good enough for the committee', signal: 'Reviewers ask for reasoning behind outputs, or overrule the AI without recording why', action: 'Add the explanation the committee asks for to every output, and show the evaluation history' },
+    { reason: 'Data privacy review blocked production use', signal: 'Security or legal asks again where data is processed and what is used for training', action: 'Answer in writing where data is processed and stored, what is used for training and how it is deleted' },
+    { reason: 'The buyer decided to build on a model API themselves', signal: 'The buyer\'s engineers ask for access to raw model features or compare build cost', action: 'Compare the full cost of evaluation, guardrails and integrations that they would have to build and maintain' },
+    { reason: 'Cost grew with volume', signal: 'Usage and cost per case rise faster than the cases handled by people before', action: 'Show the cost per resolved case against the cost of handling it today, with their own volumes' },
+  ],
     renewal: 'Renewal decisions follow live results with human review switched on, not the first pilot: keep the evaluation evidence current.',
     checklist: ['Evaluation set built from the buyer\'s own history', 'Data privacy statement ready', 'Human approval points defined for any action that moves money or changes a record', 'Claims about accuracy match the evaluation results you hold'],
   },
@@ -123,7 +143,12 @@ export const PLAYBOOKS: Record<VerticalId, Playbook> = {
     ],
     outage: 'a tooling or network failure stops the service desk, monitoring or managed services, and client users cannot reach support or see ticket status',
     breach: 'a breach through access to a client\'s systems, credentials or data held by your people or tools',
-    churnReasons: ['Service levels were missed in the first quarters', 'Key people left the engagement', 'The client moved to an offshore-only provider on rate', 'Governance and reporting were too thin'],
+    churnReasons: [
+    { reason: 'Service levels were missed in the first quarters', signal: 'Credits claimed, SLA reports below target, escalations to the client\'s management', action: 'Run a root-cause review with the service owner, agree a recovery plan with dates and a report the client can check' },
+    { reason: 'Key people left the engagement', signal: 'Requests to keep named people, complaints about changes in the team, more rework', action: 'Name the backup for each key role, show the knowledge transfer and agree a team review' },
+    { reason: 'The client moved to an offshore-only provider on rate', signal: 'Procurement asks for a rate benchmark or opens a re-tender', action: 'Compare the total cost of the outcome (SLA attainment, rework, management time) instead of the rate' },
+    { reason: 'Governance and reporting were too thin', signal: 'Missed reviews, reports not read, no named service owner on either side', action: 'Reset the review cadence, name the owners and agree the reports the client reads' },
+  ],
     renewal: 'Renewals follow the contract term and the notice period: put the SLA record and the transition milestones met on the table early.',
     checklist: ['Transition plan with exit criteria written', 'Governance model and report samples ready', 'References from clients with a similar scope agreed', 'Rates explained as the total cost of the outcome, not only a rate'],
   },
@@ -141,7 +166,12 @@ export const PLAYBOOKS: Record<VerticalId, Playbook> = {
     ],
     outage: 'a link or core network failure takes sites offline, branches lose their systems, and the customer\'s IT team calls you and the other providers at the same time',
     breach: 'exposure of customer traffic metadata, site and network configuration or management credentials',
-    churnReasons: ['Repeated outages at the same sites', 'Repairs took too long', 'Price per site against the national operator', 'Cut-over of sites slipped from its wave'],
+    churnReasons: [
+    { reason: 'Repeated outages at the same sites', signal: 'The same sites appear in incident reports again and again, service credits are paid', action: 'Run an incident review per site and agree a fallback link plan for the sites that fail most' },
+    { reason: 'Repairs took too long', signal: 'Long repair times, escalations to your management, the customer calls other providers in parallel', action: 'Agree a repair-time commitment you can meet, and show the repair record per site' },
+    { reason: 'Price per site against the national operator', signal: 'Rate-card comparisons by site, requests to cut low-use sites', action: 'Compare the total cost per site including outages, repair time and the IT team\'s time' },
+    { reason: 'Cut-over of sites slipped from its wave', signal: 'Sites late in their wave, rollback requests, branch complaints', action: 'Reset the wave plan with a rollback rule for each wave and a named owner per region' },
+  ],
     renewal: 'Renewals follow the contract end and often a re-tender: bring the uptime and repair record for each site.',
     checklist: ['Pilot sites chosen and surveyed', 'Wave plan with rollback rules', 'Rate-card comparison in cost per site', 'Security overlay explained: who responds to an incident'],
   },
@@ -160,7 +190,12 @@ export const PLAYBOOKS: Record<VerticalId, Playbook> = {
     ],
     outage: 'an outage stops detection or collection, so the customer\'s SOC has a blind spot and cannot say what happened during the gap',
     breach: 'exposure of customer findings, asset inventories, credentials or tokens held by the product',
-    churnReasons: ['Alert volume stayed high', 'The product did not connect cleanly to the SIEM or ticketing', 'The security lead who chose the product left', 'A platform vendor bundled a similar capability'],
+    churnReasons: [
+    { reason: 'Alert volume stayed high', signal: 'Alerts per analyst stay high, findings age without being closed', action: 'Show findings ranked by real exposure so the team works on fewer, more important items' },
+    { reason: 'The product did not connect cleanly to the SIEM or ticketing', signal: 'Tickets about missing events, manual exports into the ticketing system', action: 'Fix the integrations the team named first, and test them with the team in a short working session' },
+    { reason: 'The security lead who chose the product left', signal: 'A new CISO asks for a review of all security vendors', action: 'Brief the new lead with the exposures found and closed and the time it took to fix them' },
+    { reason: 'A platform vendor bundled a similar capability', signal: 'The buyer\'s security or IT team compares with what a platform vendor now includes', action: 'Map the overlap honestly and show what the platform capability misses in their own environment' },
+  ],
     renewal: 'Renewals follow audit findings and incidents: bring the exposures found and closed, and the time they took to fix.',
     checklist: ['Proof of value plan with written success criteria', 'Integration notes for SIEM, ticketing and cloud accounts', 'Security and privacy documentation ready before it is asked for', 'Claims about detection match what the product does today'],
   },
@@ -179,7 +214,12 @@ export const PLAYBOOKS: Record<VerticalId, Playbook> = {
     ],
     outage: 'an outage of the API or hosted service breaks customers\' builds, pipelines and integrations, and their own users notice within minutes',
     breach: 'exposure of source code, API keys, tokens, test data or specs held by the product',
-    churnReasons: ['The team went back to its open-source setup', 'Migration of existing tests or scripts stalled', 'Per-user cost at larger scale', 'The developer champion left'],
+    churnReasons: [
+    { reason: 'The team went back to its open-source setup', signal: 'Fewer projects run through the product, builds or tests moved back to the old scripts', action: 'Compare the time spent maintaining the open-source setup with what the product removes, on one team' },
+    { reason: 'Migration of existing tests or scripts stalled', signal: 'Migration tickets stay open, only new projects use the product', action: 'Migrate one real project with the team and show the import path' },
+    { reason: 'Per-user cost at larger scale', signal: 'Procurement asks for the price at the next stage of growth', action: 'Tie the price to the teams that use it and the time saved, measured on their own data' },
+    { reason: 'The developer champion left', signal: 'The sponsor on the platform team changes and usage drops in that team', action: 'Find the next champion on the team and show the usage and time saved so far' },
+  ],
     renewal: 'Renewals follow usage by teams: show projects moved, release frequency and time saved for each team.',
     checklist: ['Quickstart finished by someone outside the team', 'Migration guide tested on a real project', 'Security note ready', 'Pricing explained for a team at the next stage of growth'],
   },
@@ -195,7 +235,12 @@ export const PLAYBOOKS: Record<VerticalId, Playbook> = {
     crises: [],
     outage: 'an outage stops customers\' daily work in the product, and their own customers or teams see the effect',
     breach: 'exposure of customer account data, credentials or the data customers store in the product',
-    churnReasons: ['Customers never reached first value', 'The price grew faster than the value', 'Another tool covered the use case', 'The champion left'],
+    churnReasons: [
+    { reason: 'Customers never reached first value', signal: 'Accounts with no key action in the first weeks, setup left unfinished', action: 'Restart onboarding with a named quick win and a date' },
+    { reason: 'The price grew faster than the value', signal: 'Requests to downgrade or to renegotiate at renewal', action: 'Align the pricing metric with the value the customer gets and show the price at their next stage of growth' },
+    { reason: 'Another tool covered the use case', signal: 'Mentions of another tool in calls or tickets', action: 'Show where your product sits in the tools they already use and what the other tool leaves manual' },
+    { reason: 'The champion left', signal: 'Primary contact changed, the new stakeholder asks for the basics again', action: 'Find the new champion and restate the value in their terms' },
+  ],
     renewal: 'Renewals follow usage and the value the customer can show: prepare a usage and outcome summary before the renewal talk.',
     checklist: ['Time to first value measured', 'Pricing explained for growth', 'Integrations with the buyer\'s main tools tested', 'References from similar customers'],
   },
@@ -213,18 +258,31 @@ export const MODEL_LANGUAGE: Record<BusinessModel, { leave: string; engagement: 
 };
 
 /** Buyer-side notes by kind of customer segment (what a purchase in that kind of organisation usually has to pass). Patterns, no figures. */
-const SEGMENT_NOTES: Array<{ re: RegExp; kind: string; review: string }> = [
-  { re: /\b(asset (?:allocators?|managers?|management)|wealth|pensions?|endowments?|investment (?:managers?|banks?|firms?)|funds?|family offices?|sovereign|insurers?)\b/i, kind: 'investment institutions', review: 'an investment or risk committee, due diligence questionnaires, consultants who advise on suppliers, and explanations the committee can defend to trustees or clients' },
-  { re: /\b(bank(?:s|ing)?|bfsi|financial services|lend\w*|nbfc|fintech|payments?)\b/i, kind: 'banks and financial services', review: 'a vendor risk and security review, data residency and audit questions on controls, and a regulator who may ask how the supplier is overseen' },
-  { re: /\b(government|public sector|municipal|defen[cs]e|state-owned)\b/i, kind: 'government and public sector', review: 'formal procurement or tenders, data localisation and security rules, and long approval chains' },
-  { re: /\b(manufactur\w*|automotive|industrial|plants?|engineering|energy|utilities)\b/i, kind: 'manufacturing and industry', review: 'multi-site rollouts, plant uptime windows, and IT and operations teams that must both agree' },
-  { re: /\b(3pl|cep|courier|logistics|transport\w*|freight|shipping|supply chain|distribution)\b/i, kind: 'logistics and distribution operators', review: 'operations leaders who own service levels to their own customers, multi-client operations, and thin margins that make the cost of change visible' },
-  { re: /\b(fmcg|cpg|consumer goods|consumer brands?)\b/i, kind: 'consumer goods brands', review: 'sales and distribution teams, distributor networks, trade schemes and a rollout region by region' },
-  { re: /\b(retail\w*|e-?commerce|e-?grocery|d2c|stores?|pos)\b/i, kind: 'retail and e-commerce', review: 'seasonal peaks, many stores or outlets, and operations and technology teams that share the decision' },
-  { re: /\b(telecom\w*|media|communications?|isps?)\b/i, kind: 'telecom and media', review: 'network and platform teams, very large estates, and a preference for fewer suppliers' },
-  { re: /\b(technology|software|saas|it services|ites|tech companies|ai companies|startups?|scale-?ups?)\b/i, kind: 'technology companies', review: 'an engineering-led evaluation, technical due diligence, and a security review of anything that touches code or data' },
+const SEGMENT_NOTES: Array<{ re: RegExp; kind: string; review: string; partners: string }> = [
+  { re: /\b(asset (?:allocators?|managers?|management)|wealth|pensions?|endowments?|investment (?:managers?|banks?|firms?)|funds?|family offices?|sovereign|insurers?)\b/i, kind: 'investment institutions', partners: 'investment consultants and advisers who recommend suppliers, data and technology vendors that serve the same desks, custodians and fund administrators', review: 'an investment or risk committee, due diligence questionnaires, consultants who advise on suppliers, and explanations the committee can defend to trustees or clients' },
+  { re: /\b(bank(?:s|ing)?|bfsi|financial services|lend\w*|nbfc|fintech|payments?)\b/i, kind: 'banks and financial services', partners: 'risk and compliance consultancies, core banking and ERP integrators, audit and advisory firms', review: 'a vendor risk and security review, data residency and audit questions on controls, and a regulator who may ask how the supplier is overseen' },
+  { re: /\b(government|public sector|municipal|defen[cs]e|state-owned)\b/i, kind: 'government and public sector', partners: 'systems integrators with public sector frameworks, local resellers that hold the procurement vehicles', review: 'formal procurement or tenders, data localisation and security rules, and long approval chains' },
+  { re: /\b(manufactur\w*|automotive|industrial|plants?|engineering|energy|utilities)\b/i, kind: 'manufacturing and industry', partners: 'plant automation and ERP integrators, industry consultants, regional resellers close to the plants', review: 'multi-site rollouts, plant uptime windows, and IT and operations teams that must both agree' },
+  { re: /\b(3pl|cep|courier|logistics|transport\w*|freight|shipping|supply chain|distribution)\b/i, kind: 'logistics and distribution operators', partners: 'logistics consultants, ERP, WMS and TMS integrators, freight and carrier networks that advise shippers', review: 'operations leaders who own service levels to their own customers, multi-client operations, and thin margins that make the cost of change visible' },
+  { re: /\b(fmcg|cpg|consumer goods|consumer brands?)\b/i, kind: 'consumer goods brands', partners: 'route-to-market consultants, DMS and ERP integrators, trade marketing and retail audit agencies', review: 'sales and distribution teams, distributor networks, trade schemes and a rollout region by region' },
+  { re: /\b(retail\w*|e-?commerce|e-?grocery|d2c|stores?|pos)\b/i, kind: 'retail and e-commerce', partners: 'retail technology integrators, e-commerce platform agencies, point-of-sale and store technology vendors', review: 'seasonal peaks, many stores or outlets, and operations and technology teams that share the decision' },
+  { re: /\b(telecom\w*|media|communications?|isps?)\b/i, kind: 'telecom and media', partners: 'OSS and BSS integrators, network and platform consultancies', review: 'network and platform teams, very large estates, and a preference for fewer suppliers' },
+  { re: /\b(technology|software|saas|it services|ites|tech companies|ai companies|startups?|scale-?ups?)\b/i, kind: 'technology companies', partners: 'cloud marketplaces, technology consultancies, managed service providers', review: 'an engineering-led evaluation, technical due diligence, and a security review of anything that touches code or data' },
 ];
-export function segmentNotes(segment: string): { kind: string; review: string } | null {
-  for (const n of SEGMENT_NOTES) if (n.re.test(segment)) return { kind: n.kind, review: n.review };
+export function segmentNotes(segment: string): { kind: string; review: string; partners: string } | null {
+  for (const n of SEGMENT_NOTES) if (n.re.test(segment)) return { kind: n.kind, review: n.review, partners: n.partners };
   return null;
 }
+/** Every kind of customer segment a text names (a partner goal that lists the segments it aims at). */
+export function segmentKinds(text: string): Array<{ kind: string; review: string; partners: string }> {
+  const out: Array<{ kind: string; review: string; partners: string }> = [];
+  for (const n of SEGMENT_NOTES) if (n.re.test(text) && !out.some((o) => o.kind === n.kind)) out.push({ kind: n.kind, review: n.review, partners: n.partners });
+  return out;
+}
+
+/** What a seller on this business model measures after the sale (names only, no figures). Used where the sector file's measures belong to another kind of business. */
+export const MODEL_MEASURES: Partial<Record<BusinessModel, string[]>> = {
+  investment: ['assets under mandate', 'mandate renewals', 'performance against the agreed benchmark', 'reporting reviews held'],
+  connectivity: ['sites live per wave', 'uptime per site', 'mean time to repair', 'service credits paid'],
+  services: ['SLA attainment', 'transition milestones met', 'statement of work renewals', 'client satisfaction'],
+};

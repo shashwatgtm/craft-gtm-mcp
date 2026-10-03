@@ -1,5 +1,6 @@
 import { parseMetrics, pct, scoreMetric, describeChoice, readableChoice, cap, unscoredFigures, EXAMPLE_FIGURES, SUGGESTION_FOOTER } from './utils.js';
-import { readContext, sectorNotes, answerFor, splitItems, q, andList, capEcho, type BusinessModel } from './context.js';
+import { readContext, sectorNotes, answerFor, splitItems, q, andList, capEcho, lcFirst, type BusinessModel } from './context.js';
+import { MODEL_MEASURES } from './sector-playbooks.js';
 
 export function generatePMFScorecard(args: {
   product: string;
@@ -114,31 +115,32 @@ export function generatePMFScorecard(args: {
     pmfAnalysis = 'Too few metrics to judge fit yet: add the missing ones listed below.';
   }
   
-  // Build actionable recommendations
+  // Build actionable recommendations (Run 20: each one is written from the figures and the feedback you gave, and from the business model)
   const recommendations: string[] = [];
   let suggestsCounts = false; // true when a recommendation suggests a count (needs the suggestion footer)
   const contract = ctx.model === 'services' || ctx.model === 'connectivity' || ctx.model === 'investment';
+  const owns = (m: BusinessModel | null): string => (m === 'investment' ? 'an investment mandate' : m === 'connectivity' ? 'a connectivity contract' : 'a services contract');
   if (churnScore.label === 'CRITICAL' || churnScore.label === 'DEVELOPING') {
     recommendations.push(contract
       ? 'CHURN: Interview the buyers of recent non-renewals, check service-level misses before each renewal, and name the owner of every at-risk contract'
-      : 'CHURN: Implement churn prediction model, conduct exit interviews, improve onboarding');
+      : 'CHURN: Interview the customers who left in the period, group their reasons, and fix the biggest reason first before building anything predictive');
   }
   if (npsScore.label === 'MISSING') {
-    recommendations.push('NPS: Start measuring NPS now, a critical PMF signal');
+    recommendations.push(`NPS: not given, so it is not scored. ${contract ? 'Ask the sponsor and the day-to-day contact of each account the same two questions (how likely to recommend, and why) after each service review' : 'Survey the people who use the product with the same two questions (how likely to recommend, and why)'}.`);
   } else if (npsScore.score < 6) {
-    recommendations.push('NPS: Focus on detractor feedback, address top 3 pain points');
-    suggestsCounts = true;
+    recommendations.push('NPS: Read the detractors\' comments, group them, and fix the biggest reason first; then ask the same people again');
   }
+  const acvNote = metrics.acv !== undefined ? ` You gave an annual contract value of $${metrics.acv.toLocaleString('en-US')}: LTV is that value times your gross margin times the years a contract lasts, and CAC is your sales and marketing cost divided by the contracts won in the same period.` : '';
   if (ltvCacScore.label === 'MISSING') {
-    recommendations.push('LTV:CAC: Calculate unit economics, essential for scaling decisions');
+    recommendations.push(`LTV:CAC: not scored, because ${metrics.ltv === undefined && metrics.cac === undefined ? 'neither LTV nor CAC was given' : metrics.ltv === undefined ? 'LTV was not given' : 'CAC was not given'}.${acvNote || ' Work out both from your own sales and renewal records.'}`);
   } else if (ltvCacScore.score < 6) {
     recommendations.push(contract
       ? 'UNIT ECONOMICS: Either reduce the cost of winning a contract (shorter cycles, better qualification) or raise the value per contract (scope, renewals)'
       : 'UNIT ECONOMICS: Either reduce CAC (improve conversion) or increase LTV (upsell/retention)');
   }
   if (!activationApplies) {
-    const sectorMetrics = ctx.v ? ` The sector's own measures include ${andList(ctx.v.metrics.slice(0, 3))}.` : '';
-    recommendations.push(`ADOPTION: Activation is a software sign-up measure and does not apply to a ${readableChoice(ctx.model === 'investment' ? 'investment mandate' : ctx.model === 'connectivity' ? 'connectivity contract' : 'services contract')}. Track how much of the contracted service the customer uses and how fast it goes live.${sectorMetrics}`);
+    const own = ctx.model && MODEL_MEASURES[ctx.model] ? MODEL_MEASURES[ctx.model]! : ctx.v ? ctx.v.metrics.slice(0, 3) : [];
+    recommendations.push(`ADOPTION: Activation is a software sign-up measure and does not apply to ${owns(ctx.model)}. Track how much of the contracted service the customer uses and how fast it goes live.${own.length ? ` Usual measures for this kind of business include ${andList(own.slice(0, 4))}.` : ''}`);
   } else if (activationScore.label === 'MISSING') {
     recommendations.push('ACTIVATION: Define and track the first action that shows a customer got value (your activation event)');
   } else if (activationScore.score < 6) {
@@ -149,17 +151,30 @@ export function generatePMFScorecard(args: {
   const feedbackItems = splitItems(args.customer_feedback);
   const POSITIVE = /\b(love|loves|loved|like|likes|liked|great|essential|happy|praise|trust|reliable|fast)\b/i;
   const NEGATIVE = /\b(but|however|wish|struggle|struggles|struggled|late|slow|confus\w*|difficult|complex|missing|lack|lacks|problem|problems|issue|issues|frustrat\w*|longer|not synced|will not|won't|cannot|can't|hard)\b/i;
+  // A customer result or an award (a figure with a saving, a rise, a volume, or a recognition) is a proof claim, not a theme to answer.
+  const RESULT = /(?:\d[\d,.]*\s*(?:%|x\b|billion|million|[kmb]\b)|\$\s*\d|\b(?:cuts?|cut|saved?|savings?|reduc\w+|increas\w+|faster|fewer|deployed|powered|named|recogni[sz]ed|award\w*|leader|contender|innovator|thanks?)\b)/i;
   const feedbackRows = feedbackItems.map((item) => {
     const pos = POSITIVE.test(item); const neg = NEGATIVE.test(item);
-    const signal = pos && neg ? 'Mixed' : neg ? 'Friction' : pos ? 'Positive' : 'Note';
-    const next = signal === 'Positive'
-      ? `Turn it into proof: ask for a number or a reference. ${ctx.v ? 'A proof point that lands here: ' + ctx.v.proofShape : ''}`.trim()
+    const proof = RESULT.test(item) && !neg;
+    const quote = !proof && /\bquote\b|\bsays?\b|\bthanks?\b|\btold us\b/i.test(item);
+    const signal = proof ? 'Result or recognition' : quote ? 'Customer quote' : pos && neg ? 'Mixed' : neg ? 'Friction' : pos ? 'Positive' : 'Note';
+    const proofLine = ctx.v ? ` A proof point that lands here: ${lcFirst(ctx.v.proofShape)}` : '';
+    const next = quote
+      ? 'Use it as a reference quote: confirm the person agrees to be quoted, and keep their role and the date with it.'
+      : proof
+      ? `Use it as proof: keep the wording, name the source and date, and check that it is yours to quote.${proofLine}`
+      : signal === 'Positive'
+      ? `Turn it into proof: ask for a number or a reference.${proofLine}`
       : answerFor(item, ctx.v);
     return `| ${q(item)} | ${signal} | ${next} |`;
   });
   const feedbackAnalysis = feedbackRows.length
     ? `| Feedback (as you wrote it) | Signal | Next step |\n|---|---|---|\n${feedbackRows.join('\n')}`
     : '';
+  const frictionItems = feedbackItems.filter((it) => NEGATIVE.test(it) && !POSITIVE.test(it));
+  const proofItems = feedbackItems.filter((it) => RESULT.test(it) && !NEGATIVE.test(it));
+  if (frictionItems.length) recommendations.push(`FEEDBACK: fix the friction you named first: ${q(capEcho(frictionItems[0], 140).short)}`);
+  if (proofItems.length) recommendations.push(`PROOF: you gave ${proofItems.length === 1 ? 'one customer result' : proofItems.length + ' customer results or recognitions'}. Check each is yours to quote and put the strongest in your sales story${ctx.v ? `; the form of proof that lands in ${ctx.v.name} is ${lcFirst(ctx.v.proofShape)}` : ''}`);
   const unscored = unscoredFigures(args.current_metrics);
   const productHead = capEcho(args.product, 120);
 
@@ -196,7 +211,7 @@ Each score and status compares your value with an example benchmark. ${rangeNote
 ### 1. Customer Retention (Churn)
 ${dimensionHeader}
 |--------|-----------|-------|-----------|--------|
-| Monthly Churn | ${metrics.churn !== undefined ? pct(metrics.churn) + '%' : 'NOT PROVIDED'} | ${churnScore.score}/10 | <${b.churn.medium}% target | ${churnScore.label} |
+| Monthly Churn | ${metrics.churn !== undefined ? pct(metrics.churn) + '%' : 'NOT PROVIDED'} | ${churnScore.score}/10 | healthy up to ${b.churn.medium}%, excellent up to ${b.churn.low}% | ${churnScore.label} |
 
 **Analysis:** ${churnScore.analysis}
 
@@ -205,7 +220,7 @@ ${dimensionHeader}
 ### 2. Customer Satisfaction (NPS)
 ${dimensionHeader}
 |--------|-----------|-------|-----------|--------|
-| NPS Score | ${metrics.nps !== undefined ? metrics.nps : 'NOT PROVIDED'} | ${npsScore.score}/10 | >${b.nps.medium} target | ${npsScore.label} |
+| NPS Score | ${metrics.nps !== undefined ? metrics.nps : 'NOT PROVIDED'} | ${npsScore.score}/10 | healthy from ${b.nps.medium}, excellent from ${b.nps.high} | ${npsScore.label} |
 
 **Analysis:** ${npsScore.analysis}
 
@@ -216,7 +231,7 @@ ${dimensionHeader}
 |--------|-----------|-------|-----------|--------|
 | LTV | ${metrics.ltv !== undefined ? '$' + metrics.ltv.toLocaleString('en-US') : 'NOT PROVIDED'} | - | - | - |
 | CAC | ${metrics.cac !== undefined ? '$' + metrics.cac.toLocaleString('en-US') : 'NOT PROVIDED'} | - | - | - |
-| LTV:CAC Ratio | ${metrics.ltvCacRatio !== undefined ? metrics.ltvCacRatio.toFixed(1) + 'x' : 'NOT PROVIDED'} | ${ltvCacScore.score}/10 | >${b.ltvCac.medium}x target | ${ltvCacScore.label} |
+| LTV:CAC Ratio | ${metrics.ltvCacRatio !== undefined ? metrics.ltvCacRatio.toFixed(1) + 'x' : 'NOT PROVIDED'} | ${ltvCacScore.score}/10 | healthy from ${b.ltvCac.medium}x, excellent from ${b.ltvCac.high}x | ${ltvCacScore.label} |
 
 **Analysis:** ${ltvCacScore.analysis}
 
@@ -225,7 +240,7 @@ ${dimensionHeader}
 ### 4. Revenue Retention
 ${dimensionHeader}
 |--------|-----------|-------|-----------|--------|
-| ${metrics.retentionIsNet ? 'Net Revenue Retention' : 'Retention Rate'} | ${metrics.retentionRate !== undefined ? pct(metrics.retentionRate) + '%' : 'NOT PROVIDED'} | ${retentionScore.score}/10 | >${b.retention.medium}% target | ${retentionScore.label} |
+| ${metrics.retentionIsNet ? 'Net Revenue Retention' : 'Retention Rate'} | ${metrics.retentionRate !== undefined ? pct(metrics.retentionRate) + '%' : 'NOT PROVIDED'} | ${retentionScore.score}/10 | healthy from ${b.retention.medium}%, excellent from ${b.retention.high}% | ${retentionScore.label} |
 
 **Analysis:** ${retentionScore.analysis}
 
@@ -234,7 +249,7 @@ ${dimensionHeader}
 ### 5. Activation
 ${activationApplies ? `${dimensionHeader}
 |--------|-----------|-------|-----------|--------|
-| Activation Rate | ${metrics.activationRate !== undefined ? pct(metrics.activationRate) + '%' : 'NOT PROVIDED'} | ${activationScore.score}/10 | >${b.activation.medium}% target | ${activationScore.label} |
+| Activation Rate | ${metrics.activationRate !== undefined ? pct(metrics.activationRate) + '%' : 'NOT PROVIDED'} | ${activationScore.score}/10 | healthy from ${b.activation.medium}%, excellent from ${b.activation.high}% | ${activationScore.label} |
 
 **Analysis:** ${activationScore.analysis}` : `**Not applicable to this business model.** Activation measures how soon a new software customer reaches first value. It is not scored here and is left out of the average.${metrics.activationRate !== undefined ? ` You gave an activation figure of ${pct(metrics.activationRate)}%: it is shown but not scored.` : ''}`}
 

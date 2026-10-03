@@ -328,8 +328,11 @@ export function generateCustomerInterviewKit(args: {
 
 ## Hypothesis Validation Questions
 
-${hypotheses.map((raw, i) => {
-  const isObjection = /^objections?\s+to\s+test\s*:/i.test(raw);
+${(() => { let inObjections = false; return hypotheses.map((raw, i) => {
+  // "objections to test:" starts a run of objections, which lasts until a new "hypothesis" label
+  if (/^hypothes[ei]s\s*:/i.test(raw)) inObjections = false;
+  if (/^objections?\s+to\s+test\s*:/i.test(raw)) inObjections = true;
+  const isObjection = inObjections;
   const h = raw.replace(/^objections?\s+to\s+test\s*:\s*/i, '');
   const plain = h.replace(/^["']|["']$/g, '').replace(/[.]$/, '');
   const shown = capEcho(plain, 220).short;
@@ -353,7 +356,7 @@ ${hypotheses.map((raw, i) => {
 | Test assumption | "Tell me about the last time it happened. What did you do, and who was involved?" |
 | Find counter-evidence | "What would make this NOT true for you, and where have you seen the opposite?" |
 `;
-}).join('')}
+}); })().join('')}
 `;
   }
 

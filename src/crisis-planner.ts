@@ -1,5 +1,19 @@
 import { parseListItems, describeChoice, readableChoice, EXAMPLE_FIGURE, EXAMPLE_FIGURES, SUGGESTION_FOOTER } from './utils.js';
 import { readContext, q, andList, cleanCompanyName } from './context.js';
+import { PLAYBOOKS } from './sector-playbooks.js';
+import type { VerticalId } from './verticals.ts';
+
+// Run 20: extra people on the response team by sector (roles, never names).
+const SECTOR_ROLES: Partial<Record<VerticalId, string[]>> = {
+  'logistics-tech': ['Head of Operations (customer hubs and dispatch)', 'Driver app support lead'],
+  fintech: ['Finance operations lead', 'Head of Compliance'],
+  'vertical-saas': ['Head of Customer Operations', 'Distributor integrations lead'],
+  'ai-native': ['Data and AI lead', 'Head of Model Evaluation'],
+  ites: ['Delivery head', 'Account owners for the affected clients'],
+  telecom: ['Network operations centre lead', 'Field engineering lead'],
+  cybersecurity: ['Head of Threat Research', 'Product security lead'],
+  software: ['Engineering on-call lead', 'Developer relations lead'],
+}
 
 // Default crises by industry (run 19, D80: the owner's verticals; no health-sector crisis types)
 const DEFAULT_CRISES: Record<string, string[]> = {
@@ -36,6 +50,7 @@ export function generateCrisisPlanner(args: {
   const complianceItems = parseListItems(compliance);
   const complianceText = complianceItems.length ? andList(complianceItems) : '';
   const ctx = readContext({ model: args.business_model, vertical: args.industry }, { seller: [cleanCompanyName(args.company)], context: [args.potential_crises, compliance] });
+  const pb = ctx.v ? PLAYBOOKS[ctx.v.id] : null;
   
   // Use provided crises or suggest defaults based on industry
   let crises: string[];
@@ -46,6 +61,9 @@ export function generateCrisisPlanner(args: {
   } else {
     // A copy, so adding data_breach below never changes the shared default list for later calls on the same server.
     crises = [...(DEFAULT_CRISES[args.industry] || DEFAULT_CRISES.other)];
+    // Run 20: the sector's own crises come first (a dispatch outage with vehicles on the road, a missed detection, a client delivery failure ...)
+    if (pb) for (const c of pb.crises.slice(0, 2)) if (!crises.includes(c.key)) crises.unshift(c.key);
+    crises = crises.slice(0, 5);
     // Add data breach as priority if high sensitivity
     if (dataSensitivity === 'high_pii_financial' && !crises.includes('data_breach')) {
       crises.unshift('data_breach');
@@ -63,7 +81,7 @@ export function generateCrisisPlanner(args: {
   
   const baseTeam = teamStructure[companySize] || teamStructure.scaleup_50_200;
   // Run 19 (D80): with personal or financial data at stake, the core team has a security lead and a data protection lead.
-  const team = { ...baseTeam, core: [...baseTeam.core] };
+  const team = { ...baseTeam, core: [...baseTeam.core], extended: [...baseTeam.extended, ...(ctx.v ? SECTOR_ROLES[ctx.v.id] ?? [] : [])] };
   if (dataSensitivity === 'high_pii_financial') {
     if (!team.core.some((m) => /CISO|security/i.test(m))) team.core.push('CISO or security lead');
     if (!team.core.some((m) => /data protection|DPO/i.test(m))) team.core.push('Data protection lead (DPO)');
@@ -84,6 +102,74 @@ export function generateCrisisPlanner(args: {
   const generateCrisisPlaybook = (crisisType: string): string => {
     const crisisLower = crisisType.toLowerCase();
     const crisisName = crisisType.replace(/_/g, ' ');
+
+    // Run 20: a crisis the sector data names (dispatch outage, missed detection, delivery failure ...) gets its own steps and its own audiences.
+    const own = pb ? pb.crises.find((c) => crisisLower.includes(c.key) || crisisLower.includes(c.key.replace(/_/g, ' '))) : undefined;
+    if (own) {
+      return `### ${own.title}
+
+**What this is:** ${own.what}. ${ctx.v ? `In ${ctx.v.name} the first measures to move are ${andList(ctx.v.metrics.slice(0, 3))}: tell customers which of them you see affected.` : ''}
+
+**First hour:** ${EXAMPLE_FIGURE}
+1. **Name the owner**: ${team.lead} as incident commander, with ${team.core[0]}
+${own.first.map((x, i) => `${i + 2}. ${x}`).join('\n')}
+
+**Who to tell:** ${EXAMPLE_FIGURES}
+| Audience | Channel | Message Focus | Owner |
+|----------|---------|---------------|-------|
+${own.tell.map((t) => `| ${t.who} | ${t.how} | ${t.focus} | ${customerBase === 'b2b_enterprise' ? 'Account team' : 'Customer comms'} |`).join('\n')}
+| Employees | Internal brief | Facts, roles, what not to promise | ${team.lead} |
+
+---
+`;
+    }
+
+    // Security vulnerability (run 20): its own steps, not a pointer to the breach steps
+    if (/vulnerab/.test(crisisLower)) {
+      return `### ${heading('Security vulnerability', crisisName)}
+
+**Immediate Response (0-4 hours):** ${EXAMPLE_FIGURE}
+1. **Confirm and rate it**: reproduce the flaw and rate it by real exposure (who can reach it, what it gives access to), not by label alone
+2. **Check for use**: search logs for signs it was already used; if it was, switch to the data breach steps
+3. **Decide the stop-gap**: a feature switch, a rule, an access change or a patch, and who approves it
+4. **Name the owner**: ${team.lead} as sponsor, with ${team.core.find((m) => /CTO|CISO|security/i.test(m)) ?? team.core[0]} as technical owner
+
+**Fix and advisory (4-72 hours):** ${EXAMPLE_FIGURE}
+1. Fix, test and release; keep the rating the same in the advisory as in your internal record
+2. Write the advisory: what is affected, what is fixed, how a customer checks and what they do
+3. ${complianceItems.length ? `Check which of the items you listed (${complianceText}) require notice of a vulnerability or a fix` : 'Check which of your contracts or compliance duties require notice of a vulnerability or a fix'}
+
+**Notification Phase:** ${EXAMPLE_FIGURES}
+| Audience | Channel | Message Focus | Owner |
+|----------|---------|---------------|-------|
+| Reporter (if a researcher found it) | Direct reply | Receipt, owner, timing of the fix | Security lead |
+| Affected customers | ${customerBase === 'b2b_enterprise' ? 'Call from the account owner, then the advisory' : 'Email and advisory'} | What is affected, the fix, how to check | ${customerBase === 'b2b_enterprise' ? 'Account team' : 'Customer comms'} |
+| Employees | Internal brief | Facts, what not to say outside | ${team.lead} |
+
+---
+`;
+    }
+
+    // Customer data exposure (run 20)
+    if (/data[ _]exposure|customer_data/.test(crisisLower)) {
+      return `### ${heading('Customer data exposure', crisisName)}
+
+${pb ? `**What could be exposed here:** ${pb.breach}.\n\n` : ''}**Immediate Response (0-4 hours):** ${EXAMPLE_FIGURE}
+1. **Close the access**: the open storage, link, permission or report that exposed the data
+2. **Preserve the access logs** before any clean-up, so you can say who looked
+3. **Size it**: which customers, which fields, which period, and whether anyone outside looked at it
+4. **Name the owner**: ${team.lead} with ${team.core.find((m) => /CISO|security|Legal/i.test(m)) ?? team.core[0]}
+
+**Notification Phase:** ${EXAMPLE_FIGURES}
+| Audience | Channel | Message Focus | Owner |
+|----------|---------|---------------|-------|
+| Affected customers | ${customerBase === 'b2b_enterprise' ? 'Call from the account owner, then a written note' : 'Email'} | What was exposed, for how long, what you have done, what they should do | ${customerBase === 'b2b_enterprise' ? 'Account team' : 'Customer comms'} |
+| Regulators | Per the duty that applies${complianceItems.length ? ` (you listed ${complianceText})` : ''} | Counsel-approved notification | Legal |
+| Employees | Internal brief | Facts, what not to say outside | ${team.lead} |
+
+---
+`;
+    }
 
     // SLA breach (run 19): checked before the breach test below, because the words "sla_breach" hold "breach"
     if (/\bsla\b|sla_|service[ _]level/.test(crisisLower)) {
@@ -195,7 +281,7 @@ Use the ${securityDone} steps above.
       securityDone = crisisName;
       return `### ${heading('Security incident', crisisName)}
 
-**Severity Assessment:** ${EXAMPLE_FIGURES}
+${pb ? `**What could be exposed here:** ${pb.breach}.\n\n` : ''}**Severity Assessment:** ${EXAMPLE_FIGURES}
 | Factor | High | Medium | Low |
 |--------|------|--------|-----|
 | Data exposed | PII, financial, credentials | Business data | No customer data |
@@ -231,27 +317,30 @@ Use the ${securityDone} steps above.
     
     // Service outage
     if (crisisLower.includes('outage') || crisisLower.includes('downtime') || crisisLower.includes('down')) {
+      const levels = ctx.model === 'connectivity'
+        ? [['SEV-1', 'Core network, or the sites of several customers, down', '<15 min', /CEO/.test(team.lead) ? team.lead : `${team.lead} + CEO`], ['SEV-2', 'One customer\'s sites down, or a regional link failing', '<30 min', team.core[0]], ['SEV-3', 'Degraded performance at some sites', '<1 hour', 'Network operations lead']]
+        : ctx.model === 'services'
+        ? [['SEV-1', 'Service desk or managed service stopped for a client', '<15 min', /CEO/.test(team.lead) ? team.lead : `${team.lead} + CEO`], ['SEV-2', 'Service levels missed for a client', '<30 min', team.core[0]], ['SEV-3', 'Degraded service for some users', '<1 hour', 'Delivery lead']]
+        : [['SEV-1', 'Complete outage, all customers', '<15 min', /CEO/.test(team.lead) ? team.lead : `${team.lead} + CEO`], ['SEV-2', 'Major feature down, >50% affected', '<30 min', team.core[0]], ['SEV-3', 'Degraded performance', '<1 hour', 'Engineering lead']];
       return `### ${heading('Service outage', crisisName)}
 
-**Severity Levels:** ${EXAMPLE_FIGURES}
+${pb ? `**What it looks like here:** ${pb.outage}.\n\n` : ''}**Severity Levels:** ${EXAMPLE_FIGURES}
 | Level | Definition | Response Time | Escalation |
 |-------|------------|---------------|------------|
-| SEV-1 | Complete outage, all customers | <15 min | ${/CEO/.test(team.lead) ? team.lead : `${team.lead} + CEO`} |
-| SEV-2 | Major feature down, >50% affected | <30 min | ${team.core[0]} |
-| SEV-3 | Degraded performance | <1 hour | Engineering lead |
+${levels.map((l) => `| ${l[0]} | ${l[1]} | ${l[2]} | ${l[3]} |`).join('\n')}
 
 **Immediate Response (0-15 minutes):** ${EXAMPLE_FIGURE}
-1. **Acknowledge in status page**: "Investigating reports of [issue]"
-2. **Assemble war room**: Engineering, Support, Comms
-3. **Diagnose**: Root cause identification started
-4. **Notify support team**: Prepare for volume
+1. **Acknowledge on the status page** or to your customers' service owners: "Investigating reports of a problem with ${args.company}'s service"
+2. **Assemble the incident room**: ${ctx.model === 'connectivity' ? 'network operations, field engineering, account owners' : ctx.model === 'services' ? 'delivery, the service desk, account owners' : 'engineering, support, comms'}
+3. **Diagnose**: root cause identification started
+4. **Brief the support and account teams**: prepare for volume
 
 ${ctx.v ? `**Sector impact check:** the first measures to move in ${ctx.v.name} are ${andList(ctx.v.metrics.slice(0, 3))}: tell customers which of them you see affected.\n\n` : ''}**Active Incident (15 minutes to resolution):** ${EXAMPLE_FIGURES}
 | Time | Status Update | Channel |
 |------|---------------|---------|
-| 15 min | "Identified: [description]" | Status page |
-| 30 min | "Working on fix, ETA [X]" | ${customerBase === 'b2c_consumer' || customerBase === 'mixed' ? 'Status page + social channels' : 'Status page + direct update from the account owner'} |
-| 60 min | Progress update or revised ETA | Status + Email to affected |
+| 15 min | "Identified" and a one-line plain description of the cause | ${customerBase === 'b2b_enterprise' ? 'Status page + direct update from the account owner' : 'Status page'} |
+| 30 min | "Working on a fix" with the next update time | ${customerBase === 'b2c_consumer' || customerBase === 'mixed' ? 'Status page + social channels' : 'Status page + direct update from the account owner'} |
+| 60 min | Progress update or revised time | Status + Email to affected |
 | Every 30 min | Continued updates until resolved | Status |
 
 ---
@@ -396,12 +485,14 @@ ${team.extended.map(member => `- ${member}`).join('\n')}
 
 ## Emergency Contacts
 
+Fill these in before a crisis, not during one.
+
 | Role | Name | Phone | Email |
 |------|------|-------|-------|
-| Crisis Lead | [Add] | [Add] | [Add] |
-| Legal Counsel | [Add] | [Add] | [Add] |
-| PR Contact | [Add] | [Add] | [Add] |
-| IT Security | [Add] | [Add] | [Add] |
+| Crisis lead (${team.lead}) | | | |
+| Legal counsel | | | |
+| Communications lead | | | |
+| Security lead | | | |
 
 ---
 

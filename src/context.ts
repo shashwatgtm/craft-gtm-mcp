@@ -105,12 +105,17 @@ export function readContext(opts: { model?: unknown; hintModel?: BusinessModel |
       if (/\b(?:sd-?wan|mpls|leased lines?|connectivity|bandwidth|managed network|broadband|business internet)\b/i.test(sellerText) && !/\b(?:saas|subscriptions?|per seat|per user)\b/i.test(sellerText)) { model = 'connectivity'; how = 'read'; }
     }
   }
+  // No sector of the seller's own is known (the sector read from the buyer's industry is not used), so there is no usual model to assume either.
+  if (!v && how === 'sector') { model = null; how = 'unknown'; }
   const buyerSide = buyerV ? ` (name it with the industry input for sector notes)` : '';
-  const sector = v ? `${chosen ? `${v.name} (from your choice)` : `read from your inputs as ${v.name}`}` : `not clear from your own words${buyerSide || ' (name the industry for sector notes)'}`;
+  // A seller that manages money (the investment model) is not sold to like the sector the shared reader named (support-automation buyers for "AI native",
+  // finance-function buyers for "fintech"): the committee, roles, measures and discovery questions are those of an investment decision.
+  const vAdj = v && model === 'investment' ? investmentView(v) : v;
+  const sector = vAdj ? `${chosen ? `${vAdj!.name} (from your choice)` : `read from your inputs as ${vAdj!.name}`}` : `not clear from your inputs${buyerSide || ' (name the industry for sector notes)'}`;
   const mtxt = model
     ? `${MODEL_NAME[model]} (${how === 'input' ? 'from business_model' : how === 'hint' ? 'from your market choice; set business_model to change it' : how === 'sector' ? 'the usual model in this sector, assumed; set business_model to change it' : 'read from your inputs; set business_model to change it'})`
     : 'not clear from your inputs; set business_model (saas, services, connectivity, transactions, marketplace, hardware_software or investment) for advice that fits it';
-  return { v, model, how, sector, line: `*Sector: ${sector}. Business model: ${mtxt}.*`, buyerV };
+  return { v: vAdj, model, how, sector, line: `*Sector: ${sector}. Business model: ${mtxt}.*`, buyerV };
 }
 
 /** Sector notes: the buying committee, what the sector measures and its usual objections (no figures, rule B82). */
@@ -238,4 +243,21 @@ export function cleanCompanyName(name: string | undefined): string {
 /** A user text in double quotes, capped at a word boundary; a cut ends with "..." inside the quotes (q() would strip a final dot). */
 export function qc(text: string, max = 140): string {
   return `"${capEcho(text.trim().replace(/[.]$/, ''), max).short.replace(/^"|"$/g, '')}"`;
+}
+
+/** The sector's reader data with the buying side replaced for a seller that manages money. Words and objections of the sector stay. */
+function investmentView(v: Vertical): Vertical {
+  return {
+    ...v,
+    committee: 'The chief investment officer or the investment committee decides; portfolio managers and quant researchers evaluate the models and data; risk and compliance review data use and explainability; investment operations run it day to day.',
+    buyerRoles: ['Chief Investment Officer', 'Head of Quant Research', 'Head of Risk', 'Head of Compliance', 'Head of Investment Operations'],
+    metrics: ['performance against the agreed benchmark', 'risk-adjusted return', 'tracking error', 'turnover', 'how well each signal can be explained'],
+    proofShape: 'Results against the agreed benchmark over a stated period, with the explanation of each signal that a committee can defend to trustees or clients.',
+    discovery: ['How do you decide which signals or data sources to trust, and who signs off?', 'What does your committee need to see before it accepts a model-based input?', 'How do you judge whether a signal has added value: against which benchmark, over what period?', 'Which data may not leave your environment?', 'How do you document the reasoning behind a decision for clients, trustees or regulators?'],
+  };
+}
+
+/** The first letter lower case, unless the text opens with an acronym ("SLA and cost outcomes" stays, "A before and after" becomes "a before and after"). */
+export function lcFirst(t: string): string {
+  return /^[A-Z]{2,}\b/.test(t) || /^[A-Z][a-z]*[A-Z]/.test(t) ? t : t.charAt(0).toLowerCase() + t.slice(1);
 }

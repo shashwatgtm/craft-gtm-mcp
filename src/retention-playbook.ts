@@ -1,5 +1,6 @@
 import { parseListItems, pct, roundTypedPercents, describeChoice, readableChoice, lowerFirstIfCommon, cap, EXAMPLE_FIGURE, EXAMPLE_FIGURES, SUGGESTION_FOOTER } from './utils.js';
-import { readContext, splitItems, q, answerFor, sectorNotes, shortName, capEcho, type BusinessModel } from './context.js';
+import { readContext, splitItems, q, answerFor, sectorNotes, shortName, capEcho, andList, lcFirst, type BusinessModel } from './context.js';
+import { PLAYBOOKS, MODEL_LANGUAGE, segmentNotes } from './sector-playbooks.js';
 
 // Run 19 (D80): the business model chosen is mapped to the model class the tool reasons with. enterprise_contract is read further
 // from the typed text (services, connectivity or investment) when it can be.
@@ -34,9 +35,15 @@ export function generateRetentionPlaybook(args: {
   const product = args.product ? (shortName(args.product) ?? args.product.trim()) : '';
   const productRef = product || 'your service';
   const accountRef = product || 'your account';
+  const segNote = segmentNotes(args.customer_segment);
+  const sign = product ? `The ${product} team` : 'Your account team';
 
   // The model class and the sector, read from the inputs
   const ctx = readContext({ model: MODEL_OF_CHOICE[businessModel], vertical: args.industry }, { seller: [args.product], context: [args.churn_reasons, args.available_data_signals], buyer: [args.customer_segment] });
+  // enterprise_contract is the user's own choice: say so, instead of "not clear", when the text does not name services, connectivity or investment.
+  const ctxLine = !ctx.model && businessModel === 'enterprise_contract'
+    ? ctx.line.replace(/Business model: [^]*$/, 'Business model: enterprise contract (from your business_model input; name your offer in the product input and a services, connectivity or investment contract is read from it).*')
+    : ctx.line;
   const contractModel = ctx.model === 'services' || ctx.model === 'connectivity' || ctx.model === 'investment' ? ctx.model : null;
   // Product-led wording (login and feature signals, in-app messages, day-based lifecycle) only when the model is a software or
   // product relationship; a contract whose kind is not clear gets the contract wording.
@@ -53,7 +60,7 @@ export function generateRetentionPlaybook(args: {
 
   // DISCOVERY MODE: If no churn reasons provided
   if (churnReasons.length === 0) {
-    return generateChurnDiscoveryKit(args.customer_segment, businessModel, churnRate, churnSeverity, csTeamShown, contractModel, subscription, product, ctx.line, ctx.v);
+    return generateChurnDiscoveryKit(args.customer_segment, businessModel, churnRate, churnSeverity, csTeamShown, contractModel, subscription, product, ctxLine, ctx.v, ctx.model);
   }
   
   // Business model-specific health score weights
@@ -101,7 +108,7 @@ export function generateRetentionPlaybook(args: {
         action: `Outcome comparison, not a feature list. ${sector}`,
         owner: capacity.highTouch > 30 ? 'CSM with the account executive' : 'CS team, with the account executive',
         timing: 'Within 1 week of the signal',
-        email: `Subject: Comparing the outcome, not the bundle\n\nHi [Name],\n\nI understand another vendor has offered a bundled package. That can look simpler on paper.\n\nBefore you decide, I'd like to compare what each option delivers for the results you care about, and what the bundle leaves to manual work.\n\nWould a 20-minute comparison with your team help?\n\n[Your name]`
+        email: `Subject: Comparing the outcome, not the bundle\n\nHello,\n\nI understand another vendor has offered a bundled package. That can look simpler on paper.\n\nBefore you decide, I'd like to compare what each option delivers for the results you care about, and what the bundle leaves to manual work.\n\nWould a 20-minute comparison with your team help?\n\n${sign}`
       };
     }
 
@@ -111,7 +118,7 @@ export function generateRetentionPlaybook(args: {
         action: 'Value demonstration call + ROI analysis',
         owner: capacity.highTouch > 30 ? 'CSM' : 'CS team, after an automated email',
         timing: 'Within 24 hours of signal',
-        email: `Subject: Getting more value from ${accountRef}\n\nHi [Name],\n\nI noticed you mentioned concerns about cost. I'd love to show you what ${productRef} could deliver for your team at the price you pay.\n\n[Only if true and provable: Many customers in your situation found that [specific result] alone saves [X hours or money] per month.]\n\nWould you be open to a quick 15-minute call to ensure you're getting maximum value?\n\n[Your name]`
+        email: `Subject: Getting more value from ${accountRef}\n\nHello,\n\nI noticed you mentioned concerns about cost. I'd love to show you what ${productRef} could deliver for your team at the price you pay.\n\nWould you be open to a quick 15-minute call to go through what ${productRef} delivers for you and what it costs?\n\n${sign}`
       };
     }
     
@@ -121,7 +128,7 @@ export function generateRetentionPlaybook(args: {
         action: 'Feature request logging + workaround education + roadmap preview (if applicable)',
         owner: capacity.highTouch > 30 ? 'CSM with Product input' : 'Support with escalation',
         timing: 'Within 48 hours',
-        email: `Subject: About what you told us was missing\n\nHi [Name],\n\nThanks for sharing your feedback about what ${productRef} is missing. I wanted to follow up personally.\n\nWhile I can't promise timelines, [Only if true and provable: I've shared your use case with our product team.] [Only if true and provable: In the meantime, here's a workaround that some customers use: [workaround]]\n\nWould it help to walk through this together?\n\n[Your name]`
+        email: `Subject: About what you told us was missing\n\nHello,\n\nThanks for sharing your feedback about what ${productRef} is missing. I wanted to follow up personally.\n\nWhile I can't promise timelines, I can walk you through what ${productRef} does today for this need and the options we have\n\nWould it help to walk through this together?\n\n${sign}`
       };
     }
     
@@ -131,7 +138,7 @@ export function generateRetentionPlaybook(args: {
         action: `Service recovery review: root cause, a recovery plan with dates, and a report the customer can check. ${sector}`,
         owner: 'Service owner + CSM',
         timing: 'Within 48 hours of the signal, then at the next review',
-        email: `Subject: Service levels for ${accountRef}\n\nHi [Name],\n\nI saw that service levels have not met what we agreed. I'd like to walk you through the cause and a recovery plan with dates.\n\nCould we find 30 minutes this week with your service owner?\n\n[Your name]`
+        email: `Subject: Service levels for ${accountRef}\n\nHello,\n\nI saw that service levels have not met what we agreed. I'd like to walk you through the cause and a recovery plan with dates.\n\nCould we find 30 minutes this week with your service owner?\n\n${sign}`
       };
     }
 
@@ -141,7 +148,7 @@ export function generateRetentionPlaybook(args: {
         action: `Name a backup for each key role, show the knowledge transfer, and find the new champion. ${sector}`,
         owner: capacity.highTouch > 30 ? 'CSM with the account executive' : 'CS team, with the account executive',
         timing: 'Within 1 week of the change',
-        email: `Subject: Continuity for ${accountRef}\n\nHi [Name],\n\nI know there has been a change in the team. I'd like to confirm who covers each key role and how knowledge is being passed on, so nothing slips.\n\nCould we meet this week to go through it?\n\n[Your name]`
+        email: `Subject: Continuity for ${accountRef}\n\nHello,\n\nI know there has been a change in the team. I'd like to confirm who covers each key role and how knowledge is being passed on, so nothing slips.\n\nCould we meet this week to go through it?\n\n${sign}`
       };
     }
 
@@ -151,7 +158,7 @@ export function generateRetentionPlaybook(args: {
         action: 'Executive escalation + dedicated support channel + satisfaction recovery',
         owner: 'Support Manager + CSM',
         timing: 'Same day',
-        email: `Subject: Making things right\n\nHi [Name],\n\nI saw that your recent support experience wasn't up to our standards. I'm sorry about that.\n\nI've personally reviewed your case and want to make sure we resolve this properly. I've also set up a direct escalation path for you: [contact info].\n\nCan we schedule a call to address your concerns directly?\n\n[Your name]`
+        email: `Subject: Making things right\n\nHello,\n\nI saw that your recent support experience wasn't up to our standards. I'm sorry about that.\n\nI've personally reviewed your case and want to make sure we resolve this properly. I would like to set up a direct escalation path for you.\n\nCan we schedule a call to address your concerns directly?\n\n${sign}`
       };
     }
     
@@ -161,7 +168,7 @@ export function generateRetentionPlaybook(args: {
         action: `Competitive win-back campaign + differentiation call. ${sector}`,
         owner: capacity.highTouch > 30 ? 'CSM or Account Exec' : 'CS team, with automated comparison content',
         timing: 'Within 4 hours if identified',
-        email: `Subject: Before you decide...\n\nHi [Name],\n\nI understand you're evaluating other options. That's smart: you should always explore what's best for your team.\n\nBefore you make a final decision, I'd love to share some context. [Only if true and provable: Customers who've made similar evaluations told us we do [key differentiator] better than alternatives.]\n\nWorth a quick call?\n\n[Your name]`
+        email: `Subject: Before you decide...\n\nHello,\n\nI understand you're evaluating other options. That's smart: you should always explore what's best for your team.\n\nBefore you make a final decision, I'd love to share some context. \n\nWorth a quick call?\n\n${sign}`
       };
     }
     
@@ -171,7 +178,7 @@ export function generateRetentionPlaybook(args: {
         action: subscription ? 'Onboarding reset + use case discovery call + quick-win identification' : 'Service review + use case discovery call + quick-win identification',
         owner: capacity.highTouch > 30 ? 'CSM' : 'CS team, after an automated nurture',
         timing: subscription ? 'When pattern detected (Day 7, 14, 21 of low engagement)' : 'At the next service review, or within 2 weeks of the signal',
-        email: `Subject: Getting more out of ${accountRef}\n\nHi [Name],\n\nI noticed your team hasn't been using ${productRef} as much recently. Sometimes that means we didn't nail the initial setup.\n\nI'd love to understand your goals better and show you a quick win that might change how you see the service. [Only if true and provable: Teams like yours typically see [specific outcome] within the first month when we get this right.]\n\n15 minutes: worth it? ${EXAMPLE_FIGURE}\n\n[Your name]`
+        email: `Subject: Getting more out of ${accountRef}\n\nHello,\n\nI noticed your team hasn't been using ${productRef} as much recently. Sometimes that means we didn't nail the initial setup.\n\nI'd love to understand your goals better and show you a quick win that might change how you see the service.\n\nCould we take 15 minutes this week?\n\n${sign}`
       };
     }
     
@@ -181,7 +188,7 @@ export function generateRetentionPlaybook(args: {
       action: `Personalized outreach + root cause analysis. ${sector}`,
       owner: capacity.highTouch > 30 ? 'CSM' : 'CS team, after an automated check-in',
       timing: 'Within 48 hours of signal',
-      email: `Subject: Quick check-in\n\nHi [Name],\n\nI wanted to reach out personally because your feedback matters to us.\n\nYou told us: ${q(capEcho(reason, 200).short)}. I'd love to understand this better and see if there's anything we can do.\n\nDo you have 10 minutes this week?\n\n[Your name]`
+      email: `Subject: Quick check-in\n\nHello,\n\nI wanted to reach out personally because your feedback matters to us.\n\nYou told us: ${q(capEcho(reason, 200).short)}. I'd love to understand this better and see if there's anything we can do.\n\nDo you have 10 minutes this week?\n\n${sign}`
     };
   };
 
@@ -189,10 +196,11 @@ export function generateRetentionPlaybook(args: {
   const signalWords = (key: string): string[] => key.split('_').filter((w) => w.length >= 4 && !['trend', 'rate', 'requested', 'sentiment'].includes(w));
   const trackedFor = (key: string): string | null => dataSignals.find((ds) => signalWords(key).some((w) => ds.toLowerCase().includes(w.slice(0, 4)))) ?? null;
   const usedSignals = new Set<string>();
+  const signalLabel = (signal: string): string => (!subscription && signal === 'feature_adoption' ? 'service adoption' : signal.replace(/_/g, ' '));
   const signalRows = Object.entries(weights).map(([signal, weight]) => {
     const tracked = trackedFor(signal);
     if (tracked) usedSignals.add(tracked);
-    return `| ${signal.replace(/_/g, ' ')} | ${pct(weight)}% | ${tracked ? `Available: you track ${q(tracked)}` : 'Need to add'} | Red < 30, Yellow 30-70, Green > 70 |`;
+    return `| ${signalLabel(signal)} | ${pct(weight)}% | ${tracked ? `Available: you track ${q(tracked)}` : 'Need to add'} | Red < 30, Yellow 30-70, Green > 70 |`;
   }).join('\n');
   const unusedSignals = dataSignals.filter((ds) => !usedSignals.has(ds));
 
@@ -205,8 +213,8 @@ export function generateRetentionPlaybook(args: {
 **Current Churn Rate:** ${roundTypedPercents(args.current_churn_rate)} (${churnSeverity}, judged against example benchmarks)
 **CS Team Capacity:** ${csTeamShown}
 ${segmentHead.capped ? `**Customer segment (as you wrote it):** ${args.customer_segment.trim()}\n` : ''}
-${ctx.line}
-
+${ctxLine}
+${segNote ? `\n**In this segment:** a ${subscription ? 'purchase' : 'renewal'} usually involves ${segNote.review}. Check each churn reason below against these steps.\n` : ''}${ctx.v ? `\n**In ${ctx.v.name}:** ${PLAYBOOKS[ctx.v.id].renewal}\n` : ''}
 ---
 
 ## Churn Severity Assessment
@@ -267,6 +275,8 @@ ${currentInterventions.length ? `## What You Already Do\n\n${currentIntervention
 \`\`\`
 ${intervention.email}
 \`\`\`
+
+**Before you send:** add a result only if you hold it${ctx.v ? `. In ${ctx.v.name} the proof that lands is: ${lcFirst(ctx.v.proofShape)}` : ': a figure from a similar customer that you can show'}
 
 ---
 
@@ -334,7 +344,8 @@ function generateChurnDiscoveryKit(
   subscription: boolean,
   product: string,
   contextLine: string,
-  v: import('./context.js').Vertical | null
+  v: import('./context.js').Vertical | null,
+  model: BusinessModel | null
 ): string {
   const commonReasons: Record<string, string[]> = {
     saas_subscription: ['Price/value mismatch', 'Missing features', 'Poor support', 'Competitor switch', 'Low usage/adoption', 'Champion left', 'Budget cuts', 'Poor onboarding'],
@@ -348,8 +359,17 @@ function generateChurnDiscoveryKit(
     investment: ['Performance against the agreed benchmark', 'Fee pressure', 'Reporting or explainability gaps', 'Mandate or allocation change', 'Key contact left', 'Risk concerns'],
   };
 
-  const reasons = (contractModel && commonReasons[contractModel]) || commonReasons[businessModel] || commonReasons[businessModel === 'services_contract' ? 'services' : businessModel === 'connectivity_contract' ? 'connectivity' : businessModel === 'investment_mandate' ? 'investment' : 'saas_subscription'];
+  const baseReasons = (contractModel && commonReasons[contractModel]) || commonReasons[businessModel] || commonReasons[businessModel === 'services_contract' ? 'services' : businessModel === 'connectivity_contract' ? 'connectivity' : businessModel === 'investment_mandate' ? 'investment' : 'saas_subscription'];
+  // Run 20: the sector's own reasons come first (they carry their own signal and intervention); the base list for the model follows.
+  const pb = v ? PLAYBOOKS[v.id] : null;
+  const sectorReasons = pb ? pb.churnReasons : [];
+  const reasons = [...sectorReasons.map((r) => r.reason), ...baseReasons.filter((r) => !sectorReasons.some((x) => x.reason.toLowerCase().split(' ').filter((w) => w.length > 4).some((w) => r.toLowerCase().includes(w))))].slice(0, 9);
+  const sectorSignal = (r: string): string | null => sectorReasons.find((x) => x.reason === r)?.signal ?? null;
+  const sectorAction = (r: string): string | null => sectorReasons.find((x) => x.reason === r)?.action ?? null;
+  const lang = MODEL_LANGUAGE[model ?? (subscription ? 'saas' : 'services')];
   const leave = subscription ? 'churned' : 'ended or did not renew';
+  const seg = segmentNotes(segment);
+  const sign = product ? `The ${product} team` : 'Your account team';
 
   return `# Churn Discovery Kit: ${capEcho(segment, 100).short}${product ? ` (${product})` : ''}
 
@@ -364,6 +384,7 @@ function generateChurnDiscoveryKit(
 ${contextLine}
 
 **You haven't provided churn reasons.** To build an effective retention playbook, you need to understand WHY customers leave.
+${seg ? `\n**In this segment:** a ${subscription ? 'purchase' : 'renewal'} usually involves ${seg.review}. For each account that left, check whether it failed one of these steps, not only the product or the price.\n` : ''}${pb ? `\n**In ${v!.name}:** ${pb.renewal}\n` : ''}
 
 Here's a framework to discover your churn reasons:
 
@@ -373,21 +394,21 @@ Here's a framework to discover your churn reasons:
 
 Send this to customers who recently ${leave}, within 7 days (Example figure: replace with your own):
 
-**Subject:** Quick question: we'd love your feedback
+**Subject:** ${subscription ? 'Quick question: we\'d love your feedback' : 'A short request: what should we have done differently?'}
 
 **Body:**
-> Hi [Name],
+> Hello,
 >
-> We're sorry to see you go. To help us improve, would you mind sharing the main reason you decided to leave?
+> ${subscription ? 'We\'re sorry to see you go. To help us improve, would you mind sharing the main reason you decided to leave?' : `Thank you for the time we worked together${product ? ` on ${product}` : ''}. To help us improve, would you share the main reason the contract ${leave === 'ended or did not renew' ? 'ended or was not renewed' : leave}?`}
 >
-> [SINGLE SELECT: pick ONE]
+> Please pick the one that fits best:
 ${reasons.map((r) => `> - ${r}`).join('\n')}
-> - Other: ___________
+> - Other (please say what)
 >
 > Any additional feedback is greatly appreciated.
 >
 > Thank you,
-> [Your name]
+> ${sign}
 
 ---
 
@@ -404,10 +425,10 @@ For high-value churns, do a 15-minute call:
 4. "If you could change ONE thing about us, what would it be?"
 5. "Did you evaluate alternatives? What did they offer that we didn't?"
 6. "Was there a moment when you felt most frustrated with us?"
-
+${subscription ? '' : `7. "Who else took part in the decision, and what did they need to see?"\n`}
 ### Future (3 min)
-7. "Is there anything that would bring you back?"
-8. "What would you tell someone considering ${product ? product : 'our service'}?"
+${subscription ? 7 : 8}. "Is there anything that would bring you back?"
+${subscription ? 8 : 9}. "What would you tell someone considering ${product ? product : 'our service'}?"
 
 ---
 
@@ -441,10 +462,10 @@ Here are common churn reasons to check for your model (a starting checklist, not
 ${reasons.map((r, i) => `### ${i + 1}. ${r}
 
 **Signals to look for:**
-- ${getSignalsForReason(r)}
+- ${sectorSignal(r) ?? getSignalsForReason(r)}
 
 **Typical intervention:**
-- ${getInterventionForReason(r)}`).join('\n\n')}
+- ${sectorAction(r) ?? getInterventionForReason(r)}`).join('\n\n')}
 
 ---
 
@@ -500,6 +521,29 @@ function getSignalsForReason(reason: string): string {
     'Mandate or allocation change': 'Reallocation by the client, a new investment committee, a changed policy',
     'Key contact left': 'Primary contact changed, new stakeholder asks for basics again',
     'Risk concerns': 'Risk or compliance asking for more documentation or limits',
+    'Executive sponsor left': 'The sponsor changes role or leaves, the new owner asks for the basics again, meetings with executives stop',
+    'Failed implementation': 'Go-live dates slipping, sites or teams never switched over, an open list of issues from the start of the contract',
+    'Poor ROI': 'The customer cannot name a result the service delivered, finance asks what the contract is worth',
+    'Contract terms': 'Requests to shorten the term, change the notice period or remove a minimum commitment',
+    'Unpredictable billing': 'Disputed invoices, questions about how usage is counted, requests for caps',
+    'Usage dropped': 'Volume falling month after month with no change on the customer side',
+    'Better pricing elsewhere': 'Requests for a price match, quotes from other providers mentioned',
+    'Feature gaps': 'Requests for capabilities you do not have, workarounds built outside the product',
+    'Integration issues': 'Repeated tickets about data not arriving, manual re-entry, delays in connected systems',
+    'Low supply/demand': 'Fewer listings or fewer requests on one side, slower matching',
+    'Trust issues': 'Disputes, complaints about quality or fraud, requests to take the transaction outside',
+    'Fee concerns': 'Participants asking about the fee or moving repeat deals off the platform',
+    'Better platform': 'Participants mention another platform with better reach or lower fees',
+    'Quality issues': 'Rising returns, low ratings, repeat complaints about the same participants',
+    'Price sensitivity': 'Orders fall after a price change, discount code use rises',
+    'Product quality': 'Returns and complaints about the same items',
+    'Delivery issues': 'Late or failed deliveries, repeat contacts about the same order',
+    'Customer service': 'Long response times, low satisfaction on contacts',
+    'Found alternatives': 'Orders move to another seller, mentions of a cheaper alternative',
+    'Never converted': 'Accounts that sign up and never take the paid step',
+    'Feature limits frustrating': 'Many contacts about a limit, upgrades started and not finished',
+    'Found free alternative': 'Mentions of a free tool that does most of the job',
+    'Not enough value to pay': 'Heavy use of the free plan but no upgrade, no clear paid-only need',
   };
   return signals[reason] || 'Check support tickets and usage data for mentions';
 }
@@ -534,6 +578,29 @@ function getInterventionForReason(reason: string): string {
     'Mandate or allocation change': 'Meet the new decision makers early and restate the agreed purpose',
     'Key contact left': 'New champion discovery, executive sponsorship renewal',
     'Risk concerns': 'Prepare the documentation and limits risk and compliance ask for, before they ask',
+    'Executive sponsor left': 'Meet the new owner in the first weeks, restate the agreed goals and bring the results so far',
+    'Failed implementation': 'A recovery plan with dates for the sites or teams not yet live, and a named owner on both sides',
+    'Poor ROI': 'A value review that puts the results the contract delivered next to what it costs, in the customer\'s own measures',
+    'Contract terms': 'Offer terms that keep the value (scope, phasing, notice) instead of a discount',
+    'Unpredictable billing': 'Explain how usage is counted, offer a cap or an alert, and agree a forecast',
+    'Usage dropped': 'Find what changed on the customer side and restart with the team that used it most',
+    'Better pricing elsewhere': 'Compare the total cost of the outcome, not the unit price',
+    'Feature gaps': 'Log the request with the customer, share what the product does today for the need, and agree a workaround',
+    'Integration issues': 'Name the owner of each integration on both sides and fix the failing data first',
+    'Low supply/demand': 'Focus the effort on the side that is short, in one category or area first',
+    'Trust issues': 'Show the checks you run, handle each dispute personally, and report back to those affected',
+    'Fee concerns': 'Show what the fee pays for and what repeat participants get for it',
+    'Better platform': 'Compare reach and outcomes for the participant, and fix the gaps they name',
+    'Quality issues': 'Remove or coach the repeat offenders and publish the quality bar',
+    'Price sensitivity': 'Offer value-based options instead of discounts across the board',
+    'Product quality': 'Fix the repeat issues and tell the buyers who raised them',
+    'Delivery issues': 'Review the carrier or route behind the late orders and tell affected customers',
+    'Customer service': 'Review response times and give repeat contacts a named owner',
+    'Found alternatives': 'Win back with the reason the customer first chose you, and ask what is missing',
+    'Never converted': 'Find the first action that shows value and guide users to it',
+    'Feature limits frustrating': 'Review where the limit bites and offer the paid step that removes it',
+    'Found free alternative': 'Show what the paid plan does that the free tool does not',
+    'Not enough value to pay': 'Ask what would make the paid plan worth it for them, and test it',
   };
   return interventions[reason] || 'Direct outreach to understand and address concern';
 }
