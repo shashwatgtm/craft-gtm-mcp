@@ -500,7 +500,7 @@ const RESULT_GROUPS: Group[] = [
 const ARTIFACT_GROUPS: Group[] = [
   { label: 'a deliverable or output', patterns: [/\b(deliverable|output|create|produce|build(?!\s+(?:an?\s+)?(?:hypothetical\s+)?pipeline)|develop|launch|publish|ship)\b/gi] },
   { label: 'a named document or tool', patterns: [/\b(document|report|dashboard|playbook|template|guide|framework|tool)\b/gi] },
-  { label: 'a campaign or content asset', patterns: [/\b(campaign|content|asset|material|collateral|deck|presentation)\b/gi] },
+  { label: 'a campaign or content asset', patterns: [/\b(campaign|content|(?:marketing|sales|brand|creative|digital|content) assets?|material|collateral|deck|presentation)\b/gi] },
   { label: 'a channel asset', patterns: [/\b(website|landing\s*page|email|blog|video|webinar|event)\b/gi] },
 ];
 const FRAME_GROUPS: Group[] = [
@@ -629,7 +629,7 @@ export function analyzeCRAFTDimensions(content: string): CRAFTAnalysis {
   sentences.forEach((sent, i) => {
     if (RISK_WORD.test(sent)) {
       const answered = RISK_ANSWER.test(sent.replace(/\brisks?\b/gi, '')) || RISK_ANSWER.test(sentences[i + 1] || '');
-      analysis.risks.push({ line: sent.replace(/\s+/g, ' ').slice(0, 160), answered });
+      analysis.risks.push({ line: sent.replace(/\s+/g, ' ').slice(0, 400), answered });
     }
   });
   return analysis;

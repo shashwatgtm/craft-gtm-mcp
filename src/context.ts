@@ -1,6 +1,7 @@
 // Run 19 (owner decision D80): shared helpers that read the sector and the business model from what the user typed, and
 // that keep typed text out of broken sentences. The sector knowledge itself is in src/verticals.ts (rule B82).
 // splitItems, q, readContext, sectorNotes and answerFor follow the helpers of Revenue Enablement (the lead's version).
+import { BILLING_NOTES } from './sector-playbooks.js';
 import { detectVertical, detectModel, explainSector, profileFor, MODEL_NAME, BUSINESS_MODELS, SECTOR_MODEL, VERTICALS, type Vertical, type VerticalId, type BusinessModel, type ReaderInput } from './verticals.ts';
 
 export { BUSINESS_MODELS, VERTICALS };
@@ -70,8 +71,17 @@ function headTrade(input: ReaderInput, r: ReturnType<typeof explainSector>): Ret
   }
   return r;
 }
+// A billing platform (billing, dunning, proration, revenue recognition) also says "invoicing" and "payments"; those fintech words must not outvote it.
+function billingPlatform(input: ReaderInput, r: ReturnType<typeof explainSector>): ReturnType<typeof explainSector> {
+  if (!(r.vertical && r.vertical.id === 'fintech' && r.source === 'seller')) return r;
+  const text = (input.seller ?? []).filter((x): x is string => typeof x === 'string').join(' ');
+  const n = new Set((text.match(/\b(billing|dunning|prorat\w+|revenue recogni\w+|subscription management|quote-to-cash)\b/gi) ?? []).map((w) => w.toLowerCase())).size;
+  const saas = VERTICALS.find((x) => x.id === 'saas');
+  if (n >= 2 && saas && !/\b(expense|cards?|spend|payroll|reimburs\w+|lending|loans?|banking)\b/i.test(text)) return { vertical: saas, source: 'seller', strong: ['billing'], weak: [] };
+  return r;
+}
 function readSector(input: ReaderInput): ReturnType<typeof explainSector> {
-  const r = headTrade(input, explainSector(input));
+  const r = billingPlatform(input, headTrade(input, explainSector(input)));
   if (!(r.vertical && r.vertical.id === 'ai-native' && r.source === 'seller')) return r;
   const maskedSeller = (input.seller ?? []).map((t) => (typeof t === 'string' ? t.replace(AI_WORDS, ' ') : t));
   const m = explainSector({ ...input, seller: maskedSeller });
@@ -92,6 +102,35 @@ function readSector(input: ReaderInput): ReturnType<typeof explainSector> {
  * Order for the model: the business_model input, then a hint from another input (for example a market choice), then the
  * typed text (the seller's words only), then the usual model of the sector (said to be assumed).
  */
+// Developer tooling and AI words the shared reader does not hold. Used only when the shared reader names no sector from the seller's words.
+const DEV_WORDS = /\b(api catalog|api network|mock servers?|openapi|swagger|spec hub|api governance|api lifecycle|apis?|sdks?|cli|ci pipelines?|collections? run in ci|developer workspaces?|monitors?)\b/gi;
+const AI_BUILD_WORDS = /\b(deep learning|knowledge graphs?|neural networks?|machine learning models?|predictive models?|forecast models?)\b/i;
+function supplementSector(v: Vertical | null, sellerTexts: string[]): Vertical | null {
+  if (v) return v;
+  const t = sellerTexts.join(' \n ');
+  if (!t.trim()) return v;
+  const dev = new Set((t.match(DEV_WORDS) ?? []).map((w) => w.toLowerCase()));
+  if (dev.size >= 3) return VERTICALS.find((x) => x.id === 'software') ?? null;
+  if (AI_BUILD_WORDS.test(t)) return VERTICALS.find((x) => x.id === 'ai-native') ?? null;
+  return v;
+}
+// The shared file words two objections as if the seller were the challenger ("price per site is higher than the national operator", "your rates are
+// higher than an offshore-only firm"). They are worded neutrally here, because the seller may be that operator or that firm.
+function neutralWording(v: Vertical | null): Vertical | null {
+  if (!v) return v;
+  const fix = (t: string): string => t.replace(/higher than the national operator/gi, 'higher than another provider\'s').replace(/than an offshore-only firm/gi, 'than another provider\'s').replace(/\bnational operator\b/gi, 'larger provider').replace(/\boffshore-only firm\b/gi, 'lower-cost provider');
+  return { ...v, objections: v.objections.map((o) => ({ objection: fix(o.objection), response: fix(o.response) })) };
+}
+// A SaaS-sector seller whose own words are billing words is sold to finance and revenue operations (see BILLING_NOTES in src/sector-playbooks.ts).
+function overlayBilling(v: Vertical | null, sellerTexts: string[], contextTexts: string[]): Vertical | null {
+  if (!v || v.id !== 'saas') return v;
+  const t = sellerTexts.join(' ');
+  const strong = (t.match(/\b(billing|invoic\w*|dunning|proration|prorat\w*|revenue recogni\w*|quote-to-cash|subscription management)\b/gi) ?? []).length;
+  const anyW = (`${t} ${contextTexts.join(' ')}`.match(/\b(billing|invoic\w*|dunning|proration|revenue recogni\w*|quote-to-cash|collections|payments?)\b/gi) ?? []).length;
+  if (strong >= 1 || anyW >= 3) return { ...v, ...BILLING_NOTES, name: 'SaaS, billing and revenue operations' };
+  return v;
+}
+
 export function readContext(opts: { model?: unknown; hintModel?: BusinessModel | null; vertical?: string | null }, rawInput: ReaderInput): Context {
   const input = cleanInput(rawInput);
   let chosen = opts.vertical && SECTOR_CHOICES[opts.vertical] ? VERTICALS.find((x) => x.id === SECTOR_CHOICES[opts.vertical!]) ?? null : null;
@@ -108,7 +147,8 @@ export function readContext(opts: { model?: unknown; hintModel?: BusinessModel |
     else if (wholeTrade && whole!.strong.length >= 3) chosen = null;
   }
   const fromBuyerOnly = !chosen && read.source === 'buyer' && !wholeTrade;
-  const v = chosen ?? (fromBuyerOnly ? null : (read.source === 'buyer' ? wholeTrade : read.vertical));
+  const v0 = chosen ?? (fromBuyerOnly ? null : (read.source === 'buyer' ? wholeTrade : read.vertical));
+  const v = chosen ? v0 : supplementSector(v0, sellerTexts);
   const buyerV = fromBuyerOnly ? read.vertical : null;
   let model: BusinessModel | null; let how: Context['how'];
   const explicit = typeof opts.model === 'string' && (BUSINESS_MODELS as string[]).includes(opts.model) ? (opts.model as BusinessModel) : null;
@@ -120,6 +160,11 @@ export function readContext(opts: { model?: unknown; hintModel?: BusinessModel |
     if (how !== 'read' && chosen) { model = SECTOR_MODEL[chosen.id]; how = 'sector'; }
     // The word "software" in a company name or "platform" in a playbook name does not make a services firm a software subscription:
     // when the sector is ITeS and the seller's words name services work, the model is services.
+    // A seller read as AI native whose words are about portfolios, securities and forecasts for investors manages or advises on money: the investment model.
+    if (v && v.id === 'ai-native' && how !== 'read' || (v && v.id === 'ai-native' && model === 'saas' && how === 'read')) {
+      const t = sellerTexts.join(' ');
+      if ((t.match(/\b(?:portfolios?|securities|forecast ranges?|investment|asset allocators?|alpha|factor exposures?)\b/gi) ?? []).length >= 2 && !/\b(?:platform|software|saas|subscription|api)\b/i.test(t)) { model = 'investment'; how = 'read'; }
+    }
     if (v && v.id === 'ites' && model === 'saas' && how === 'read') {
       const sellerText = (input.seller ?? []).filter((x): x is string => typeof x === 'string').join(' ');
       if (/\b(?:managed services?|it services|engineering services|consulting|outsourc\w*|systems? integrat\w*|contact cent(?:re|er)s?|service desk|back[- ]office|business process|collections services|customer experience(?: and \w+)? services|designs?,? builds?,? and runs?)\b/i.test(sellerText) && !/\b(?:saas|subscriptions?|per seat|per user)\b/i.test(sellerText)) { model = 'services'; how = 'read'; }
@@ -134,7 +179,7 @@ export function readContext(opts: { model?: unknown; hintModel?: BusinessModel |
   const buyerSide = buyerV ? ` (name it with the industry input for sector notes)` : '';
   // A seller that manages money (the investment model) is not sold to like the sector the shared reader named (support-automation buyers for "AI native",
   // finance-function buyers for "fintech"): the committee, roles, measures and discovery questions are those of an investment decision.
-  const vAdj0 = profileFor(v, model, input);
+  const vAdj0 = overlayBilling(neutralWording(profileFor(v, model, input)), sellerTexts, (input.context ?? []).filter((x): x is string => typeof x === 'string'));
   // "Seats" is a software subscription word: a sector sentence that holds it is reworded for a model that is not a subscription.
   const vAdj = vAdj0 && model && model !== 'saas' ? { ...vAdj0, committee: vAdj0.committee.replace(/\bseats\b/gi, 'licences') } : vAdj0;
   const sector = vAdj ? `${chosen ? `${vAdj!.name} (from your choice)` : `read from your inputs as ${vAdj!.name}`}` : `not clear from your inputs${buyerSide || ' (name the industry for sector notes)'}`;
@@ -238,7 +283,7 @@ const ACRONYM = /^[A-Z][A-Z0-9+&/.-]+$/;
  */
 export function splitPhrases(text: unknown): string[] {
   if (typeof text !== 'string') return [];
-  const lines = text.split(/\n|;/).map((x) => x.trim()).filter(Boolean);
+  const lines = text.replace(/\?\s*,\s*(?=[A-Za-z])/g, '?\n').split(/\n|;/).map((x) => x.trim()).filter(Boolean);
   const out: string[] = [];
   for (const line of lines) {
     const pieces = splitTopLevel(line, false);
@@ -251,7 +296,10 @@ export function splitPhrases(text: unknown): string[] {
       const joins = /^(?:which|with|and|or|but|so|that|where|from|because|including|plus|while|then)\b/i.test(piece);
       const nameOnly = words.length <= 4 && words.every((w) => /^(?:and|or|&)$/i.test(w) || /^[A-Z][A-Za-z0-9+&/.-]*$/.test(w));
       const acronymRun = ACRONYM.test(words[0].replace(/[,;]$/, '')) && ACRONYM.test(prevLast.replace(/[,;]$/, '')) && words.length <= 8;
-      if (merged.length && (joins || nameOnly || acronymRun)) merged[merged.length - 1] += `, ${piece}`;
+      // "and integration with an existing ERP" is a strength of its own, not a tail of the one before; a run of Title Case names ("Modern Trade, Rural GT, Van Sales and hybrid sales models") continues a list of names
+      const titleRun = merged.length > 0 && !/[?!]$/.test(merged[merged.length - 1]) && !/[?!]$/.test(piece) && /^[A-Z][a-z]+$/.test(words[0]) && /^[A-Z]/.test(prevLast) && /\b[A-Z][a-z]+ [A-Z][a-z]+\b/.test(merged[merged.length - 1]);
+      if (merged.length && /^(?:and|or)\s/i.test(piece) && words.length >= 5 && !titleRun) merged.push(piece.replace(/^(?:and|or)\s+/i, ''));
+      else if (merged.length && (joins || nameOnly || acronymRun || titleRun)) merged[merged.length - 1] += `, ${piece}`;
       else if (!merged.length && words.length <= 2 && pieces.length > 1) carry = piece;
       else merged.push(piece);
     }

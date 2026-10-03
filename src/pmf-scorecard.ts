@@ -153,13 +153,28 @@ export function generatePMFScorecard(args: {
   const NEGATIVE = /\b(but|however|wish|struggle|struggles|struggled|late|slow|confus\w*|difficult|complex|missing|lack|lacks|problem|problems|issue|issues|frustrat\w*|longer|not synced|will not|won't|cannot|can't|hard)\b/i;
   // A customer result or an award (a figure with a saving, a rise, a volume, or a recognition) is a proof claim, not a theme to answer.
   const RESULT = /(?:\d[\d,.]*\s*(?:%|x\b|billion|million|[kmb]\b)|\$\s*\d|\b(?:cuts?|cut|saved?|savings?|reduc\w+|increas\w+|faster|fewer|deployed|powered|named|recogni[sz]ed|award\w*|leader|contender|innovator|thanks?)\b)/i;
+  // What kind of proof an item is, so the next step fits it (a story is turned into a case study, a listing is cited, a count is checked).
+  const kindOfProof = (item: string): 'story' | 'recognition' | 'usage' | 'result' | null => {
+    if (/\b(success stor\w*|case stud\w*|customer stor\w*|story title|averted|secured)\b/i.test(item)) return 'story';
+    if (/\b(featured|listed|ranked|radar|quadrant|wave|award\w*|named|recogni[sz]ed|leader|contender|innovator|analyst)\b/i.test(item)) return 'recognition';
+    if (/\b(?:use|used by|trusted by|serves?|deployed (?:at|by))\b/i.test(item) && /\d/.test(item)) return 'usage';
+    if (RESULT.test(item)) return 'result';
+    return null;
+  };
   const feedbackRows = feedbackItems.map((item) => {
     const pos = POSITIVE.test(item); const neg = NEGATIVE.test(item);
-    const proof = RESULT.test(item) && !neg;
-    const quote = !proof && !neg && /\bquote\b|\bsays?\b|\bthanks?\b|\btold us\b/i.test(item);
-    const signal = proof ? 'Result or recognition' : quote ? 'Customer quote' : pos && neg ? 'Mixed' : neg ? 'Friction' : pos ? 'Positive' : 'Note';
+    const pk = neg ? null : kindOfProof(item);
+    const proof = pk === 'result';
+    const quote = !pk && !neg && /\bquote\b|\bsays?\b|\bthanks?\b|\btold us\b/i.test(item);
+    const signal = pk === 'story' ? 'Customer story' : pk === 'recognition' ? 'Recognition' : pk === 'usage' ? 'Usage claim' : proof ? 'Result' : quote ? 'Customer quote' : pos && neg ? 'Mixed' : neg ? 'Friction' : pos ? 'Positive' : 'Note';
     const proofLine = ctx.v ? ` A proof point that lands here: ${lcFirst(ctx.v.proofShape)}` : '';
-    const next = quote
+    const next = pk === 'story'
+      ? 'Turn it into a case study: ask the customer to approve it, and add the before and after figure and the date.'
+      : pk === 'recognition'
+      ? 'Use it as third-party validation: cite the source and the year, link the original, and place it beside the claim it supports. It does not show product-market fit by itself.'
+      : pk === 'usage'
+      ? 'Check the count, its date and its source, and say what "use" means (accounts, active teams or trials) before you quote it.'
+      : quote
       ? 'Use it as a reference quote: confirm the person agrees to be quoted, and keep their role and the date with it.'
       : proof
       ? `Use it as proof: keep the wording, name the source and date, and check that it is yours to quote.${proofLine}`
@@ -172,7 +187,7 @@ export function generatePMFScorecard(args: {
     ? `| Feedback (as you wrote it) | Signal | Next step |\n|---|---|---|\n${feedbackRows.join('\n')}`
     : '';
   const frictionItems = feedbackItems.filter((it) => NEGATIVE.test(it) && !POSITIVE.test(it));
-  const proofItems = feedbackItems.filter((it) => RESULT.test(it) && !NEGATIVE.test(it));
+  const proofItems = feedbackItems.filter((it) => !NEGATIVE.test(it) && kindOfProof(it) !== null);
   if (frictionItems.length) recommendations.push(`FEEDBACK: fix the friction you named first: ${q(capEcho(frictionItems[0], 140).short)}`);
   if (proofItems.length) recommendations.push(`PROOF: you gave ${proofItems.length === 1 ? 'one customer result' : proofItems.length + ' customer results or recognitions'}. Check each is yours to quote and put the strongest in your sales story${ctx.v ? `; the form of proof that lands in ${ctx.v.name} is ${lcFirst(ctx.v.proofShape)}` : ''}`);
   const unscored = unscoredFigures(args.current_metrics);

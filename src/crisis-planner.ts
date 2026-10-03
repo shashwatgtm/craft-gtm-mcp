@@ -1,6 +1,6 @@
 import { parseListItems, describeChoice, readableChoice, EXAMPLE_FIGURE, EXAMPLE_FIGURES, SUGGESTION_FOOTER } from './utils.js';
 import { readContext, q, andList, cleanCompanyName } from './context.js';
-import { PLAYBOOKS } from './sector-playbooks.js';
+import { playbookFor } from './sector-playbooks.js';
 import type { VerticalId } from './verticals.ts';
 
 // Run 20: extra people on the response team by sector (roles, never names).
@@ -50,7 +50,7 @@ export function generateCrisisPlanner(args: {
   const complianceItems = parseListItems(compliance);
   const complianceText = complianceItems.length ? andList(complianceItems) : '';
   const ctx = readContext({ model: args.business_model, vertical: args.industry }, { seller: [cleanCompanyName(args.company)], context: [args.potential_crises, compliance] });
-  const pb = ctx.v ? PLAYBOOKS[ctx.v.id] : null;
+  const pb = ctx.v ? playbookFor(ctx.v) : null;
   
   // Use provided crises or suggest defaults based on industry
   let crises: string[];
@@ -108,13 +108,13 @@ export function generateCrisisPlanner(args: {
     if (own) {
       return `### ${own.title}
 
-**What this is:** ${own.what}. ${ctx.v ? `In ${ctx.v.name} the first measures to move are ${andList(ctx.v.metrics.slice(0, 3))}: tell customers which of them you see affected.` : ''}
+**What this is:** ${own.what}. ${ctx.v && (ctx.v.id !== 'saas' || /billing/i.test(ctx.v.name)) ? `In ${ctx.v.name} the first measures to move are ${andList(ctx.v.metrics.slice(0, 3))}: tell customers which of them you see affected.` : ''}
 
 **First hour:** ${EXAMPLE_FIGURE}
 1. **Name the owner**: ${team.lead} as incident commander, with ${team.core[0]}
 ${own.first.map((x, i) => `${i + 2}. ${x}`).join('\n')}
 
-**Who to tell:** ${EXAMPLE_FIGURES}
+**Who to tell:**
 | Audience | Channel | Message Focus | Owner |
 |----------|---------|---------------|-------|
 ${own.tell.map((t) => `| ${t.who} | ${t.how} | ${t.focus} | ${customerBase === 'b2b_enterprise' ? 'Account team' : 'Customer comms'} |`).join('\n')}
@@ -139,7 +139,7 @@ ${own.tell.map((t) => `| ${t.who} | ${t.how} | ${t.focus} | ${customerBase === '
 2. Write the advisory: what is affected, what is fixed, how a customer checks and what they do
 3. ${complianceItems.length ? `Check which of the items you listed (${complianceText}) require notice of a vulnerability or a fix` : 'Check which of your contracts or compliance duties require notice of a vulnerability or a fix'}
 
-**Notification Phase:** ${EXAMPLE_FIGURES}
+**Notification Phase:**
 | Audience | Channel | Message Focus | Owner |
 |----------|---------|---------------|-------|
 | Reporter (if a researcher found it) | Direct reply | Receipt, owner, timing of the fix | Security lead |
@@ -160,7 +160,7 @@ ${pb ? `**What could be exposed here:** ${pb.breach}.\n\n` : ''}**Immediate Resp
 3. **Size it**: which customers, which fields, which period, and whether anyone outside looked at it
 4. **Name the owner**: ${team.lead} with ${team.core.find((m) => /CISO|security|Legal/i.test(m)) ?? team.core[0]}
 
-**Notification Phase:** ${EXAMPLE_FIGURES}
+**Notification Phase:**
 | Audience | Channel | Message Focus | Owner |
 |----------|---------|---------------|-------|
 | Affected customers | ${customerBase === 'b2b_enterprise' ? 'Call from the account owner, then a written note' : 'Email'} | What was exposed, for how long, what you have done, what they should do | ${customerBase === 'b2b_enterprise' ? 'Account team' : 'Customer comms'} |
@@ -188,13 +188,13 @@ ${pb ? `**What could be exposed here:** ${pb.breach}.\n\n` : ''}**Immediate Resp
 2. Work out the service credits owed under each contract
 3. Agree a recovery plan with dates the client can check
 
-**Notification Phase:** ${EXAMPLE_FIGURES}
+**Notification Phase:**
 | Audience | Channel | Message Focus | Owner |
 |----------|---------|---------------|-------|
 | Client service owner | Call from the account owner | What happened, the recovery plan with dates | Account team |
 | Client leadership | Executive call | Impact, credits, what changes | ${team.lead} |
 | Delivery teams | Internal brief | Facts, roles, what not to promise | Delivery head |
-${ctx.v ? `\n**Sector note:** in ${ctx.v.name} the usual measures are ${andList(ctx.v.metrics.slice(0, 3))}: put the ones in your contracts on the recovery plan.\n` : ''}
+${ctx.v && (ctx.v.id !== 'saas' || /billing/i.test(ctx.v.name)) ? `\n**Sector note:** in ${ctx.v.name} the usual measures are ${andList(ctx.v.metrics.slice(0, 3))}: put the ones in your contracts on the recovery plan.\n` : ''}
 ---
 `;
     }
@@ -234,7 +234,7 @@ ${complianceItems.length ? `5. **Map the notice to each item you listed** (${com
 3. **Size the exposure**: which customers, which amounts, which period
 4. **Name the owner**: ${team.lead} as incident commander, with the security lead
 
-**Notification Phase:** ${EXAMPLE_FIGURES}
+**Notification Phase:**
 | Audience | Channel | Message Focus | Owner |
 |----------|---------|---------------|-------|
 | Affected customers | ${customerBase === 'b2b_enterprise' ? 'Call from the account owner' : 'Email'} | What happened, what is held, what they should do | ${customerBase === 'b2b_enterprise' ? 'Account team' : 'Customer comms'} |
@@ -335,7 +335,7 @@ ${levels.map((l) => `| ${l[0]} | ${l[1]} | ${l[2]} | ${l[3]} |`).join('\n')}
 3. **Diagnose**: root cause identification started
 4. **Brief the support and account teams**: prepare for volume
 
-${ctx.v ? `**Sector impact check:** the first measures to move in ${ctx.v.name} are ${andList(ctx.v.metrics.slice(0, 3))}: tell customers which of them you see affected.\n\n` : ''}**Active Incident (15 minutes to resolution):** ${EXAMPLE_FIGURES}
+${ctx.v && (ctx.v.id !== 'saas' || /billing/i.test(ctx.v.name)) ? `**Sector impact check:** the first measures to move in ${ctx.v.name} are ${andList(ctx.v.metrics.slice(0, 3))}: tell customers which of them you see affected.\n\n` : ''}**Active Incident (15 minutes to resolution):** ${EXAMPLE_FIGURES}
 | Time | Status Update | Channel |
 |------|---------------|---------|
 | 15 min | "Identified" and a one-line plain description of the cause | ${customerBase === 'b2b_enterprise' ? 'Status page + direct update from the account owner' : 'Status page'} |
@@ -472,7 +472,7 @@ ${ctx.line}
 ---
 
 ## Crisis Response Team
-${ctx.v ? `\n*In ${ctx.v.name} the words your customers use are ${andList(ctx.v.vocabulary.slice(0, 6))}: use them in customer messages, and name the measures they watch (${andList(ctx.v.metrics.slice(0, 3))}).*\n` : ''}
+${ctx.v && (ctx.v.id !== 'saas' || /billing/i.test(ctx.v.name)) ? `\n*In ${ctx.v.name} the words your customers use are ${andList(ctx.v.vocabulary.slice(0, 6))}: use them in customer messages, and name the measures they watch (${andList(ctx.v.metrics.slice(0, 3))}).*\n` : ''}
 **Incident Commander:** ${team.lead}
 
 **Core Team (Always Activated):**

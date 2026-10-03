@@ -1,6 +1,6 @@
 import { formatDate, addDays, calculateDaysUntil, describeChoice, EXAMPLE_FIGURE } from './utils.js';
 import { readContext, sectorNotes, q, andList, capEcho, splitTopLevel, splitPhrases, lcFirst } from './context.js';
-import { PLAYBOOKS, MODEL_LANGUAGE, segmentNotes } from './sector-playbooks.js';
+import { playbookFor, MODEL_LANGUAGE, segmentNotes, segmentKinds } from './sector-playbooks.js';
 
 // Run 20 (quality round 1): the product text is read as a name and a description ("Name: what it does"), so a sentence is built from parts
 // and never from a text cut in the middle of a phrase.
@@ -131,16 +131,21 @@ export function generateLaunchCommander(args: {
   // (services, connectivity, investment, hardware plus software, or a sector whose deals run through a buying committee)
   // gets no consumer or software-only tasks.
   const ctx = readContext({ model: args.business_model, vertical: args.industry }, { seller: [args.product_feature], context: [args.goals], buyer: [args.target_segments] });
-  const salesLed = (ctx.model !== null && ctx.model !== 'saas' && ctx.model !== 'marketplace') || (ctx.v !== null && ctx.v.id !== 'saas' && ctx.v.id !== 'software');
+  // A launch to a named executive buyer (CIO, CFO, platform leader) or to institutions that buy through a committee (investors, banks, government) is
+  // sales-led whatever the model: no influencer posts, retargeting or content syndication.
+  const buyerRole = (args.goals.match(/\bwith\s+(?:the\s+)?([A-Za-z][A-Za-z .&/-]{1,50}?)\s+as\s+(?:the\s+)?(?:buyer|sponsor|champion|decision[- ]maker)\b/i) || [])[1]?.trim() ?? null;
+  const committeeBuyer = (!!buyerRole && /\b(c[a-z]o|chief|head|vp|director|leader|manager)\b/i.test(buyerRole)) || segmentKinds(args.target_segments).some((k) => ['investment institutions', 'banks and financial services', 'government and public sector'].includes(k.kind));
+  const salesLed = committeeBuyer || (ctx.model !== null && ctx.model !== 'saas' && ctx.model !== 'marketplace') || (ctx.v !== null && ctx.v.id !== 'saas' && ctx.v.id !== 'software');
   const subscription = ctx.model === 'saas' || ctx.model === null;
   const contractSale = salesLed && !subscription && ctx.model !== 'transactions';
-  const pb = ctx.v ? PLAYBOOKS[ctx.v.id] : null;
+  const pb = ctx.v ? playbookFor(ctx.v) : null;
   const lang = MODEL_LANGUAGE[ctx.model ?? 'saas'];
   const product = parseProduct(args.product_feature);
   // Channels: the ones you named; else email, LinkedIn and blog drive the task filter, and the sector's own channels are shown.
   const channelsGiven = args.available_channels ? splitTopLevel(args.available_channels) : [];
   const channels = channelsGiven.length ? channelsGiven : ['email', 'linkedin', 'blog'];
-  const shownChannels = channelsGiven.length ? channelsGiven.map((ch) => (ch.toLowerCase() === 'linkedin' ? 'LinkedIn' : ch)) : pb ? pb.channels : channels.map((ch) => (ch.toLowerCase() === 'linkedin' ? 'LinkedIn' : ch));
+  const segChannels = segmentKinds(args.target_segments).flatMap((k) => k.channels ?? []).filter((c, i, a) => a.indexOf(c) === i).slice(0, 4);
+  const shownChannels = channelsGiven.length ? channelsGiven.map((ch) => (ch.toLowerCase() === 'linkedin' ? 'LinkedIn' : ch)) : pb ? pb.channels : segChannels.length ? segChannels : salesLed ? ['account-based outreach to named buyers', 'LinkedIn posts from your experts and customers', 'executive roundtable or briefing'] : channels.map((ch) => (ch.toLowerCase() === 'linkedin' ? 'LinkedIn' : ch));
   const SWAP: Record<string, string> = {
     'waitlist campaign': 'Early-access list of named accounts',
     'influencer outreach': 'Customer and peer advocate outreach',
@@ -358,7 +363,7 @@ ${pb ? `*The pain points, proof and next step below come from what ${ctx.v!.name
 | Element | Content |
 |---------|---------|
 | Primary Pain Point | ${pb ? `Usually: ${pains[0]}; also ${pains[1]}. Confirm which one ${segment} feels most.` : `Not known from your inputs. Ask ${segment}: "What does this problem cost you today, and who owns the number?"`} |
-| Key Message | ${pb ? `Show ${segment} how ${q(product.name)} deals with ${pains[0]}${capabilities.length ? `: lead with ${q(capabilities[(si * 2) % capabilities.length])}${capabilities.length > 1 ? ` and ${q(capabilities[(si * 2 + 1) % capabilities.length])}` : ''}` : ''}${metric ? `, and measure the result by ${metric}` : ''}.${vocab ? ` Use the words this buyer uses (${vocab}).` : ''}` : `Lead with ${q(product.name)} for ${segment}${restShort ? `, in your words: "${restShort}"` : ''}. Add the outcome you can prove.`}${buyerNamed ? ` Write it for the ${buyerNamed}.` : ''} |${seg ? `\n| What the buying process usually involves | For ${segment}: ${seg.review}. Have the answers ready before they are asked. |` : ''}
+| Key Message | ${pb ? `Show ${segment} how ${q(product.name)} deals with ${pains[0]}${capabilities.length ? `: lead with ${q(capabilities[(si * 2) % capabilities.length])}${capabilities.length > 1 ? ` and ${q(capabilities[(si * 2 + 1) % capabilities.length])}` : ''}` : ''}${metric ? `, and measure the result by ${metric}` : ''}.${vocab ? ` Use the words this buyer uses (${vocab}).` : ''}` : `Lead with ${q(product.name)} for ${segment}${capabilities.length ? `: ${q(capabilities[(si * 2) % capabilities.length])}${capabilities.length > 1 ? ` and ${q(capabilities[(si * 2 + 1) % capabilities.length])}` : ''}` : restShort ? `, in your words: "${restShort}"` : ''}. Add the outcome you can prove for ${segment}, in their measures.`}${buyerNamed ? ` Write it for the ${buyerNamed}.` : ''} |${seg ? `\n| What the buying process usually involves | For ${segment}: ${seg.review}. Have the answers ready before they are asked. |` : ''}
 | Proof Point | ${ctx.v ? `Collect from ${aAn(segment)} ${segment} customer: ${lower1(ctx.v.proofShape)}` : `A before and after from one ${segment} customer on the goal you set.`} |
 | CTA | ${pb ? `${pb.cta}.` : `Ask ${segment} for one next step: a working session on their own data or process.`} |
 | Primary Channel | ${channelsGiven[0] ?? (pb ? pb.channels[0] : channels[0])} |

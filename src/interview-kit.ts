@@ -1,6 +1,6 @@
 import { describeChoice, readableChoice, EXAMPLE_FIGURES, SUGGESTION_FOOTER } from './utils.js';
 import { readContext, splitItems, q, andList, shortName, capEcho } from './context.js';
-import { PLAYBOOKS, MODEL_LANGUAGE } from './sector-playbooks.js';
+import { playbookFor, MODEL_LANGUAGE } from './sector-playbooks.js';
 
 // Run 20 (quality round 1): questions for the person you interview, by the kind of role. A role is read from its title; the questions
 // are about that person's own work and measures (no figure, no claim about their company).
@@ -68,7 +68,15 @@ export function generateCustomerInterviewKit(args: {
   const interviewType = args.interview_type;
   const complexity = args.product_complexity || 'moderate';
   // Run 19 (D80, problem 2): a hypothesis is a sentence. It is split by line or semicolon, never at a comma inside it.
-  const hypotheses = splitItems(args.key_hypotheses);
+  // A piece that is not a claim (a short list of audiences, "the about page says ...") belongs to the claim before it; it is not a hypothesis of its own.
+  const hypotheses: string[] = [];
+  let objectionRun = false;
+  for (const piece of splitItems(args.key_hypotheses)) {
+    const isObjectionLine = /^objections?\s+to\s+test\s*:/i.test(piece);
+    if (isObjectionLine) objectionRun = true;
+    const notClaim = !objectionRun && hypotheses.length > 0 && !/^objections?\b/i.test(hypotheses[hypotheses.length - 1] ?? '') && (/^(?:the\s+)?(?:about\s+|home\s+)?page\s+(?:says|states|calls|notes)/i.test(piece) || (piece.split(/\s+/).length <= 6 && !/\b(is|are|was|were|has|have|means?|causes?|caused|breaks?|drift\w*|runs?|rely|relies|fails?|needs?|lose|loses|takes?|struggles?|can|will|do|does)\b/i.test(piece)));
+    if (notClaim) hypotheses[hypotheses.length - 1] += `; ${piece}`; else hypotheses.push(piece);
+  }
   // Readable names for display ("enterprise_software" -> "enterprise software")
   const typeName = readableChoice(interviewType);
   const complexityName = readableChoice(complexity);
@@ -82,7 +90,7 @@ export function generateCustomerInterviewKit(args: {
   const subscription = ctx.model === 'saas' || ctx.model === null;
   const lang = MODEL_LANGUAGE[ctx.model ?? 'saas'];
   const leave = lang.leave;
-  const pb = v ? PLAYBOOKS[v.id] : null;
+  const pb = v ? playbookFor(v) : null;
   const focus = roleFocus(args.target_persona);
 
   // Generic context for the choices that are not one of the owner's verticals (ecommerce, marketplace, enterprise software, consumer, other)
@@ -355,7 +363,7 @@ ${(() => { let inObjections = false; return hypotheses.map((raw, i) => {
 | To Validate | Ask |
 |-------------|-----|
 | Confirm it is true | "Is this true for you: ${plain.length <= 260 ? `'${plain}'` : 'the statement above'}? When did you last see it?" |
-| Understand severity | "What does it cost you in ${metric1}, and who feels it first?" |
+| Understand severity | "What does it cost you (time, rework, money or risk), and who feels it first?" |
 | Test assumption | "Tell me about the last time it happened. What did you do, and who was involved?" |
 | Find counter-evidence | "What would make this NOT true for you, and where have you seen the opposite?" |
 `;
@@ -376,8 +384,13 @@ ${(() => { let inObjections = false; return hypotheses.map((raw, i) => {
     ? `How do you measure ${measures[0]} today, and how much does it vary?`
     : `How much of a challenge is ${generic.painPoints[0]} for you?`;
 
-  const coreList = fresh(questions.core);
-  const techList = fresh(techQuestions);
+  // Topic questions from the words of the product and the hypotheses (a billing platform, an API platform): about the buyer's own work, never about the product.
+  const topicText = `${args.product_context} ${args.key_hypotheses ?? ''}`;
+  const topicQs: string[] = [];
+  if (/\b(billing|invoic\w*|proration|dunning|revenue recogni\w*)\b/i.test(topicText)) topicQs.push('How are plan and price changes turned into invoices today, and who checks them before they go out?', 'Where do invoice disputes and failed payments get handled, and how long do they stay open?', 'How long after month end is revenue closed, and what holds it up: reconciliation, usage data or approvals?', 'Which systems must billing connect to: CRM, ERP, tax, payment gateway?');
+  if (/\b(apis?|specs?|openapi|collections?|api lifecycle|governance)\b/i.test(topicText) && /\b(api|specs?|collections?)\b/i.test(topicText)) topicQs.push('Where do your API specs, collections and docs live today, and who keeps them in step when an API changes?', 'How does another team find out that an API exists, and how do they know it is the current one?', 'Which governance rules are checked automatically, and which only in a review that comes late?');
+  const coreList = fresh([...questions.core]);
+  const techList = fresh([...techQuestions, ...topicQs]);
   const sectorList = fresh(sectorQuestions);
   const roleList = focus ? fresh(focus.questions) : [];
 

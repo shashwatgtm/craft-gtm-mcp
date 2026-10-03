@@ -57,6 +57,8 @@ const TOPICS: Array<[string, RegExp]> = [
   ['compliance-rev', /\b(?:asc ?606|ifrs ?15|revenue recogni\w*)\b/i],
 ];
 const topicsOf = (t: string): Set<string> => new Set(TOPICS.filter(([, re]) => re.test(t)).map(([n]) => n));
+const STOP = new Set(['does', 'doesnt', 'with', 'what', 'which', 'your', 'this', 'that', 'than', 'from', 'over', 'the', 'and', 'for', 'how', 'why', 'our', 'are', 'can', 'not', 'only', 'when', 'into', 'any']);
+const toks = (t: string): Set<string> => new Set((t.toLowerCase().match(/[a-z]{3,}/g) || []).filter((w) => !STOP.has(w)));
 const longWords = (t: string): Set<string> => new Set(words(t));
 function related(a: string, b: string): boolean {
   const ta = topicsOf(a); const tb = topicsOf(b);
@@ -69,7 +71,7 @@ const isDescription = (c: string): boolean => shortOf(c).split(/\s+/).length > 4
 const lowerFirst = (t: string): string => (/^[A-Z]{2,}\b/.test(t) ? t : t.charAt(0).toLowerCase() + t.slice(1));
 // A competitor detail says either where the competitor is weak ("manual tracking causes missed visits") or where it is ahead ("cheaper", "bundles a free app").
 const AHEAD = /\b(?:strong(?:er)?|cheaper|cheap|better|faster|bundl\w*|free|larger|bigger|leader|established|incumbent|more (?:mature|complete)|wider|broader|lower (?:price|cost)|well[- ]known|trusted)\b/i;
-const WEAK = /\b(?:slow\w*|manual\w*|miss\w*|fail\w*|cause[sd]?|lack\w*|no|not|only|cannot|can't|constraint|drift|delays?|expensive|costly|overpriced|siloed|static|black box|fragile|legacy|fragmented|difficult|hard|bypassed|sluggish|congested|disconnect\w*|isolated|periodic|accumulates?)\b/i;
+const WEAK = /\b(?:break\w*|brok\w*|stuck|errors?|wrong|leak\w*|late|slow\w*|manual\w*|miss\w*|fail\w*|cause[sd]?|lack\w*|no|not|only|cannot|can't|constraint|drift|delays?|expensive|costly|overpriced|siloed|static|black box|fragile|legacy|fragmented|difficult|hard|bypassed|sluggish|congested|disconnect\w*|isolated|periodic|accumulates?)\b/i;
 function sideOf(detail: string): 'weak' | 'ahead' | 'neutral' {
   const a = AHEAD.test(detail); const w = WEAK.test(detail);
   return w && !a ? 'weak' : a && !w ? 'ahead' : 'neutral';
@@ -112,10 +114,10 @@ export function generateCompetitiveIntel(args: {
   const generalLeft: string[] = [];
   for (const g of general) {
     if (competitors.length === 1) { (byCompetitor[competitors[0]] ??= []).push(g); continue; }
-    const hit = competitors.map((c) => ({ c, n: [...longWords(g)].filter((w) => longWords(c).has(w)).length })).sort((x, y) => y.n - x.n)[0];
+    const hit = competitors.map((c) => ({ c, n: [...toks(g)].filter((w) => toks(c).has(w)).length })).sort((x, y) => y.n - x.n)[0];
     // else the one competitor that shares a word of six letters or more that no other competitor's text has ("spreadsheets")
-    const unique = competitors.filter((c) => [...longWords(g)].some((w) => w.length >= 6 && longWords(c).has(w) && !competitors.some((o) => o !== c && longWords(o).has(w))));
-    const sharing = competitors.filter((c) => [...longWords(g)].filter((w) => longWords(c).has(w)).length >= 2);
+    const unique = competitors.filter((c) => [...longWords(g)].some((w) => w.length >= 8 && longWords(c).has(w) && !competitors.some((o) => o !== c && longWords(o).has(w))));
+    const sharing = competitors.filter((c) => [...toks(g)].filter((w) => toks(c).has(w)).length >= 2);
     if (hit && hit.n >= 2) sharing.forEach((c) => (byCompetitor[c] ??= []).push(g));
     else if (unique.length === 1) (byCompetitor[unique[0]] ??= []).push(g);
     else generalLeft.push(g);
@@ -132,9 +134,23 @@ export function generateCompetitiveIntel(args: {
     const pattern = answerFor(objection, ctx.v);
     const has = (re: RegExp): boolean => re.test(o);
     const matched = answersFor(objection);
-    // With evidence the counter says it; without, the spoken line promises an accurate answer in writing (never an invented one) and the note tells the seller what is missing.
-    const evidence = matched.length ? `What I can tell you today is ${andList(matched.slice(0, 2).map((m) => lowerFirst(m)))}.` : `On ${qc(objection, 80)} I would rather give you an accurate answer than a guess, so let me confirm the specifics and send them to you in writing.`;
-    const note = matched.length ? '' : 'None of the strengths you listed answers this objection. Add the evidence you hold to your_strengths (or recent_wins) and run the tool again; until then, do not improvise an answer.';
+    // A comparison objection ("Why us over X", "How are you different from Y") is answered with the strengths you listed and what you know of the alternative it names.
+    const named = competitors.find((c) => (!isDescription(c) && o.includes(shortOf(c).toLowerCase())) || [...toks(objection)].filter((w) => toks(c).has(w)).length >= 2);
+    const comparison = !!named || /\b(differ\w*|different|versus|vs|compared? (?:to|with)|instead of|why (?:\w+ ){0,3}over|better than)\b/i.test(o);
+    const weakOf = named ? (byCompetitor[named] || []).filter((x) => sideOf(x) === 'weak') : [];
+    const forComparison = S.slice(0, 2).map((x) => lowerFirst(stripEnd(x)));
+    const useful = matched.length ? matched : comparison ? forComparison : [];
+    const evidence = useful.length
+      ? `${comparison ? 'What I can point to:' : 'What I can tell you today:'} ${andList(useful.slice(0, 2).map((m) => lowerFirst(stripEnd(m))))}.${weakOf.length ? ` And on the alternative, what we have seen is ${lowerFirst(stripEnd(weakOf[0]))}.` : ''}`
+      : `On ${qc(objection, 80)} I would rather give you an accurate answer than a guess, so I will confirm the specifics and send them to you in writing.`;
+    // Without evidence, the note says exactly which fact the seller must supply, and why.
+    const rest = objection.replace(/^\s*(?:does|do|can|is|are|will|how|why|what|which)\s+/i, '').replace(/[?]+$/, '');
+    const need = /^\s*how (?:long|quickly|fast)\b|\btake to\b/i.test(objection) ? 'the real elapsed time from signature to go-live for a customer like this buyer, and the case it was measured on'
+      : /\b(differ\w*|different)\b|^\s*why\b/i.test(objection) ? 'two or three concrete differences a buyer can check for themselves, in your own words'
+      : /^\s*(?:does|do|can|is|are|will)\b/i.test(objection) ? `a yes or no to this exact question, with any limits and the date it applies from`
+      : /\b(price|cost|expensive|budget|cheap\w*)\b/i.test(o) ? 'the price or range you can quote and what it includes'
+      : `the specific fact that settles: ${rest}`;
+    const note = useful.length ? '' : `Fact needed from you: ${need}. Why: ${qc(objection, 70)} is a question a buyer can check, so any answer without that fact would be a guess. Add it as a line in your_strengths (or recent_wins) and run the tool again; until then, say that you will confirm in writing.`;
     
     if (has(/\b(price|prices|pricing|expensive|cost|costs|budget|cheaper|cheap)\b/)) {
       return {
@@ -145,10 +161,10 @@ export function generateCompetitiveIntel(args: {
       };
     }
     
-    if (has(/\b(competitors?|alternatives?|other (?:vendors?|options?|tools?)|rivals?)\b/) || competitors.some((c) => !isDescription(c) && o.includes(shortOf(c).toLowerCase()))) {
+    if (comparison || has(/\b(competitors?|alternatives?|other (?:vendors?|options?|tools?)|rivals?)\b/)) {
       return {
         acknowledge: "It makes sense to evaluate options thoroughly.",
-        counter: S[0] ? `What sets us apart is ${strongFirst}. ${matched.length ? evidence : ''}`.trim() : `Tell me which of your criteria matter most, and I will show how we answer each. (No strengths were supplied: add your_strengths to name what sets you apart.)`,
+        counter: S[0] ? evidence : `Tell me which of your criteria matter most, and I will show how we answer each. (No strengths were supplied: add your_strengths to name what sets you apart.)`,
         redirect: "What's most important to you in making this decision?",
         pattern, note
       };
@@ -167,7 +183,7 @@ export function generateCompetitiveIntel(args: {
       return {
         acknowledge: "That's a fair question.",
         counter: `${evidence}`,
-        redirect: "How critical is that specific capability vs. the overall outcome you're trying to achieve?",
+        redirect: /\b(how long|how quickly|how fast|take to)\b/.test(o) ? 'What date would you need this to be live by for it to work for you?' : "How critical is that specific capability vs. the overall outcome you're trying to achieve?",
         pattern, note
       };
     }
@@ -226,30 +242,37 @@ ${generalLeft.length ? `**Competitor details about the whole category (shown on 
     const desc = isDescription(comp);
     const short = desc ? 'this approach' : shortOf(comp);
     const info = [...(byCompetitor[comp] || []), ...generalLeft];
-    // Pair each strength with the detail it answers (by topic or shared word); unpaired strengths stay as strengths
-    const pairs = S.slice(0, 4).map((s) => ({ s: stripEnd(s), d: info.find((x) => related(s, x)) ?? null }));
+    // A strength belongs on this card only when it bears on this alternative (shares a topic or a word with its description or your notes about it)
+    const mine = S.map(stripEnd).filter((st) => related(st, comp) || info.some((x) => related(st, x)));
     const metricWord = ctx.v ? andList(ctx.v.metrics.slice(0, 3)) : '';
     const weakNotes = info.filter((x) => sideOf(x) === 'weak');
     const aheadLines = [...W.slice(0, 3).map((w) => `- Where we fall short: ${w}`), ...info.filter((x) => sideOf(x) !== 'weak').map((x) => `- From your notes: ${x}`)];
+    const alt = desc ? qc(comp, 90) : short;
     output += `### ${i + 1}. ${comp}
 
-${desc ? `*You described this alternative in your own words, so the card calls it "${short}".*\n\n` : ''}${info.length > 0 ? `**What you know about ${desc ? 'it' : short} (your own notes):**\n${info.map(x => `- ${x}`).join('\n')}\n` : `**What you know about ${desc ? 'it' : short}:** none of your competitor details names it. Add one that does.\n`}
+${desc ? `*You described this alternative in your own words, so the card calls it "${short}".*\n\n` : ''}${(byCompetitor[comp] || []).length > 0 ? `**What you know about ${desc ? 'it' : short} (your own notes):**\n${(byCompetitor[comp] || []).map(x => `- ${x}`).join('\n')}\n` : `**What you know about ${desc ? 'it' : short}:** none of your competitor details is about this one alone.\n`}${generalLeft.length ? `\n**Your note that names no single alternative (it may apply here):**\n${generalLeft.map(x => `- ${x}`).join('\n')}\n` : ''}
 
 **Where you are stronger against ${short}:**
-${S.length > 0 ? pairs.map((p) => `- ${p.s}${p.d ? ` (your note on ${short}: ${q(p.d)})` : ''}`).join('\n') : '- Not known yet (add your_strengths)'}
+${S.length === 0 ? '- Not known yet (add your_strengths)' : mine.length ? mine.map((st) => `- ${st}`).join('\n') : '- None of the strengths you listed is tied to this alternative (see Your Competitive Position above). Add a competitor detail that names what it does badly and the card will pair it with your strength.'}
 
 ${weakNotes.length ? `**Weak points of ${short}, from your notes:**\n${weakNotes.map((x) => `- ${x}`).join('\n')}\n\n` : ''}**Where ${short} may be ahead:**
 ${aheadLines.length ? aheadLines.join('\n') : W.length || info.length ? '- Your notes name nothing here beyond the points above' : '- Not known yet (add your_weaknesses or a competitor detail)'}
 
-**Trap questions for ${short}:**
-*Questions to ask the buyer*
+**Discovery questions that surface the weakness of ${short}:**
+*Questions to ask the buyer, about the buyer's own situation*
 
 ${(() => {
   const qs: string[] = [];
-  (weakNotes.length ? weakNotes : info).slice(0, 2).forEach((d) => qs.push(`Ask the buyer how they cope with this today, with ${short}: ${qc(d, 120)}`));
-  S.slice(0, 3 - qs.length).forEach((st) => qs.push(`Ask how ${short} handles ${qc(stripEnd(st), 90)}`));
-  if (qs.length < 3) qs.push(ctx.v ? `Ask which of ${andList(ctx.v.metrics.slice(0, 3))} the buyer measures today, and how ${short} improves it` : `Ask what result the buyer measures today, and how ${short} improves it`);
-  return qs.map((x, n) => `${n + 1}. ${x}`).join('\n');
+  const m = ctx.v ? ctx.v.metrics[i % ctx.v.metrics.length] : 'time or cost';
+  (weakNotes.length ? weakNotes : info).slice(0, 2).forEach((d) => qs.push(`Where does this show up in your work today, and when did it last happen: ${qc(d, 110)}? What did it cost you in ${m}?`));
+  if (qs.length === 0) qs.push(`How do you handle ${alt} today, and what has it cost you in ${m} over the last quarter?`);
+  // A popularity or award claim ("used by 500,000 companies", "the world's leading ...") is not something a buyer can test, so no question is built on it.
+  const testable = (mine.length ? mine : S.map(stripEnd)).filter((x) => !/\b(?:used by|world's|leading|trusted by|award\w*|named|ranked|recogni[sz]ed)\b|\d[\d,]*\+?\s*(?:companies|customers|users|teams)/i.test(x));
+  const st = testable[i % Math.max(1, testable.length)];
+  if (st) qs.push(`If you evaluated a replacement, how would you test for ${qc(st, 90)}, and what do you use to check it today?`);
+  if (qs.length < 2) qs.push(`Who is affected most by this, and what do they do today to work around it?`);
+  if (qs.length < 3) qs.push(`Who owns the number you track for ${m}, and how often do they look at it?`);
+  return qs.slice(0, 3).map((x, n) => `${n + 1}. ${x}`).join('\n');
 })()}
 
 **"Why not ${short}?" response:**
@@ -259,7 +282,7 @@ If prospect asks: "Why should we choose you over ${short}?"
 
 First acknowledge one real strength of ${short}. Then say:
 
-"That's a fair question, and I'd rather answer it than dodge it.${S.length > 0 ? ` Here is what customers tell us:\n${S.slice(0, 2).map((s, n) => `${n + 1}. ${cap(stripEnd(s))}. For a buyer who watches ${metricWord || sectorMetric}, ask what that is worth to them.`).join('\n')}` : ' (No strengths were supplied: add your_strengths so this answer can name them.)'}${(weakNotes[0] || info[0]) ? `\nAnd on ${short} itself, what you have seen is: ${stripEnd(weakNotes[0] || info[0])}.` : ''}"
+"That's a fair question, and I'd rather answer it than dodge it.${mine.length ? ` Here is what customers tell us:\n${mine.slice(0, 2).map((st, n) => `${n + 1}. ${cap(st)}. For a buyer who watches ${metricWord || sectorMetric}, ask what that is worth to them.`).join('\n')}` : ''}${(weakNotes[0] || info[0]) ? `\nAnd on ${short} itself, what you have seen is: ${stripEnd(weakNotes[0] || info[0])}.` : ''}${!mine.length && !(weakNotes[0] || info[0]) ? ` Nothing in your input ties a strength or a weakness to ${short}: add a competitor detail for it before using this line.` : ''}"
 \`\`\`
 
 ---
@@ -292,8 +315,7 @@ First acknowledge one real strength of ${short}. Then say:
 
 **Redirect:** "${handler.redirect}"
 
-**Answer pattern:** ${handler.pattern}
-${handler.note ? `\n**Coach note:** ${handler.note}\n` : ''}
+${/^Ask what lies behind it/.test(handler.pattern) ? '' : `**Answer pattern:** ${handler.pattern}\n`}${handler.note ? `\n**Coach note:** ${handler.note}\n` : ''}
 **Full Response:**
 \`\`\`
 "${handler.acknowledge}
@@ -352,7 +374,7 @@ WATCH OUT FOR:
 ${W.length > 0 ? W.slice(0, 2).map(w => `• ${w}`).join('\n') : '• Not known yet (add your_weaknesses)'}
 
 TOP OBJECTION HANDLERS:
-${objections.length > 0 ? objections.slice(0, 3).map((o, i) => { const m = answersFor(o); return `${i + 1}. "${o}" → ${m.length ? lowerFirst(m[0]) : answerFor(o, ctx.v).split(/[;.]/)[0]}`; }).join('\n') : 'None supplied yet: add common_objections.'}
+${objections.length > 0 ? objections.slice(0, 3).map((o, i) => { const m = answersFor(o); return `${i + 1}. "${o}" → ${m.length ? lowerFirst(m[0]) : /^Ask what lies behind it/.test(answerFor(o, ctx.v)) ? 'confirm the fact first, then answer in writing (see the handler above)' : answerFor(o, ctx.v).split(/[;.]/)[0]}`; }).join('\n') : 'None supplied yet: add common_objections.'}
 \`\`\`
 
 ---

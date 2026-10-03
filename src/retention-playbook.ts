@@ -1,6 +1,6 @@
 import { parseListItems, pct, roundTypedPercents, describeChoice, readableChoice, lowerFirstIfCommon, cap, EXAMPLE_FIGURE, EXAMPLE_FIGURES, SUGGESTION_FOOTER } from './utils.js';
 import { readContext, splitItems, q, answerFor, sectorNotes, shortName, capEcho, andList, lcFirst, type BusinessModel } from './context.js';
-import { PLAYBOOKS, MODEL_LANGUAGE, segmentNotes } from './sector-playbooks.js';
+import { playbookFor, MODEL_LANGUAGE, segmentNotes } from './sector-playbooks.js';
 
 // Run 19 (D80): the business model chosen is mapped to the model class the tool reasons with. enterprise_contract is read further
 // from the typed text (services, connectivity or investment) when it can be.
@@ -210,18 +210,18 @@ export function generateRetentionPlaybook(args: {
 ## ${heading}
 
 **Business Model:** ${readableChoice(businessModel)}
-**Current Churn Rate:** ${roundTypedPercents(args.current_churn_rate)} (${churnSeverity}, judged against example benchmarks)
+**Current Churn Rate:** ${roundTypedPercents(args.current_churn_rate)} (${churnSeverity} against the example thresholds, which are illustrations: set your own)
 **CS Team Capacity:** ${csTeamShown}
 ${segmentHead.capped ? `**Customer segment (as you wrote it):** ${args.customer_segment.trim()}\n` : ''}
 ${ctxLine}
-${segNote ? `\n**In this segment:** a ${subscription ? 'purchase' : 'renewal'} usually involves ${segNote.review}. Check each churn reason below against these steps.\n` : ''}${ctx.v ? `\n**In ${ctx.v.name}:** ${PLAYBOOKS[ctx.v.id].renewal}\n` : ''}
+${segNote ? `\n**In this segment:** a ${subscription ? 'purchase' : 'renewal'} usually involves ${segNote.review}. Check each churn reason below against these steps.\n` : ''}${ctx.v ? `\n**In ${ctx.v.name}:** ${playbookFor(ctx.v).renewal}\n` : ''}
 ---
 
 ## Churn Severity Assessment
 
 | Metric | Value | Status (against example benchmarks) |
 |--------|-------|--------|
-| Monthly Churn | ${pct(churnRate)}% | ${churnSeverity} |
+| Monthly Churn | ${pct(churnRate)}% | ${churnSeverity} (example threshold) |
 | Annual Revenue at Risk (your monthly churn, annualized) | ~${pct(churnRate * 12)}% (monthly churn times twelve, not compounded) | ${churnRate * 12 > 50 ? 'Urgent' : 'Monitor'} |
 | Benchmark (${readableChoice(businessModel)}) | ${contractModel ? 'No example benchmark for this model: set your own' : `${businessModel === 'saas_subscription' ? '3-5%' : businessModel === 'consumer' ? '5-8%' : '4-6%'} ${EXAMPLE_FIGURE}`} | - |
 
@@ -361,7 +361,7 @@ function generateChurnDiscoveryKit(
 
   const baseReasons = (contractModel && commonReasons[contractModel]) || commonReasons[businessModel] || commonReasons[businessModel === 'services_contract' ? 'services' : businessModel === 'connectivity_contract' ? 'connectivity' : businessModel === 'investment_mandate' ? 'investment' : 'saas_subscription'];
   // Run 20: the sector's own reasons come first (they carry their own signal and intervention); the base list for the model follows.
-  const pb = v ? PLAYBOOKS[v.id] : null;
+  const pb = v ? playbookFor(v) : null;
   const sectorReasons = pb ? pb.churnReasons : [];
   const reasons = [...sectorReasons.map((r) => r.reason), ...baseReasons.filter((r) => !sectorReasons.some((x) => x.reason.toLowerCase().split(' ').filter((w) => w.length > 4).some((w) => r.toLowerCase().includes(w))))].slice(0, 9);
   const sectorSignal = (r: string): string | null => sectorReasons.find((x) => x.reason === r)?.signal ?? null;
@@ -377,7 +377,7 @@ function generateChurnDiscoveryKit(
 
 | Metric | Value | Assessment (against example benchmarks) |
 |--------|-------|------------|
-| **Churn Rate** | ${pct(churnRate)}% | ${severity} |
+| **Churn Rate** | ${pct(churnRate)}% | ${severity} (example threshold) |
 | **Business Model** | ${readableChoice(businessModel)} | |
 | **CS Team** | ${csTeamShown} | |
 

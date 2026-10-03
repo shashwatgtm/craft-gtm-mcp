@@ -1,6 +1,6 @@
 import { describeChoice, readableChoice, EXAMPLE_FIGURE, EXAMPLE_FIGURES, SUGGESTION_FOOTER } from './utils.js';
 import { readContext, splitItems, q, andList, capEcho, cleanCompanyName, lcFirst } from './context.js';
-import { PLAYBOOKS, segmentKinds } from './sector-playbooks.js';
+import { playbookFor, segmentKinds } from './sector-playbooks.js';
 
 // Every rate, fee, deal count and staff count in the tier definitions is an example figure.
 const hasFigure = (text: string): boolean => /\d/.test(text);
@@ -136,8 +136,11 @@ export function generatePartnerArchitect(args: {
     program.tiers[0] = { ...program.tiers[0], benefits: ['A named contact in your sales team', 'Referral registration with a status update on every referred account'], support: 'A partner manager call on each referred opportunity' };
     program.tiers[1] = { ...program.tiers[1], benefits: ['Joint account planning for referred accounts', 'Invitations to customer and executive events', 'Priority referral processing'], support: 'Quarterly review with a partner manager, annual partner event' };
   }
-  const pb = ctx.v ? PLAYBOOKS[ctx.v.id] : null;
+  const pb = ctx.v ? playbookFor(ctx.v) : null;
   const goalSegments = segmentKinds(args.partner_goals);
+  const sameName = args.product.trim().toLowerCase() === args.company.trim().toLowerCase() || args.product.trim().split(/\s+/).length <= 3 && args.product.toLowerCase().includes(args.company.toLowerCase());
+  // a figure is a number that is not part of a word (3PL, 4G and CPaaS hold no target)
+  const goalHasFigure = /(?<![A-Za-z0-9])\d[\d,.]*(?![A-Za-z0-9])/.test(args.partner_goals.replace(/\bno numeric target given\b/gi, ''));
   const firstKind = pb ? ({ referral: pb.partners.refer, affiliate: pb.partners.refer, reseller: pb.partners.resell, integration_tech: pb.partners.integrate, oem_white_label: pb.partners.integrate, agency_si: pb.partners.implement } as Record<string, string[]>)[partnerModel]?.[0] ?? '' : '';
   const exampleDeals = 10;
   
@@ -212,11 +215,11 @@ Based on ${dealSizeBasis} (checked against example deal-size thresholds):
 
 **Your stated goal:** ${q(capEcho(args.partner_goals, 220).short)}
 
-${/\d/.test(args.partner_goals) ? 'Use the figures in your goal as the targets of the first rows below.' : 'Your goal holds no number, so each target below is set from your first quarter of data.'} A worked example at your deal size: ${exampleDeals} closed partner-sourced deals are ${money(dealSize * exampleDeals)} in annual contract value ${EXAMPLE_FIGURE}
+${goalHasFigure ? 'Use the figures in your goal as the targets of the first rows below.' : 'Your goal holds no number, so each target below is set from your first quarter of data.'} A worked example at your deal size: ${exampleDeals} closed partner-sourced deals are ${money(dealSize * exampleDeals)} in annual contract value ${EXAMPLE_FIGURE}
 
 | Metric | Definition | Target | Tracking |
 |--------|------------|--------|----------|
-${program.kpis.map((kpi, i) => `| ${kpi} | ${KPI_DEFINITION[kpi] || 'The measure for this program'} | ${i === 0 ? (/\d/.test(args.partner_goals) ? 'From your goal above' : 'Set from your first quarter of data') : 'Set from your first quarter of data'} | Your CRM or partner portal |`).join('\n')}
+${program.kpis.map((kpi, i) => `| ${kpi} | ${KPI_DEFINITION[kpi] || 'The measure for this program'} | ${i === 0 ? (goalHasFigure ? 'From your goal above' : 'Set from your first quarter of data') : 'Set from your first quarter of data'} | Your CRM or partner portal |`).join('\n')}
 
 ---
 
@@ -283,7 +286,7 @@ Subject: ${cap1(partnerModel.replace(/_/g, ' '))} partnership with ${args.compan
 
 Hello,
 
-I am writing from ${args.company}. In short, ${args.company} offers ${q(capEcho(args.product, 160).short)}.${pb ? ` Your clients include the people who decide on this: ${andList(ctx.v!.buyerRoles.slice(0, 3))}.` : ''} I think there is a strong opportunity for us to work together. Partners ${partnerModel === 'reseller' ? 'can expand their revenue by offering our solution alongside their services' : partnerModel === 'referral' ? 'earn a commission on each closed deal (see the tiers above)' : partnerModel === 'integration_tech' ? 'can increase their product value through deep integration' : 'can grow their business with our tools'}.
+I am writing from ${args.company}.${sameName ? '' : ` In short, ${args.company} offers ${q(capEcho(args.product, 160).short)}.`}${pb ? ` Your clients include the people who decide on this: ${andList(ctx.v!.buyerRoles.slice(0, 3))}.` : ''} I think there is a strong opportunity for us to work together. Partners ${partnerModel === 'reseller' ? 'can expand their revenue by offering our solution alongside their services' : partnerModel === 'referral' ? 'earn a commission on each closed deal (see the tiers above)' : partnerModel === 'integration_tech' ? 'can increase their product value through deep integration' : 'can grow their business with our tools'}.
 ${partnerModel === 'reseller' ? `\nWith deals averaging ${args.your_deal_size}, partners at the Silver tier would earn about ${money(dealSize * 0.20 * 5)} a quarter. ${EXAMPLE_FIGURE}\n` : ''}
 Would you be open to a 15-minute call to explore fit?
 

@@ -181,13 +181,13 @@ test("competitive_intel: a competitor detail reaches the competitor it describes
   assert.match(cards[0], /take many months to implement/);
   assert.doesNotMatch(cards[0], /spreadsheets break/);
   assert.match(cards[1], /spreadsheets break when pricing changes/);
-  assert.match(cards[0], /Ask the buyer how they cope with this today/);
+  assert.match(cards[0], /Where does this show up in your work today, and when did it last happen: "legacy billing systems take many months to implement"/);
 });
 test("competitive_intel: a weak point of the alternative is not listed as where it is ahead", async () => {
   const r = await call("competitive_intel", CI);
   const card = r.text.split(/\n### 1\. /)[1].split(/\n### 2\. /)[0];
   assert.match(card, /Weak points of .*from your notes/);
-  const ahead = card.split("may be ahead:**")[1].split("**Trap questions")[0];
+  const ahead = card.split("may be ahead:**")[1].split("**Discovery questions")[0];
   assert.doesNotMatch(ahead, /take many months to implement/);
 });
 test("competitive_intel: an objection is answered with the strength that answers it, or says plainly that none does; no bracket placeholder", async () => {
@@ -197,7 +197,7 @@ test("competitive_intel: an objection is answered with the strength that answers
   const golive = h.split("### 2.")[1].split("### 3.")[0];
   assert.match(golive, /implementations that go live in weeks/);
   const erp = h.split("### 1.")[1].split("### 2.")[0];
-  assert.match(erp, /None of the strengths you listed answers this objection/);
+  assert.match(erp, /Fact needed from you: a yes or no to this exact question/);
   assert.match(erp, /accurate answer than a guess/);
   const secure = h.split("### 3.")[1].split("---")[0];
   assert.match(secure, /SOC 2 Type II/);
@@ -282,7 +282,7 @@ test("pmf_scorecard: a services firm is not asked for an aha moment, and the nex
   assert.doesNotMatch(r.text, /aha moment|activation event/i);
   assert.match(r.text, /does not apply to a services contract/);
   assert.match(r.text, /You gave an annual contract value of \$400,000/);
-  assert.match(r.text, /\| Result or recognition \|/);
+  assert.match(r.text, /\| Result \|/);
   assert.match(r.text, /FEEDBACK: fix the friction you named first/);
 });
 test("pmf_scorecard: the benchmark cell gives both marks, and a value on the mark says so", async () => {
@@ -310,7 +310,7 @@ test("acronyms keep their capitals when a sector objection or proof is lower-cas
 });
 test("a proof claim in the feedback is classified as proof, a quote as a quote, and friction as friction", async () => {
   const r = await call("pmf_scorecard", { product: "Lanehop", target_market: "logistics_tech", current_metrics: "Churn: 2%, NPS: 41", customer_feedback: "Cut cost per delivery by a fifth at one hub (hypothetical result); CIO of a retailer: the rollout was on time (customer quote); drivers say the app is slow to open" });
-  assert.match(r.text, /\| Result or recognition \|/);
+  assert.match(r.text, /\| Result \|/);
   assert.match(r.text, /\| Customer quote \|/);
   assert.match(r.text, /\| Friction \|/);
 });

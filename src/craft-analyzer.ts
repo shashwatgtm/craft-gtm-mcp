@@ -163,7 +163,7 @@ Key Deadlines:
   const ownText = content.split('\n').filter((l) => !isMarketLine(l)).join('\n');
   const buyerLine = labelled.find((x) => /^buyer(?:s| roles?)?$/i.test(x.label));
   const matters: Array<{ title: string; detail: string }> = [];
-  if (analysis.character.found.length === 0) matters.push({ title: 'Nobody on your side is named to run the plan', detail: `${buyerLine ? `The line ${qc(`${buyerLine.label}: ${buyerLine.text}`, 90)} names the customer's roles, which are not owners. ` : ''}Name who owns the goal and who does each piece of the work.` });
+  if (analysis.character.found.length === 0) matters.push({ title: 'Nobody on your side is named to run the plan', detail: `${buyerLine ? `The line ${qc(`${buyerLine.label}: ${buyerLine.text}`, 140)} names the customer's roles, which are not owners. ` : ''}Name who owns the goal and who does each piece of the work.` });
   if (!/\b(email|e-mail|linkedin|outbound|inbound|webinars?|events?|conferences?|roundtables?|partners?|referrals?|paid|ads|seo|abm|account-based|sdrs?|cold|calls?|social|community|press|field|direct|content|newsletter)\b/i.test(ownText)) matters.push({ title: 'No channel is named', detail: 'Say where the first conversations come from (outbound, events, partners, referrals, paid, content), and who is reached first.' });
   const hasNumberGoal = planGoal && /\d/.test(planGoal.text);
   if (hasNumberGoal && !/\b(win rate|close rate|conversion|meetings?|opportunit\w*|funnel|demos?|mqls?|sqls?|stage)\b/i.test(ownText.replace(planGoal!.text, ''))) matters.push({ title: 'The goal is not traced to activity', detail: `${qc(planGoal!.text, 150)} is a result, but no win rate, meeting count or stage conversion is stated, so it cannot be traced back to the work that would produce it. Work backwards from the goal: deals needed, opportunities needed, meetings needed.` });
@@ -294,14 +294,18 @@ ${matters.length ? matters.map((m) => `- **${m.title}:** ${m.detail}`).join('\n'
   const planLower = content.toLowerCase();
   const roleNamed = (role: string): boolean => {
     const acronym = /^Chief .* Officer$/.test(role) ? role.split(' ').filter((w) => /^[A-Z]/.test(w) && w !== 'Officer').map((w) => w[0]).join('') + 'O' : '';
-    return planLower.includes(role.toLowerCase()) || (acronym.length >= 3 && new RegExp(`\\b${acronym}\\b`, 'i').test(content));
+    // the same words in another order count ("IT Infrastructure Head" names the "Head of IT Infrastructure"), all in one line of the plan
+    const roleWords = role.toLowerCase().split(/\s+/).filter((w) => !['of', 'and', 'the'].includes(w));
+    const sameWords = content.split('\n').some((line) => { const l = line.toLowerCase(); return roleWords.every((w) => new RegExp(`\\b${w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`).test(l)); });
+    return planLower.includes(role.toLowerCase()) || sameWords || (acronym.length >= 3 && new RegExp(`\\b${acronym}\\b`, 'i').test(content));
   };
   const sectorCheck = sectorCtx.v
     ? (() => {
         const v = sectorCtx.v!;
         const rolesNamed = v.buyerRoles.filter(roleNamed);
         const rolesMissing = v.buyerRoles.filter((r) => !roleNamed(r));
-        const metricsNamed = v.metrics.filter((m) => planLower.includes(m.toLowerCase()));
+        const keyOf = (m: string): string => m.split(/\s+/).find((w) => w.length >= 6 && !['percent', 'number'].includes(w.toLowerCase())) ?? m;
+        const metricsNamed = v.metrics.filter((m) => planLower.includes(m.toLowerCase()) || new RegExp(`\\b${keyOf(m).toLowerCase().replace(/[^a-z-]/g, '')}\\b`).test(planLower));
         return `## Sector Check
 
 *Sector: ${sectorCtx.sector}. This is not part of the score.*
@@ -330,7 +334,7 @@ ${sectorCheck}`;
 
 ${riskItems.length === 0
   ? 'No risk is named in the plan: name the top two and how you would respond to each.'
-  : riskItems.map(r => r.answered ? `- Risk with a response: "${r.line.replace(/[.]$/, '')}"` : `- Risk named without a response: "${r.line.replace(/[.]$/, '')}". Add a response, an owner and the signal that triggers it.${r.pattern ? ` A usual response: ${r.pattern}` : ''}`).join('\n')}
+  : riskItems.map(r => r.answered ? `- Risk with a response: "${r.line.replace(/[.]$/, '')}"` : `- Risk named without a response: "${r.line.replace(/[.]$/, '')}". Add a response, an owner and the signal that triggers it.${r.pattern && !/^Ask what lies behind it/.test(r.pattern) ? ` A usual response: ${r.pattern}` : ''}`).join('\n')}
 `;
 
   output += `

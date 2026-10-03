@@ -258,25 +258,26 @@ export const MODEL_LANGUAGE: Record<BusinessModel, { leave: string; engagement: 
 };
 
 /** Buyer-side notes by kind of customer segment (what a purchase in that kind of organisation usually has to pass). Patterns, no figures. */
-const SEGMENT_NOTES: Array<{ re: RegExp; kind: string; review: string; partners: string }> = [
-  { re: /\b(asset (?:allocators?|managers?|management)|wealth|pensions?|endowments?|investment (?:managers?|banks?|firms?)|funds?|family offices?|sovereign|insurers?)\b/i, kind: 'investment institutions', partners: 'investment consultants and advisers who recommend suppliers, data and technology vendors that serve the same desks, custodians and fund administrators', review: 'an investment or risk committee, due diligence questionnaires, consultants who advise on suppliers, and explanations the committee can defend to trustees or clients' },
-  { re: /\b(bank(?:s|ing)?|bfsi|financial services|lend\w*|nbfc|fintech|payments?)\b/i, kind: 'banks and financial services', partners: 'risk and compliance consultancies, core banking and ERP integrators, audit and advisory firms', review: 'a vendor risk and security review, data residency and audit questions on controls, and a regulator who may ask how the supplier is overseen' },
-  { re: /\b(government|public sector|municipal|defen[cs]e|state-owned)\b/i, kind: 'government and public sector', partners: 'systems integrators with public sector frameworks, local resellers that hold the procurement vehicles', review: 'formal procurement or tenders, data localisation and security rules, and long approval chains' },
+const SEGMENT_NOTES: Array<{ re: RegExp; kind: string; review: string; partners: string; channels?: string[] }> = [
+  { re: /\b(asset (?:allocators?|managers?|management)|wealth|pensions?|endowments?|investment (?:managers?|banks?|firms?)|funds?|family offices?|sovereign|insurers?)\b/i, kind: 'investment institutions', channels: ['consultant and adviser relations', 'due diligence questionnaires and data room packs', 'investment conferences and committee presentations', 'reference calls with similar institutions'], partners: 'investment consultants and advisers who recommend suppliers, data and technology vendors that serve the same desks, custodians and fund administrators', review: 'an investment or risk committee, due diligence questionnaires, consultants who advise on suppliers, and explanations the committee can defend to trustees or clients' },
+  { re: /\b(bank(?:s|ing)?|bfsi|financial services|lend\w*|nbfc|fintech|payments?)\b/i, kind: 'banks and financial services', channels: ['account-based outreach to technology and risk leaders', 'security and vendor-risk review packs', 'industry roundtables', 'reference calls with similar institutions'], partners: 'risk and compliance consultancies, core banking and ERP integrators, audit and advisory firms', review: 'a vendor risk and security review, data residency and audit questions on controls, and a regulator who may ask how the supplier is overseen' },
+  { re: /\b(government|public sector|municipal|defen[cs]e|state-owned)\b/i, kind: 'government and public sector', channels: ['tender and framework monitoring', 'partner-led bids', 'public sector events'], partners: 'systems integrators with public sector frameworks, local resellers that hold the procurement vehicles', review: 'formal procurement or tenders, data localisation and security rules, and long approval chains' },
   { re: /\b(manufactur\w*|automotive|industrial|plants?|engineering|energy|utilities)\b/i, kind: 'manufacturing and industry', partners: 'plant automation and ERP integrators, industry consultants, regional resellers close to the plants', review: 'multi-site rollouts, plant uptime windows, and IT and operations teams that must both agree' },
   { re: /\b(3pl|cep|courier|logistics|transport\w*|freight|shipping|supply chain|distribution)\b/i, kind: 'logistics and distribution operators', partners: 'logistics consultants, ERP, WMS and TMS integrators, freight and carrier networks that advise shippers', review: 'operations leaders who own service levels to their own customers, multi-client operations, and thin margins that make the cost of change visible' },
   { re: /\b(fmcg|cpg|consumer goods|consumer brands?)\b/i, kind: 'consumer goods brands', partners: 'route-to-market consultants, DMS and ERP integrators, trade marketing and retail audit agencies', review: 'sales and distribution teams, distributor networks, trade schemes and a rollout region by region' },
   { re: /\b(retail\w*|e-?commerce|e-?grocery|d2c|stores?|pos)\b/i, kind: 'retail and e-commerce', partners: 'retail technology integrators, e-commerce platform agencies, point-of-sale and store technology vendors', review: 'seasonal peaks, many stores or outlets, and operations and technology teams that share the decision' },
-  { re: /\b(telecom\w*|media|communications?|isps?)\b/i, kind: 'telecom and media', partners: 'OSS and BSS integrators, network and platform consultancies', review: 'network and platform teams, very large estates, and a preference for fewer suppliers' },
+  { re: /\b(telecom\w*|communications?|isps?)\b/i, kind: 'telecom', partners: 'OSS and BSS integrators, network and platform consultancies', review: 'network and platform teams, very large estates, and a preference for fewer suppliers' },
+  { re: /\b(media|publishing|entertainment|broadcast\w*)\b/i, kind: 'media and publishing', partners: 'agency and ad-tech integrators, content platform vendors, billing and subscription consultancies', review: 'many titles or channels, subscription and advertising revenue to reconcile, and finance and product teams that share the decision' },
   { re: /\b(technology|software|saas|it services|ites|tech companies|ai companies|startups?|scale-?ups?)\b/i, kind: 'technology companies', partners: 'cloud marketplaces, technology consultancies, managed service providers', review: 'an engineering-led evaluation, technical due diligence, and a security review of anything that touches code or data' },
 ];
-export function segmentNotes(segment: string): { kind: string; review: string; partners: string } | null {
-  for (const n of SEGMENT_NOTES) if (n.re.test(segment)) return { kind: n.kind, review: n.review, partners: n.partners };
+export function segmentNotes(segment: string): { kind: string; review: string; partners: string; channels?: string[] } | null {
+  for (const n of SEGMENT_NOTES) if (n.re.test(segment)) return { kind: n.kind, review: n.review, partners: n.partners, channels: n.channels };
   return null;
 }
 /** Every kind of customer segment a text names (a partner goal that lists the segments it aims at). */
-export function segmentKinds(text: string): Array<{ kind: string; review: string; partners: string }> {
-  const out: Array<{ kind: string; review: string; partners: string }> = [];
-  for (const n of SEGMENT_NOTES) if (n.re.test(text) && !out.some((o) => o.kind === n.kind)) out.push({ kind: n.kind, review: n.review, partners: n.partners });
+export function segmentKinds(text: string): Array<{ kind: string; review: string; partners: string; channels?: string[] }> {
+  const out: Array<{ kind: string; review: string; partners: string; channels?: string[] }> = [];
+  for (const n of SEGMENT_NOTES) if (n.re.test(text) && !out.some((o) => o.kind === n.kind)) out.push({ kind: n.kind, review: n.review, partners: n.partners, channels: n.channels });
   return out;
 }
 
@@ -286,3 +287,78 @@ export const MODEL_MEASURES: Partial<Record<BusinessModel, string[]>> = {
   connectivity: ['sites live per wave', 'uptime per site', 'mean time to repair', 'service credits paid'],
   services: ['SLA attainment', 'transition milestones met', 'statement of work renewals', 'client satisfaction'],
 };
+
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Billing and revenue operations: a SaaS-sector seller whose own words are billing words (billing, invoicing, dunning, proration, revenue
+// recognition) is sold to finance and revenue operations, not to product leaders: the generic SaaS notes (activation, first value) do not fit.
+import type { SectorNotes } from './verticals.ts';
+export const BILLING_NOTES: SectorNotes = {
+  vocabulary: ['invoice accuracy', 'proration', 'usage metering', 'dunning', 'failed payment recovery', 'revenue recognition', 'month-end close', 'plan and price changes', 'ERP posting'],
+  buyerRoles: ['Chief Financial Officer', 'VP Finance', 'Head of Revenue Operations', 'Finance Controller', 'Head of Billing Operations', 'Chief Revenue Officer'],
+  committee: 'The CFO or VP Finance signs; revenue operations or the billing owner champions; finance operations and the controller use it at every close; sales operations and the CRM owner check the quote-to-cash flow; IT checks the CRM, ERP and payment integrations and security.',
+  objections: [
+    { objection: 'Does it integrate with our CRM and ERP?', response: 'Name the CRM, ERP, tax and payment systems involved, say which integrations exist today, and agree who on the buyer side owns each.' },
+    { objection: 'Revenue recognition and audit', response: 'Show how recognition rules are set, who approves a change and what the audit trail records; never claim a standard you cannot show.' },
+    { objection: 'Migrating live subscriptions will disrupt billing', response: 'Plan a parallel run for one billing cycle, move one product line first, and agree how differences are explained to customers.' },
+    { objection: 'Our pricing is too custom for a billing system', response: 'Walk through the buyer\'s three most unusual plans and show how each is modelled, before the price is discussed.' },
+  ],
+  salesMotion: 'Finance-led evaluation with a pilot on one product line or entity; the CRM and ERP integration and a revenue recognition review sit inside the cycle.',
+  metrics: ['invoice accuracy', 'billing errors per cycle', 'revenue leakage', 'failed payment recovery', 'days to close the books', 'invoice disputes'],
+  proofShape: 'Billing errors, failed-payment recovery or time to close before and after for one product line or entity, signed off by the finance owner.',
+  discovery: [
+    'How are plan and price changes turned into invoices today, and who checks them?',
+    'Where are invoice disputes and failed payments handled, and by whom?',
+    'How long after month end is revenue closed, and what holds it up?',
+    'Which systems must billing connect to (CRM, ERP, tax, payment gateway)?',
+    'Which pricing models do you run, and which of them break your current process?',
+  ],
+};
+export const BILLING_PLAYBOOK: Playbook = {
+  ...PLAYBOOKS.saas,
+  pains: ['billing errors and manual corrections every cycle', 'revenue leakage from unbilled usage, wrong prices or expired discounts', 'failed payments that are not recovered, and a close that waits on reconciliation'],
+  cta: 'Agree a pilot on one product line or entity, with a month of the buyer\'s own invoices as the test',
+  launchTasks: ['Write the integration guide for the CRM, ERP, tax and payment systems the first accounts use', 'Prepare the revenue recognition and audit pack: what is recognised and when, who approves a change, and the audit trail', 'Plan the migration of live subscriptions with a parallel run for one billing cycle'],
+  channels: ['account-based email to CFOs and heads of revenue operations', 'LinkedIn posts from your experts and customers', 'finance leaders roundtable or webinar', 'referrals from ERP and finance consultants'],
+  adoption: { measure: 'product lines or entities billed through the platform, and invoices issued without manual correction', source: 'your billing platform data' },
+  partners: { refer: ['ERP and accounting implementation partners', 'finance transformation and revenue operations consultancies', 'audit and advisory firms that advise CFOs'], resell: ['finance software resellers', 'ERP resellers with a subscription practice'], integrate: ['CRM, ERP and tax systems', 'payment gateways and banks'], implement: ['ERP implementers', 'billing migration specialists'] },
+  partnerWhy: 'The CFO and the head of revenue operations follow the advice of the ERP implementer, the finance consultancy and the auditor, and a billing platform has to be connected to the CRM and ERP they run.',
+  deepQuestions: ['How are plan and price changes turned into invoices today, and who checks them?', 'Where are invoice disputes and failed payments handled, and by whom?', 'How long after month end is revenue closed, and what holds it up?', 'Which systems must billing connect to (CRM, ERP, tax, payment gateway)?'],
+  crises: [
+    { key: 'billing_error', title: 'A wrong invoice run or a failed billing run', what: 'invoices go out wrong, are not generated, or charges are applied to the wrong customers', first: ['Stop the billing job and any automatic payment collection that follows it', 'List the affected customers, invoices, amounts and billing periods', 'Prepare corrected invoices or credit notes and who approves them', 'Check whether revenue already recognised needs a correcting entry'], tell: [{ who: 'Finance owners at affected customers', how: 'Call from the account owner, then a written explanation with the corrected documents', focus: 'What was wrong, what is corrected, what they need to do about any payment already taken' }, { who: 'Customers\' payers or end customers, where charges reached them', how: 'Email after the finance owner has been told', focus: 'The error, the refund or credit and when it arrives' }] },
+    { key: 'recognition_error', title: 'A revenue recognition or tax error in customers\' books', what: 'a recognition rule or tax setting produced wrong figures that reached a customer\'s ledger or filing', first: ['Freeze the rule or setting that changed and record who changed it', 'List the customers, periods and entries affected', 'Prepare corrected entries with the customer\'s controller', 'Tell the auditor contact the customer names, through the customer'], tell: [{ who: 'Controller and CFO at affected customers', how: 'Call from the account owner, then a written note', focus: 'The rule, the periods, the corrected entries, the effect on the close' }] },
+  ],
+  outage: 'an outage stops invoicing, payment collection or recovery of failed payments, so cash is delayed and finance teams reconcile by hand near a close',
+  breach: 'exposure of invoices, customer billing details, payment tokens or pricing and contract terms',
+  churnReasons: [
+    { reason: 'Integration with the CRM or ERP kept breaking', signal: 'Repeated tickets about invoices not posting, customers missing between CRM and billing, manual journal entries', action: 'Name the integration owner on both sides, fix the failing postings first, and test with the controller at the next close' },
+    { reason: 'The finance owner who chose the platform left', signal: 'A new controller or CFO asks basic questions again, reviews all finance vendors, or asks for a comparison with the ERP module', action: 'Meet the new owner early with billing errors, recovery and close time before and after' },
+    { reason: 'New pricing models were not supported', signal: 'Sales sells a plan that billing cannot invoice, workarounds in spreadsheets, delayed launches of new plans', action: 'Model the plan with the revenue operations team, and agree how new plans are tested before they are sold' },
+    { reason: 'Migration left billing in two systems', signal: 'Customers still invoiced from the old system, reconciliation between two sources, a parallel run that never ended', action: 'Agree a dated end to the parallel run and move the remaining product lines in order' },
+  ],
+  renewal: 'Renewals follow the budget and audit cycle: bring billing errors, failed-payment recovery and time to close for the period.',
+  checklist: ['Integration with the buyer\'s CRM and ERP confirmed', 'Revenue recognition and audit pack ready', 'Parallel run for one cycle planned', 'Claims about standards and certifications match what you hold'],
+};
+// A seller that manages money or sells research and signals to investors (the investment model): the buyers are investment committees, consultants and trustees.
+export const INVESTMENT_PLAYBOOK: Playbook = {
+  ...PLAYBOOKS['ai-native'],
+  pains: ['signals or research that cannot be explained to a committee, trustees or clients', 'research that is slow or hard to repeat across a whole portfolio', 'a gap between what a model outputs and an investment process that has to defend each decision'],
+  cta: 'Agree a trial on a defined universe and period, with the benchmark, the method and the committee\'s review criteria written down first',
+  launchTasks: ['Prepare the due diligence pack: method, data sources, how each signal is explained, controls, and the track record with its period and method', 'Prepare the committee presentation and the briefing for the consultants who advise allocators', 'Agree the trial design: benchmark, period and universe, and label any back-tested result as back-tested'],
+  channels: ['consultant and adviser relations', 'due diligence questionnaires and data room packs', 'investment conferences and committee presentations', 'reference calls with similar institutions'],
+  adoption: { measure: 'trials started, mandates or licences awarded, and assets or users on the product after the trial', source: 'your sales and mandate records' },
+  partners: { refer: ['investment consultants who advise allocators', 'custodians and fund administrators', 'data and technology vendors that serve the same desks'], resell: ['distribution partners and placement agents', 'platform vendors that serve institutional desks'], integrate: ['portfolio management and order management systems', 'market and alternative data vendors'], implement: ['investment technology consultancies', 'data engineering firms that integrate research into the process'] },
+  partnerWhy: 'Investment committees follow the advice of consultants and rely on custodians, administrators and data vendors that already sit in their process.',
+  deepQuestions: ['What does your committee need to see before it accepts a new model-based input?', 'How do you judge whether a signal has added value: against which benchmark, over what period?', 'Which data may not leave your environment?', 'How are decisions documented for trustees, clients or regulators?'],
+  churnReasons: [
+    { reason: 'Results lagged the agreed benchmark for several review periods', signal: 'Questions from the committee on recent performance, requests for attribution, a consultant review of the mandate', action: 'Prepare an attribution of the gap, the drivers and what changes, and take it to the sponsor before the review' },
+    { reason: 'The explanation was not good enough for the committee', signal: 'Reviewers ask for the reasoning behind signals or overrule them without recording why', action: 'Add the explanation the committee asks for to every report, and show the history of the method' },
+    { reason: 'Fee pressure', signal: 'Requests to renegotiate fees, comparison with other managers or vendors', action: 'Agree reporting and scope instead of a fee cut' },
+    { reason: 'The sponsor or the consultant changed', signal: 'A new investment committee chair or a new consultant asks for a review of all managers and vendors', action: 'Meet the new decision makers early and restate the agreed purpose with the results so far' },
+  ],
+  renewal: 'Mandates and licences are reviewed by the committee and its consultant on a cycle: bring performance against the agreed benchmark and the explanation of each signal.',
+  checklist: ['Due diligence pack ready', 'Trial design with benchmark and period agreed', 'Back-tested results labelled as back-tested', 'Claims about track record match the records you hold'],
+};
+export function playbookFor(v: { id: VerticalId; name: string }): Playbook {
+  return /billing/i.test(v.name) ? BILLING_PLAYBOOK : /investment management/i.test(v.name) ? INVESTMENT_PLAYBOOK : PLAYBOOKS[v.id];
+}
