@@ -51,7 +51,14 @@ const ROLE_FOCUS: Array<{ re: RegExp; label: string; questions: string[] }> = [
     'What would a person have to approve before an automated step answers a customer?',
     'What happened the last time something changed in how requests are handled?'] },
 ];
-function roleFocus(persona: string): { label: string; questions: string[] } | null {
+// For a billing platform the product or growth leader is asked about packaging and price changes, not about engineering trials.
+const BILLING_PRODUCT_FOCUS = { label: 'product or pricing leader', questions: [
+  'Walk me through the last pricing or packaging change: how long did it take from the decision to the first correct invoice?',
+  'Which plans does sales sell that billing cannot yet invoice, and what is the workaround?',
+  'Who has to approve a new plan or price, and which systems must change when it is approved?',
+  'How do you see usage by customer when you decide on packaging, and how late is that view?'] };
+function roleFocus(persona: string, billing = false): { label: string; questions: string[] } | null {
+  if (billing && /\b(product|growth|pricing|monetization)\b/i.test(persona)) return BILLING_PRODUCT_FOCUS;
   for (const r of ROLE_FOCUS) if (r.re.test(persona)) return { label: r.label, questions: r.questions };
   return null;
 }
@@ -91,7 +98,7 @@ export function generateCustomerInterviewKit(args: {
   const lang = MODEL_LANGUAGE[ctx.model ?? 'saas'];
   const leave = lang.leave;
   const pb = v ? playbookFor(v) : null;
-  const focus = roleFocus(args.target_persona);
+  const focus = roleFocus(args.target_persona, !!v && /billing/i.test(v.name));
 
   // Generic context for the choices that are not one of the owner's verticals (ecommerce, marketplace, enterprise software, consumer, other)
   const genericContext: Record<string, { terms: string[]; painPoints: string[]; stakeholders: string[] }> = {
@@ -163,7 +170,7 @@ export function generateCustomerInterviewKit(args: {
   // (src/sector-playbooks.ts), cut to the complexity chosen.
   const softwareLike = ctx.model === null || ctx.model === 'saas' || ctx.model === 'hardware_software' || ctx.model === 'transactions';
   const depth = ({ simple: 2, moderate: 3, complex: 4, highly_technical: 4 } as Record<string, number>)[complexity] ?? 3;
-  const techQuestions = pb && !(softwareLike && v && (v.id === 'software' || v.id === 'saas') && complexity !== 'simple')
+  const techQuestions = pb && !(softwareLike && v && (v.id === 'software' || v.id === 'saas') && complexity !== 'simple' && !/billing/i.test(v.name))
     ? [...pb.deepQuestions.slice(0, depth), ...(softwareLike && (complexity === 'complex' || complexity === 'highly_technical') ? ['What security and compliance requirements affect your decision, and who reviews them?'] : [])]
     : (technicalQuestions[complexity] || technicalQuestions.moderate);
   
@@ -388,7 +395,7 @@ ${(() => { let inObjections = false; return hypotheses.map((raw, i) => {
   const topicText = `${args.product_context} ${args.key_hypotheses ?? ''}`;
   const topicQs: string[] = [];
   if (/\b(billing|invoic\w*|proration|dunning|revenue recogni\w*)\b/i.test(topicText)) topicQs.push('How are plan and price changes turned into invoices today, and who checks them before they go out?', 'Where do invoice disputes and failed payments get handled, and how long do they stay open?', 'How long after month end is revenue closed, and what holds it up: reconciliation, usage data or approvals?', 'Which systems must billing connect to: CRM, ERP, tax, payment gateway?');
-  if (/\b(apis?|specs?|openapi|collections?|api lifecycle|governance)\b/i.test(topicText) && /\b(api|specs?|collections?)\b/i.test(topicText)) topicQs.push('Where do your API specs, collections and docs live today, and who keeps them in step when an API changes?', 'How does another team find out that an API exists, and how do they know it is the current one?', 'Which governance rules are checked automatically, and which only in a review that comes late?');
+  if (/\b(apis?|openapi|api lifecycle)\b/i.test(topicText) && /\b(specs?|collections?|governance|catalog|mock servers?)\b/i.test(topicText) && !/\bbilling\b/i.test(topicText)) topicQs.push('Where do your API specs, collections and docs live today, and who keeps them in step when an API changes?', 'How does another team find out that an API exists, and how do they know it is the current one?', 'Which governance rules are checked automatically, and which only in a review that comes late?');
   const coreList = fresh([...questions.core]);
   const techList = fresh([...techQuestions, ...topicQs]);
   const sectorList = fresh(sectorQuestions);
