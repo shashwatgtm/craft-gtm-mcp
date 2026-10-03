@@ -1,4 +1,5 @@
 import { analyzeCRAFTDimensions, isMarketLine, type CRAFTDimension } from './utils.js';
+import { VERTICALS, profileFor } from './verticals.ts';
 import { andList, readContext, q, qc, splitPhrases } from './context.js';
 import { answerFor } from './context.js';
 
@@ -297,18 +298,30 @@ ${matters.length ? matters.map((m) => `- **${m.title}:** ${m.detail}`).join('\n'
     // the same words in another order count ("IT Infrastructure Head" names the "Head of IT Infrastructure"), all in one line of the plan
     const roleWords = role.toLowerCase().split(/\s+/).filter((w) => !['of', 'and', 'the'].includes(w));
     const sameWords = content.split('\n').some((line) => { const l = line.toLowerCase(); return roleWords.every((w) => new RegExp(`\\b${w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`).test(l)); });
-    return planLower.includes(role.toLowerCase()) || sameWords || (acronym.length >= 3 && new RegExp(`\\b${acronym}\\b`, 'i').test(content));
+    // plain titles that name the same decider (GM-IT and the IT head are the CIO's side; a platform leader is the platform engineering lead; IT / Security is the security lead)
+    const ALIASES: Array<[RegExp, RegExp]> = [
+      [/information officer|head of it|network manager|cio\b|cto\b|chief technology/i, /\b(gm[- ]it|it head|head of it|cio|cto|it manager|it director|it infrastructure|it \/ security|it and security)\b/i],
+      [/platform engineering lead|engineering manager|vp engineering/i, /\b(platform (?:leader|lead|engineer\w*|team)|engineering (?:lead|head|manager))\b/i],
+      [/security|ciso/i, /\b(ciso|security (?:lead|head|team)|it \/ security|it and security)\b/i],
+      [/procurement/i, /\b(procurement|purchasing|sourcing)\b/i],
+      [/sales head|sales operations|distribution|managing director/i, /\b(sales (?:head|automation|operations)|national sales|head of sales|md\b)\b/i],
+    ];
+    const aliasHit = ALIASES.some(([r, plan]) => r.test(role) && plan.test(content));
+    return planLower.includes(role.toLowerCase()) || sameWords || aliasHit || (acronym.length >= 3 && new RegExp(`\\b${acronym}\\b`, 'i').test(content));
   };
-  const sectorCheck = sectorCtx.v
+  // A plan whose buyers are asset allocators, a CIO and portfolio managers is an investment sale even when the product words name no sector.
+  const investPlan = !sectorCtx.v && ((content.match(/\b(asset allocators?|portfolio managers?|investment committees?|investment managers?|wealth managers?|pensions?|endowments?)\b/gi) ?? []).length >= 2);
+  const checkV = sectorCtx.v ?? (investPlan ? profileFor(VERTICALS.find((x) => x.id === 'fintech')!, 'investment') : null);
+  const sectorCheck = checkV
     ? (() => {
-        const v = sectorCtx.v!;
+        const v = checkV;
         const rolesNamed = v.buyerRoles.filter(roleNamed);
         const rolesMissing = v.buyerRoles.filter((r) => !roleNamed(r));
         const keyOf = (m: string): string => m.split(/\s+/).find((w) => w.length >= 6 && !['percent', 'number'].includes(w.toLowerCase())) ?? m;
-        const metricsNamed = v.metrics.filter((m) => planLower.includes(m.toLowerCase()) || new RegExp(`\\b${keyOf(m).toLowerCase().replace(/[^a-z-]/g, '')}\\b`).test(planLower));
+        const metricsNamed = v.metrics.filter((m) => planLower.includes(m.toLowerCase()) || content.split('\n').some((line) => /\d/.test(line) && new RegExp(`\\b${keyOf(m).toLowerCase().replace(/[^a-z-]/g, '')}\\b`).test(line.toLowerCase())));
         return `## Sector Check
 
-*Sector: ${sectorCtx.sector}. This is not part of the score.*
+*Sector: ${sectorCtx.v ? sectorCtx.sector : `read from the buyers your plan names as ${checkV!.name}`}. This is not part of the score.*
 
 - **Who usually decides:** ${v.committee}
 - **Deciders your plan names:** ${rolesNamed.length ? andList(rolesNamed) : 'none of the usual roles'}. **Not named:** ${rolesMissing.length ? andList(rolesMissing) : 'none'}.

@@ -532,11 +532,13 @@ const RISK_WORD = /\brisks?\b/i;
 const RISK_ANSWER = /\b(mitigat\w*|contingenc\w*|fallback|back-?up|plan b|trigger|escalat\w*|response|respond|if (?:this|that|it)\b)/i;
 
 // The sentence (or line) of the plan that holds a position: the plan's own words, cut at sentence ends.
-function sentenceAt(line: string, index: number): string {
+function sentenceAt(line0: string, index: number): string {
+  // an abbreviation such as Sr. or Dr. does not end a sentence (same length, so positions hold)
+  const line = line0.replace(/\b(Sr|Jr|Dr|Mr|Mrs|Ms|St|vs|No|Inc|Ltd)\./g, (m) => m.slice(0, -1) + '\u2024');
   let a = index; let b = index;
   while (a > 0 && !/[.;!?]\s/.test(line.slice(a - 2, a))) a--;
   while (b < line.length && !/[.;!?]/.test(line[b])) b++;
-  const t = line.slice(a, b + 1).trim().replace(/\s+/g, ' ');
+  const t = line.slice(a, b + 1).trim().replace(/\s+/g, ' ').replace(/\u2024/g, '.');
   return t.length > 160 ? t.slice(0, 157) + '...' : t;
 }
 

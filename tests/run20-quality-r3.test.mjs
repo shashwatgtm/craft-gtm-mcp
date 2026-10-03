@@ -54,3 +54,19 @@ test("competitive_intel: a comparison objection that names no alternative says w
   assert.match(h, /Fact needed from you: two or three concrete differences/);
   assert.doesNotMatch(h, /What I can point to:/);
 });
+
+// craft_gtm_analyzer
+const A = (plan, extra = {}) => call("craft_gtm_analyzer", { document_content: plan, document_type: "quarterly_plan", ...extra }).then((r) => r.text);
+test("craft_gtm_analyzer: an abbreviation (Sr.) does not end the quoted line; GM-IT and a platform leader are read as deciders", async () => {
+  const t = await A("Plan for Shelfwalk, field sales software for consumer brands.\nGoal: ten hypothetical deals.\nBuyer roles: GM-IT, Sr. Sales Automation Manager, sales reps.\nMessage: Shelfwalk captures orders offline, with DMS and ERP integration.", { industry: "vertical_saas" });
+  assert.doesNotMatch(t, /> Buyer roles: GM-IT, Sr\.\s*$/m);
+  assert.match(t, /Deciders your plan names:\*\*[^\n]*(Chief Information Officer|Managing Director|CIO)/);
+  const u = await A("Plan.\nGoal: ten hypothetical deals.\nBuyer roles: platform leader, IT / Security.\nMessage: Probetool is an API platform with a CLI, mock servers and an API catalog.");
+  assert.doesNotMatch(u, /Deciders your plan names:\*\* none of the usual roles/);
+});
+test("craft_gtm_analyzer: a plan for asset allocators with a CIO and portfolio managers gets an investment sector check", async () => {
+  const t = await A("Quantara plan.\nGoal: ten hypothetical deals.\nAudience: asset allocators, investment managers.\nBuyer roles: CIO, portfolio manager, compliance committees.\nMessage: Quantara gives forecast ranges with explanations.");
+  assert.match(t, /## Sector Check/);
+  assert.doesNotMatch(t, /The sector was not clear from your plan/);
+  assert.match(t, /investment committee|Investment Committee/);
+});
