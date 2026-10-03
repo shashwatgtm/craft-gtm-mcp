@@ -1,4 +1,4 @@
-import { parseMetrics, scoreMetric, describeChoice, readableChoice, cap, unscoredFigures, EXAMPLE_FIGURES, SUGGESTION_FOOTER } from './utils.js';
+import { parseMetrics, pct, scoreMetric, describeChoice, readableChoice, cap, unscoredFigures, EXAMPLE_FIGURES, SUGGESTION_FOOTER } from './utils.js';
 import { readContext, sectorNotes, answerFor, splitItems, q, andList, capEcho, type BusinessModel } from './context.js';
 
 export function generatePMFScorecard(args: {
@@ -196,7 +196,7 @@ Each score and status compares your value with an example benchmark. ${rangeNote
 ### 1. Customer Retention (Churn)
 ${dimensionHeader}
 |--------|-----------|-------|-----------|--------|
-| Monthly Churn | ${metrics.churn !== undefined ? metrics.churn + '%' : 'NOT PROVIDED'} | ${churnScore.score}/10 | <${b.churn.medium}% target | ${churnScore.label} |
+| Monthly Churn | ${metrics.churn !== undefined ? pct(metrics.churn) + '%' : 'NOT PROVIDED'} | ${churnScore.score}/10 | <${b.churn.medium}% target | ${churnScore.label} |
 
 **Analysis:** ${churnScore.analysis}
 
@@ -225,7 +225,7 @@ ${dimensionHeader}
 ### 4. Revenue Retention
 ${dimensionHeader}
 |--------|-----------|-------|-----------|--------|
-| ${metrics.retentionIsNet ? 'Net Revenue Retention' : 'Retention Rate'} | ${metrics.retentionRate !== undefined ? metrics.retentionRate + '%' : 'NOT PROVIDED'} | ${retentionScore.score}/10 | >${b.retention.medium}% target | ${retentionScore.label} |
+| ${metrics.retentionIsNet ? 'Net Revenue Retention' : 'Retention Rate'} | ${metrics.retentionRate !== undefined ? pct(metrics.retentionRate) + '%' : 'NOT PROVIDED'} | ${retentionScore.score}/10 | >${b.retention.medium}% target | ${retentionScore.label} |
 
 **Analysis:** ${retentionScore.analysis}
 
@@ -234,15 +234,15 @@ ${dimensionHeader}
 ### 5. Activation
 ${activationApplies ? `${dimensionHeader}
 |--------|-----------|-------|-----------|--------|
-| Activation Rate | ${metrics.activationRate !== undefined ? metrics.activationRate + '%' : 'NOT PROVIDED'} | ${activationScore.score}/10 | >${b.activation.medium}% target | ${activationScore.label} |
+| Activation Rate | ${metrics.activationRate !== undefined ? pct(metrics.activationRate) + '%' : 'NOT PROVIDED'} | ${activationScore.score}/10 | >${b.activation.medium}% target | ${activationScore.label} |
 
-**Analysis:** ${activationScore.analysis}` : `**Not applicable to this business model.** Activation measures how soon a new software customer reaches first value. It is not scored here and is left out of the average.${metrics.activationRate !== undefined ? ` You gave an activation figure of ${metrics.activationRate}%: it is shown but not scored.` : ''}`}
+**Analysis:** ${activationScore.analysis}` : `**Not applicable to this business model.** Activation measures how soon a new software customer reaches first value. It is not scored here and is left out of the average.${metrics.activationRate !== undefined ? ` You gave an activation figure of ${pct(metrics.activationRate)}%: it is shown but not scored.` : ''}`}
 
 ---
 
 ## Additional Metrics Detected
 
-${(() => { const rows = `${metrics.mrr !== undefined ? `| MRR | $${metrics.mrr.toLocaleString('en-US')} | Monthly Recurring Revenue |\n` : ''}${metrics.arr !== undefined ? `| ARR | $${metrics.arr.toLocaleString('en-US')} | Annual Recurring Revenue |\n` : ''}${metrics.acv !== undefined ? `| ACV | $${metrics.acv.toLocaleString('en-US')} | Annual contract value (your figure; not scored, shown for reference) |\n` : ''}${metrics.dau !== undefined ? `| DAU | ${metrics.dau.toLocaleString('en-US')} | Daily Active Users |\n` : ''}${metrics.mau !== undefined ? `| MAU | ${metrics.mau.toLocaleString('en-US')} | Monthly Active Users |\n` : ''}${metrics.dauMauRatio !== undefined ? `| DAU/MAU | ${(metrics.dauMauRatio * 100).toFixed(1)}% | Stickiness ratio |\n` : ''}${metrics.trialConversion !== undefined ? `| Trial Conversion | ${metrics.trialConversion}% | Trial to paid rate |\n` : ''}${metrics.revenueGrowth !== undefined ? `| Revenue Growth | ${metrics.revenueGrowth}% | MoM or YoY growth |\n` : ''}`; return rows.trim() ? `| Metric | Value | Notes |\n|--------|-------|-------|\n${rows}` : 'None found in your text (MRR, ARR, ACV, DAU, MAU, trial conversion or revenue growth).\n'; })()}
+${(() => { const rows = `${metrics.mrr !== undefined ? `| MRR | $${metrics.mrr.toLocaleString('en-US')} | Monthly Recurring Revenue |\n` : ''}${metrics.arr !== undefined ? `| ARR | $${metrics.arr.toLocaleString('en-US')} | Annual Recurring Revenue |\n` : ''}${metrics.acv !== undefined ? `| ACV | $${metrics.acv.toLocaleString('en-US')} | Annual contract value (your figure; not scored, shown for reference) |\n` : ''}${metrics.dau !== undefined ? `| DAU | ${metrics.dau.toLocaleString('en-US')} | Daily Active Users |\n` : ''}${metrics.mau !== undefined ? `| MAU | ${metrics.mau.toLocaleString('en-US')} | Monthly Active Users |\n` : ''}${metrics.dauMauRatio !== undefined ? `| DAU/MAU | ${pct(metrics.dauMauRatio * 100)}% | Stickiness ratio |\n` : ''}${metrics.trialConversion !== undefined ? `| Trial Conversion | ${pct(metrics.trialConversion)}% | Trial to paid rate |\n` : ''}${metrics.revenueGrowth !== undefined ? `| Revenue Growth | ${pct(metrics.revenueGrowth)}% | MoM or YoY growth |\n` : ''}`; return rows.trim() ? `| Metric | Value | Notes |\n|--------|-------|-------|\n${rows}` : 'None found in your text (MRR, ARR, ACV, DAU, MAU, trial conversion or revenue growth).\n'; })()}
 
 ${unscored.length ? `**Not scored (no rule reads these figures):** ${unscored.map((x) => q(x)).join('; ')}. This scorecard scores ${andList(['churn', 'NPS', 'LTV:CAC', 'retention', ...(activationApplies ? ['activation'] : [])])} only: compare these figures with your own targets.\n` : ''}
 ${feedbackAnalysis ? `---\n\n## Customer Feedback You Gave\n\n${feedbackAnalysis}\n` : ''}

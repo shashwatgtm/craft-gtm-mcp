@@ -1,4 +1,4 @@
-import { parseListItems, describeChoice, readableChoice, lowerFirstIfCommon, cap, EXAMPLE_FIGURE, EXAMPLE_FIGURES, SUGGESTION_FOOTER } from './utils.js';
+import { parseListItems, pct, roundTypedPercents, describeChoice, readableChoice, lowerFirstIfCommon, cap, EXAMPLE_FIGURE, EXAMPLE_FIGURES, SUGGESTION_FOOTER } from './utils.js';
 import { readContext, splitItems, q, answerFor, sectorNotes, shortName, capEcho, type BusinessModel } from './context.js';
 
 // Run 19 (D80): the business model chosen is mapped to the model class the tool reasons with. enterprise_contract is read further
@@ -192,7 +192,7 @@ export function generateRetentionPlaybook(args: {
   const signalRows = Object.entries(weights).map(([signal, weight]) => {
     const tracked = trackedFor(signal);
     if (tracked) usedSignals.add(tracked);
-    return `| ${signal.replace(/_/g, ' ')} | ${weight}% | ${tracked ? `Available: you track ${q(tracked)}` : 'Need to add'} | Red < 30, Yellow 30-70, Green > 70 |`;
+    return `| ${signal.replace(/_/g, ' ')} | ${pct(weight)}% | ${tracked ? `Available: you track ${q(tracked)}` : 'Need to add'} | Red < 30, Yellow 30-70, Green > 70 |`;
   }).join('\n');
   const unusedSignals = dataSignals.filter((ds) => !usedSignals.has(ds));
 
@@ -202,7 +202,7 @@ export function generateRetentionPlaybook(args: {
 ## ${heading}
 
 **Business Model:** ${readableChoice(businessModel)}
-**Current Churn Rate:** ${args.current_churn_rate} (${churnSeverity}, judged against example benchmarks)
+**Current Churn Rate:** ${roundTypedPercents(args.current_churn_rate)} (${churnSeverity}, judged against example benchmarks)
 **CS Team Capacity:** ${csTeamShown}
 ${segmentHead.capped ? `**Customer segment (as you wrote it):** ${args.customer_segment.trim()}\n` : ''}
 ${ctx.line}
@@ -213,8 +213,8 @@ ${ctx.line}
 
 | Metric | Value | Status (against example benchmarks) |
 |--------|-------|--------|
-| Monthly Churn | ${churnRate}% | ${churnSeverity} |
-| Annual Revenue at Risk (your monthly churn, annualized) | ~${(churnRate * 12).toFixed(0)}% (monthly churn times twelve, not compounded) | ${churnRate * 12 > 50 ? 'Urgent' : 'Monitor'} |
+| Monthly Churn | ${pct(churnRate)}% | ${churnSeverity} |
+| Annual Revenue at Risk (your monthly churn, annualized) | ~${pct(churnRate * 12)}% (monthly churn times twelve, not compounded) | ${churnRate * 12 > 50 ? 'Urgent' : 'Monitor'} |
 | Benchmark (${readableChoice(businessModel)}) | ${contractModel ? 'No example benchmark for this model: set your own' : `${businessModel === 'saas_subscription' ? '3-5%' : businessModel === 'consumer' ? '5-8%' : '4-6%'} ${EXAMPLE_FIGURE}`} | - |
 
 ---
@@ -307,7 +307,7 @@ ${subscription ? `| Touchpoint | Timing | Action | Goal |
 
 | Metric | Target (${EXAMPLE_FIGURES.replace(/\.$/, '')}) | Current | Tracking |
 |--------|--------|---------|----------|
-| Monthly Churn Rate | ${contractModel ? 'Set your own' : `<${businessModel === 'saas_subscription' ? '3' : '5'}%`} | ${churnRate}% | Billing system |
+| Monthly Churn Rate | ${contractModel ? 'Set your own' : `<${businessModel === 'saas_subscription' ? '3' : '5'}%`} | ${pct(churnRate)}% | Billing system |
 | Health Score Coverage | 100% | - | CS platform |
 | Intervention Response Rate | >50% | - | Email/call tracking |
 | Save Rate (at-risk to retained) | >30% | - | CS platform |
@@ -357,7 +357,7 @@ function generateChurnDiscoveryKit(
 
 | Metric | Value | Assessment (against example benchmarks) |
 |--------|-------|------------|
-| **Churn Rate** | ${churnRate}% | ${severity} |
+| **Churn Rate** | ${pct(churnRate)}% | ${severity} |
 | **Business Model** | ${readableChoice(businessModel)} | |
 | **CS Team** | ${csTeamShown} | |
 

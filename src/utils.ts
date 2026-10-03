@@ -381,12 +381,25 @@ export function parseMetrics(metricsText: string): ParsedMetrics {
   return metrics;
 }
 
+// Run 20 (ledger A17-O20): a number printed as a percentage has at most one decimal and never shows float noise
+// (0.8 * 12 is 9.600000000000001 in floating point and is printed as 9.6). The score itself always uses the exact value.
+export function pct(n: number): string {
+  if (!Number.isFinite(n)) return String(n);
+  const r = Number(n.toFixed(1));
+  return String(Object.is(r, -0) ? 0 : r);
+}
+
+// A percentage the user typed with more than one decimal, inside a short typed figure such as "2.3456% monthly", is shown rounded.
+export function roundTypedPercents(text: string): string {
+  return text.replace(/(\d+\.\d{2,})(\s*%)/g, (_m, n: string, p: string) => pct(parseFloat(n)) + p);
+}
+
 export function scoreMetric(value: number | undefined, benchmarks: { low: number; medium: number; high: number }, higherIsBetter: boolean = true, shown?: string, unit: string = ''): { score: number; label: string; analysis: string } {
   if (value === undefined) {
     return { score: 0, label: 'MISSING', analysis: 'Data not provided: not scored' };
   }
   // How the value is printed (the score always uses the exact value)
-  const v = (shown ?? String(value)) + unit;
+  const v = (shown ?? pct(value)) + unit;
 
   // The benchmark figures are the tool's example ranges, so each one is labelled.
   if (higherIsBetter) {

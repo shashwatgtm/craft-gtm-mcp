@@ -18,7 +18,7 @@ const industryProp = {
 export const tools: Tool[] = [
   {
     name: "pmf_scorecard",
-    description: "Generate a Product-Market Fit scorecard. Parses the metrics you provide (MRR, ACV, churn, NPS, CAC, LTV, retention, activation and similar) and scores each dimension against example benchmark ranges. Reads the business model from your inputs and leaves the activation score out for services, connectivity and investment businesses. Quotes your customer feedback and answers it.",
+    description: "Takes your product, target market and current metrics (MRR, ACV, churn, NPS, CAC, LTV, retention, activation and similar) and returns a product-market fit scorecard that scores each dimension against example benchmark ranges. Reads the business model from your inputs and leaves the activation score out for services, connectivity and investment businesses. Quotes your customer feedback and answers it.",
     inputSchema: {
       type: "object",
       properties: {
@@ -30,7 +30,7 @@ export const tools: Tool[] = [
         },
         current_metrics: {
           type: "string",
-          description: "Your current metrics (will be PARSED). Include any of: MRR, ARR, ACV, churn rate, NPS, CAC, LTV, retention rate, activation rate, DAU/MAU, trial conversion, revenue growth. Example: 'MRR: $50K, Churn: 3%, NPS: 45, CAC: $500, LTV: $3000, Retention: 92%'. A figure that no rule scores is listed as not scored"
+          description: "Your current metrics, written as text (the tool reads the figures from it). Include any of: MRR, ARR, ACV, churn rate, NPS, CAC, LTV, retention rate, activation rate, DAU/MAU, trial conversion, revenue growth. Example: 'MRR: $50K, Churn: 3%, NPS: 45, CAC: $500, LTV: $3000, Retention: 92%'. A figure that no rule scores is listed as not scored"
         },
         time_in_market: {
           type: "string",
@@ -48,7 +48,7 @@ export const tools: Tool[] = [
   },
   {
     name: "launch_commander",
-    description: "Generate a context-aware launch plan. Have a date? Get a detailed timeline. Still planning? Enter 'TBD' or a quarter such as 'Q2 2027' for a flexible plan. Tasks and the messaging table follow the sector and business model read from your inputs, and each goal is filed under its own metric.",
+    description: "Takes what you are launching, the launch type, your target segments and your goals, and returns a phased launch plan with tasks, a messaging table and success metrics. Give a date for a dated timeline, or enter 'TBD' or a quarter such as 'Q2 2027' for a flexible plan. Tasks and the messaging table follow the sector and business model read from your inputs, and each goal is filed under its own metric.",
     inputSchema: {
       type: "object",
       properties: {
@@ -83,7 +83,7 @@ export const tools: Tool[] = [
   },
   {
     name: "customer_interview_kit",
-    description: "Generate interview guides for the interview type, the sector (chosen, or read from your inputs) and the product complexity. Questions use the sector's own language, your hypotheses are kept whole, and synthesis templates are included.",
+    description: "Takes the interview type, the product context and the person you are interviewing, and returns an interview guide that fits the interview type, the sector (chosen, or read from your inputs) and the product complexity. Questions use the sector's own language, your hypotheses are kept whole, and synthesis templates are included.",
     inputSchema: {
       type: "object",
       properties: {
@@ -112,7 +112,7 @@ export const tools: Tool[] = [
   },
   {
     name: "retention_playbook",
-    description: "Generate retention strategies. Has DISCOVERY MODE: if you don't know WHY people churn, get a churn analysis framework first. Health signals and interventions follow the business model, each churn reason gets its own answer, and your current interventions and data signals are used.",
+    description: "Takes your customer segment, business model and current churn rate, and returns a retention playbook with health signals, interventions and an email draft for each churn reason. If you do not know why customers leave, leave the churn reasons out and you get a churn discovery kit with a framework for finding out. Health signals and interventions follow the business model, each churn reason gets its own answer, and your current interventions and data signals are used.",
     inputSchema: {
       type: "object",
       properties: {
@@ -125,7 +125,7 @@ export const tools: Tool[] = [
         current_churn_rate: { type: "string", description: "Current churn rate (e.g., '5%' or '5% monthly')" },
         churn_reasons: {
           type: "string",
-          description: "OPTIONAL: Known churn reasons (comma-separated). If you don't know, leave blank to get discovery mode with churn analysis framework"
+          description: "Optional: known churn reasons, comma-separated. If you do not know them, leave this blank and you get a churn discovery kit with a framework for finding the reasons"
         },
         available_data_signals: {
           type: "string",
@@ -145,7 +145,7 @@ export const tools: Tool[] = [
   },
   {
     name: "partner_architect",
-    description: "Design partner programs that ADAPT based on partner model type. Different structures for resellers vs referrals vs integrations vs affiliates. Uses your stated goal, existing partners and deal size, and names the partner types that fit your sector's buying committee.",
+    description: "Takes your company, product, partner model, partner goal and deal size, and returns a partner program with tiers, example commission amounts and KPIs, with a different structure for resellers, referrals, integrations, agencies, affiliates and white label. Uses your stated goal, existing partners and deal size, and names the partner types that fit your sector's buying committee.",
     inputSchema: {
       type: "object",
       properties: {
@@ -175,7 +175,7 @@ export const tools: Tool[] = [
   },
   {
     name: "crisis_planner",
-    description: "Generate crisis playbooks. Know your risks? Get specific playbooks. Not sure what to plan for? The tool uses a default set of common crises for your sector (not ranked by likelihood). Each compliance item you list is used in the notification steps.",
+    description: "Takes your company, industry, customer base and data sensitivity, and returns crisis playbooks with a response team and notification steps for each crisis. Name the crises you know of to get those playbooks. If you leave them out, the tool uses a default set of common crises for your sector (not ranked by likelihood). Each compliance item you list is used in the notification steps.",
     inputSchema: {
       type: "object",
       properties: {
@@ -197,7 +197,7 @@ export const tools: Tool[] = [
         },
         potential_crises: {
           type: "string",
-          description: "OPTIONAL: Crisis types to plan for (comma-separated). If not provided, the tool uses a default set of common crises for your sector (not ranked by likelihood). Options: data_breach, service_outage, sla_breach, regulatory_action, fraud_incident, ai_wrong_action, pr_incident, executive_departure, security_vulnerability, customer_data_exposure, product_safety"
+          description: "Optional: crisis types to plan for, comma-separated. If not provided, the tool uses a default set of common crises for your sector (not ranked by likelihood). Options: data_breach, service_outage, sla_breach, regulatory_action, fraud_incident, ai_wrong_action, pr_incident, executive_departure, security_vulnerability, customer_data_exposure, product_safety"
         },
         company_size: {
           type: "string",
@@ -212,22 +212,22 @@ export const tools: Tool[] = [
   },
   {
     name: "competitive_intel",
-    description: "Generate battle cards, one per competitor, from your strengths, weaknesses, competitor details, objections, wins and losses. Each competitor detail goes to the competitor it names, each objection gets its own answer, and strengths and gaps taken from wins and losses are your own words.",
+    description: "Takes your product and the competitors you name, and returns one battle card per competitor built from your strengths, weaknesses, competitor details, objections, wins and losses. Each competitor detail goes to the competitor it names, each objection gets its own answer, and strengths and gaps taken from wins and losses are your own words.",
     inputSchema: {
       type: "object",
       properties: {
         your_product: { type: "string", description: "Your product name and brief description" },
         competitors: {
           type: "string",
-          description: "Competitor names (comma-separated). Will generate battle card for EACH"
+          description: "Competitor names, comma-separated. You get one battle card for each competitor named"
         },
         your_strengths: {
           type: "string",
-          description: "OPTIONAL: What you do better (comma-separated). Taken from your wins, in your own words, if not provided"
+          description: "Optional: what you do better, comma-separated. Taken from your wins, in your own words, if not provided"
         },
         your_weaknesses: {
           type: "string",
-          description: "OPTIONAL: Where competitors beat you (comma-separated). Taken from your losses, in your own words, if not provided"
+          description: "Optional: where competitors beat you, comma-separated. Taken from your losses, in your own words, if not provided"
         },
         competitor_details: {
           type: "string",
@@ -247,13 +247,13 @@ export const tools: Tool[] = [
   },
   {
     name: "craft_gtm_analyzer",
-    description: "Analyze a GTM document against the CRAFT framework. Scores each dimension only on what the plan contains (Timeline counts real dates, durations and quarters), shows the plan's own line for each, names only the elements that are missing and suggests sections to add.",
+    description: "Takes the text of a GTM document or plan and returns an analysis against the CRAFT framework, with a score for each dimension. Each dimension is scored only on what the plan contains (Timeline counts real dates, durations and quarters), the tool shows the plan's own line for each, names only the elements that are missing and suggests sections to add.",
     inputSchema: {
       type: "object",
       properties: {
         document_content: {
           type: "string",
-          description: "The GTM document/plan to analyze. Paste full content: it will be PARSED and EVALUATED"
+          description: "The GTM document or plan to analyze. Paste the full text: the tool reads it and scores it against the framework"
         },
         document_type: {
           type: "string",
