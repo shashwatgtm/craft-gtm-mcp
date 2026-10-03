@@ -226,7 +226,8 @@ test("retention_playbook: the emails carry no bracket placeholder and the sector
   assert.match(r.text, /Before you send:\*\* add a result only if you hold it/);
 });
 test("retention_playbook: a vertical SaaS sector gets its own churn reasons with their own signals", async () => {
-  const r = await call("retention_playbook", { customer_segment: "FMCG brands", business_model: "saas_subscription", current_churn_rate: "2% monthly", industry: "vertical_saas" });
+  // run 21b: the reasons about reps and distributors are those of a field sales and distributor company, so the product names that kind of company
+  const r = await call("retention_playbook", { customer_segment: "FMCG brands", business_model: "saas_subscription", current_churn_rate: "2% monthly", industry: "vertical_saas", product: "Shelfwalk, field sales automation and distributor management software" });
   assert.match(r.text, /Reps went back to old ways of capturing orders/);
   assert.match(r.text, /Orders captured in the app fall while distributors report orders by phone or paper/);
 });
@@ -253,7 +254,8 @@ test("partner_architect: the goal is on a line of its own, not pasted into a KPI
 // ---------------------------------------------------------------------------------------------------------------------
 // crisis_planner
 test("crisis_planner: a sector's own crisis gets its own steps and audiences, and an outage is described for that sector", async () => {
-  const r = await call("crisis_planner", { company: "Branchwire", industry: "telecom", customer_base: "b2b_enterprise", data_sensitivity: "medium_business_data" });
+  // run 21b: the outage at customer sites is the crisis of a connectivity provider, so the company text names that kind of company
+  const r = await call("crisis_planner", { company: "Branchwire managed SD-WAN and network services", industry: "telecom", customer_base: "b2b_enterprise", data_sensitivity: "medium_business_data" });
   assert.equal(r.isError, false);
   assert.match(r.text, /### Network outage across customer sites/);
   assert.match(r.text, /Customer network owners and CIOs/);

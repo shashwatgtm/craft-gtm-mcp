@@ -1,6 +1,6 @@
 import { describeChoice, readableChoice, EXAMPLE_FIGURE, EXAMPLE_FIGURES, SUGGESTION_FOOTER } from './utils.js';
 import { readContext, splitItems, q, andList, capEcho, cleanCompanyName, lcFirst } from './context.js';
-import { playbookFor, segmentKinds } from './sector-playbooks.js';
+import { playbookFor, segmentKinds, kindsNote } from './sector-playbooks.js';
 
 // Every rate, fee, deal count and staff count in the tier definitions is an example figure.
 const hasFigure = (text: string): boolean => /\d/.test(text);
@@ -158,7 +158,7 @@ export function generatePartnerArchitect(args: {
 **Average Deal Size:** ${dealSizeShown}
 **Support Capacity:** ${describeChoice(args.partner_support_capacity, supportCapacity)}
 
-${ctx.line}
+${ctx.line}${kindsNote(ctx.v, sameName ? args.company : args.product, 'product')}
 
 ---
 

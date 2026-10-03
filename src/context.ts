@@ -2,7 +2,7 @@
 // that keep typed text out of broken sentences. The sector knowledge itself is in src/verticals.ts (rule B82).
 // splitItems, q, readContext, sectorNotes and answerFor follow the helpers of Revenue Enablement (the lead's version).
 import { BILLING_NOTES } from './sector-playbooks.js';
-import { detectVertical, detectModel, explainSector, profileFor, MODEL_NAME, BUSINESS_MODELS, SECTOR_MODEL, VERTICALS, type Vertical, type VerticalId, type BusinessModel, type ReaderInput } from './verticals.ts';
+import { detectVertical, detectModel, explainSector, profileFor, MODEL_NAME, BUSINESS_MODELS, SECTOR_MODEL, SUBTYPES, VERTICALS, type Vertical, type VerticalId, type BusinessModel, type ReaderInput } from './verticals.ts';
 
 export { BUSINESS_MODELS, VERTICALS };
 export type { Vertical, BusinessModel, ReaderInput };
@@ -160,7 +160,8 @@ export function readContext(opts: { model?: unknown; hintModel?: BusinessModel |
   else {
     const m = detectModel(undefined, input);
     model = m.model; how = m.how === 'read' ? 'read' : m.how === 'sector' ? 'sector' : 'unknown';
-    if (how !== 'read' && chosen) { model = SECTOR_MODEL[chosen.id]; how = 'sector'; }
+    // Run 21b: a sub-type with its own usual model (a messaging or payments API sold to a chosen telecom or fintech sector) keeps it; the chosen sector's usual model is the fallback.
+    if (how !== 'read' && chosen) { const st = profileFor(chosen, null, input)?.subtype; model = (st && SUBTYPES.find((x) => x.id === st)?.model) || SECTOR_MODEL[chosen.id]; how = 'sector'; }
     // The word "software" in a company name or "platform" in a playbook name does not make a services firm a software subscription:
     // when the sector is ITeS and the seller's words name services work, the model is services.
     // A seller read as AI native whose words are about portfolios, securities and forecasts for investors manages or advises on money: the investment model.

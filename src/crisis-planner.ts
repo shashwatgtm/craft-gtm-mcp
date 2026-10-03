@@ -1,18 +1,25 @@
 import { parseListItems, describeChoice, readableChoice, EXAMPLE_FIGURE, EXAMPLE_FIGURES, SUGGESTION_FOOTER } from './utils.js';
 import { readContext, q, andList, cleanCompanyName } from './context.js';
-import { playbookFor } from './sector-playbooks.js';
+import { playbookFor, kindsNote } from './sector-playbooks.js';
 import type { VerticalId } from './verticals.ts';
 
-// Run 20: extra people on the response team by sector (roles, never names).
+// Run 20: extra people on the response team by sector (roles, never names). Run 21b: the roles of the vertical are true for every company in it;
+// the roles of one kind of company sit under its sub-type.
 const SECTOR_ROLES: Partial<Record<VerticalId, string[]>> = {
-  'logistics-tech': ['Head of Operations (customer hubs and dispatch)', 'Driver app support lead'],
-  fintech: ['Finance operations lead', 'Head of Compliance'],
-  'vertical-saas': ['Head of Customer Operations', 'Distributor integrations lead'],
+  'logistics-tech': ['Head of Operations (customer operations)', 'Customer support lead'],
+  fintech: ['Head of Operations', 'Head of Compliance'],
+  'vertical-saas': ['Head of Customer Operations', 'Integrations lead'],
   'ai-native': ['Data and AI lead', 'Head of Model Evaluation'],
   ites: ['Delivery head', 'Account owners for the affected clients'],
-  telecom: ['Network operations centre lead', 'Field engineering lead'],
+  telecom: ['Service operations lead', 'Customer support lead'],
   cybersecurity: ['Head of Threat Research', 'Product security lead'],
   software: ['Engineering on-call lead', 'Developer relations lead'],
+}
+const SUBTYPE_ROLES: Record<string, string[]> = {
+  'last-mile': ['Head of Operations (customer hubs and dispatch)', 'Driver app support lead'],
+  'spend-expense': ['Finance operations lead', 'Head of Compliance'],
+  'fmcg-retail-execution': ['Head of Customer Operations', 'Distributor integrations lead'],
+  'operators-connectivity': ['Network operations centre lead', 'Field engineering lead'],
 }
 
 // Default crises by industry (run 19, D80: the owner's verticals; no health-sector crisis types)
@@ -81,7 +88,7 @@ export function generateCrisisPlanner(args: {
   
   const baseTeam = teamStructure[companySize] || teamStructure.scaleup_50_200;
   // Run 19 (D80): with personal or financial data at stake, the core team has a security lead and a data protection lead.
-  const team = { ...baseTeam, core: [...baseTeam.core], extended: [...baseTeam.extended, ...(ctx.v ? SECTOR_ROLES[ctx.v.id] ?? [] : [])] };
+  const team = { ...baseTeam, core: [...baseTeam.core], extended: [...baseTeam.extended, ...(ctx.v ? (ctx.v.subtype && SUBTYPE_ROLES[ctx.v.subtype]) || SECTOR_ROLES[ctx.v.id] || [] : [])] };
   if (dataSensitivity === 'high_pii_financial') {
     if (!team.core.some((m) => /CISO|security/i.test(m))) team.core.push('CISO or security lead');
     if (!team.core.some((m) => /data protection|DPO/i.test(m))) team.core.push('Data protection lead (DPO)');
@@ -108,7 +115,7 @@ export function generateCrisisPlanner(args: {
     if (own) {
       return `### ${own.title}
 
-**What this is:** ${own.what}. ${ctx.v && /outage|sync|dispatch|network|delivery|posting|billing|recognition/.test(own.key) ? `In ${ctx.v.name} the first measures to move are ${andList(ctx.v.metrics.slice(0, 3))}: tell customers which of them you see affected.` : ''}
+**What this is:** ${own.what}. ${ctx.v && /outage|sync|dispatch|network|delivery|posting|billing|recognition|payment|tracking|transaction/.test(own.key) ? `In ${ctx.v.name} the first measures to move are ${andList(ctx.v.metrics.slice(0, 3))}: tell customers which of them you see affected.` : ''}
 
 **First hour:** ${EXAMPLE_FIGURE}
 1. **Name the owner**: ${team.lead} as incident commander, with ${team.core[0]}
@@ -252,7 +259,7 @@ ${complianceItems.length ? `5. **Map the notice to each item you listed** (${com
 **Immediate Response (0-2 hours):** ${EXAMPLE_FIGURE}
 1. **Pause the automation** that took the action; send the affected action type to human review
 2. **Find the affected cases** from the audit trail: what the AI did, on whose request, with what data
-3. **Stop anything that moves money or changes a record** until a person approves it
+3. **Stop any action that changes a record or reaches a customer** until a person approves it
 4. **Name the owner**: ${team.lead} with the data or AI lead
 
 **Correction (2-24 hours):** ${EXAMPLE_FIGURE}
@@ -320,7 +327,7 @@ ${pb ? `**What could be exposed here:** ${pb.breach}.\n\n` : ''}**Severity Asses
       const levels = ctx.model === 'connectivity'
         ? [['SEV-1', 'Core network, or the sites of several customers, down', '<15 min', /CEO/.test(team.lead) ? team.lead : `${team.lead} + CEO`], ['SEV-2', 'One customer\'s sites down, or a regional link failing', '<30 min', team.core[0]], ['SEV-3', 'Degraded performance at some sites', '<1 hour', 'Network operations lead']]
         : ctx.model === 'services'
-        ? [['SEV-1', 'Service desk or managed service stopped for a client', '<15 min', /CEO/.test(team.lead) ? team.lead : `${team.lead} + CEO`], ['SEV-2', 'Service levels missed for a client', '<30 min', team.core[0]], ['SEV-3', 'Degraded service for some users', '<1 hour', 'Delivery lead']]
+        ? [['SEV-1', 'A managed service stopped for a client', '<15 min', /CEO/.test(team.lead) ? team.lead : `${team.lead} + CEO`], ['SEV-2', 'Service levels missed for a client', '<30 min', team.core[0]], ['SEV-3', 'Degraded service for some users', '<1 hour', 'Delivery lead']]
         : [['SEV-1', 'Complete outage, all customers', '<15 min', /CEO/.test(team.lead) ? team.lead : `${team.lead} + CEO`], ['SEV-2', 'Major feature down, >50% affected', '<30 min', team.core[0]], ['SEV-3', 'Degraded performance', '<1 hour', 'Engineering lead']];
       return `### ${heading('Service outage', crisisName)}
 
@@ -331,7 +338,7 @@ ${levels.map((l) => `| ${l[0]} | ${l[1]} | ${l[2]} | ${l[3]} |`).join('\n')}
 
 **Immediate Response (0-15 minutes):** ${EXAMPLE_FIGURE}
 1. **Acknowledge on the status page** or to your customers' service owners: "Investigating reports of a problem with ${args.company}'s service"
-2. **Assemble the incident room**: ${ctx.model === 'connectivity' ? 'network operations, field engineering, account owners' : ctx.model === 'services' ? 'delivery, the service desk, account owners' : 'engineering, support, comms'}
+2. **Assemble the incident room**: ${ctx.model === 'connectivity' ? 'network operations, field engineering, account owners' : ctx.model === 'services' ? 'delivery, support, account owners' : 'engineering, support, comms'}
 3. **Diagnose**: root cause identification started
 4. **Brief the support and account teams**: prepare for volume
 
@@ -467,7 +474,7 @@ ${crisesNote}
 **Customer Base:** ${readableChoice(customerBase)}
 **Data Sensitivity:** ${readableChoice(dataSensitivity)}
 ${compliance ? `**Compliance Requirements:** ${compliance}\n` : ''}
-${ctx.line}
+${ctx.line}${kindsNote(ctx.v, args.company, 'company')}
 
 ---
 

@@ -1,6 +1,6 @@
 import { describeChoice, readableChoice, EXAMPLE_FIGURES, SUGGESTION_FOOTER } from './utils.js';
 import { readContext, splitItems, q, andList, shortName, capEcho } from './context.js';
-import { playbookFor, MODEL_LANGUAGE } from './sector-playbooks.js';
+import { playbookFor, MODEL_LANGUAGE, kindsNote } from './sector-playbooks.js';
 
 // Run 20 (quality round 1): questions for the person you interview, by the kind of role. A role is read from its title; the questions
 // are about that person's own work and measures (no figure, no claim about their company).
@@ -409,7 +409,7 @@ ${(() => { let inObjections = false; return hypotheses.map((raw, i) => {
 **Industry:** ${industryName}
 **Complexity Level:** ${describeChoice(args.product_complexity, complexity)}
 
-${ctx.line}
+${ctx.line}${kindsNote(v, product, 'product_context')}
 
 ---
 

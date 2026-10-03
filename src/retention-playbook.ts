@@ -1,6 +1,6 @@
 import { parseListItems, pct, roundTypedPercents, describeChoice, readableChoice, lowerFirstIfCommon, cap, EXAMPLE_FIGURE, EXAMPLE_FIGURES, SUGGESTION_FOOTER } from './utils.js';
 import { readContext, splitItems, q, answerFor, sectorNotes, shortName, capEcho, andList, lcFirst, type BusinessModel } from './context.js';
-import { playbookFor, MODEL_LANGUAGE, segmentNotes } from './sector-playbooks.js';
+import { playbookFor, MODEL_LANGUAGE, segmentNotes, kindsNote } from './sector-playbooks.js';
 
 // Run 19 (D80): the business model chosen is mapped to the model class the tool reasons with. enterprise_contract is read further
 // from the typed text (services, connectivity or investment) when it can be.
@@ -213,7 +213,7 @@ export function generateRetentionPlaybook(args: {
 **Current Churn Rate:** ${roundTypedPercents(args.current_churn_rate)} (${churnSeverity} against the example thresholds, which are illustrations: set your own)
 **CS Team Capacity:** ${csTeamShown}
 ${segmentHead.capped ? `**Customer segment (as you wrote it):** ${args.customer_segment.trim()}\n` : ''}
-${ctxLine}
+${ctxLine}${kindsNote(ctx.v, product || 'your product', 'product')}
 ${segNote ? `\n**In this segment:** a ${subscription ? 'purchase' : 'renewal'} usually involves ${segNote.review}. Check each churn reason below against these steps.\n` : ''}${ctx.v ? `\n**In ${ctx.v.name}:** ${playbookFor(ctx.v).renewal}\n` : ''}
 ---
 
@@ -381,7 +381,7 @@ function generateChurnDiscoveryKit(
 | **Business Model** | ${readableChoice(businessModel)}${model === 'investment' && businessModel === 'enterprise_contract' ? ' (an investment mandate)' : ''} | |
 | **CS Team** | ${csTeamShown} | |
 
-${contextLine}
+${contextLine}${kindsNote(v, product || 'your product', 'product')}
 
 **You haven't provided churn reasons.** To build an effective retention playbook, you need to understand WHY customers leave.
 ${seg ? `\n**In this segment:** a ${subscription ? 'purchase' : 'renewal'} usually involves ${seg.review}. For each account that left, check whether it failed one of these steps, not only the product or the price.\n` : ''}${pb ? `\n**In ${v!.name}:** ${pb.renewal}\n` : ''}
