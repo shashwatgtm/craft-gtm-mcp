@@ -364,6 +364,12 @@ ${(() => { let inObjections = false; return hypotheses.map((raw, i) => {
 | Find the evidence they trust | "What would you need to see to put this concern to rest, and who would need to see it?" |
 | Find counter-evidence | "Tell me about a time this concern turned out not to matter." |
 `;
+  // A statement about the seller that the user marked as a page claim ("1,000+ brands use X (page claim)") is a fact to source before the interview, not a belief to put to the buyer.
+  if (/\((?:page claims?|customer story[^)]*)\)\s*$/i.test(h)) return `
+### Statement ${i + 1}: ${q(h)}
+
+*This is a claim about your own company, so it is not put to the interviewee as a question. Before the interview, confirm where the figure comes from and whether you may quote it.*
+`;
   return `
 ### Hypothesis ${i + 1}: ${q(h)}
 
