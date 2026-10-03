@@ -121,7 +121,7 @@ export function generatePartnerArchitect(args: {
     oem_white_label: {
       overview: 'Partners embed your product within theirs. Deep integration, significant volume.',
       tiers: [
-        { name: 'OEM License', requirements: ['Volume commitment', 'Technical integration', 'Support capability'], benefits: ['White-label rights', 'API access', 'Volume pricing'], commission: 'N/A: volume-based pricing (typically 50-70% discount)', support: 'Integration support, SLA' },
+        { name: 'OEM License', requirements: ['Volume commitment', 'Technical integration', 'Support capability'], benefits: ['White-label rights', 'API access', 'Volume pricing'], commission: 'N/A: volume-based pricing (your own OEM discount (not given))', support: 'Integration support, SLA' },
         { name: 'Strategic OEM', requirements: ['Significant volume', 'Co-development', 'Multi-year commitment'], benefits: ['Custom development', 'Roadmap influence', 'Exclusivity options'], commission: 'Custom pricing, revenue share options', support: 'Dedicated team, exec alignment' }
       ],
       kpis: ['Volume usage', 'Revenue per partner', 'Partner customer satisfaction', 'Contract value']
