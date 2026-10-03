@@ -303,7 +303,7 @@ test("pmf_scorecard: an asset manager is not scored with customer-support automa
 // ---------------------------------------------------------------------------------------------------------------------
 // small text rules
 test("acronyms keep their capitals when a sector objection or proof is lower-cased into a sentence", async () => {
-  const r = await call("launch_commander", { product_feature: "Lanehop: route planning and dispatch for delivery fleets", launch_type: "feature_launch", target_segments: "Retail", goals: "ten hypothetical meetings", industry: "logistics_tech" });
+  const r = await call("launch_commander", { product_feature: "Lanehop: last mile delivery route planning and dispatch for delivery fleets", launch_type: "feature_launch", target_segments: "Retail", goals: "ten hypothetical meetings", industry: "logistics_tech" });   // run 21b: the TMS objection belongs to the last mile sub-type, so the product names it
   assert.match(r.text, /we already have a TMS/);
   assert.doesNotMatch(r.text, /we already have a tms/);
   const p = await call("partner_architect", { company: "Vaultline", product: "Vaultline cloud security posture management", partner_model: "referral", partner_goals: "pipeline", your_deal_size: "$80,000", industry: "cybersecurity" });   // run 21b: the SIEM objection belongs to the cloud security sub-type, so the product is named
