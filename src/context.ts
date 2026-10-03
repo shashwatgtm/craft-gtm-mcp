@@ -179,7 +179,7 @@ export function readContext(opts: { model?: unknown; hintModel?: BusinessModel |
   const buyerSide = buyerV ? ` (name it with the industry input for sector notes)` : '';
   // A seller that manages money (the investment model) is not sold to like the sector the shared reader named (support-automation buyers for "AI native",
   // finance-function buyers for "fintech"): the committee, roles, measures and discovery questions are those of an investment decision.
-  const vAdj0 = overlayBilling(neutralWording(profileFor(v, model, input)), sellerTexts, (input.context ?? []).filter((x): x is string => typeof x === 'string'));
+  const vAdj0 = overlayBilling(profileFor(v, model, input), sellerTexts, (input.context ?? []).filter((x): x is string => typeof x === 'string'));
   // "Seats" is a software subscription word: a sector sentence that holds it is reworded for a model that is not a subscription.
   const vAdj = vAdj0 && model && model !== 'saas' ? { ...vAdj0, committee: vAdj0.committee.replace(/\bseats\b/gi, 'licences') } : vAdj0;
   const sector = vAdj ? `${chosen ? `${vAdj!.name} (from your choice)` : `read from your inputs as ${vAdj!.name}`}` : `not clear from your inputs${buyerSide || ' (name the industry for sector notes)'}`;
