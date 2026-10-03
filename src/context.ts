@@ -1,7 +1,7 @@
 // Run 19 (owner decision D80): shared helpers that read the sector and the business model from what the user typed, and
 // that keep typed text out of broken sentences. The sector knowledge itself is in src/verticals.ts (rule B82).
 // splitItems, q, readContext, sectorNotes and answerFor follow the helpers of Revenue Enablement (the lead's version).
-import { detectVertical, detectModel, explainSector, MODEL_NAME, BUSINESS_MODELS, SECTOR_MODEL, VERTICALS, type Vertical, type VerticalId, type BusinessModel, type ReaderInput } from './verticals.ts';
+import { detectVertical, detectModel, explainSector, profileFor, MODEL_NAME, BUSINESS_MODELS, SECTOR_MODEL, VERTICALS, type Vertical, type VerticalId, type BusinessModel, type ReaderInput } from './verticals.ts';
 
 export { BUSINESS_MODELS, VERTICALS };
 export type { Vertical, BusinessModel, ReaderInput };
@@ -134,7 +134,7 @@ export function readContext(opts: { model?: unknown; hintModel?: BusinessModel |
   const buyerSide = buyerV ? ` (name it with the industry input for sector notes)` : '';
   // A seller that manages money (the investment model) is not sold to like the sector the shared reader named (support-automation buyers for "AI native",
   // finance-function buyers for "fintech"): the committee, roles, measures and discovery questions are those of an investment decision.
-  const vAdj0 = v && model === 'investment' ? investmentView(v) : v;
+  const vAdj0 = profileFor(v, model, input);
   // "Seats" is a software subscription word: a sector sentence that holds it is reworded for a model that is not a subscription.
   const vAdj = vAdj0 && model && model !== 'saas' ? { ...vAdj0, committee: vAdj0.committee.replace(/\bseats\b/gi, 'licences') } : vAdj0;
   const sector = vAdj ? `${chosen ? `${vAdj!.name} (from your choice)` : `read from your inputs as ${vAdj!.name}`}` : `not clear from your inputs${buyerSide || ' (name the industry for sector notes)'}`;
@@ -269,18 +269,6 @@ export function cleanCompanyName(name: string | undefined): string {
 /** A user text in double quotes, capped at a word boundary; a cut ends with "..." inside the quotes (q() would strip a final dot). */
 export function qc(text: string, max = 140): string {
   return `"${capEcho(text.trim().replace(/[.]$/, ''), max).short.replace(/^"|"$/g, '')}"`;
-}
-
-/** The sector's reader data with the buying side replaced for a seller that manages money. Words and objections of the sector stay. */
-function investmentView(v: Vertical): Vertical {
-  return {
-    ...v,
-    committee: 'The chief investment officer or the investment committee decides; portfolio managers and quant researchers evaluate the models and data; risk and compliance review data use and explainability; investment operations run it day to day.',
-    buyerRoles: ['Chief Investment Officer', 'Head of Quant Research', 'Head of Risk', 'Head of Compliance', 'Head of Investment Operations'],
-    metrics: ['performance against the agreed benchmark', 'risk-adjusted return', 'tracking error', 'turnover', 'how well each signal can be explained'],
-    proofShape: 'Results against the agreed benchmark over a stated period, with the explanation of each signal that a committee can defend to trustees or clients.',
-    discovery: ['How do you decide which signals or data sources to trust, and who signs off?', 'What does your committee need to see before it accepts a model-based input?', 'How do you judge whether a signal has added value: against which benchmark, over what period?', 'Which data may not leave your environment?', 'How do you document the reasoning behind a decision for clients, trustees or regulators?'],
-  };
 }
 
 /** The first letter lower case, unless the text opens with an acronym ("SLA and cost outcomes" stays, "A before and after" becomes "a before and after"). */
