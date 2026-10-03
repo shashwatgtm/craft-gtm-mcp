@@ -314,3 +314,19 @@ test("a proof claim in the feedback is classified as proof, a quote as a quote, 
   assert.match(r.text, /\| Customer quote \|/);
   assert.match(r.text, /\| Friction \|/);
 });
+
+// ---------------------------------------------------------------------------------------------------------------------
+// the reader as the tools use it: several trades in one product description, AI words with a security buyer
+test("a product that lists network first and security later is read as the network trade (the one it names first, with two words of its own)", async () => {
+  const r = await call("launch_commander", { product_feature: "Branchwire Fabric: network (SD-WAN, MPLS, private line), cloud, cyber security (managed detection and response, SOC, firewalls, zero trust), interactions (CPaaS, UCaaS)", launch_type: "feature_launch", target_segments: "Manufacturing, Banking", goals: "ten hypothetical meetings" });
+  assert.match(r.text, /Sector: read from your inputs as telecom/);
+});
+test("a plan whose message uses AI words and whose buyer is a CISO with SOC analysts is a security plan, not an AI native one", async () => {
+  const plan = "Vaultline go-to-market plan.\nGoal: ten hypothetical deals.\nAudience: security teams at global enterprises.\nBuyer roles: CISO, analysts in SOC and security operations.\nMessage: Vaultline uses AI agents that validate and prioritize findings.";
+  const t = await call("craft_gtm_analyzer", { document_content: plan, document_type: "gtm_strategy" });
+  assert.match(t.text, /Sector: read from your inputs as cybersecurity/);
+});
+test("a sector sentence with the word seats is reworded for a seller that is not a subscription", async () => {
+  const r = await call("customer_interview_kit", { interview_type: "discovery", product_context: "Lanehop Engineering, software engineering services and managed services for developer teams", target_persona: "VP Engineering", business_model: "services" });
+  assert.doesNotMatch(r.text, /\bseats\b/i);
+});

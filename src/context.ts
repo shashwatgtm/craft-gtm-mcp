@@ -52,16 +52,34 @@ function cleanInput(input: ReaderInput): ReaderInput {
 // words of one trade (attack surface and dark web: cybersecurity), that trade is the sector; a lone "AI" (as in "AI test generation")
 // does not decide the sector by itself.
 const AI_WORDS = /\b(?:ai agents?|agents? that|agentic|autonomous agents?|voice agents?|ai assistants?|ai copilots?|copilots?|llms?|genai|gen ai|generative ai|ai[- ]native|ai[- ]first|foundation models?|large language models?|conversational ai|ai platform|ai models?|adaptive ai|ai[- ]powered|ai[- ]led|ai[- ]driven|ai)\b/gi;
+// A product description that lists several trades (network, cloud, cyber security ...) is about the one it names first, when that trade has
+// two or more of its own words: the shared reader scores by count, so a long list of security words can outvote the network named first.
+function headTrade(input: ReaderInput, r: ReturnType<typeof explainSector>): ReturnType<typeof explainSector> {
+  if (r.source !== 'seller' || !r.vertical) return r;
+  const text = (input.seller ?? []).filter((x): x is string => typeof x === 'string').join(' \n ');
+  let best: { v: Vertical; at: number; n: number; words: string[] } | null = null;
+  for (const v of VERTICALS) {
+    if (v.id === 'saas' || v.id === 'ai-native' || v.id === 'software') continue;
+    const g = new RegExp(v.match.source, 'gi');
+    const found = new Set<string>(); let first = -1; let m: RegExpExecArray | null;
+    while ((m = g.exec(text))) { found.add(m[0].toLowerCase()); if (first < 0) first = m.index; }
+    if (found.size >= 2 && (!best || first < best.at)) best = { v, at: first, n: found.size, words: [...found] };
+  }
+  if (best && best.v.id !== r.vertical.id && (r.vertical.id === 'cybersecurity' || r.vertical.id === 'fintech' || r.vertical.id === 'ites')) {
+    return { vertical: best.v, source: 'seller', strong: best.words, weak: [] };
+  }
+  return r;
+}
 function readSector(input: ReaderInput): ReturnType<typeof explainSector> {
-  const r = explainSector(input);
+  const r = headTrade(input, explainSector(input));
   if (!(r.vertical && r.vertical.id === 'ai-native' && r.source === 'seller')) return r;
   const maskedSeller = (input.seller ?? []).map((t) => (typeof t === 'string' ? t.replace(AI_WORDS, ' ') : t));
   const m = explainSector({ ...input, seller: maskedSeller });
   if (m.vertical && m.vertical.id !== 'ai-native' && m.source === 'seller' && m.strong.length >= 2) return m;
   if (r.strong.every((w) => w === 'ai')) return explainSector({ ...input, seller: [] });
-  // AI words say how it is built; the job titles of the buyer (a CISO, a head of last-mile operations) or the deal text say what it is for.
+  // AI words say how it is built; a CISO or a SOC analyst as the buyer, or deal text about attack surfaces, says it is a security product.
   const rest = explainSector({ ...input, seller: [] });
-  if (rest.vertical && rest.vertical.id !== 'ai-native' && (rest.source === 'role' || rest.source === 'context')) return rest;
+  if (rest.vertical && rest.vertical.id === 'cybersecurity' && (rest.source === 'role' || rest.source === 'context')) return rest;
   return r;
 }
 
@@ -116,7 +134,9 @@ export function readContext(opts: { model?: unknown; hintModel?: BusinessModel |
   const buyerSide = buyerV ? ` (name it with the industry input for sector notes)` : '';
   // A seller that manages money (the investment model) is not sold to like the sector the shared reader named (support-automation buyers for "AI native",
   // finance-function buyers for "fintech"): the committee, roles, measures and discovery questions are those of an investment decision.
-  const vAdj = v && model === 'investment' ? investmentView(v) : v;
+  const vAdj0 = v && model === 'investment' ? investmentView(v) : v;
+  // "Seats" is a software subscription word: a sector sentence that holds it is reworded for a model that is not a subscription.
+  const vAdj = vAdj0 && model && model !== 'saas' ? { ...vAdj0, committee: vAdj0.committee.replace(/\bseats\b/gi, 'licences') } : vAdj0;
   const sector = vAdj ? `${chosen ? `${vAdj!.name} (from your choice)` : `read from your inputs as ${vAdj!.name}`}` : `not clear from your inputs${buyerSide || ' (name the industry for sector notes)'}`;
   const mtxt = model
     ? `${MODEL_LABEL[model]} (${how === 'input' ? 'from business_model' : how === 'hint' ? 'from your market choice; set business_model to change it' : how === 'sector' ? 'the usual model in this sector, assumed; set business_model to change it' : 'read from your inputs; set business_model to change it'})`
