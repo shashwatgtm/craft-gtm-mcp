@@ -70,3 +70,33 @@ test("craft_gtm_analyzer: a plan for asset allocators with a CIO and portfolio m
   assert.doesNotMatch(t, /The sector was not clear from your plan/);
   assert.match(t, /investment committee|Investment Committee/);
 });
+
+// pmf_scorecard
+test("pmf_scorecard: a recognition and a growth claim get their own next step as company claims, and every proof line is counted", async () => {
+  const r = await call("pmf_scorecard", { product: "Lanehop", target_market: "logistics_tech", current_metrics: "Churn: 2%, NPS: 41",
+    customer_feedback: "Cut cost per delivery by a fifth at one hub (hypothetical); Market recognition from an analyst for 7 consecutive years; Revenue grew 30% year on year (page claim); Won the 2024 industry award" });
+  assert.doesNotMatch(r.text.split("## Customer Feedback You Gave")[1].split("## Priority Actions")[0], /\| Note \|/);
+  assert.match(r.text, /Cite it as a company claim/);
+  assert.match(r.text, /PROOF: you gave 4 customer results or recognitions/);
+});
+
+// retention_playbook
+test("retention_playbook: a low churn is 'low against the example thresholds', not 'healthy'", async () => {
+  const r = await call("retention_playbook", { customer_segment: "Platform teams", business_model: "saas_subscription", current_churn_rate: "1.5% monthly (hypothetical)" });
+  assert.doesNotMatch(r.text, /HEALTHY/);
+  assert.match(r.text, /low against the example thresholds/i);
+});
+test("retention_playbook: an investment mandate seller gets investment wording, not cost per resolved case", async () => {
+  const r = await call("retention_playbook", { customer_segment: "Asset allocators (pensions; endowments)", business_model: "enterprise_contract", current_churn_rate: "0.3% monthly (hypothetical)", product: "Quantara, systematic investment strategies built with institutions", churn_reasons: "cost grew, explanations were weak" });
+  assert.doesNotMatch(r.text, /cost per resolved case|how often a person steps in/i);
+  assert.match(r.text, /investment mandate/i);
+});
+
+// crisis_planner
+test("crisis_planner: a billing platform read from the company's product gets billing crises, and a leaked-key playbook has no pasted release sentence", async () => {
+  const r = await call("crisis_planner", { company: "Ledgerline Billing, billing and revenue recognition platform", industry: "saas", customer_base: "b2b_enterprise", data_sensitivity: "medium_business_data" });
+  assert.match(r.text, /wrong invoice run or a failed billing run/i);
+  assert.match(r.text, /revenue recognition or tax error/i);
+  const s = await call("crisis_planner", { company: "Probetool", industry: "software", customer_base: "b2b_enterprise", data_sensitivity: "medium_business_data", potential_crises: "leaked_keys" });
+  assert.doesNotMatch(s.text, /lead time for changes|escaped defects/);
+});

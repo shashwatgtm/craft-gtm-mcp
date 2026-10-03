@@ -154,11 +154,13 @@ export function generatePMFScorecard(args: {
   // A customer result or an award (a figure with a saving, a rise, a volume, or a recognition) is a proof claim, not a theme to answer.
   const RESULT = /(?:\d[\d,.]*\s*(?:%|x\b|billion|million|[kmb]\b)|\$\s*\d|\b(?:cuts?|cut|saved?|savings?|reduc\w+|increas\w+|faster|fewer|deployed|powered|named|recogni[sz]ed|award\w*|leader|contender|innovator|thanks?)\b)/i;
   // What kind of proof an item is, so the next step fits it (a story is turned into a case study, a listing is cited, a count is checked).
-  const kindOfProof = (item: string): 'story' | 'recognition' | 'usage' | 'result' | null => {
+  const kindOfProof = (item: string): 'story' | 'recognition' | 'usage' | 'result' | 'claim' | null => {
     if (/\b(success stor\w*|case stud\w*|customer stor\w*|story title|averted|secured)\b/i.test(item)) return 'story';
-    if (/\b(featured|listed|ranked|radar|quadrant|wave|award\w*|named|recogni[sz]ed|leader|contender|innovator|analyst)\b/i.test(item)) return 'recognition';
+    if (/\b(featured|listed|ranked|radar|quadrant|wave|award\w*|named|recogni\w+|leader|contender|innovator|analyst|consecutive)\b/i.test(item)) return 'recognition';
     if (/\b(?:use|used by|trusted by|serves?|deployed (?:at|by))\b/i.test(item) && /\d/.test(item)) return 'usage';
+    if (/\d/.test(item) && /\b(grew|grow\w*|growth|doubled|tripled)\b/i.test(item)) return 'claim';
     if (RESULT.test(item)) return 'result';
+    if (/\d/.test(item) && /\b(grew|grow\w*|growth|doubled|tripled|customers?|users?|revenue|market)\b/i.test(item)) return 'claim';
     return null;
   };
   const feedbackRows = feedbackItems.map((item) => {
@@ -166,12 +168,14 @@ export function generatePMFScorecard(args: {
     const pk = neg ? null : kindOfProof(item);
     const proof = pk === 'result';
     const quote = !pk && !neg && /\bquote\b|\bsays?\b|\bthanks?\b|\btold us\b/i.test(item);
-    const signal = pk === 'story' ? 'Customer story' : pk === 'recognition' ? 'Recognition' : pk === 'usage' ? 'Usage claim' : proof ? 'Result' : quote ? 'Customer quote' : pos && neg ? 'Mixed' : neg ? 'Friction' : pos ? 'Positive' : 'Note';
+    const signal = pk === 'story' ? 'Customer story' : pk === 'recognition' ? 'Recognition' : pk === 'claim' ? 'Company claim' : pk === 'usage' ? 'Usage claim' : proof ? 'Result' : quote ? 'Customer quote' : pos && neg ? 'Mixed' : neg ? 'Friction' : pos ? 'Positive' : 'Note';
     const proofLine = ctx.v ? ` A proof point that lands here: ${lcFirst(ctx.v.proofShape)}` : '';
     const next = pk === 'story'
       ? 'Turn it into a case study: ask the customer to approve it, and add the before and after figure and the date.'
       : pk === 'recognition'
       ? 'Use it as third-party validation: cite the source and the year, link the original, and place it beside the claim it supports. It does not show product-market fit by itself.'
+      : pk === 'claim'
+      ? 'Cite it as a company claim: give the source and the date, and do not present it as a measured result of this scorecard.'
       : pk === 'usage'
       ? 'Check the count, its date and its source, and say what "use" means (accounts, active teams or trials) before you quote it.'
       : quote

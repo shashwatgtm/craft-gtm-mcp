@@ -108,7 +108,7 @@ export function generateCrisisPlanner(args: {
     if (own) {
       return `### ${own.title}
 
-**What this is:** ${own.what}. ${ctx.v && (ctx.v.id !== 'saas' || /billing/i.test(ctx.v.name)) ? `In ${ctx.v.name} the first measures to move are ${andList(ctx.v.metrics.slice(0, 3))}: tell customers which of them you see affected.` : ''}
+**What this is:** ${own.what}. ${ctx.v && /outage|sync|dispatch|network|delivery|posting|billing|recognition/.test(own.key) ? `In ${ctx.v.name} the first measures to move are ${andList(ctx.v.metrics.slice(0, 3))}: tell customers which of them you see affected.` : ''}
 
 **First hour:** ${EXAMPLE_FIGURE}
 1. **Name the owner**: ${team.lead} as incident commander, with ${team.core[0]}
@@ -472,7 +472,7 @@ ${ctx.line}
 ---
 
 ## Crisis Response Team
-${ctx.v && (ctx.v.id !== 'saas' || /billing/i.test(ctx.v.name)) ? `\n*In ${ctx.v.name} the words your customers use are ${andList(ctx.v.vocabulary.slice(0, 6))}: use them in customer messages, and name the measures they watch (${andList(ctx.v.metrics.slice(0, 3))}).*\n` : ''}
+${ctx.v && (ctx.v.id !== 'saas' || /billing/i.test(ctx.v.name)) ? `\n*In ${ctx.v.name} the words your customers use are ${andList(ctx.v.vocabulary.slice(0, 6))}: use them in customer messages.*\n` : ''}
 **Incident Commander:** ${team.lead}
 
 **Core Team (Always Activated):**

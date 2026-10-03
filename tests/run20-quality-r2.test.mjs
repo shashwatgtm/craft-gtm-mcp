@@ -151,7 +151,7 @@ test("retention_playbook: a billing platform gets billing churn reasons, and the
   const r = await call("retention_playbook", { customer_segment: "B2B SaaS and software (customers of Ledgerline)", business_model: "saas_subscription", current_churn_rate: "1.5% monthly (hypothetical)", product: "Ledgerline Billing", industry: "saas" });
   assert.match(r.text, /Integration with the CRM or ERP kept breaking/);
   assert.doesNotMatch(r.text, /Customers never reached first value/);
-  assert.match(r.text, /HEALTHY \(example threshold\)/);
+  assert.match(r.text, /LOW against the example thresholds/);
 });
 
 // (7) crisis_planner

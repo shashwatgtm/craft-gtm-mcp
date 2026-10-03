@@ -54,7 +54,7 @@ export function generateRetentionPlaybook(args: {
   const churnRate = churnMatch ? parseFloat(churnMatch[1]) : 0;
   
   // Determine severity
-  const churnSeverity = churnRate > 8 ? 'CRITICAL' : churnRate > 5 ? 'HIGH' : churnRate > 3 ? 'MODERATE' : 'HEALTHY';
+  const churnSeverity = churnRate > 8 ? 'CRITICAL' : churnRate > 5 ? 'HIGH' : churnRate > 3 ? 'MODERATE' : 'LOW';
   // CS team size as shown to the user (readable, and marked when it is the assumed default)
   const csTeamShown = describeChoice(args.cs_team_size, csTeamSize);
 
@@ -209,7 +209,7 @@ export function generateRetentionPlaybook(args: {
   let output = `# Retention Playbook
 ## ${heading}
 
-**Business Model:** ${readableChoice(businessModel)}
+**Business Model:** ${readableChoice(businessModel)}${ctx.model === 'investment' && businessModel === 'enterprise_contract' ? ' (an investment mandate)' : ''}
 **Current Churn Rate:** ${roundTypedPercents(args.current_churn_rate)} (${churnSeverity} against the example thresholds, which are illustrations: set your own)
 **CS Team Capacity:** ${csTeamShown}
 ${segmentHead.capped ? `**Customer segment (as you wrote it):** ${args.customer_segment.trim()}\n` : ''}
@@ -221,7 +221,7 @@ ${segNote ? `\n**In this segment:** a ${subscription ? 'purchase' : 'renewal'} u
 
 | Metric | Value | Status (against example benchmarks) |
 |--------|-------|--------|
-| Monthly Churn | ${pct(churnRate)}% | ${churnSeverity} (example threshold) |
+| Monthly Churn | ${pct(churnRate)}% | ${churnSeverity} against the example thresholds |
 | Annual Revenue at Risk (your monthly churn, annualized) | ~${pct(churnRate * 12)}% (monthly churn times twelve, not compounded) | ${churnRate * 12 > 50 ? 'Urgent' : 'Monitor'} |
 | Benchmark (${readableChoice(businessModel)}) | ${contractModel ? 'No example benchmark for this model: set your own' : `${businessModel === 'saas_subscription' ? '3-5%' : businessModel === 'consumer' ? '5-8%' : '4-6%'} ${EXAMPLE_FIGURE}`} | - |
 
@@ -377,8 +377,8 @@ function generateChurnDiscoveryKit(
 
 | Metric | Value | Assessment (against example benchmarks) |
 |--------|-------|------------|
-| **Churn Rate** | ${pct(churnRate)}% | ${severity} (example threshold) |
-| **Business Model** | ${readableChoice(businessModel)} | |
+| **Churn Rate** | ${pct(churnRate)}% | ${severity} against the example thresholds |
+| **Business Model** | ${readableChoice(businessModel)}${model === 'investment' && businessModel === 'enterprise_contract' ? ' (an investment mandate)' : ''} | |
 | **CS Team** | ${csTeamShown} | |
 
 ${contextLine}
