@@ -57,7 +57,7 @@ export function generateCompetitiveIntel(args: {
   const wins = splitItems(args.recent_wins);
   const losses = splitItems(args.recent_losses);
   const objections = args.common_objections ? parseListItems(args.common_objections) : [];
-  const ctx = readContext({ model: args.business_model, vertical: args.industry }, args.your_product, args.competitors, args.competitor_details, args.common_objections, args.recent_wins, args.recent_losses);
+  const ctx = readContext({ model: args.business_model, vertical: args.industry }, { seller: [args.your_product, args.your_strengths], context: [args.competitors, args.competitor_details, args.common_objections, args.recent_wins, args.recent_losses] });
   
   // Strengths: the ones you gave, else your own words from your wins (Run 19, D80, problem 7: a win phrase is never turned into
   // a claim you did not make, such as "superior customer support")

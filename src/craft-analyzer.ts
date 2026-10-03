@@ -230,7 +230,7 @@ ${body('timeline', analysis.timeline, 'Timeline is well-defined', 'Words matched
 
   // Run 19 (D80, problem 8): a sector check from the sector data file. It is not a score: it names the deciders and the measures
   // of the sector that the plan itself names, and those it does not.
-  const sectorCtx = readContext({ vertical: args.industry }, content, args.intended_audience, args.desired_outcome);
+  const sectorCtx = readContext({ vertical: args.industry }, { context: [content, args.desired_outcome], buyer: [args.intended_audience] });
   const planLower = content.toLowerCase();
   const roleNamed = (role: string): boolean => {
     const acronym = /^Chief .* Officer$/.test(role) ? role.split(' ').filter((w) => /^[A-Z]/.test(w) && w !== 'Officer').map((w) => w[0]).join('') + 'O' : '';

@@ -35,7 +35,7 @@ export function generateCrisisPlanner(args: {
   // Run 19 (D80): each compliance item you list is named in the steps that need it; the tool names no authority of its own.
   const complianceItems = parseListItems(compliance);
   const complianceText = complianceItems.length ? andList(complianceItems) : '';
-  const ctx = readContext({ model: args.business_model, vertical: args.industry }, args.company, args.potential_crises, compliance);
+  const ctx = readContext({ model: args.business_model, vertical: args.industry }, { seller: [args.company], context: [args.potential_crises, compliance] });
   
   // Use provided crises or suggest defaults based on industry
   let crises: string[];

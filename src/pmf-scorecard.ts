@@ -71,7 +71,7 @@ export function generatePMFScorecard(args: {
   // The business model and the sector, read from the inputs (the hint from the market choice comes after business_model).
   const HINT: Record<string, BusinessModel> = { enterprise_saas: 'saas', smb_saas: 'saas', marketplace: 'marketplace', ites: 'services', telecom: 'connectivity' };
   const hint: BusinessModel | null = HINT[marketType] ?? (/\bmrr\b/i.test(args.current_metrics) ? 'saas' : null);
-  const ctx = readContext({ model: args.business_model, hintModel: hint, vertical: marketType }, args.product, args.current_metrics, args.customer_feedback);
+  const ctx = readContext({ model: args.business_model, hintModel: hint, vertical: marketType }, { seller: [args.product], context: [args.current_metrics, args.customer_feedback] });
   // Activation measures the first use of a software subscription: it is not scored for services, connectivity or investment.
   const activationApplies = !(ctx.model === 'services' || ctx.model === 'connectivity' || ctx.model === 'investment');
   const dimensionCount = activationApplies ? 5 : 4;

@@ -77,7 +77,7 @@ export function generateLaunchCommander(args: {
   // Run 19 (D80, problems 4 and 8): the sector and the business model are read from the inputs; a launch to a sales-led buyer
   // (services, connectivity, investment, hardware plus software, or a sector whose deals run through a buying committee)
   // gets no consumer or software-only tasks.
-  const ctx = readContext({ model: args.business_model, vertical: args.industry }, args.product_feature, args.target_segments, args.goals);
+  const ctx = readContext({ model: args.business_model, vertical: args.industry }, { seller: [args.product_feature], context: [args.goals], buyer: [args.target_segments] });
   const salesLed = (ctx.model !== null && ctx.model !== 'saas' && ctx.model !== 'marketplace') || (ctx.v !== null && ctx.v.id !== 'saas' && ctx.v.id !== 'software');
   const subscription = ctx.model === 'saas' || ctx.model === null;
   const SWAP: Record<string, string> = {

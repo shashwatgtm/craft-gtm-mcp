@@ -36,7 +36,7 @@ export function generateRetentionPlaybook(args: {
   const accountRef = product || 'your account';
 
   // The model class and the sector, read from the inputs
-  const ctx = readContext({ model: MODEL_OF_CHOICE[businessModel], vertical: args.industry }, args.customer_segment, args.product, args.churn_reasons, args.available_data_signals);
+  const ctx = readContext({ model: MODEL_OF_CHOICE[businessModel], vertical: args.industry }, { seller: [args.product], context: [args.churn_reasons, args.available_data_signals], buyer: [args.customer_segment] });
   const contractModel = ctx.model === 'services' || ctx.model === 'connectivity' || ctx.model === 'investment' ? ctx.model : null;
   // Product-led wording (login and feature signals, in-app messages, day-based lifecycle) only when the model is a software or
   // product relationship; a contract whose kind is not clear gets the contract wording.

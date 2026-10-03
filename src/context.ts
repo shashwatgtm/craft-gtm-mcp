@@ -1,10 +1,10 @@
 // Run 19 (owner decision D80): shared helpers that read the sector and the business model from what the user typed, and
 // that keep typed text out of broken sentences. The sector knowledge itself is in src/verticals.ts (rule B82).
 // splitItems, q, readContext, sectorNotes and answerFor follow the helpers of Revenue Enablement (the lead's version).
-import { detectVertical, detectModel, MODEL_NAME, BUSINESS_MODELS, SECTOR_MODEL, VERTICALS, type Vertical, type VerticalId, type BusinessModel } from './verticals.ts';
+import { detectVertical, detectModel, explainSector, MODEL_NAME, BUSINESS_MODELS, SECTOR_MODEL, VERTICALS, type Vertical, type VerticalId, type BusinessModel, type ReaderInput } from './verticals.ts';
 
 export { BUSINESS_MODELS, VERTICALS };
-export type { Vertical, BusinessModel };
+export type { Vertical, BusinessModel, ReaderInput };
 
 /** The choices of the optional business_model input (the same words in every tool). */
 export const MODEL_CHOICES: string[] = [...BUSINESS_MODELS];
@@ -36,18 +36,23 @@ export interface Context { v: Vertical | null; model: BusinessModel | null; how:
 
 /**
  * The sector and the business model read from the inputs, with one line that says how they were read.
+ * Run 20 (D92): the texts are given in groups, `{ seller, context, role, buyer }` (see ReaderInput in src/verticals.ts): the seller's own
+ * words (product, category, strengths) are read first, then free text about the deal, then job titles, then who the buyer is.
  * Order for the model: the business_model input, then a hint from another input (for example a market choice), then the
- * typed text, then the usual model of the sector (said to be assumed).
+ * typed text (the seller's words only), then the usual model of the sector (said to be assumed).
  */
-export function readContext(opts: { model?: unknown; hintModel?: BusinessModel | null; vertical?: string | null }, ...texts: unknown[]): Context {
-  const chosen = opts.vertical && SECTOR_CHOICES[opts.vertical] ? VERTICALS.find((x) => x.id === SECTOR_CHOICES[opts.vertical!]) ?? null : null;
-  const v = chosen ?? detectVertical(...texts);
+export function readContext(opts: { model?: unknown; hintModel?: BusinessModel | null; vertical?: string | null }, input: ReaderInput): Context {
+  let chosen = opts.vertical && SECTOR_CHOICES[opts.vertical] ? VERTICALS.find((x) => x.id === SECTOR_CHOICES[opts.vertical!]) ?? null : null;
+  const read = explainSector(input);
+  // A broad choice (saas, software) does not hide a trade the seller's own words name (a CNAPP tool is cybersecurity, not "saas").
+  if (chosen && (chosen.id === 'saas' || chosen.id === 'software') && read.vertical && read.source === 'seller' && read.vertical.id !== chosen.id && read.vertical.id !== 'saas' && read.vertical.id !== 'software') chosen = null;
+  const v = chosen ?? read.vertical;
   let model: BusinessModel | null; let how: Context['how'];
   const explicit = typeof opts.model === 'string' && (BUSINESS_MODELS as string[]).includes(opts.model) ? (opts.model as BusinessModel) : null;
   if (explicit) { model = explicit; how = 'input'; }
   else if (opts.hintModel) { model = opts.hintModel; how = 'hint'; }
   else {
-    const m = detectModel(undefined, ...texts);
+    const m = detectModel(undefined, input);
     model = m.model; how = m.how === 'read' ? 'read' : m.how === 'sector' ? 'sector' : 'unknown';
     if (how !== 'read' && chosen) { model = SECTOR_MODEL[chosen.id]; how = 'sector'; }
   }
