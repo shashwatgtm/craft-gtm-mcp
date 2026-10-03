@@ -36,3 +36,11 @@ test("customer_interview_kit: a statement about the seller marked as a page clai
   assert.match(t, /1,000\+ enterprise brands use the platform/);
   assert.match(t, /Is this true for you: 'supply chains break in the gaps between systems'/);
 });
+
+test("customer_interview_kit: the IT leader block does not ask a payments or software buyer about sites and links; a connectivity buyer still gets it", async () => {
+  const kit = (product_context, industry, target_persona) => call("customer_interview_kit", { interview_type: "discovery", product_context, industry, target_persona });
+  const pay = await kit("a payments platform for online merchants: accept cards, payouts and reconciliation", "fintech", "Head of Technology");
+  const net = await kit("managed SD-WAN and business internet for companies with many branches", "telecom", "Head of IT");
+  assert.doesNotMatch(pay, /sites, links, applications or vendors/);
+  assert.match(net, /sites, links, applications or vendors/);
+});

@@ -405,7 +405,11 @@ ${(() => { let inObjections = false; return hypotheses.map((raw, i) => {
   const coreList = fresh([...questions.core]);
   const techList = fresh([...techQuestions, ...topicQs]);
   const sectorList = fresh(sectorQuestions);
-  const roleList = focus ? fresh(focus.questions) : [];
+  // The IT leader's first question names sites and links, which only a network or connectivity buyer has; any other technology leader is asked about systems.
+  const roleQs = focus && focus.label === 'IT and infrastructure leader' && ctx.v?.id !== 'telecom'
+    ? [focus.questions[0].replace('Which parts of your estate cause the most calls to your team: sites, links, applications or vendors?', 'Which of your systems or vendors cause the most calls to your team, and what is behind them?'), ...focus.questions.slice(1)]
+    : focus ? focus.questions : [];
+  const roleList = focus ? fresh(roleQs) : [];
 
   return `# Customer Interview Kit
 ## ${typeName.toUpperCase()} Interview
