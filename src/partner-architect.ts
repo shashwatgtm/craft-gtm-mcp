@@ -204,10 +204,9 @@ ${EXAMPLE_FIGURES} The commission rates and deal counts in this table are illust
 
 ### Commission Viability Check
 
-Based on ${dealSizeBasis} (checked against example deal-size thresholds):
-- ${dealSize > 1000 ? 'Deal size supports meaningful partner commissions' : 'Note: Deal size may be too small for reseller model, so consider affiliate or referral'}
-- ${dealSize > 5000 ? 'Can support dedicated partner manager at scale' : 'Note: May need to rely on self-serve until partner volume justifies support'}
-- ${dealSize > 10000 ? 'At this deal size a named partner manager and tailored onboarding for each partner are justified' : 'Consider pooled partner support model'}
+Based on ${dealSizeBasis}, the first-tier example commission of ${money(dealSize * 0.10)} per closed deal (example thresholds below):
+- ${dealSize * 0.10 < 500 ? `At an example commission of ${money(dealSize * 0.10)} partner support is not justified: a partner earns too little per deal to be worth a person on your side, so keep the program self-serve and consider affiliate or referral links only.` : dealSize * 0.10 < 3000 ? `At an example commission of ${money(dealSize * 0.10)} a shared partner manager (pooled across partners, not one per partner) is the most the economics support.` : dealSize * 0.10 < 10000 ? `At an example commission of ${money(dealSize * 0.10)} a named contact for your top partners is justified; keep the others on pooled support.` : `At an example commission of ${money(dealSize * 0.10)} a named partner manager and tailored onboarding for each active partner are justified.`}
+- ${dealSize > 1000 ? 'The deal size leaves room for a meaningful commission' : 'The deal size is small for a reseller model: consider affiliate or referral'}
 
 ---
 
@@ -245,6 +244,8 @@ ${(() => {
     lines.push(`**Who they reach:** ${ctx.v.committee}`);
   }
   if (goalSegments.length) lines.push(`**For the segments in your goal:** ${goalSegments.map((g) => `for ${g.kind}, ${g.partners}`).join('; ')}.`);
+  if ((pb && /investment/i.test(ctx.v!.name)) || goalSegments.some((g) => g.kind === 'investment institutions')) lines.push('**Independence:** investment consultants who advise allocators on suppliers may not be paid to recommend one. Use a non-commission relationship with them (shared research, introductions on request), and a referral fee only where compliance allows it, in writing and disclosed.');
+  if (!pb && goalSegments.length) lines.unshift('**Assumed:** the sector is not clear from your inputs, so the partner kinds below come from the segments in your goal, not from what your product does. Name the industry (the industry input) for partner kinds that fit the product.');
   if (!lines.length) lines.push('The sector is not clear from your inputs, and your goal names no segment this tool knows: name the industry (the industry input) or the segments you aim at to get partner kinds.');
   if (ctx.v) lines.push(`**Words this buyer uses, for partner materials:** ${ctx.v.vocabulary.join(', ')}. **A joint proof point that lands:** ${ctx.v.proofShape}`);
   return lines.join('\n\n');
