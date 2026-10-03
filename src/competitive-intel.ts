@@ -98,7 +98,8 @@ export function generateCompetitiveIntel(args: {
   
   // Strengths: the ones you gave, else your own words from your wins (Run 19, D80, problem 7: a win phrase is never turned into
   // a claim you did not make, such as "superior customer support"). Run 20: a comma run is split by phrase, never inside one.
-  const strengths: string[] = args.your_strengths ? splitPhrases(args.your_strengths).map(cap) : wins.map(cap);
+  const claimLabel = args.your_strengths && /\((page )?claims?\)\s*\.?\s*$/i.test(args.your_strengths) ? ' (page claims)' : '';
+  const strengths: string[] = args.your_strengths ? splitPhrases(args.your_strengths).map(cap).map((x) => (claimLabel && !/\((page )?claims?\)/i.test(x) ? x + claimLabel : x)) : wins.map(cap);
   const weaknesses: string[] = args.your_weaknesses ? splitPhrases(args.your_weaknesses).map(cap) : losses.map(cap);
   const S = strengths;
   const W = weaknesses;
@@ -139,7 +140,7 @@ export function generateCompetitiveIntel(args: {
     const comparison = !!named || /\b(differ\w*|different|versus|vs|compared? (?:to|with)|instead of|why (?:\w+ ){0,3}over|better than)\b/i.test(o);
     const weakOf = named ? (byCompetitor[named] || []).filter((x) => sideOf(x) === 'weak') : [];
     const forComparison = S.slice(0, 2).map((x) => lowerFirst(stripEnd(x)));
-    const useful = matched.length ? matched : comparison ? forComparison : [];
+    const useful = matched.length ? matched : named ? forComparison : [];
     const evidence = useful.length
       ? `${comparison ? 'What I can point to:' : 'What I can tell you today:'} ${andList(useful.slice(0, 2).map((m) => lowerFirst(stripEnd(m))))}.${weakOf.length ? ` And on the alternative, what we have seen is ${lowerFirst(stripEnd(weakOf[0]))}.` : ''}`
       : `On ${qc(objection, 80)} I would rather give you an accurate answer than a guess, so I will confirm the specifics and send them to you in writing.`;
@@ -229,7 +230,7 @@ ${W.length > 0 ? W.map((w, i) => `${i + 1}. **${w}**`).join('\n') : 'Not known y
 
 ${args.your_weaknesses && losses.length > 0 ? `\n**Recent Loss Patterns:**\n${losses.map(l => `- ${l}`).join('\n')}` : ''}
 
-${generalLeft.length ? `**Competitor details about the whole category (shown on each card):**\n${generalLeft.map((g) => `- ${g}`).join('\n')}\n` : ''}
+${generalLeft.length ? `**Competitor details about the whole category (not tied to one alternative):**\n${generalLeft.map((g) => `- ${g}`).join('\n')}\n` : ''}
 ---
 
 ## Competitor Battle Cards
@@ -241,7 +242,8 @@ ${generalLeft.length ? `**Competitor details about the whole category (shown on 
     const comp = competitors[i];
     const desc = isDescription(comp);
     const short = desc ? 'this approach' : shortOf(comp);
-    const info = [...(byCompetitor[comp] || []), ...generalLeft];
+    // only notes that describe this alternative; a note about the whole category is shown once, above the cards
+    const info = [...(byCompetitor[comp] || [])];
     // A strength belongs on this card only when it bears on this alternative (shares a topic or a word with its description or your notes about it)
     const mine = S.map(stripEnd).filter((st) => related(st, comp) || info.some((x) => related(st, x)));
     const metricWord = ctx.v ? andList(ctx.v.metrics.slice(0, 3)) : '';
@@ -250,10 +252,10 @@ ${generalLeft.length ? `**Competitor details about the whole category (shown on 
     const alt = desc ? qc(comp, 90) : short;
     output += `### ${i + 1}. ${comp}
 
-${desc ? `*You described this alternative in your own words, so the card calls it "${short}".*\n\n` : ''}${(byCompetitor[comp] || []).length > 0 ? `**What you know about ${desc ? 'it' : short} (your own notes):**\n${(byCompetitor[comp] || []).map(x => `- ${x}`).join('\n')}\n` : `**What you know about ${desc ? 'it' : short}:** none of your competitor details is about this one alone.\n`}${generalLeft.length ? `\n**Your note that names no single alternative (it may apply here):**\n${generalLeft.map(x => `- ${x}`).join('\n')}\n` : ''}
+${desc ? `*You described this alternative in your own words, so the card calls it "${short}".*\n\n` : ''}${(byCompetitor[comp] || []).length > 0 ? `**What you know about ${desc ? 'it' : short} (your own notes):**\n${(byCompetitor[comp] || []).map(x => `- ${x}`).join('\n')}\n` : `**What you know about ${desc ? 'it' : short}:** none of your competitor details is about this one alone.\n`}
 
 **Where you are stronger against ${short}:**
-${S.length === 0 ? '- Not known yet (add your_strengths)' : mine.length ? mine.map((st) => `- ${st}`).join('\n') : '- None of the strengths you listed is tied to this alternative (see Your Competitive Position above). Add a competitor detail that names what it does badly and the card will pair it with your strength.'}
+${S.length === 0 ? '- Not known yet (add your_strengths)' : mine.length ? mine.map((st) => `- ${st}`).join('\n') : `- Your input does not say which strength answers this alternative. Strengths to put against it: ${S.map(stripEnd).filter((x) => !/\b(?:used by|world's|leading|trusted by|award\w*|named|ranked|recogni[sz]ed)\b/i.test(x)).slice(0, 2).map((x) => qc(x, 80)).join(' and ') || 'none that a buyer can test'}.`}
 
 ${weakNotes.length ? `**Weak points of ${short}, from your notes:**\n${weakNotes.map((x) => `- ${x}`).join('\n')}\n\n` : ''}**Where ${short} may be ahead:**
 ${aheadLines.length ? aheadLines.join('\n') : W.length || info.length ? '- Your notes name nothing here beyond the points above' : '- Not known yet (add your_weaknesses or a competitor detail)'}
@@ -282,7 +284,7 @@ If prospect asks: "Why should we choose you over ${short}?"
 
 First acknowledge one real strength of ${short}. Then say:
 
-"That's a fair question, and I'd rather answer it than dodge it.${mine.length ? ` Here is what customers tell us:\n${mine.slice(0, 2).map((st, n) => `${n + 1}. ${cap(st)}. For a buyer who watches ${metricWord || sectorMetric}, ask what that is worth to them.`).join('\n')}` : ''}${(weakNotes[0] || info[0]) ? `\nAnd on ${short} itself, what you have seen is: ${stripEnd(weakNotes[0] || info[0])}.` : ''}${!mine.length && !(weakNotes[0] || info[0]) ? ` Nothing in your input ties a strength or a weakness to ${short}: add a competitor detail for it before using this line.` : ''}"
+"That's a fair question, and I'd rather answer it than dodge it.${mine.length ? ` Here is what customers tell us:\n${mine.slice(0, 2).map((st, n) => `${n + 1}. ${/\(page claims?\)/i.test(st) ? `Our own materials say: ${stripEnd(st.replace(/\s*\(page claims?\)/i, ''))}` : cap(st)}. For a buyer who watches ${metricWord || sectorMetric}, ask what that is worth to them.`).join('\n')}` : ''}${(weakNotes[0] || info[0]) ? `\nAnd on ${short} itself, what you have seen is: ${stripEnd(weakNotes[0] || info[0])}.` : ''}${!mine.length && !(weakNotes[0] || info[0]) ? ` Nothing in your input ties a strength or a weakness to ${short}: add a competitor detail for it before using this line.` : ''}"
 \`\`\`
 
 ---

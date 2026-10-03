@@ -38,6 +38,8 @@ test("competitive_intel: a category-wide note is not shown as a note about each 
   const cards = r.text.split("## Objection Handlers")[0].split("## Competitor Battle Cards")[1];
   const c2 = cards.split(/\n### 2\. /)[1];
   assert.doesNotMatch(c2, /take many months to implement/);
+  assert.doesNotMatch(c2, /the whole category is slow to change/);
+  assert.match(cards.split(/\n### 1\. /)[1].split(/\n### 2\. /)[0], /take many months to implement/);
   assert.doesNotMatch(cards.split(/\n### 1\. /)[1].split(/\n### 2\. /)[0], /None of the strengths you listed is tied to this alternative/);
 });
 test("competitive_intel: a claim in a spoken script keeps its page-claim label, and a strength is not stretched beyond what it says", async () => {

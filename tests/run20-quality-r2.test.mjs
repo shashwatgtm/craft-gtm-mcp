@@ -64,7 +64,7 @@ test("competitive_intel: with one strength, the cards do not repeat it; a card w
 });
 test("competitive_intel: a note that names no alternative is labelled so, not attached to one card as its own", async () => {
   const r = await call("competitive_intel", { your_product: "Branchwire SD-WAN", competitors: "legacy WAN built on hardware, traditional VPNs", your_strengths: "managed SD-WAN with 24x7 support", competitor_details: "a single congested highway prone to jams" });
-  assert.match(r.text, /Your note that names no single alternative/);
+  assert.match(r.text, /Competitor details about the whole category \(not tied to one alternative\)/);
 });
 test("competitive_intel: no 'resolution rate' or 'inference cost' words for an investment seller", async () => {
   const r = await call("competitive_intel", { your_product: "Quantara, systematic investment strategies powered by adaptive AI for institutions", competitors: "traditional quant strategies with static factor exposures", your_strengths: "signals explained in plain language" });
