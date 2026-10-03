@@ -4,13 +4,21 @@ import { playbookFor, MODEL_LANGUAGE, segmentNotes, segmentKinds, kindsNote, LAU
 
 // Run 20 (quality round 1): the product text is read as a name and a description ("Name: what it does"), so a sentence is built from parts
 // and never from a text cut in the middle of a phrase.
+const NAME_JOINER = /\s+(?:that|which|who|where|for|with|by|from|is|are|connects?|helps?|lets?|gives?|makes?|builds?|runs?|designs?|turns?|unifies?|joins?|uses?|brings?|powers?|automates?|offers?|provides?|enables?|delivers?)\b/i;
 function parseProduct(text: string): { name: string; rest: string } {
   const t = text.trim().replace(/\s+/g, ' ');
+  let name: string; let rest: string;
   const colon = t.indexOf(':');
-  if (colon > 0 && t.slice(0, colon).split(' ').length <= 10) return { name: t.slice(0, colon).trim(), rest: t.slice(colon + 1).trim() };
   const comma = t.indexOf(',');
-  if (comma > 0 && t.slice(0, comma).split(' ').length <= 8) return { name: t.slice(0, comma).trim(), rest: t.slice(comma + 1).trim() };
-  return { name: t.split(' ').length <= 8 ? t : capEcho(t, 70).short, rest: t.split(' ').length <= 8 ? '' : t };
+  if (colon > 0 && t.slice(0, colon).split(' ').length <= 10) { name = t.slice(0, colon).trim(); rest = t.slice(colon + 1).trim(); }
+  else if (comma > 0 && t.slice(0, comma).split(' ').length <= 8) { name = t.slice(0, comma).trim(); rest = t.slice(comma + 1).trim(); }
+  else { name = t.split(' ').length <= 8 ? t : capEcho(t, 70).short; rest = t.split(' ').length <= 8 ? '' : t; }
+  // run 21c round 3: the name is the words before the first comma and before the first verb or joining word ("Name, a description" and "Name connects ..." give "Name")
+  const c = name.indexOf(', ');
+  if (c > 0) { rest = rest ? `${name.slice(c + 2)}: ${rest}` : name.slice(c + 2); name = name.slice(0, c); }
+  const j = name.search(NAME_JOINER);
+  if (j > 0) { const head = name.slice(0, j).trim(); if (head && !/\.\.\.$/.test(name)) { rest = rest ? `${name.slice(j).trim()}: ${rest}` : name.slice(j).trim(); name = head; } }
+  return { name, rest };
 }
 
 const lower1 = lcFirst;
