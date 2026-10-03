@@ -624,7 +624,8 @@ export function analyzeCRAFTDimensions(content: string): CRAFTAnalysis {
   }
 
   // A risk the plan names but never answers: judged sentence by sentence (the answer may sit in the same or the next sentence).
-  const sentences = content.split(/\n|(?<=[.!?])\s+/).map((x) => x.trim()).filter(Boolean);
+  // Run 20: only the plan's own lines can name a risk of the plan ("digital risk protection" in an Alternatives line is not one).
+  const sentences = ownLines.join('\n').split(/\n|(?<=[.!?])\s+/).map((x) => x.trim()).filter(Boolean);
   sentences.forEach((sent, i) => {
     if (RISK_WORD.test(sent)) {
       const answered = RISK_ANSWER.test(sent.replace(/\brisks?\b/gi, '')) || RISK_ANSWER.test(sentences[i + 1] || '');

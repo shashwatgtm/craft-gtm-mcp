@@ -59,6 +59,9 @@ function readSector(input: ReaderInput): ReturnType<typeof explainSector> {
   const m = explainSector({ ...input, seller: maskedSeller });
   if (m.vertical && m.vertical.id !== 'ai-native' && m.source === 'seller' && m.strong.length >= 2) return m;
   if (r.strong.every((w) => w === 'ai')) return explainSector({ ...input, seller: [] });
+  // AI words say how it is built; the job titles of the buyer (a CISO, a head of last-mile operations) or the deal text say what it is for.
+  const rest = explainSector({ ...input, seller: [] });
+  if (rest.vertical && rest.vertical.id !== 'ai-native' && (rest.source === 'role' || rest.source === 'context')) return rest;
   return r;
 }
 
