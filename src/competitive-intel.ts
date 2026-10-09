@@ -57,7 +57,7 @@ const toks = (t: string): Set<string> => new Set((t.toLowerCase().match(/[a-z]{3
 const longWords = (t: string): Set<string> => new Set(words(t));
 // how many words of a also appear in b, a word counting as the same when it is a known short form of the other ("dev" and "developer") or a long opening of it
 const SHORT_FORMS: Array<[string, string]> = [['dev', 'developer'], ['app', 'application'], ['config', 'configuration'], ['info', 'information'], ['auth', 'authentication'], ['admin', 'administrator'], ['ops', 'operation'], ['tech', 'technolog'], ['repo', 'repositor'], ['docs', 'documentation']];
-const sameWord = (x: string, y: string): boolean => x === y || (x.length >= 5 && y.startsWith(x)) || (y.length >= 5 && x.startsWith(y)) || SHORT_FORMS.some(([a, b]) => (x === a && y.startsWith(b)) || (y === a && x.startsWith(b)));
+const sameWord = (x: string, y: string): boolean => x === y || (x.length >= 5 && y.startsWith(x) && y.length - x.length <= 4) || (y.length >= 5 && x.startsWith(y) && x.length - y.length <= 4) || SHORT_FORMS.some(([a, b]) => (x === a && y.startsWith(b)) || (y === a && x.startsWith(b)));
 const overlapN = (a: Set<string>, b: Set<string>): number => [...a].filter((x) => [...b].some((y) => sameWord(x, y))).length;
 function related(a: string, b: string): boolean {
   const ta = topicsOf(a); const tb = topicsOf(b);
@@ -233,7 +233,7 @@ export function generateCompetitiveIntel(args: {
     }
     return out.filter((x, i, a) => a.indexOf(x) === i);
   };
-  const prodClauses = productClauses(label.rest.startsWith('(') ? label.whole.replace(/^[^)]*\)\s*,?\s*/, '') : label.rest || label.whole).filter((x) => !nameWord || !x.toLowerCase().includes(nameWord)).map((x, k) => (k === 0 ? (/\bthat\s+\w+/i.test(x) ? `it ${x.replace(/^.*?\bthat\s+/i, '')}` : '') : x)).filter(Boolean);   // the first clause is the category statement ("a platform that automates ..."): only what comes after "that" can answer a complaint
+  const prodClauses = productClauses(label.rest.startsWith('(') ? label.whole.replace(/^[^)]*\)\s*,?\s*/, '') : label.rest || label.whole).filter((x) => !nameWord || !x.toLowerCase().includes(nameWord)).map((x, k) => (k === 0 ? (/\bthat\s+\w+/i.test(x) && /\bautomat\w*/i.test(x) ? `it ${x.replace(/^.*?\bthat\s+/i, '')}` : '') : x)).filter(Boolean);   // the first clause is the category statement ("a platform that automates ..."): only what comes after "that" can answer a complaint
   // the clause of the product description that best answers what this alternative is said to get wrong (each clause answers one card)
   // a word that only one clause holds says more than a word every clause holds ("phishing", "training"); the best pairs of card and clause are given out first
   const clauseOfCard = new Map<Comp, string>();
