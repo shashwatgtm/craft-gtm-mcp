@@ -23,7 +23,7 @@ const SDWAN = { product_feature: "Branchwire managed SD-WAN: one control centre,
 test("launch_commander: the messaging matrix has no bracket placeholder and every segment has a pain, a proof point and a next step", async () => {
   const r = await call("launch_commander", SDWAN);
   assert.equal(r.isError, false);
-  const m = r.text.split("## Segment Messaging Matrix")[1].split("## Success Metrics")[0];
+  const m = r.text.split("## Who the launch speaks to")[1].split("## Channels and budget")[0];   // run 22: the messages sit under "Who the launch speaks to"
   assert.doesNotMatch(m, BRACKET);
   assert.doesNotMatch(m, /Not supplied/);
   for (const seg of ["Banking", "Manufacturing", "Retail"]) assert.match(m, new RegExp(`### ${seg}`));
@@ -32,25 +32,27 @@ test("launch_commander: the messaging matrix has no bracket placeholder and ever
 });
 test("launch_commander: a connectivity launch has no landing page, blog or in-app task", async () => {
   const r = await call("launch_commander", SDWAN);
-  const tl = r.text.split("## Launch Timeline")[1].split("## Segment Messaging Matrix")[0];
-  assert.doesNotMatch(tl, /in-app|landing page update|\| Blog post|influencer|waitlist|Product Hunt/i);
+  const tl = r.text.split("## Timeline")[1].split("## Risks and how to meet them")[0];   // run 22: the timeline is a list of tasks, each in bold
+  assert.doesNotMatch(tl, /in-app|landing page update|\*\*Blog post\*\*|influencer|waitlist|Product Hunt/i);
   assert.match(tl, /pilot sites|site survey/i);
 });
 test("launch_commander: 'with CIO as the buyer' stays inside the goal and is used as the buyer; it is not a goal of its own", async () => {
   const r = await call("launch_commander", SDWAN);
-  const goals = r.text.split("## Launch Goals")[1].split("---")[0].trim().split("\n").filter((l) => l.startsWith("- "));
+  const goals = r.text.split("## Goals and how each is measured")[1].split("## Who the launch speaks to")[0].trim().split("\n").filter((l) => l.startsWith("| ") && !l.startsWith("| Goal") && !l.startsWith("|--"));
   assert.equal(goals.length, 1);
   assert.match(goals[0], /with CIO as the buyer/);
-  assert.match(r.text, /Write it for the CIO/);
-  assert.doesNotMatch(r.text, /\| Other goal \|/);
+  assert.match(r.text, /You named the CIO as the buyer, so the briefing and the messages are written for that role/);
+  assert.doesNotMatch(r.text, /\| Other measure \|/);
   assert.doesNotMatch(r.text, /Chief Information Officer, Head of IT/);   // the CIO is not listed twice
 });
 test("launch_commander: a long product description is quoted whole at a word boundary, never cut inside a phrase or doubled", async () => {
   const r = await call("launch_commander", { ...SDWAN, product_feature: `Branchwire managed SD-WAN: ${"path control, one control centre and managed security, ".repeat(12)}and one managed service` });
-  const line = r.text.split("\n").find((l) => l.startsWith("**The product, in your words:**"));
-  assert.ok(line, "the product line");
-  assert.doesNotMatch(line, /\.\.\.\./);
-  assert.match(line, /\.\.\."$/);   // a cut ends with three dots inside the quotes
+  // run 22: the description is listed in parts, each part whole (nothing is cut with three dots, nothing is doubled)
+  const section = r.text.split("## What is being launched")[1].split("## Goals and how each is measured")[0];
+  assert.doesNotMatch(section, /\.\.\./);
+  assert.match(section, /path control, one control centre and managed security/);
+  assert.match(section, /one managed service/);
+  assert.equal(section.split("\n").filter((l) => l.startsWith("- ")).length, new Set(section.split("\n").filter((l) => l.startsWith("- "))).size, "no part is doubled");
 });
 test("launch_commander: with no sector in the words, the matrix still has no bracket and names the segment's buying steps", async () => {
   const r = await call("launch_commander", { product_feature: "Quantara", launch_type: "feature_launch", launch_date: "TBD", target_segments: "Asset allocators (pensions; insurers), Investment banks", goals: "10 hypothetical meetings" });
@@ -213,15 +215,15 @@ test("retention_playbook: an enterprise contract with no reasons gets reasons th
   assert.doesNotMatch(r.text, /Check support tickets and usage data for mentions|Direct outreach to understand and address concern/);
   assert.doesNotMatch(r.text, BRACKET);
   assert.doesNotMatch(r.text, /Login frequency|We're sorry to see you go|Business model: software subscription/);
-  assert.match(r.text, /\*\*In this segment:\*\* a renewal usually involves a vendor risk and security review/);
-  const sig = [...r.text.matchAll(/\*\*Signals to look for:\*\*\n- (.*)/g)].map((m) => m[1]);
+  assert.match(r.text, /In this segment a renewal usually involves a vendor risk and security review/);
+  const sig = [...r.text.matchAll(/\*\*Signal:\*\* (.*)/g)].map((m) => m[1]);
   assert.ok(sig.length >= 5);
   assert.equal(new Set(sig).size, sig.length, "no two reasons share a signal");
 });
 test("retention_playbook: the emails carry no bracket placeholder and the sector's proof is a note outside the email", async () => {
   const r = await call("retention_playbook", { customer_segment: "FMCG brands", business_model: "saas_subscription", current_churn_rate: "2% monthly", churn_reasons: "reps went back to paper, too expensive", product: "Shelfwalk", industry: "vertical_saas" });
   assert.doesNotMatch(r.text, BRACKET);
-  assert.match(r.text, /Before you send:\*\* add a result only if you hold it/);
+  assert.match(r.text, /Add a result to a draft only if you hold it/);   // run 22: said once, above the drafts
 });
 test("retention_playbook: a vertical SaaS sector gets its own churn reasons with their own signals", async () => {
   // run 21b: the reasons about reps and distributors are those of a field sales and distributor company, so the product names that kind of company
@@ -264,14 +266,15 @@ test("crisis_planner: a vulnerability and a customer data exposure each have the
   const r = await call("crisis_planner", { company: "Vaultline", industry: "cybersecurity", customer_base: "b2b_enterprise", data_sensitivity: "high_pii_financial", potential_crises: "data_breach, security_vulnerability, customer_data_exposure" });
   assert.doesNotMatch(r.text, /Use the .* steps above/);
   assert.match(r.text, /### Security vulnerability/);
-  assert.match(r.text, /Confirm and rate it/);
+  assert.match(r.text, /Confirm it and rate it/);
   assert.match(r.text, /### Customer data exposure/);
   assert.match(r.text, /Close the access/);
 });
 test("crisis_planner: the contacts table is blank cells to fill, not [Add]", async () => {
   const r = await call("crisis_planner", { company: "Vaultline", industry: "cybersecurity", customer_base: "b2b_enterprise", data_sensitivity: "medium_business_data" });
   assert.doesNotMatch(r.text, /\[Add\]/);
-  assert.match(r.text, /Fill these in before a crisis/);
+  assert.match(r.text, /before a crisis, write down a person, a deputy, a phone number and an email for each role/);   // run 22: no blank table to fill
+  assert.doesNotMatch(r.text, /\| Name \| Phone \| Email \|/);
 });
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -302,8 +305,8 @@ test("pmf_scorecard: an asset manager is not scored with customer-support automa
 // small text rules
 test("acronyms keep their capitals when a sector objection or proof is lower-cased into a sentence", async () => {
   const r = await call("launch_commander", { product_feature: "Lanehop: last mile delivery route planning and dispatch for delivery fleets", launch_type: "feature_launch", target_segments: "Retail", goals: "ten hypothetical meetings", industry: "logistics_tech" });   // run 21b: the TMS objection belongs to the last mile sub-type, so the product names it
-  assert.match(r.text, /we already have a TMS/);
-  assert.doesNotMatch(r.text, /we already have a tms/);
+  assert.match(r.text, /We already have a TMS/);   // run 22: the objection is quoted as the sector file words it, with its acronym
+  assert.doesNotMatch(r.text, /we already have a tms|We already have a tms/);
   const p = await call("partner_architect", { company: "Vaultline", product: "Vaultline cloud security posture management", partner_model: "referral", partner_goals: "pipeline", your_deal_size: "$80,000", industry: "cybersecurity" });   // run 21b: the SIEM objection belongs to the cloud security sub-type, so the product is named
   assert.match(p.text, /integration with our SIEM and ticketing/);
   assert.match(p.text, /Subject: Referral partnership with Vaultline\n/);

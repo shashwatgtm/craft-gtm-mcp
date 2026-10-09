@@ -155,20 +155,21 @@ test("launch_commander: a managed network launch has no consumer or software-onl
     target_segments: "banks with many branches, retail chains", goals: "40 branch-rollout demos, $300K pipeline, 5 reference customers", available_channels: "email, linkedin, webinar" });
   assert.equal(r.isError, false);
   assert.doesNotMatch(r.text, /in-app|product hunt|influencer|waitlist/i);
-  const row = (name) => r.text.split("\n").find((l) => l.startsWith(`| ${name} |`)) || "";
-  assert.match(row("Revenue"), /\$300K pipeline/);
-  assert.doesNotMatch(row("Revenue"), /branch-rollout demos/);
-  assert.match(row("Engagement"), /40 branch-rollout demos/);
-  assert.match(r.text, /5 reference customers/);
+  // run 22: the goals table has one row per goal, with the kind of measure in the second column
+  const row = (goal) => r.text.split("\n").find((l) => l.startsWith("| ") && l.includes(goal)) || "";
+  assert.match(row("$300K pipeline"), /\| Revenue \|/);
+  assert.doesNotMatch(row("$300K pipeline"), /branch-rollout demos/);
+  assert.match(row("40 branch-rollout demos"), /\| Engagement \|/);
+  assert.match(row("5 reference customers"), /\| Adoption \|/);
   assert.doesNotMatch(r.text, /\[Define for|\[Case study|\[Specific action|\[set a target\]/);
   assert.match(r.text, /uptime|site survey|latency|network operations/i);
 });
 test("launch_commander: a goal that mentions sales heads is not filed under Revenue", async () => {
   const r = await call("launch_commander", { product_feature: "Shelfwalk order suggestions", launch_type: "feature_launch", target_segments: "packaged food brands",
     goals: "40 qualified meetings with National Sales Heads, $360,000 pipeline" });
-  const row = (name) => r.text.split("\n").find((l) => l.startsWith(`| ${name} |`)) || "";
-  assert.match(row("Engagement"), /40 qualified meetings with National Sales Heads/);
-  assert.match(row("Revenue"), /\$360,000 pipeline/);
+  const row = (goal) => r.text.split("\n").find((l) => l.startsWith("| ") && l.includes(goal)) || "";
+  assert.match(row("40 qualified meetings with National Sales Heads"), /\| Engagement \|/);
+  assert.match(row("$360,000 pipeline"), /\| Revenue \|/);
 });
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -207,7 +208,7 @@ test("retention_playbook: a service contract gets service signals, its own reaso
   assert.doesNotMatch(r.text, /Getting more value from mid-size banks/);
   assert.match(r.text, /Example IT Services Co/);
   assert.match(r.text, /quarterly business reviews/);
-  assert.match(r.text, /sla attainment[^\n]*Available/i);
+  assert.match(r.text, /sla attainment[^\n]*you track/i);
   for (const reason of ["service credits were disputed every month", "a rival bundled the service desk with its cloud contract", "key engineers left"]) assert.ok(r.text.includes(reason), reason);
   assert.match(r.text, /bundle|outcome the buyer needs/i);
   assert.doesNotMatch(r.text, /\[the problem, in the customer's words\]/);
@@ -276,7 +277,7 @@ test("crisis_planner: a typed HIPAA is echoed but no health authority is named b
 });
 test("crisis_planner: high personal or financial data adds a security lead and a data protection lead to the core team", async () => {
   const r = await call("crisis_planner", { company: "Spendrill", industry: "fintech", customer_base: "b2b_enterprise", data_sensitivity: "high_pii_financial", company_size: "scaleup_50_200" });
-  const core = r.text.split("**Core Team (Always Activated):**")[1].split("**Extended Team")[0];
+  const core = r.text.split("The core team is always activated:")[1].split("The extended team")[0];
   assert.match(core, /CISO|security lead/i);
   assert.match(core, /data protection/i);
   assert.match(r.text, /fraud/i);
@@ -356,18 +357,22 @@ test("craft_gtm_analyzer: a risk named without any response is flagged", async (
 // Ledger B15-L1 (approved): a long pasted text never fills a heading or a table; it is quoted once in full
 test("a 3,000 character product text is capped in the heading and the table, and printed once in full", async () => {
   const long = "Shelfwalk is a field sales app for consumer goods brands and their distributors. ".repeat(40).trim();
+  // run 22: launch_commander lists the sentences of a long description as parts of the launch, each once, in a plan with a short heading
+  const sentences = Array.from({ length: 40 }, (_, i) => `Shelfwalk module ${i + 1} is a field sales app for consumer goods brands and their distributors.`);
+  const longDistinct = sentences.join(" ");
   for (const [tool, args, field] of [
     ["pmf_scorecard", { product: long, target_market: "vertical_saas", current_metrics: "Churn: 2%, NPS: 41" }, "product"],
-    ["launch_commander", { product_feature: long, launch_type: "feature_launch", target_segments: "packaged food brands", goals: "40 qualified meetings" }, "product_feature"],
+    ["launch_commander", { product_feature: longDistinct, launch_type: "feature_launch", target_segments: "packaged food brands", goals: "40 qualified meetings" }, "product_feature"],
     ["competitive_intel", { your_product: long, competitors: "Competitor A", your_strengths: "offline order capture" }, "your_product"],
   ]) {
     const r = await call(tool, args);
     assert.equal(r.isError, false, tool);
-    const heading = r.text.split("\n").find((l) => l.startsWith("## "));
+    const heading = r.text.split("\n").find((l) => l.startsWith("# ") || l.startsWith("## "));
     assert.ok(heading.length < 220, `${tool}: heading is ${heading.length} characters`);
-    assert.equal(r.text.split(long).length - 1, 1, `${tool}: the full text appears once`);
+    if (tool === "launch_commander") for (const sen of sentences) assert.equal(r.text.split("\n").filter((l) => l === `- ${sen.replace(/\.$/, "")}`).length, 1, `${tool}: each sentence is listed once: ${sen}`);
+    else assert.equal(r.text.split(long).length - 1, 1, `${tool}: the full text appears once`);
     // Run 20 round 1: the plan itself grew (sector tasks, a filled messaging matrix), so the bound is three times the text plus 3,000 characters
     // for that content. The text is still printed in full only once (checked above).
-    assert.ok(r.text.length < long.length * 3 + 3000, `${tool}: the answer does not repeat the text`);
+    assert.ok(r.text.length < args[field].length * 3 + 3000, `${tool}: the answer does not repeat the text`);
   }
 });

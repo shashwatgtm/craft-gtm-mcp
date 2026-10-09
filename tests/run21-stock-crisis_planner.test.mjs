@@ -82,9 +82,10 @@ test("ITeS and AI native: no service desk or offshore wording for a customer exp
 
 test("a company with no kind named is told which kinds have steps of their own and where to say it; a named kind is not", async () => {
   const neutral = await plan("Brightline Group", "logistics_tech");
-  assert.match(neutral, /\*For Brightline Group: the sector lines below fit any company in logistics tech\. Lines written for one kind of company exist for these kinds: freight visibility; last mile delivery\. Say what it sells in the company input to get them\.\*/);
+  // run 22: the lines written for one kind of company exist for these kinds are named once, at the end, in "To sharpen this, give"
+  assert.match(neutral, /To sharpen this, give:[^]*what the company sells, in the company input[^]*lines written for one kind of company exist for these kinds: freight visibility; last mile delivery/);
   const named = await plan("a freight visibility company with shipment tracking across carriers", "logistics_tech");
-  assert.doesNotMatch(named, /Lines written for one kind of company exist for/);
+  assert.doesNotMatch(named, /lines written for one kind of company exist for these kinds/);
   const none = await plan("Brightline Group", "saas");
-  assert.doesNotMatch(none, /Lines written for one kind of company exist for/);
+  assert.doesNotMatch(none, /lines written for one kind of company exist for these kinds/);
 });

@@ -78,7 +78,7 @@ const tenths = (i) => { const s = (i / 10).toFixed(1); return s.endsWith(".0") ?
 test("retention_playbook: churn 0.8 a month times twelve prints 9.6%, not 9.600000000000001% and not a rounded 10%", async () => {
   const r = await call("retention_playbook", { customer_segment: "Lanehop carrier accounts", business_model: "enterprise_contract", current_churn_rate: "0.8% monthly", churn_reasons: "price, support", cs_team_size: "small_1_3" });
   assert.equal(r.isError, false);
-  assert.match(r.text, /~9\.6%/);
+  assert.match(r.text, /about 9\.6% of customers lost in a year/);
   assert.doesNotMatch(r.text, /9\.60+\d/);
   assertCleanPercents(r.text, "0.8");
 });
@@ -90,8 +90,8 @@ test("retention_playbook: monthly churn from 0.1 to 6.0 times twelve is clean, w
     for (const reasons of ["price, support", ""]) {
       const r = await call("retention_playbook", { customer_segment: "Branchwire shippers", business_model: "saas_subscription", current_churn_rate: monthly + "%", ...(reasons ? { churn_reasons: reasons } : {}) });
       assert.equal(r.isError, false, monthly);
-      // The discovery kit (no churn reasons) has no annualised row; the full playbook does.
-      if (reasons) assert.match(r.text, new RegExp("~" + expected.replace(".", "\\.") + "%"), "churn " + monthly + " should print ~" + expected + "%");
+      // run 22: the playbook and the discovery kit both state the annual figure
+      assert.match(r.text, new RegExp("about " + expected.replace(".", "\\.") + "% of customers lost in a year"), "churn " + monthly + " should print about " + expected + "%");
       assertCleanPercents(r.text, "churn " + monthly + (reasons ? "" : " discovery"));
     }
   }
@@ -99,8 +99,8 @@ test("retention_playbook: monthly churn from 0.1 to 6.0 times twelve is clean, w
 
 test("retention_playbook: a churn typed with many decimals is shown with one", async () => {
   const r = await call("retention_playbook", { customer_segment: "Lanehop carrier accounts", business_model: "saas_subscription", current_churn_rate: "2.3456% monthly", churn_reasons: "price" });
-  assert.match(r.text, /\| Monthly Churn \| 2\.3% \|/);
-  assert.match(r.text, /~28\.1%/);
+  assert.match(r.text, /You report churn of 2\.3% monthly/);
+  assert.match(r.text, /about 28\.1% of customers lost in a year/);
   assertCleanPercents(r.text, "2.3456");
 });
 
