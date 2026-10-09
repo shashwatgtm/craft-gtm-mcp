@@ -162,7 +162,7 @@ test("pool: the pairs the round 1 judges named", { skip: !POOL_AVAILABLE }, asyn
   assert.doesNotMatch(sharpen(p2.out) ?? "", /who the buyer is/i);
   assert.doesNotMatch(seg(p2.out, "Property management"), /originate a loan|fair lending|delinquency/i);
   const q15 = await get("launch_commander", "Q15");
-  assert.doesNotMatch(q15.out, /the part of CircleCI/);
+  assert.doesNotMatch(q15.out, /the part of \S+ that/);
   assert.doesNotMatch(q15.out, /VP of Engineering[^\n.]*VP Engineering|VP Engineering[^\n.]*VP of Engineering/);
   const p5 = await get("retention_playbook", "P5");
   assert.doesNotMatch(p5.out, /cost per case|per case or per decision|human review switched on/i);
