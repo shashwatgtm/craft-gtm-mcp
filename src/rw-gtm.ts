@@ -48,8 +48,8 @@ export function productLabel(product: string, company?: string): ProductLabel {
   // a text that opens with a bracket or a quote mark (the echo safeguard quotes odd text) has no name: it is shown as typed
   if (/^\s*[\[\u201C"'\u2018]/.test(whole) && !(co && whole.toLowerCase().startsWith(co.toLowerCase()))) return { name: null, rest: whole, whole };
   const dropRepeat = (rest: string, name: string): string => rest.replace(new RegExp(`^${name.split(/\s+/)[0].replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b\\s*[,:\\-\\u2013]?\\s*`, 'i'), '');
-  if (co && whole.toLowerCase().startsWith(co.toLowerCase()) && (whole.length === co.length || /[\s,:\-–]/.test(whole.charAt(co.length)))) {
-    return { name: co, rest: whole.slice(co.length).replace(/^[\s,:\-–]+/, ''), whole };
+  if (co && whole.toLowerCase().startsWith(co.toLowerCase()) && (whole.length === co.length || /[\s,:\-\u2013]/.test(whole.charAt(co.length)))) {
+    return { name: co, rest: whole.slice(co.length).replace(/^[\s,:\-\u2013]+/, ''), whole };
   }
   // a name followed by a bracket: "Gnani.ai Voice AI platform (voice agents, analytics ...)"
   const br = whole.indexOf('(');
@@ -58,12 +58,12 @@ export function productLabel(product: string, company?: string): ProductLabel {
     if (before.split(/\s+/).length >= 1 && before.split(/\s+/).length <= 6) return { name: before, rest: whole.slice(br), whole };
   }
   const sn = shortName(whole);
-  if (sn) return { name: sn, rest: dropRepeat(whole.slice(sn.length).replace(/^[\s,:\-–]+/, ''), sn), whole };
+  if (sn) return { name: sn, rest: dropRepeat(whole.slice(sn.length).replace(/^[\s,:\-\u2013]+/, ''), sn), whole };
   const words = whole.split(/\s+/);
   const joinAt = words.findIndex((w, i) => i >= 1 && JOIN_WORD.test(w));
   if (joinAt >= 2 && joinAt <= 4) return { name: words.slice(0, joinAt).join(' '), rest: whole, whole };
   if (words.length <= 6) return { name: whole, rest: '', whole };
-  // a clause that ends at a comma, colon or dash and holds 2 to 8 words is the name ("Zencargo AI-powered digital freight forwarding platform, the AI Freight Forwarder: ...")
+  // a clause that ends at a comma, colon or dash and holds 2 to 8 words is the name ("Lanehop AI-powered route planning platform, the dispatch assistant: ...")
   const clause = whole.split(/[,:]|\s[-\u2013]\s/)[0].trim();
   const cw = clause.split(/\s+/);
   if (cw.length >= 2 && cw.length <= 8 && clause.length < whole.length && !JOIN_WORD.test(cw[cw.length - 1]) && !/^(?:an?|the|our|my|your)\b/i.test(clause)) return { name: clause, rest: whole.slice(clause.length).replace(/^[\s,:\-\u2013]+/, ''), whole };
