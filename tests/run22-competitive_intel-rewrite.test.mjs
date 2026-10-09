@@ -115,6 +115,69 @@ test("the sector and model line is kept", async () => {
   assert.match(out, /\*Sector: read from your inputs as logistics tech[^\n]*Business model: [^\n]*\*/);
 });
 
+// ---- round 2 (judges of round 1) ----
+const BS = { your_product: "Testloop, cloud platform for testing websites and mobile apps on real browsers and real devices (35,000+), with test automation, visual testing and accessibility testing",
+  competitors: "buying and maintaining physical devices, browser developer tools and emulators", your_strengths: "trusted by 50,000+ customers, over 7 million developers, 150+ integrations, 24/7 support (page claims)",
+  competitor_details: "costly physical devices; Chrome dev tools were not very accurate or reliable for real device testing (reviewers' words on the page)" };
+test("round 2: a note about 'dev tools' reaches the card of the browser developer tools, no card is left empty, and nothing is asked that the input holds", async () => {
+  const out = await text("competitive_intel", BS);
+  assertClean(out, "Testloop");
+  const dev = cardOf(out, "browser developer tools");
+  assert.match(dev, /Chrome dev tools were not very accurate/);
+  assert.doesNotMatch(cardOf(out, "physical devices"), /Chrome dev tools/);
+  assert.doesNotMatch(closingOf(out), /competitor_details/);
+});
+test("round 2: the product's own part (real devices with a count) is set against the complaint it answers, ahead of a user count", async () => {
+  const out = await text("competitive_intel", BS);
+  assert.match(cardOf(out, "physical devices"), /lead with:\*\* real devices \(35,000\+\)/);
+});
+test("round 2: a weak point is asked as a clean sentence: a clause with 'how often does it happen that', a noun phrase with 'does this affect you today'", async () => {
+  const out = await text("competitive_intel", BS);
+  assert.match(out, /Does this affect you today: costly physical devices\? If so, how does it show up in /);
+  assert.match(out, /How often does it happen that [Cc]hrome dev tools were not very accurate or reliable for real device testing\? When did it last happen/);
+  assert.doesNotMatch(out, /How often does this happen in your operation/);
+});
+test("round 2: a source label on a note is kept as its source in the script ('in reviewers' words on the page')", async () => {
+  const out = await text("competitive_intel", BS);
+  assert.match(cardOf(out, "browser developer tools"), /in reviewers' words on the page: Chrome dev tools were not very accurate/);
+});
+test("round 2: a described alternative with a source label is named by its first clause, never 'alternative 1'", async () => {
+  const out = await text("competitive_intel", { your_product: "Shipwell, a shipping platform for online sellers", competitors: "dealing with couriers one by one; with confusing rates and limited serviceability (a seller's words)", your_strengths: "19,000+ pin codes, 42+ courier partners (page claims)", competitor_details: "courier rates were confusing and many areas were not even serviceable (a seller's words on the page)" });
+  assert.doesNotMatch(out, /alternative \d/i);
+  assert.match(out, /## Against dealing with couriers one by one/);
+  assert.match(cardOf(out, "dealing with couriers"), /lead with:\*\* 19,000\+ pin codes \(page claims\)/);
+});
+const HX = { your_product: "Phishguard, a human risk platform that automates adaptive phishing training and email incident response, with gamified simulations delivered across email, SMS and Teams, so employees learn to report real attacks",
+  competitors: "legacy awareness tools with a fixed curriculum, campaigns that security teams must build by hand",
+  your_strengths: "founded in 2016 in Helsinki; a $40 million Series B in 2022; 3M users worldwide, 7M simulations a month and 40+ languages (page claims)",
+  competitor_details: "traditional phishing training follows a fixed curriculum built around periodic simulations, and security teams have to manually build, schedule and manage the campaigns",
+  common_objections: "How does adaptive phishing training work?, Why is adaptive phishing training better than legacy tools?, Does Phishguard support training for global workforces?" };
+test("round 2: 'why better than legacy tools' is answered with the competitor details the user gave, never with funding or a user count", async () => {
+  const out = await text("competitive_intel", HX);
+  assertClean(out, "Phishguard");
+  const block = out.split('### "Why is adaptive phishing training better than legacy tools?"')[1].split("###")[0];
+  assert.match(block, /fixed curriculum/);
+  assert.doesNotMatch(block, /Series B|3M users|founded in 2016/);
+});
+test("round 2: an objection is answered from the sub-claim that answers it (languages for a global workforce), not by a promise to confirm", async () => {
+  const out = await text("competitive_intel", HX);
+  const block = out.split('### "Does Phishguard support training for global workforces?"')[1].split("###")[0];
+  assert.match(block, /40\+ languages \(page claims\)/);
+  assert.doesNotMatch(block, /accurate answer than a guess/);
+  assert.doesNotMatch(closingOf(out), /global workforces/);
+});
+test("round 2: 'how does it work' is answered from the product description the user gave", async () => {
+  const out = await text("competitive_intel", HX);
+  const block = out.split('### "How does adaptive phishing training work?"')[1].split("###")[0];
+  assert.match(block, /Here is how I would put it: a human risk platform that automates adaptive phishing training/);
+});
+test("round 2: a weak point about rates is not pasted into an objection about delays", async () => {
+  const out = await text("competitive_intel", { your_product: "Shipwell, a shipping platform for online sellers", competitors: "dealing with couriers one by one", your_strengths: "42+ courier partners (page claims)", competitor_details: "courier rates were confusing", common_objections: "What should I do if a courier partner delays delivery?" });
+  const block = out.split('### "What should I do if a courier partner delays delivery?"')[1].split("###")[0];
+  assert.doesNotMatch(block, /rates were confusing/);
+  assert.match(block, /42\+ courier partners \(page claims\)/);
+});
+
 // ---- the pool scenarios (private) ----
 const POOL = ["T6", "T7", "T8", "T9", "H1", "H4", "H6", "H9", "P2", "P6", "P7", "P9", "Q2", "Q5", "Q9", "Q13", "Q14", "Q16", "Q18"];
 for (const id of POOL) {

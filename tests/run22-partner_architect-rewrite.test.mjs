@@ -105,6 +105,51 @@ test("the sector and model line is kept", async () => {
   assert.match(out, /\*Sector: read from your inputs as telecom[^\n]*Business model: [^\n]*\*/);
 });
 
+// ---- round 2 (judges of round 1): kinds come from the product's parts AND the segments; a segment with no kinds is said once with the question that finds them;
+// the email names what the product does for the partner's customers; the 25 percent example row is not presented as a tier.
+const WB = { company: "Wordbridge", product: "Wordbridge, a localisation platform for product teams: translation workflows and a developer API", partner_model: "referral",
+  partner_goals: "Partner-sourced pipeline among enterprise software, financial services, education, web and mobile apps; no numeric target given", your_deal_size: "$9,000 ACV" };
+test("round 2: the product's own words add partner kinds (localisation agencies), and every segment of the goal gets its kinds", async () => {
+  const out = await text("partner_architect", WB);
+  assertClean(out, "Wordbridge");
+  assert.match(out, /localisation and translation agencies/);
+  assert.match(out, /\*\*Education:\*\* look for/);
+  assert.match(out, /\*\*Software and technology companies:\*\* look for/);
+  assert.doesNotMatch(out, /no partner kinds for/i);
+});
+test("round 2: a freight visibility platform gets supply chain kinds, not plant automation, for manufacturing segments", async () => {
+  const out = await text("partner_architect", { company: "Trackline", product: "Trackline freight visibility platform for shippers", partner_model: "referral", partner_goals: "Partner-sourced pipeline among Automotive, Chemical, Food and beverage; no numeric target given", your_deal_size: "$250,000 ACV" });
+  assert.match(out, /supply chain and logistics consultancies/);
+  assert.doesNotMatch(out, /plant automation/i);
+  assert.match(out, /Food|consumer goods and food/i);
+  assert.doesNotMatch(out, /no partner kinds for/i);
+});
+test("round 2: a segment with no known kinds is named once, with the question that finds them", async () => {
+  const out = await text("partner_architect", { ...WB, partner_goals: "Partner-sourced pipeline among education, underwater basket weaving, beekeeping co-operatives; no numeric target given" });
+  assert.equal((out.match(/no partner kinds for/gi) || []).length, 1);
+  assert.match(out, /no partner kinds for underwater basket weaving and beekeeping co-operatives/i);
+  assert.match(out, /ask five of your best customers in each of those segments who advised them on the purchase/);
+});
+test("round 2: the recruitment email names what the product does for the partner's customers, and the 25 percent row is not called a tier", async () => {
+  const out = await text("partner_architect", WB);
+  const email = out.slice(out.indexOf("Subject:"));
+  assert.match(email, /works with languages and localisation/);
+  assert.match(email, /clients include/);
+  assert.match(out, /not the rates of the tiers above/);
+  assert.doesNotMatch(out, /\| (?:Referrer|Advocate|Authorized|Silver|Gold|Platinum), \d+ deals? at/);
+});
+test("round 2: an AI company name adds AI partner kinds even when the product is a bare name", async () => {
+  const out = await text("partner_architect", { company: "Lingua AI", product: "Lingua", partner_model: "referral", partner_goals: "Partner-sourced pipeline among banks; no numeric target given", your_deal_size: "$60,000 ACV" });
+  assert.match(out, /Your product works with AI, so also look for AI and data consultancies/);
+});
+test("round 2: a bare product name says once that the kinds come from the model and the segments, and asks for one line on what it does", async () => {
+  const out = await text("partner_architect", { company: "Plainco", product: "Plainco", partner_model: "referral", partner_goals: "Partner-sourced pipeline among retail; no numeric target given", your_deal_size: "$20,000 ACV" });
+  assert.match(out, /Referral partners are usually advisers and consultants/);
+  assert.equal((out.match(/not from what the product does/g) || []).length, 1);
+  assert.match(closingOf(out), /product: one line on what it does and who uses it \(it would change the partner kinds/);
+  assert.doesNotMatch(out.slice(out.indexOf("Subject:")), /about our offer/);
+});
+
 const POOL = ["T6", "T7", "T8", "T9", "H1", "H2", "H4", "H6", "H7", "P2", "P6", "P7", "P9", "Q3", "Q8", "Q11", "Q13", "Q14", "Q17"];
 for (const id of POOL) {
   test(`pool ${id}: clean answer that uses every input`, { skip: !POOL_OK }, async () => {

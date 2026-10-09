@@ -30,7 +30,7 @@ test("partner_architect: investment consultants carry the independence caution; 
   assert.match(t, /may not be paid to recommend/);
   assert.match(t, /referral fee only where compliance allows/);
   assert.match(t, /not clear from your inputs/);
-  assert.match(t, /partner kinds above come from the segments in your goal/);
+  assert.match(t, /come from the partner model and the segments in your goal, not from what the product does/);
 });
 
 const CI = { your_product: "Ledgerline billing platform", competitors: "legacy billing systems, manual spreadsheets kept by finance teams", your_strengths: "supports usage pricing, SOC 2 Type II reports, a 99.9% uptime SLA on the hosted service (page claims)",
@@ -66,9 +66,9 @@ const A = (plan, extra = {}) => call("craft_gtm_analyzer", { document_content: p
 test("craft_gtm_analyzer: an abbreviation (Sr.) does not end the quoted line; GM-IT and a platform leader are read as deciders", async () => {
   const t = await A("Plan for Shelfwalk, field sales software for consumer brands.\nGoal: ten hypothetical deals.\nBuyer roles: GM-IT, Sr. Sales Automation Manager, sales reps.\nMessage: Shelfwalk captures orders offline, with DMS and ERP integration.", { industry: "vertical_saas" });
   assert.doesNotMatch(t, /> Buyer roles: GM-IT, Sr\.\s*$/m);
-  assert.match(t, /Your plan names [^.\n]*(Chief Information Officer|Managing Director|CIO)/);
+  assert.match(t, /roles in your plan match [^.\n]*(Chief Information Officer|Managing Director|CIO)/);
   const u = await A("Plan.\nGoal: ten hypothetical deals.\nBuyer roles: platform leader, IT / Security.\nMessage: Probetool is an API platform with a CLI, mock servers and an API catalog.");
-  assert.doesNotMatch(u, /Your plan names none of the usual deciders/);
+  assert.doesNotMatch(u, /No role in your plan matches the usual deciders/);
 });
 test("craft_gtm_analyzer: a plan for asset allocators with a CIO and portfolio managers gets an investment sector check", async () => {
   const t = await A("Quantara plan.\nGoal: ten hypothetical deals.\nAudience: asset allocators, investment managers.\nBuyer roles: CIO, portfolio manager, compliance committees.\nMessage: Quantara gives forecast ranges with explanations.");

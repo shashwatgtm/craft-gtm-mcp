@@ -4,6 +4,7 @@
 // of company and ways of working, never a figure, a market size or a named company.
 import { shortName } from './context.js';
 import { segmentKinds } from './sector-playbooks.js';
+import { BUYER_CONTEXTS } from './verticals.ts';
 
 /** A typed phrase without its trailing full stop, comma, colon or semicolon and with single spaces. */
 export const stripEnd = (t: string): string => t.trim().replace(/\s+/g, ' ').replace(/[\s.;,:]+$/, '');
@@ -93,26 +94,77 @@ export function finalise(out: string): string {
 export const isClaim = (t: string): boolean => /\((?:page )?claims?\)\s*\.?\s*$/i.test(t);
 
 /** A strength that is a popularity or award claim (nothing a buyer can test). */
-export const POPULARITY = /\b(?:used by|world's|leading|trusted by|award\w*|named|ranked|recogni[sz]ed|market share|magic quadrant|visionary|founded|employees|investors?|backed by|headquarter\w*|offices?)\b|\d[\d,]*\+?\s*(?:companies|customers|users|teams|telcos)/i;
+export const POPULARITY = /\b(?:used by|world's|leading|trusted by|award\w*|named|ranked|recogni[sz]ed|market share|magic quadrant|visionary|founded|employees|investors?|backed by|headquarter\w*|offices?)\b|\bseries [a-e]\b|\bfunding\b|\braised\b|\$\s?\d[\d.,]*\s*(?:million|billion|m|bn)\b|\d[\d,.]*\s?(?:k|m|bn|b|lakh|crore|million|billion)?\+?\s*(?:companies|customers|users|teams|telcos|businesses|sellers|merchants|brands|enterprises|developers|installs|downloads)/i;
 
 // ---------------------------------------------------------------------------------------------------------------------
-// Partner kinds by customer segment (partner_architect). The shared list in src/sector-playbooks.ts reads "energy" and "utilities" as manufacturing;
-// the kinds below are for the segment as the user typed it. Kinds of company, never names.
-interface SegmentKinds { kind: string; partners: string; review: string }
-const OWN_SEGMENTS: Array<SegmentKinds & { re: RegExp }> = [
-  { re: /\b(?:energy|utilit(?:y|ies)|power (?:generation|distribution)|oil and gas|renewables?)\b/i, kind: 'energy and utilities', partners: 'engineering and technical consultancies that advise utilities, operational technology and grid systems integrators, billing and customer information system integrators', review: 'regulated operators with long approval cycles, where operations, security and finance must all agree' },
+// Partner kinds (partner_architect). Kinds of company, never names, never a figure. Three sources are combined: the partner model (who refers, resells,
+// integrates or implements in general), what the product does (cue words in its own description), and the buyer segments named in the goal.
+export interface SegmentKinds { name: string; partners: string; buying: string }
+const buyingOf = (id: string): string => BUYER_CONTEXTS.find((c) => c.id === id)?.buying ?? '';
+const SEGMENTS: Array<SegmentKinds & { re: RegExp }> = [
+  { re: /\b(?:banks?|banking|bfsi|financial[ _]services?|insur\w+|lenders?|lending|nbfc|fintech)\b/i, name: 'banks and financial services', partners: 'risk and compliance consultancies, core banking and payments integrators, audit and advisory firms', buying: buyingOf('financial') },
+  { re: /\b(?:government|public[ _]sector|ministr\w+|municipal\w*|defen[cs]e|state[- ]owned|public authorit\w+)\b/i, name: 'government and public sector', partners: 'systems integrators that hold public sector frameworks or approved supplier status, local resellers that hold the procurement vehicles, government technology advisers', buying: buyingOf('public-sector') },
+  { re: /\b(?:retail\w*|e-?commerce|d2c|online (?:retailers?|sellers?|stores?|brands?)|merchants?|marketplaces?|consumer brands?)\b/i, name: 'retail and e-commerce', partners: 'retail technology integrators, e-commerce platform agencies, point of sale and store technology vendors', buying: buyingOf('retail') },
+  { re: /\b(?:fmcg|cpg|consumer goods|food and beverages?|food (?:&|and) drink|beverages?|packaged goods|grocery)\b/i, name: 'consumer goods and food', partners: 'route to market consultancies, distributor management and ERP integrators, trade marketing agencies', buying: buyingOf('consumer-goods') },
+  { re: /\b(?:manufactur\w*|automotive|chemicals?|industrial|steel|aerospace|machinery|plants?|factory|factories)\b/i, name: 'manufacturing', partners: 'ERP integrators and operations consultancies that serve manufacturers, procurement and sourcing advisers, regional resellers close to the plants', buying: buyingOf('industrial') },
+  { re: /\b(?:energy|utilit(?:y|ies)|power (?:generation|distribution)|oil and gas|renewables?)\b/i, name: 'energy and utilities', partners: 'engineering and technical consultancies that advise utilities, operational technology and grid systems integrators, billing and customer information system integrators', buying: 'Regulated operators have long approval cycles, and operations, security and finance must all agree.' },
+  { re: /\b(?:3pl|courier|logistics|transport\w*|freight|shipping|supply chain|distribution)\b/i, name: 'logistics and distribution', partners: 'logistics and supply chain consultancies, transport, warehouse and ERP integrators, freight and carrier networks that advise shippers', buying: 'Operations leaders own service levels to their own customers, and thin margins make the cost of change visible.' },
+  { re: /\b(?:telecom\w*|communications?|isps?)\b/i, name: 'telecom', partners: 'OSS and BSS integrators, network and platform consultancies', buying: buyingOf('telecom-media') },
+  { re: /\b(?:media|publishing|broadcast\w*|entertainment)\b/i, name: 'media and publishing', partners: 'agency and ad-tech integrators, content platform vendors, billing and subscription consultancies', buying: 'Many titles or channels, subscription and advertising revenue to reconcile, and finance and product teams that share the decision.' },
+  { re: /\b(?:education|schools?|universit\w*|colleges?|edtech|coaching|institutes?)\b/i, name: 'education', partners: 'education technology integrators, admissions and student system consultants, resellers that already sell to institutions', buying: buyingOf('education') },
+  { re: /\b(?:construction|civil|infrastructure|contractors?)\b/i, name: 'construction and infrastructure', partners: 'construction ERP and project controls integrators, construction technology consultancies', buying: buyingOf('construction') },
+  { re: /\b(?:games?|gaming)\b/i, name: 'games', partners: 'game services studios, live operations and backend service providers, publisher partnership teams', buying: buyingOf('gaming') },
+  { re: /\b(?:software|saas|technology|tech companies|ai companies|startups?|scale-?ups?|developers?|(?:web|mobile)(?: (?:and|&) (?:web|mobile))? apps?|app (?:makers|developers))\b/i, name: 'software and technology companies', partners: 'app and web development agencies, technology consultancies, cloud marketplaces, managed service providers', buying: buyingOf('technology') },
 ];
-/** The partner kinds of every customer segment a partner goal names; each piece of the goal (split at commas) is read on its own. */
-export function segmentsOfGoal(goal: string): SegmentKinds[] {
+/** The partner kinds of every customer segment a partner goal names (each comma piece after "among" is read on its own), and the pieces for which no kinds are known. */
+export function segmentsOfGoal(goal: string, productText = ''): { found: SegmentKinds[]; unknown: string[] } {
   const g = goal.replace(/;?\s*no numeric target given\.?/i, '').trim();
   const after = g.match(/\bamong(?:st)?\s+(.+)$/i);
   const pieces = (after ? after[1] : g).split(/,|;/).map((x) => x.trim()).filter(Boolean);
-  const out: SegmentKinds[] = [];
-  const add = (s: SegmentKinds): void => { if (!out.some((o) => o.kind === s.kind)) out.push(s); };
+  const found: SegmentKinds[] = []; const unknown: string[] = [];
+  const plant = /\b(?:plant|factory|shop ?floor|mes|scada|industrial automation|machine)\b/i.test(productText);
   for (const piece of pieces) {
-    for (const o of OWN_SEGMENTS) if (o.re.test(piece)) add(o);
-    const rest = OWN_SEGMENTS.reduce((t, o) => t.replace(new RegExp(o.re.source, 'gi'), ' '), piece);
-    for (const k of segmentKinds(rest)) add({ kind: k.kind, partners: k.partners, review: k.review });
+    let hit = false;
+    // investment institutions keep the shared list (the independence caution depends on them)
+    for (const k of segmentKinds(piece)) if (k.kind === 'investment institutions' && !found.some((o) => o.name === k.kind)) { found.push({ name: k.kind, partners: k.partners, buying: k.review }); hit = true; }
+    for (const seg of SEGMENTS) {
+      if (!seg.re.test(piece)) continue;
+      hit = true;
+      if (found.some((o) => o.name === seg.name)) continue;
+      found.push({ name: seg.name, partners: plant && seg.name === 'manufacturing' ? `plant automation integrators, ${seg.partners}` : seg.partners, buying: seg.buying });
+    }
+    if (!hit && after) unknown.push(piece);
   }
-  return out;
+  return { found, unknown };
+}
+
+/** Who refers, resells, integrates or implements in general, by partner model (used when the sector is not read from the product). */
+export const MODEL_KINDS: Record<string, string> = {
+  referral: 'advisers and consultants who already help your buyers choose suppliers, and companies that sell a neighbouring product to the same buyers',
+  affiliate: 'communities, publishers and review sites that your buyers already read',
+  reseller: 'regional resellers and distributors that already sell to your buyers\' teams',
+  integration_tech: 'vendors whose products your buyers use next to yours and that can connect to yours through an interface',
+  agency_si: 'implementation agencies and systems integrators that set up and run products like yours for their clients',
+  oem_white_label: 'software and device makers whose own product would be better with yours built in',
+};
+
+// What the product does, read from its own description: cue words and the kinds of partner that go with them.
+const PRODUCT_CUES: Array<{ re: RegExp; does: string; partners: string }> = [
+  { re: /\b(?:locali[sz]\w+|translat\w+|multilingual|languages?)\b/i, does: 'languages and localisation', partners: 'localisation and translation agencies, global content and marketing agencies, and product and engineering teams that already ship in many markets' },
+  { re: /\b(?:visibility|tracking|shipments?|freight|supply chain|logistics|carriers?)\b/i, does: 'shipments and supply chains', partners: 'supply chain and logistics consultancies, transport and order system integrators, and carrier and freight networks that advise shippers' },
+  { re: /\b(?:testing|test automation|qa|quality assurance|browsers?|devices?)\b/i, does: 'software testing', partners: 'quality engineering and test consultancies, DevOps agencies, and engineering service firms that run releases for clients' },
+  { re: /\b(?:voice|speech|conversation\w*|contact cent(?:re|er)s?|call cent(?:re|er)s?|telephony)\b/i, does: 'voice and conversations', partners: 'contact centre and conversation platform providers, voice and telephony integrators, and customer experience consultancies' },
+  { re: /\b(?:billing|invoic\w+|subscriptions?|revenue recogni\w+|dunning)\b/i, does: 'billing and revenue', partners: 'finance systems integrators, ERP and accounting consultancies, and fractional finance firms' },
+  { re: /\b(?:security|phishing|threat|vulnerabilit\w+|identity|attack surface|dark web)\b/i, does: 'security', partners: 'managed security service providers, security consultancies, and IT resellers that sell to security teams' },
+  { re: /\b(?:sd-?wan|mpls|leased lines?|connectivity|iot|sims?|esims?|broadband)\b/i, does: 'connectivity', partners: 'network integrators, managed service providers, and builders of connected-device solutions' },
+  { re: /\b(?:payments?|payment gateway|checkout|cards?|payouts?)\b/i, does: 'payments', partners: 'payments consultancies, e-commerce platform agencies, and ERP and finance integrators' },
+  { re: /\b(?:databases?|data platform|kafka|postgres\w*|analytics|data warehouse|observability)\b/i, does: 'data', partners: 'data engineering consultancies, cloud partners and marketplaces, and managed service providers' },
+  { re: /\b(?:ci\/cd|devops|pipelines?|source code|developer tools?|apis?|sdks?)\b/i, does: 'developer workflows', partners: 'DevOps and platform engineering consultancies, cloud marketplaces, and software houses that build for clients' },
+  { re: /\b(?:crm|sales automation|field sales|distributor|retail execution)\b/i, does: 'sales operations', partners: 'CRM and ERP integrators, route to market consultancies, and trade marketing agencies' },
+  { re: /\b(?:ai|a\.i\.|llms?|machine learning|language models?|ai agents?|copilots?|generative)\b/i, does: 'AI', partners: 'AI and data consultancies, systems integrators that deploy AI for enterprises, and cloud marketplaces and model platforms that list AI products' },
+  { re: /\b(?:support|ticket\w*|help ?desk|customer service)\b/i, does: 'customer support', partners: 'customer experience consultancies, helpdesk and CRM integrators, and outsourcing providers that run support for brands' },
+];
+/** The kinds of partner that the product's own words point to (at most three). */
+export function productKinds(text: string): Array<{ does: string; partners: string }> {
+  return PRODUCT_CUES.filter((c) => c.re.test(text)).slice(0, 3).map((c) => ({ does: c.does, partners: c.partners }));
 }
