@@ -314,7 +314,7 @@ export function splitPhrases(text: unknown): string[] {
   return out;
 }
 
-/** A company name without trailing corporate words (Software, Technologies, Systems, Inc, Ltd ...): "Sonata Software" is read as "Sonata", so the word Software does not set a business model. */
+/** A company name without trailing corporate words (Software, Technologies, Systems, Inc, Ltd ...): "Brightfield Software" is read as "Brightfield", so the word Software does not set a business model. */
 export function cleanCompanyName(name: string | undefined): string {
   return (name ?? '').replace(/\s+(?:software|technologies|technology|systems|solutions|labs|group|inc\.?|ltd\.?|limited|llc|pvt\.?|private limited|corp\.?|corporation)\b\.?/gi, '').trim();
 }
