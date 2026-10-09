@@ -260,7 +260,8 @@ test("crisis_planner: a sector's own crisis gets its own steps and audiences, an
   assert.equal(r.isError, false);
   assert.match(r.text, /### Network outage across customer sites/);
   assert.match(r.text, /Customer network owners and CIOs/);
-  assert.match(r.text, /a link or core network failure takes sites offline/);
+  assert.match(r.text, /links or a core network fail across several customer sites/);   // run 22 r3: the outage is described once, in the sector's own playbook
+  assert.doesNotMatch(r.text, /What an outage looks like here/);
   assert.doesNotMatch(r.text, BRACKET);
 });
 test("crisis_planner: a vulnerability and a customer data exposure each have their own steps, not a pointer to another section", async () => {
@@ -268,8 +269,9 @@ test("crisis_planner: a vulnerability and a customer data exposure each have the
   assert.doesNotMatch(r.text, /Use the .* steps above/);
   assert.match(r.text, /### Security vulnerability/);
   assert.match(r.text, /Confirm it and rate it/);
-  assert.match(r.text, /### Customer data exposure/);
-  assert.match(r.text, /Close the access/);
+  assert.match(r.text, /### Security incident: data breach \(also covers: customer data exposure\)/);   // run 22 r3: a breach and an exposure asked together are one playbook with both sets of steps
+  assert.doesNotMatch(r.text, /### Customer data exposure/);
+  assert.match(r.text, /Close the access if customer data was open to others/);
 });
 test("crisis_planner: the contacts table is blank cells to fill, not [Add]", async () => {
   const r = await call("crisis_planner", { company: "Vaultline", industry: "cybersecurity", customer_base: "b2b_enterprise", data_sensitivity: "medium_business_data" });

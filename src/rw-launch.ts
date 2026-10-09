@@ -168,6 +168,8 @@ function capabilityPieces(desc: string): string[] {
         if (merged.length && w === 1 && /^[^,\s]+(?:, [^,\s]+)*$/.test(merged[merged.length - 1])) { merged[merged.length - 1] += `, ${part}`; names = true; open = false; continue; }
         if (merged.length && names && w <= 6 && / and /.test(part)) { merged[merged.length - 1] += `, ${part}`; names = false; continue; }
         names = false;
+        // a run of figures ("30x concurrency on Free, 80x on Performance") is one part: the second one has no noun of its own
+        if (merged.length && /^[0-9]/.test(part) && /^[0-9]/.test(merged[merged.length - 1]) && w <= 8) { merged[merged.length - 1] += `, ${part}`; open = false; continue; }
         if (merged.length && open && w <= (started ? 4 : relative ? 3 : 2) && plain) { merged[merged.length - 1] += `, ${part}`; open = !/ and /.test(part); started = true; continue; }
         if (merged.length && open && w <= (started ? 6 : 4) && plain && / and /.test(part)) { merged[merged.length - 1] += `, ${part}`; open = false; continue; }
         merged.push(part); open = opensList(part); started = false;
@@ -475,6 +477,10 @@ export function writeLaunchPlan(args: {
   const pb = ctx.v ? playbookFor(ctx.v) : null;
   const buyer = (args.goals.match(/\bwith\s+(?:the\s+)?([A-Za-z][A-Za-z .&/-]{1,50}?)(?:\s*\([^)]*\))?\s+as\s+(?:the\s+)?(?:buyer|sponsor|champion|decision[- ]maker)\b/i) || [])[1]?.trim() ?? null;
   const committeeBuyer = (!!buyer && /\b(c[a-z]o|chief|head|vp|director|leader|manager)\b/i.test(buyer)) || segmentKinds(args.target_segments).some((k) => ['investment institutions', 'banks and financial services', 'government and public sector'].includes(k.kind));
+  // the group that decides: the sector's usual group, but with the buyer named in the goal as the signer
+  const committeeParts = ctx.v ? ctx.v.committee.split(';') : [];
+  if (buyer && committeeParts.length && /\bsigns?\b/i.test(committeeParts[0])) committeeParts[0] = `The ${buyer} ${/ and /.test(buyer) ? 'sign' : 'signs'}`;
+  const committeeText = committeeParts.join(';');
   const model = wordingModel(ctx, !!args.business_model);
   const salesLed = committeeBuyer || (model !== null && model !== 'saas' && model !== 'marketplace') || (ctx.v !== null && ctx.v.id !== 'saas' && ctx.v.id !== 'software');
   const subscription = model === 'saas' || model === null;
@@ -520,8 +526,14 @@ export function writeLaunchPlan(args: {
   const ownerKind = (task: string): string => { const t = task.toLowerCase(); return /strateg|position|messag/.test(t) ? 'strategy' : /content|blog|article|page|guide/.test(t) ? 'content' : /sales|enablement|brief|train/.test(t) ? 'sales' : 'execution'; };
 
   // sector tasks (from the sector data), each in the phase where it belongs
-  const normRole = (r: string): string => r.toLowerCase().replace(/\b(?:of|the|and)\b/g, ' ').replace(/[^a-z0-9]+/g, ' ').trim();
-  const sameRole = (r: string): boolean => !!buyer && (normRole(r) === normRole(buyer) || normRole(r).includes(normRole(buyer)) || normRole(buyer).includes(normRole(r)) || initials(r).toLowerCase() === buyer.toLowerCase().replace(/\./g, ''));
+  // a role is the buyer's role under another title when they share a role atom ("President and CFO" and "Owner or President of the contractor")
+  const ABBR: Record<string, string> = { cfo: 'chief financial officer', ceo: 'chief executive officer', cto: 'chief technology officer', cio: 'chief information officer', coo: 'chief operating officer', cmo: 'chief marketing officer', cro: 'chief revenue officer', ciso: 'chief information security officer', cpo: 'chief product officer', vp: 'vice president', svp: 'senior vice president', gm: 'general manager' };
+  const normRole = (r: string): string => r.toLowerCase().replace(/[^a-z0-9]+/g, ' ').split(' ').filter(Boolean).map((w) => ABBR[w] ?? w).filter((w) => !['of', 'the'].includes(w)).join(' ');
+  const atomsOf = (r: string): string[] => r.split(/\s+(?:and|or)\s+|[,/]/i).map(normRole).filter(Boolean);
+  const hasSeq = (a: string, b: string): boolean => ` ${a} `.includes(` ${b} `) || ` ${b} `.includes(` ${a} `);
+  // the same function under another rank ("SVP Product" and "Head of Product" and "Chief Product Officer") is the same role
+  const funcOf = (a: string): string => a.replace(/\b(senior vice president|vice president|general manager|chief|officer|head|director|manager|lead)\b/g, ' ').replace(/\s+/g, ' ').trim();
+  const sameRole = (r: string): boolean => !!buyer && (atomsOf(buyer).some((a) => atomsOf(r).some((b) => hasSeq(a, b) || (!!funcOf(a) && funcOf(a) === funcOf(b)))) || normRole(r) === normRole(buyer) || initials(r).toLowerCase() === buyer.toLowerCase().replace(/\./g, ''));
   const otherRoles = ctx.v ? ctx.v.buyerRoles.filter((r) => !sameRole(r)).slice(0, buyer ? 3 : 4) : [];
   const buyerRoles = ctx.v ? (buyer ? andList([buyer, ...otherRoles]) : andList(otherRoles)) : '';
   const phases = PHASES[launchType];
@@ -554,7 +566,7 @@ export function writeLaunchPlan(args: {
     else if (dated) briefParts.push(`The launch date is ${when.label}, ${days} ${plural(days, 'day', 'days')} away.`);
     else briefParts.push(`${when.label} is about ${days} days away, counted to an assumed date in the middle of the period ${EXAMPLE_FIGURE}; the schedule below therefore counts in weeks before launch.`);
   } else briefParts.push('No fixed launch date is set, so the schedule below counts in weeks before launch.');
-  if (pb && ctx.v) briefParts.push(`In ${ctx.v.name} a group decides (${lcFirst(ctx.v.committee.split(';')[0])}), so the plan ${contractSale ? `relies on ${lang.pilot}, account-based outreach and reference calls rather than broad campaigns` : 'adds a committee briefing, a proof point and answers to the usual objections to the usual launch tasks'}.`);
+  if (pb && ctx.v) briefParts.push(`In ${ctx.v.name} a group decides (${lcFirst(committeeText.split(';')[0])}), so the plan ${contractSale ? `relies on ${lang.pilot}, account-based outreach and reference calls rather than broad campaigns` : 'adds a committee briefing, a proof point and answers to the usual objections to the usual launch tasks'}.`);
   if (buyer) briefParts.push(`You named the ${buyer} as the buyer, so the briefing and the messages are written for that role.`);
   out.push(briefParts.join(' '));
   out.push('');
@@ -601,7 +613,7 @@ export function writeLaunchPlan(args: {
   const discovery = ctx.v ? ctx.v.discovery : [];
   const proofLine = ctx.v ? `Proof to collect from one customer in each segment: ${lcFirst(ctx.v.proofShape).replace(/[.]$/, '')}.` : 'Proof to collect from one customer in each segment: a before and after on the goal you set, with its source and date.';
   const nextStep = pb ? `Next step to ask for: ${pb.cta}.` : `The next step to ask for: a working session on the buyer's own data or process.`;
-  out.push([roleLine, ctx.v ? `The buying group: ${lcFirst(ctx.v.committee)}` : '', proofLine, nextStep, metrics.length ? `Measures this sector watches, to use in the proof: ${andList(metrics.slice(0, 5))}.` : ''].filter(Boolean).join(' '));
+  out.push([roleLine, ctx.v ? `The buying group: ${lcFirst(committeeText)}` : '', proofLine, nextStep, metrics.length ? `Measures this sector watches, to use in the proof: ${andList(metrics.slice(0, 5))}.` : ''].filter(Boolean).join(' '));
   out.push('');
   const general = discovery.slice(0, 3);
   if (general.length || pains.length) {
@@ -648,6 +660,12 @@ export function writeLaunchPlan(args: {
     if (q2 && q2.score >= 3) { usedAsks.add(q2.d); lines.push(`Ask: ${q2.d.replace(/\?*$/, '?')}`); }
     const m2 = metrics.filter((mm) => !usedAsks.has(mm)).map((mm) => ({ mm, score: fitScore(segText, notes?.review ?? '', mm) })).sort((x, y) => y.score - x.score)[0];
     if (m2 && m2.score >= 3) { usedAsks.add(m2.mm); lines.push(`Measure the result by ${m2.mm}.`); }
+    // a thin section is filled from the segment's own words and the part that leads it: a question about what it uses today, then the proof to bring
+    const sentencesIn = (): number => (lines.join(' ').match(/[.?](?:\s|$)/g) ?? []).length;
+    const asked = lines.some((l) => l.startsWith('Ask:'));
+    if (sentencesIn() < 3 && lead.length && fits) lines.push(asked ? `Also find out what ${seg} uses today for ${quoted(lead[0])}, and who owns it.` : `Ask: what does ${seg} use today for ${quoted(lead[0])}, and who owns it?`);
+    else if (sentencesIn() < 3 && lead.length) lines.push(asked ? `Also find out which of your parts ${seg} uses today, and who owns it.` : `Ask: which of your parts does ${seg} use today, and who owns it?`);
+    if (sentencesIn() < 3) lines.push(`Bring a result from one ${seg} customer, with its source and date, before you ask for the next step.`);
     const ch = segChan(seg);
     if (ch && ch.length && channelGroups.get(andList(ch))![0] === seg) lines.push(`Reach ${listOf(channelGroups.get(andList(ch))!)} through ${andList(ch)}.`);
     out.push(`### ${seg}`);
@@ -838,7 +856,7 @@ const STEP_FOR: Record<string, string> = {
     'Price/value mismatch': 'ROI review call, value demonstration, usage optimization',
     'Missing features': 'Workaround education, roadmap preview, feature request escalation',
     'Poor support': 'Executive escalation, dedicated support channel, satisfaction recovery',
-    'Competitor switch': 'Competitive differentiation call, switching cost analysis, special offer',
+    'Competitor switch': 'Compare the outcome and the cost of moving for this customer (data, retraining, integrations) before any talk of price, and ask what the other product does for them that yours does not',
     'Low usage/adoption': 'Reactivation campaign, training session, success milestone push',
     'Champion left': 'New champion discovery, executive sponsorship renewal, value resell',
     'Budget cuts': 'Downgrade options, payment flexibility, value justification for leadership',
@@ -936,9 +954,11 @@ export function writeRetentionPlaybook(args: {
   const dataSignals = typedList(args.available_data_signals);
   const current = typedList(args.current_interventions);
   const product = args.product ? args.product.trim() : '';
-  const productRef = product || 'your service';
-  const accountRef = product || 'your account';
-  const sign = product ? `The ${product} team` : 'Your account team';
+  // a long product name is used once in the title; the drafts say "your service" instead of repeating it
+  const productShort = product && product.split(/\s+/).length <= 5 ? product : '';
+  const productRef = productShort || 'your service';
+  const accountRef = productShort || 'your account';
+  const sign = productShort ? `The ${productShort} team` : 'Your account team';
   const segment = args.customer_segment.trim();
   const ctx = readContext({ model: MODEL_OF_CHOICE[choice], vertical: args.industry }, { seller: [args.product], context: [args.churn_reasons, args.available_data_signals], buyer: [args.customer_segment] });
   const model0 = wordingModel(ctx, choice !== 'enterprise_contract');
@@ -1083,12 +1103,28 @@ export function writeRetentionPlaybook(args: {
     ? `The signals below are for ${contractModel === 'services' ? 'a services' : contractModel === 'connectivity' ? 'a connectivity' : 'an investment'} contract. The weights are an equal split of 100%, computed from the number of signals: set your own from your data.`
     : 'The weights below are illustrations to adapt to your data.');
   out.push('');
-  out.push('| Signal | Weight | Where it comes from |');
-  out.push('|--------|--------|---------------------|');
+  // each signal is read in the words of the product's sector: its own adoption measure and the measures its customers watch
+  // an AI company priced by the case is not described by a cost per case on a subscription: its measures of accuracy and of how often a person steps in are used
+  const readMetrics = (ctx.v?.metrics ?? []).filter((m) => !(caseAI && /\bper (?:case|decision)\b|\bcost\b/i.test(m)));
+  const m0 = readMetrics[0]; const m1 = readMetrics[1];
+  const sponsorRole = ctx.v && !caseAI && ctx.v.buyerRoles[0] ? `the ${lcFirst(ctx.v.buyerRoles[0])}` : 'the sponsor';
+  const adoptionPhrase = pb && !caseAI ? pb.adoption.measure : 'how much of the product the customer uses, across its teams';
+  const READ: Record<string, string> = {
+    login_frequency: 'how often the people who do the daily work sign in, by role', feature_adoption: adoptionPhrase, support_tickets: 'tickets and escalations, and whether the same problem returns', billing_health: 'late or disputed invoices and requests to downgrade',
+    engagement_trend: m0 ? `the trend in ${m0}${m1 ? ` and ${m1}` : ''}, as the customer reports it` : 'the trend in the results the customer reports',
+    usage_volume: `how much of ${adoptionPhrase} is in use each month`, usage_trend: 'the month on month change in use, per customer', feature_breadth: 'how many parts of the product each customer uses', transaction_frequency: 'how often each participant transacts', gmv_trend: 'the trend in value traded, per participant',
+    seller_buyer_ratio: 'the balance between the two sides', review_score: 'ratings and complaints about the participants', purchase_frequency: 'how often each customer sends volume', aov_trend: 'the trend in value per transaction', category_breadth: 'how many kinds of use each customer has', engagement: 'how often each customer comes back',
+    support: 'contacts about failed or late transactions', feature_engagement: 'which parts of the free plan are used', upgrade_signals: 'limits reached and upgrades started', viral_actions: 'invitations and shares', time_in_product: 'time spent in the product',
+    executive_engagement: `contact with ${sponsorRole} and the people who signed`, support_nps: 'satisfaction after support contacts', expansion_signals: 'requests for more sites, teams or parts', renewal_sentiment: 'what the sponsor says about renewing',
+    sla_attainment: 'service levels met against the contract', ticket_backlog_trend: 'requests left open, and how long', service_review_attendance: 'who attends the service reviews', uptime_and_repair_time: 'uptime and repair time per site', incident_trend: 'repeat incidents on the same services', new_sites_or_links_requested: 'requests for more sites or links',
+    reporting_engagement: 'whether the reports are opened and questioned', mandate_size_trend: 'the size of the mandate over time', sponsor_engagement: 'contact with the sponsor', risk_review_attendance: 'attendance at risk reviews',
+  };
+  out.push('| Signal | Weight | Where it comes from | Read it as |');
+  out.push('|--------|--------|---------------------|------------|');
   for (const [sg, w] of Object.entries(weights)) {
     const tracked = trackedFor(sg);
     if (tracked) usedSignals.add(tracked);
-    out.push(`| ${label(sg)} | ${pct(w)}% | ${tracked ? `you track ${quoted(tracked)}` : 'to add: you did not name a matching data signal'} |`);
+    out.push(`| ${label(sg)} | ${pct(w)}% | ${tracked ? `you track ${quoted(tracked)}` : 'to add: you did not name a matching data signal'} | ${READ[sg] ?? label(sg)} |`);
   }
   out.push('');
   const unused = dataSignals.filter((d) => !usedSignals.has(d));
@@ -1108,10 +1144,11 @@ export function writeRetentionPlaybook(args: {
   out.push(`## ${subscription ? 'When to reach out' : 'Contract moments to plan around'}`);
   out.push('');
   if (choice === 'saas_subscription' || choice === 'freemium' || (choice === 'enterprise_contract' && subscription)) {
+    const sponsor = sponsorRole;
     out.push('| Touchpoint | When | What happens | Goal |', '|------------|------|--------------|------|',
-      '| Onboarding check | Day 7 | Adoption check and one quick win | Activate |', '| First value review | Day 30 | Review the success measures | Confirm value |',
-      '| Expansion probe | Day 60 | Look for a second use case | Deepen |', '| Business review | Day 90 | Review results with the sponsor | Renew signal |',
-      '| Pre-renewal | 60 days before renewal | Renewal conversation | Retain |', '| At risk | When the health score or an alert triggers | A step from the list above | Save |');
+      `| Onboarding check | Day 7 | Check that the first users are active${m0 ? `, take a first reading of ${m0}` : ''}, and deliver one quick win | Activate |`, `| First value review | Day 30 | Review ${m0 ? `${m0}${m1 ? ` and ${m1}` : ''}` : 'the success measures'} against the baseline agreed at the start | Confirm value |`,
+      `| Expansion probe | Day 60 | Look for a second ${ctx.v?.id === 'vertical-saas' ? 'team or site' : 'use case'} | Deepen |`, `| Business review | Day 90 | Review results with ${sponsor} | Renew signal |`,
+      `| Pre-renewal | 60 days before renewal | Renewal conversation with ${sponsor}${m0 ? `, with ${m0} before and after` : ''} | Retain |`, '| At risk | When the health score or an alert triggers | A step from the list above | Save |');
     out.push('', 'The days are illustrations: set your own.');
   } else if (volumeModel) {
     out.push('| Touchpoint | When | What happens | Goal |', '|------------|------|--------------|------|',
@@ -1121,7 +1158,7 @@ export function writeRetentionPlaybook(args: {
       '| Commitment end | Early enough to act, where a commitment exists | Renewal conversation | Retain |');
   } else {
     out.push('| Touchpoint | When | What happens | Goal |', '|------------|------|--------------|------|',
-      '| Go-live check | When the service goes live | Confirm it is live as contracted | Activate |', '| First service review | After go-live, at the first review | Review service levels and open issues with the owner | Confirm value |',
+      `| Go-live check | When the service goes live | Confirm it is live as contracted${ctx.v?.vocabulary[0] ? `, starting with ${ctx.v.vocabulary[0]}` : ''} | Activate |`, `| First service review | After go-live, at the first review | Review ${m0 ?? 'service levels'} and open issues with the owner | Confirm value |`,
       '| Regular review | On the schedule in your contract | Review reports, incidents and requests | Deepen |', '| Pre-renewal | Early enough to act; your notice period decides | Renewal conversation with the sponsor | Retain |',
       '| At risk | When the health score or an incident triggers | A step from the list above | Save |');
   }
@@ -1161,7 +1198,7 @@ export function writeRetentionPlaybook(args: {
   if (churn.n !== null && churn.period === 'unstated') missing.push(['whether the churn rate is monthly, quarterly or yearly', `the annual figure, which now reads ${typedRate} as monthly`]);
   if (!args.industry && !ctx.v) missing.push(['the industry, in the industry input', 'the sector measures, objections and renewal habits, which are now left out']);
   const kinds = kindsWithLines(ctx, ['churnReasons', 'renewal']);
-  if (kinds.length) missing.push([`what ${product || 'your company'} sells, said in a few words after its name in the product input`, 'the reasons and steps, which now fit any company in the sector']);
+  if (kinds.length) missing.push([`what ${productShort || 'your product'} sells, said in a few words after its name in the product input`, 'the reasons and steps, which now fit any company in the sector']);
   out.push(sharpenBlock(missing));
   return dropRepeatedLines(out.join('\n')).replace(/\n{3,}/g, '\n\n').trimEnd() + '\n';
 
@@ -1171,15 +1208,25 @@ export function writeRetentionPlaybook(args: {
     const baseKey = contractModel ?? (choice === 'services_contract' ? 'services' : choice === 'connectivity_contract' ? 'connectivity' : choice === 'investment_mandate' ? 'investment' : choice);
     const base = COMMON_REASONS[baseKey] ?? COMMON_REASONS.saas_subscription;
     // a reason that needs a fact the user did not give (that the price follows volume or cases) is printed as a question
-    const own = pb && enterpriseLike ? pb.churnReasons.map((r) => (caseAI && /cost/i.test(r.reason) ? { reason: 'Did the cost grow faster than the value as use grew?', signal: 'If the price follows volume or use: cost per unit of use rises faster than the value customers report', action: 'Show the cost against the value delivered, with their own volumes, and offer a price that follows the value' } : r)) : [];
+    const own = pb && enterpriseLike ? pb.churnReasons.map((r) => (caseAI && /cost/i.test(r.reason) ? { reason: 'Cost grew faster than the value as use grew', signal: 'Finance asks for a cap or a forecast, or cost per unit of use rises faster than the value customers report', action: 'Show the cost against the value delivered, with their own volumes, and offer a price that follows the value' } : r)) : [];
     // the unit of a transaction in this sector ("shipment", "payment"), read from the sector's own measures
     const unit = (ctx.v?.metrics.join(' ').match(/\b(?:cost|price|fee|rate)s? per (\w+)/i) ?? [])[1] ?? 'transaction';
     const unitize = (t: string): string => (choice === 'transactional' ? t.replace(/\btransactions\b/g, `${unit}s`).replace(/\btransaction\b/g, unit) : t);
-    const list0 = [...own.map((r) => r.reason), ...base.filter((r) => !own.some((x) => x.reason.toLowerCase().split(' ').filter((w) => w.length > 4).some((w) => r.toLowerCase().includes(w))))].slice(0, 8);
+    // the concerns the sector raises at the sale come back at renewal: they follow the sector's own answers, so they fill the list after the sector's reasons
+    const objReasons = (ctx.v ? ctx.v.objections : []).map((o) => ({ reason: `A concern from the sale came back: ${lcFirst(stripEnd(o.objection).replace(/\?$/, ''))}`, signal: `Someone raises ${q(lcFirst(stripEnd(o.objection).replace(/\?$/, '')))} again in a review, a ticket or a renewal talk, or asks for the earlier answer to be repeated`, action: stripEnd(o.response) }));
+    const extra = [...own, ...objReasons];
+    const GENERIC_STEMS = new Set(['custo', 'syste', 'other', 'their', 'which', 'would', 'could', 'users', 'teams', 'using', 'works', 'where', 'about']);
+    const stemSet = (t: string): Set<string> => new Set((t.toLowerCase().match(/[a-z]{5,}/g) ?? []).map((w) => w.slice(0, 5)).filter((w) => !GENERIC_STEMS.has(w)));
+    const overlaps = (x: string, y: string): boolean => { const a = stemSet(x); let n = 0; for (const w of stemSet(y)) if (a.has(w)) n++; return n >= 2; };
+    const ordered = volumeModel ? [...base.map((r) => ({ reason: r })), ...objReasons] : [...own, ...objReasons, ...base.map((r) => ({ reason: r }))];
+    const chosen: Array<{ reason: string }> = [];
+    // the canned list for the model fills only up to six reasons
+    for (const r of ordered) { if (chosen.length >= 6 && base.includes(r.reason)) break; if (!chosen.some((c) => c.reason === r.reason || overlaps(c.reason, r.reason))) chosen.push(r); }
+    const list0 = chosen.map((r) => r.reason).slice(0, 8);
     const list = list0.map(unitize);
     const original = (r: string): string => list0[list.indexOf(r)] ?? r;
-    const signalOf = (r: string): string => unitize(own.find((x) => x.reason === original(r))?.signal ?? SIGNAL_FOR[original(r)] ?? 'Check support tickets and usage data for mentions');
-    const stepOf = (r: string): string => unitize(own.find((x) => x.reason === original(r))?.action ?? STEP_FOR[original(r)] ?? 'Reach out personally to understand the concern and answer it');
+    const signalOf = (r: string): string => unitize(extra.find((x) => x.reason === original(r))?.signal ?? SIGNAL_FOR[original(r)] ?? 'Check support tickets and usage data for mentions');
+    const stepOf = (r: string): string => unitize(extra.find((x) => x.reason === original(r))?.action ?? STEP_FOR[original(r)] ?? 'Reach out personally to understand the concern and answer it');
     k.push('## What to find out first');
     k.push('');
     k.push(`No churn reasons were given, so this kit is a short plan to find them: ask the ${cust}s who ${leftPast}, look at your own data for the pattern, then treat the likely reasons below as questions to test, not as findings. Start with the most recent departures and the largest ones.`);
@@ -1205,7 +1252,7 @@ export function writeRetentionPlaybook(args: {
       'Was there a moment when you felt most frustrated with us?',
       ...(subscription && !volumeModel ? [] : ['Who else took part in the decision, and what did they need to see?']),
       'Is there anything that would bring you back?',
-      `What would you tell someone considering ${product || 'our service'}?`,
+      `What would you tell someone considering ${productShort || 'our service'}?`,
     ];
     k.push(qs.map((x, i) => `${i + 1}. ${x}`).join('\n'));
     k.push('');
@@ -1223,7 +1270,7 @@ export function writeRetentionPlaybook(args: {
     if (current.length) { k.push(`You already do ${andList(current.map((d) => quoted(d)))}: ask each departed ${cust} whether they reached them, and what they thought.`); k.push(''); }
     k.push('## The likely reasons to test');
     k.push('');
-    k.push(`These are common for a ${modelName} model${ctx.v && enterpriseLike ? ` in ${ctx.v.name}` : ''}, in no order of likelihood. For each: the signal that points to it and a first step if it proves true.`);
+    k.push(`These are common for ${aAn(modelName)} ${modelName} model${ctx.v && enterpriseLike ? ` in ${ctx.v.name}` : ''}, in no order of likelihood. For each: the signal that points to it and a first step if it proves true.`);
     k.push('');
     list.forEach((r, i) => { k.push(`### ${i + 1}. ${r}`); k.push(''); k.push(`**Signal:** ${stripEnd(signalOf(r))}.`); k.push(`**First step if true:** ${stripEnd(stepOf(r))}.`); k.push(''); });
     k.push('## After the first answers');
@@ -1298,11 +1345,15 @@ export function writeCrisisPlan(args: {
   const kindModel: 'connectivity' | 'services' | null = model === 'connectivity' && modelRead ? 'connectivity' : model === 'services' && (modelRead || ctx.v?.id === 'ites') ? 'services' : null;
   // a crisis is measured by service measures; the adoption and onboarding measures of a sector are not crisis measures
   const serviceMeasures = ctx.v ? ctx.v.metrics.filter((m) => /uptime|availab|latency|success rate|error|fail|incident|repair|restor|response time|resolution|processing time|deliver|settle|downtime|exception|attain|accuracy|delay|damage|claim|credit/i.test(m) && !/adoption|onboard|first value|go.live|retention|expansion|admin|reference/i.test(m)).slice(0, 3) : [];
-  const measureText = serviceMeasures.length && ctx.v ? ` Customers in ${ctx.v.name} also watch ${andList(serviceMeasures)}: say which of them you see affected.` : '';
+  // a measure that has "and" inside it ("errors and rework") is joined to the next with "as well as", so that the list reads one way
+  const measureList = serviceMeasures.length > 1 && serviceMeasures.some((m) => / and /.test(m)) ? `${serviceMeasures.slice(0, -1).join(', ')}, as well as ${serviceMeasures[serviceMeasures.length - 1]}` : andList(serviceMeasures);
+  const measureText = serviceMeasures.length && ctx.v ? ` Customers in ${ctx.v.name} also watch ${measureList}: say ${serviceMeasures.length > 1 ? 'which of them you see' : 'whether you see it'} affected.` : '';
   let measureShown = false;
   const measureOnce = (): string => { if (measureShown) return ''; measureShown = true; return measureText; };
   // AI native without a kind read: the sector's outage sentence is about scoring and review queues, which does not fit every AI product
   const outageText = ctx.v?.id === 'ai-native' && !ctx.v.subtype && !/investment/i.test(ctx.v.name) ? 'an outage stops the AI features customers rely on, so their people take the work back by hand until service returns' : pb?.outage ?? '';
+  // an AI product depends on a model or hosting provider and can show a person content that person may not see
+  const aiCrisis = ctx.v?.id === 'ai-native' && !/investment/i.test(ctx.v.name);
   const enterprise = base === 'b2b_enterprise';
   const consumers = base === 'b2c_consumer' || base === 'mixed';
 
@@ -1389,17 +1440,27 @@ ${audiences([['Client service owner', 'A call from the account owner', 'What hap
 `;
   // overlapping playbooks are merged: a sector outage takes the generic severity levels and updates, a delivery failure takes the SLA recovery, a wrong model output takes the correction steps
   const absorbs: Array<{ own: RegExp; generic: RegExp; add: () => string }> = [
-    { own: /outage|message_delivery|payment_failure/, generic: /outage|downtime|\bdown\b/, add: () => `${pb ? `**What an outage looks like here:** ${outageText}.\n\n` : ''}${severityTable()}\n${updateCadence()}` },
+    { own: /outage|message_delivery|payment_failure/, generic: /outage|downtime|\bdown\b/, add: () => `${severityTable()}${aiCrisis ? `\nIf the cause is a model or hosting provider, switch to a fallback model or provider if you have one, and tell customers which features are degraded.\n` : ''}\n${updateCadence()}` },
     { own: /delivery_failure/, generic: /\bsla\b|sla_|service[ _]level/, add: slaRecovery },
     { own: /model_error/, generic: /ai_wrong|wrong[ _]action|ai[ _]error|hallucinat/, add: () => `${aiFirst()}\n${aiCorrection()}` },
   ];
   const ownKey = (c: string): string | undefined => pb?.crises.find((k) => c.toLowerCase().includes(k.key))?.key;
+  const crisesAsked = [...crises];
   const absorbed = new Map<string, () => string>();
+  const alsoCovers = new Map<string, string[]>();
   for (const a of absorbs) {
     const ownC = crises.find((c) => { const k = ownKey(c); return !!k && a.own.test(k); });
     const genC = crises.find((c) => !ownKey(c) && a.generic.test(c.toLowerCase()));
-    if (ownC && genC) { crises = crises.filter((c) => c !== genC); absorbed.set(ownKey(ownC)!, a.add); }
+    if (ownC && genC) { crises = crises.filter((c) => c !== genC); absorbed.set(ownKey(ownC)!, a.add); alsoCovers.set(ownKey(ownC)!, [genC]); }
   }
+  // a crisis that the plan answers with the breach steps (an SLA breach, a regulatory breach or a customer data exposure is answered by its own steps)
+  const isBreachKind = (c: string): boolean => { const l = c.toLowerCase(); return !/vulnerab|data[ _]exposure|customer_data|\bsla\b|sla_|service[ _]level|regulat|fraud|ai_wrong|wrong[ _]action|ai[ _]error|hallucinat/.test(l) && /breach|security|hack|exposure/.test(l); };
+  // a data breach and a customer data exposure asked together are one playbook, so that two lists of nearly the same steps do not sit side by side
+  const breachC = crises.find((c) => /breach|hack/i.test(c) && isBreachKind(c));
+  const exposureC = crises.find((c) => /data[ _]exposure|customer_data/i.test(c));
+  const mergedExposure = !!breachC && !!exposureC && breachC !== exposureC;
+  if (mergedExposure) crises = crises.filter((c) => c !== exposureC);
+  const hasBreach = crises.some((c) => isBreachKind(c) && !ownKey(c));
 
   const playbook = (crisis: string, wasTyped: boolean): string => {
     const lower = crisis.toLowerCase();
@@ -1413,7 +1474,8 @@ ${audiences([['Client service owner', 'A call from the account owner', 'What hap
     const own = found && !usedOwn.has(found.key) ? found : undefined;
     if (own) {
       usedOwn.add(own.key);
-      const label = !wasTyped || own.title.toLowerCase() === name.toLowerCase() ? own.title : `${own.title}: ${name}`;
+      const also = (alsoCovers.get(own.key) ?? []).map((n) => n.replace(/_/g, ' '));
+      const label = `${!wasTyped || own.title.toLowerCase() === name.toLowerCase() ? own.title : `${own.title}: ${name}`}${also.length ? ` (also covers: ${also.join(', ')})` : ''}`;
       return `### ${label}
 
 **What it means here:** ${own.what}.${/outage|sync|dispatch|network|delivery|posting|billing|recognition|payment|tracking|transaction/.test(own.key) ? measureOnce() : ''}
@@ -1430,7 +1492,7 @@ ${audiences(own.tell.map((x) => [x.who, x.how, x.focus, acct] as [string, string
 
 **First four hours**
 1. Confirm it and rate it by real exposure (who can reach it and what it gives access to), not by label alone.
-2. Search the logs for signs that it was already used; if it was, move to the data breach steps.
+2. Search the logs for signs that it was already used; if it was, ${hasBreach ? 'move to the data breach steps' : `treat it as a data breach: contain it, preserve the evidence, size the exposure and check the notification duties${compItems.length ? ` of the items you listed (${comp})` : ''}, with counsel`}.
 3. Decide the stop-gap (a feature switch, a rule, an access change or a patch) and who approves it.
 4. Name the owner: ${lead} as sponsor, with ${techLead} as technical owner.
 
@@ -1446,7 +1508,7 @@ ${pb ? `**What could be exposed here:** ${pb.breach}.\n\n` : ''}**First four hou
 1. Close the access: the open storage, link, permission or report that exposed the data.
 2. Preserve the access logs before any clean-up, so you can say who looked.
 3. Size it: which customers, which fields, which period, and whether anyone outside looked.
-4. Name the owner: ${lead} with ${team.core.find((m) => /CISO|security|Legal/i.test(m)) ?? team.core[0]}.
+4. Name the owner: ${lead} with ${team.core.find((m) => /CISO|security|Legal/i.test(m)) ?? team.core[0]}.${aiCrisis ? '\n5. Check for permission leakage: an answer or output that shows a person content they are not allowed to see. Pause the feature or the connector involved, and list who saw what.' : ''}
 
 ${audiences([['Affected customers', toCustomers, 'What was exposed, for how long, what you have done, what they should do', acct], ['Regulators', `Per the duty that applies${compItems.length ? ` (you listed ${comp})` : ''}`, 'A notification approved by counsel', legalLead]])}`;
     if (/\bsla\b|sla_|service[ _]level/.test(lower)) return `### ${heading('SLA breach', name)}
@@ -1497,7 +1559,7 @@ ${aiCorrection()}`;
     if (/breach|security|hack|exposure/.test(lower)) {
       if (securityDone) return `### ${heading('Security incident', name)}\n\nFollow the steps of "${securityDone}" above, and add the audiences and facts that are specific to this one.\n`;
       securityDone = name;
-      return `### ${heading('Security incident', name)}
+      return `### ${heading('Security incident', name)}${mergedExposure ? ` (also covers: ${(exposureC ?? '').replace(/_/g, ' ')})` : ''}
 
 ${pb ? `**What could be exposed here:** ${pb.breach}.\n\n` : ''}**How to rate it**
 
@@ -1512,7 +1574,7 @@ ${pb ? `**What could be exposed here:** ${pb.breach}.\n\n` : ''}**How to rate it
 2. Contain the threat: isolate the affected systems and revoke compromised credentials.
 3. Preserve evidence: take forensic images before any repair.
 4. Start the incident log: timeline, actions and decisions.
-5. Keep communication internal until the facts are checked.
+5. Keep communication internal until the facts are checked.${mergedExposure ? '\n6. Close the access if customer data was open to others (the open storage, link, permission or report), and preserve the access logs before any clean-up, so you can say who looked.' : ''}${aiCrisis ? `\n${mergedExposure ? 7 : 6}. Check for permission leakage: an answer or output that shows a person content they are not allowed to see. Pause the feature or the connector involved, and list who saw what.` : ''}
 
 **Hours four to twenty-four**
 1. Establish the scope: what data, how many customers, for how long.
@@ -1531,9 +1593,10 @@ ${pb ? `**What it looks like here:** ${outageText}.\n\n` : ''}${severityTable()}
 1. Acknowledge on the status page, or to your customers' service owners: "Investigating reports of a problem with the service of ${N}".
 2. Assemble the incident room: ${kindModel === 'connectivity' ? 'network operations, field engineering and account owners' : kindModel === 'services' ? 'delivery, support and account owners' : 'engineering, support and account owners'}.
 3. Start the diagnosis and name the owner of the fix.
-4. Brief the support and account teams, so they are ready for the volume.
+4. Brief the support and account teams, so they are ready for the volume.${aiCrisis ? '\n5. If the cause is a model or hosting provider, switch to a fallback model or provider if you have one, and tell customers which features are degraded.' : ''}
 ${measureText && !measureShown ? `\n${measureOnce().trim()}\n` : ''}
-${updateCadence()}`;
+${updateCadence()}
+${audiences([[enterprise ? 'Technology or service owners at customers' : 'Customers', enterprise ? 'A call from the account owner, then the status page' : 'The status page and an email', 'Which functions are affected, the workaround if there is one, and the time of the next update', acct], ['The customers\' own support teams', 'A note through the channel agreed in advance', 'What their users will see and what to tell them', acct]])}`;
     }
     if (/(^|[^a-z])pr([^a-z]|$)/.test(lower) || /reputation|media|social/.test(lower)) return `### ${heading('PR or reputation incident', name)}
 
@@ -1622,8 +1685,8 @@ ${updateCadence()}`;
   brief.push(`${N === 'your company' ? 'This plan is for your company' : `This plan is for ${N}`}, ${aAn(industryName)} ${industryName} company with ${readableChoice(base)} customers, ${readableChoice(sensitivity)} data sensitivity and a ${readableChoice(companySize)} team${args.company_size ? '' : ' (assumed)'}.`);
   if (prod.desc) brief.push(`You describe the company as ${quoted(prod.desc)}.`);
   brief.push(typed.length
-    ? `It covers the ${crises.length} ${plural(crises.length, 'crisis', 'crises')} you named: ${andList(crises.map((c) => quoted(c.replace(/_/g, ' '))))}.`
-    : `You named no crises, so it covers a default set for ${industryName}, not ranked by likelihood: ${andList(crises.map((c) => c.replace(/_/g, ' ').replace(/\bsla\b/gi, 'SLA').replace(/\bpr\b/gi, 'PR').replace(/\bai\b/gi, 'AI')))}.`);
+    ? `It covers the ${crisesAsked.length} ${plural(crisesAsked.length, 'crisis', 'crises')} you named: ${andList(crisesAsked.map((c) => quoted(c.replace(/_/g, ' '))))}.`
+    : `You named no crises, so it covers a default set for ${industryName}, not ranked by likelihood: ${andList(crisesAsked.map((c) => c.replace(/_/g, ' ').replace(/\bsla\b/gi, 'SLA').replace(/\bpr\b/gi, 'PR').replace(/\bai\b/gi, 'AI')))}.`);
   if (compItems.length) brief.push(`The compliance items you listed (${comp}) are named in the steps that need them.`);
   brief.push('Every time in this plan (minutes, hours, days) is an example to replace with your own.');
   out.push(brief.join(' '));

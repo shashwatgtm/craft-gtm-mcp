@@ -27,7 +27,7 @@ test("fintech: a card and expense company gets the posting crisis, a payments pl
   assert.match(spend, /an outage stops approvals, card or payment processing or ERP posting/);
   assert.match(spend, /Finance operations lead/);
   assert.match(pay, /### Failed, duplicated or delayed payments/);
-  assert.match(pay, /an outage stops payments, payouts or account data calls/);
+  assert.match(pay, /payments fail, are taken twice or settle late for several customers/);   // run 22 r3: the outage is described once, in the sector's own playbook
   assert.doesNotMatch(pay, /corrected entries|month-end|ledger|ERP posting|Finance operations lead/i);
   assert.match(neutral, /### Wrong transactions or records reaching customers/);
   assert.doesNotMatch(neutral, /month-end|ledger|ERP posting|corrected entries|Finance operations lead|### Failed, duplicated or delayed payments/i);
@@ -54,9 +54,9 @@ test("telecom: a connectivity provider gets the outage at customer sites, a mess
   const neutral = await plan("Brightline Group", "telecom");
   assert.match(net, /### Network outage across customer sites/);
   assert.match(net, /Customer network owners and CIOs/);
-  assert.match(net, /a link or core network failure takes sites offline/);
+  assert.match(net, /links or a core network fail across several customer sites/);   // run 22 r3: the outage is described once, in the sector's own playbook
   assert.match(msg, /### Messages delayed, lost or sent twice/);
-  assert.match(msg, /one time codes, alerts and notices fail/);
+  assert.match(msg, /messages that customers or their end users depend on \(codes, alerts, notices\) are delayed, lost or sent more than once/);   // run 22 r3: the outage is described once, in the sector's own playbook
   assert.doesNotMatch(msg, /sites|field engineer|backup path|Network operations centre lead/i);
   assert.match(neutral, /### Service outage across several customers/);
   assert.doesNotMatch(neutral, /Network outage across customer sites|Customer network owners and CIOs|takes sites offline|Messages delayed|Network operations centre lead|Field engineering lead/i);
