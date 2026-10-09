@@ -13,14 +13,16 @@ const base = { launch_type: "feature_launch", launch_date: "Q1 2027", target_seg
 
 test("a product written as a sentence is named by its noun phrase, not a clause fragment", async () => {
   const out = await call("launch_commander", { ...base, product_feature: "Meshlink connects branch offices, cloud apps and sensors: managed SD-WAN, secure access and sensor connectivity" });
-  assert.doesNotMatch(out, /"Meshlink connects/);
-  assert.match(out, /"Meshlink"/);
+  assert.doesNotMatch(out, /Meshlink connects branch offices, cloud apps and sensors is launched|# Launch plan: Meshlink connects/);
+  assert.match(out, /# Launch plan: Meshlink\n/);
+  assert.match(out, /Meshlink is launched as a feature launch/);
 });
 
 test("a named product keeps its name", async () => {
   const out = await call("launch_commander", { ...base, product_feature: "Lanehop, a route planning platform for delivery fleets: live re-planning and a driver app" });
   assert.match(out, /Lanehop/);
-  assert.doesNotMatch(out, /"Lanehop, a/);
+  assert.doesNotMatch(out, /Lanehop, a route planning platform for delivery fleets is launched/);
+  assert.match(out, /# Launch plan: Lanehop\n/);
 });
 
 // Run 21c round 3 (test first, found by the E11 name cut at a clause check): the Quick Reference Card of competitive_intel cut a plain description at 40 characters

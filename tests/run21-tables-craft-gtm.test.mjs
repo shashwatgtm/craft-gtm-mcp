@@ -35,7 +35,7 @@ test("logistics tech: last mile delivery gets hub pilot and driver app lines, fr
   assert.match(lm, LAST_MILE);
   assert.doesNotMatch(fv, LAST_MILE);
   assert.doesNotMatch(neutral, LAST_MILE);
-  for (const t of [fv, neutral]) { assert.match(t, /Agree a pilot on one lane, site or customer account/); assert.match(t, /## Segment Messaging Matrix/); }
+  for (const t of [fv, neutral]) { assert.match(t, /Agree a pilot on one lane, site or customer account/); assert.match(t, /## Who the launch speaks to/); }
   for (const t of [lm, fv, neutral]) assert.doesNotMatch(t, NO_DASH);
 });
 
