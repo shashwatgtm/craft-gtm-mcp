@@ -65,7 +65,7 @@ export function generateCRAFTAnalyzer(args: {
   if (!/\b(email|e-mail|linkedin|outbound|inbound|webinars?|events?|conferences?|roundtables?|partners?|referrals?|paid|ads|seo|abm|account-based|sdrs?|cold|calls?|social|community|press|field|direct|content|newsletter)\b/i.test(ownText)) matters.push({ title: 'No channel is named', detail: 'Say where the first conversations come from (outbound, events, partners, referrals, paid, content), and who is reached first.' });
   const hasNumberGoal = planGoal && /\d/.test(planGoal.text);
   if (hasNumberGoal && !/\b(win rate|close rate|conversion|meetings?|opportunit\w*|funnel|demos?|mqls?|sqls?|stage)\b/i.test(ownText.replace(planGoal!.text, ''))) matters.push({ title: 'The goal is not traced to activity', detail: `${qc(planGoal!.text, 150)} is a result, but no win rate, meeting count or stage conversion is stated, so it cannot be traced back to the work that would produce it. Work backwards from the goal: deals needed, opportunities needed, meetings needed.` });
-  if (analysis.timeline.found.length === 0) matters.push({ title: 'No dates', detail: `${analysis.timelineWords.length ? `Only the words ${andList(analysis.timelineWords.slice(0, 3).map((w) => q(w)))} appear` : 'No period or date appears'}${/\bnext quarter\b/i.test(ownText) ? ' (the plan says "next quarter")' : ''}. Put a date on the first meeting, the pilot or first delivery, and the review.` });
+  if (analysis.timeline.found.length === 0) matters.push({ title: 'No dates', detail: `${/\bnext quarter\b/i.test(ownText) ? 'The plan says "next quarter" but gives no date or duration' : analysis.timelineWords.length ? `Only the words ${andList(analysis.timelineWords.slice(0, 3).map((w) => q(w)))} appear` : 'No period or date appears'}. Put a date on the first meeting, the pilot or first delivery, and the review.` });
   if (!analysis.frame.groupsFound.includes('a budget or resources')) matters.push({ title: 'No budget or headcount', detail: 'State what money and people the plan has, so the goal can be checked against what it costs.' });
   if (!/\b(weekly|monthly|fortnightly|review|check-?in|cadence|stand-?up|steering)\b/i.test(ownText)) matters.push({ title: 'No review rhythm', detail: 'Say when the plan is reviewed and by whom, and which number is looked at first.' });
   if (analysis.artifact.found.length === 0) matters.push({ title: 'No deliverables', detail: 'List what gets made (deck, one-pager, email sequence, event, case study) and who makes it.' });
@@ -187,7 +187,16 @@ ${verdict} The scores come from a keyword check of the lines that describe your 
     if (!keys.length) return false;
     return roleLines.some((line) => keys.every((k) => new RegExp(`\\b${k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}s?\\b`, 'i').test(line)));
   };
-  const metricWordsIn = (m: string): boolean => [m, m.replace(/\s+(?:per|of|on|for|by|at|to)\s+.*$/i, '')].filter((x) => x.length >= 6).some((x) => planLower.includes(x.toLowerCase()));
+  // A measure counts as used when the plan holds its words (or the words without a tail such as "per site"), its distinctive last word (latency, satisfaction,
+  // settlement) or a short form of it (CSAT, FCR, SLA): the check stays a look into the plan's own text.
+  const GENERIC_METRIC = new Set(['number', 'average', 'percent', 'request', 'requests', 'resolved', 'handled', 'minute', 'second', 'audio', 'buyer']);
+  const SHORT_FORMS: Array<[RegExp, RegExp]> = [[/\bcsat\b/i, /customer satisfaction/i], [/\bfcr\b/i, /first contact resolution/i], [/\baht\b/i, /handle time/i], [/\bnps\b/i, /satisfaction|promoter/i], [/\bwer\b/i, /word error/i], [/\bsla\b/i, /service level/i], [/\bmttr\b/i, /time to (?:repair|recover|resolve)/i], [/\bmttd\b/i, /time to detect/i]];
+  const metricWordsIn = (m: string): boolean => {
+    if ([m, m.replace(/\s+(?:per|of|on|for|by|at|to)\s+.*$/i, '')].filter((x) => x.length >= 6).some((x) => planLower.includes(x.toLowerCase()))) return true;
+    if (SHORT_FORMS.some(([plan, metric]) => plan.test(content) && metric.test(m))) return true;
+    const last = m.toLowerCase().split(/[^a-z]+/).filter((w) => w.length >= 6 && !GENERIC_METRIC.has(w)).pop();
+    return !!last && new RegExp(`\\b${last}\\b`).test(planLower);
+  };
   output += `## Sector Check\n\n`;
   if (checkV) {
     const v = checkV;

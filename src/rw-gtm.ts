@@ -99,14 +99,14 @@ export const POPULARITY = /\b(?:used by|world's|leading|trusted by|award\w*|name
 // ---------------------------------------------------------------------------------------------------------------------
 // Partner kinds (partner_architect). Kinds of company, never names, never a figure. Three sources are combined: the partner model (who refers, resells,
 // integrates or implements in general), what the product does (cue words in its own description), and the buyer segments named in the goal.
-export interface SegmentKinds { name: string; partners: string; buying: string }
+export interface SegmentKinds { name: string; partners: string; buying: string; resellers?: string }
 const buyingOf = (id: string): string => BUYER_CONTEXTS.find((c) => c.id === id)?.buying ?? '';
 const SEGMENTS: Array<SegmentKinds & { re: RegExp }> = [
   { re: /\b(?:banks?|banking|bfsi|financial[ _]services?|insur\w+|lenders?|lending|nbfc|fintech)\b/i, name: 'banks and financial services', partners: 'risk and compliance consultancies, core banking and payments integrators, audit and advisory firms', buying: buyingOf('financial') },
   { re: /\b(?:government|public[ _]sector|ministr\w+|municipal\w*|defen[cs]e|state[- ]owned|public authorit\w+)\b/i, name: 'government and public sector', partners: 'systems integrators that hold public sector frameworks or approved supplier status, local resellers that hold the procurement vehicles, government technology advisers', buying: buyingOf('public-sector') },
   { re: /\b(?:retail\w*|e-?commerce|d2c|online (?:retailers?|sellers?|stores?|brands?)|merchants?|marketplaces?|consumer brands?)\b/i, name: 'retail and e-commerce', partners: 'retail technology integrators, e-commerce platform agencies, point of sale and store technology vendors', buying: buyingOf('retail') },
-  { re: /\b(?:fmcg|cpg|consumer goods|food and beverages?|food (?:&|and) drink|beverages?|packaged goods|grocery)\b/i, name: 'consumer goods and food', partners: 'route to market consultancies, distributor management and ERP integrators, trade marketing agencies', buying: buyingOf('consumer-goods') },
-  { re: /\b(?:manufactur\w*|automotive|chemicals?|industrial|steel|aerospace|machinery|plants?|factory|factories)\b/i, name: 'manufacturing', partners: 'ERP integrators and operations consultancies that serve manufacturers, procurement and sourcing advisers, regional resellers close to the plants', buying: buyingOf('industrial') },
+  { re: /\b(?:fmcg|cpg|consumer goods|food and beverages?|food (?:&|and) drink|beverages?|packaged goods|grocery)\b/i, name: 'consumer goods and food', partners: 'supply chain and logistics consultancies, ERP and distributor system integrators, sourcing and merchandising advisers', resellers: 'route to market consultancies and trade marketing agencies', buying: buyingOf('consumer-goods') },
+  { re: /\b(?:manufactur\w*|automotive|chemicals?|industrial|steel|aerospace|machinery|plants?|factory|factories)\b/i, name: 'manufacturing', partners: 'supply chain and logistics consultancies, ERP and transport system integrators, procurement and sourcing advisers that serve manufacturers', resellers: 'regional resellers close to the plants', buying: buyingOf('industrial') },
   { re: /\b(?:energy|utilit(?:y|ies)|power (?:generation|distribution)|oil and gas|renewables?)\b/i, name: 'energy and utilities', partners: 'engineering and technical consultancies that advise utilities, operational technology and grid systems integrators, billing and customer information system integrators', buying: 'Regulated operators have long approval cycles, and operations, security and finance must all agree.' },
   { re: /\b(?:3pl|courier|logistics|transport\w*|freight|shipping|supply chain|distribution)\b/i, name: 'logistics and distribution', partners: 'logistics and supply chain consultancies, transport, warehouse and ERP integrators, freight and carrier networks that advise shippers', buying: 'Operations leaders own service levels to their own customers, and thin margins make the cost of change visible.' },
   { re: /\b(?:telecom\w*|communications?|isps?)\b/i, name: 'telecom', partners: 'OSS and BSS integrators, network and platform consultancies', buying: buyingOf('telecom-media') },
@@ -117,7 +117,7 @@ const SEGMENTS: Array<SegmentKinds & { re: RegExp }> = [
   { re: /\b(?:software|saas|technology|tech companies|ai companies|startups?|scale-?ups?|developers?|(?:web|mobile)(?: (?:and|&) (?:web|mobile))? apps?|app (?:makers|developers))\b/i, name: 'software and technology companies', partners: 'app and web development agencies, technology consultancies, cloud marketplaces, managed service providers', buying: buyingOf('technology') },
 ];
 /** The partner kinds of every customer segment a partner goal names (each comma piece after "among" is read on its own), and the pieces for which no kinds are known. */
-export function segmentsOfGoal(goal: string, productText = ''): { found: SegmentKinds[]; unknown: string[] } {
+export function segmentsOfGoal(goal: string, productText = '', partnerModel = 'referral'): { found: SegmentKinds[]; unknown: string[] } {
   const g = goal.replace(/;?\s*no numeric target given\.?/i, '').trim();
   const after = g.match(/\bamong(?:st)?\s+(.+)$/i);
   const pieces = (after ? after[1] : g).split(/,|;/).map((x) => x.trim()).filter(Boolean);
@@ -131,7 +131,8 @@ export function segmentsOfGoal(goal: string, productText = ''): { found: Segment
       if (!seg.re.test(piece)) continue;
       hit = true;
       if (found.some((o) => o.name === seg.name)) continue;
-      found.push({ name: seg.name, partners: plant && seg.name === 'manufacturing' ? `plant automation integrators, ${seg.partners}` : seg.partners, buying: seg.buying });
+      const base = plant && seg.name === 'manufacturing' ? `plant automation integrators, ${seg.partners}` : seg.partners;
+      found.push({ name: seg.name, partners: seg.resellers && /^(?:reseller|oem_white_label)$/.test(partnerModel) ? `${base}, ${seg.resellers}` : base, buying: seg.buying });
     }
     if (!hit && after) unknown.push(piece);
   }
@@ -164,7 +165,20 @@ const PRODUCT_CUES: Array<{ re: RegExp; does: string; partners: string }> = [
   { re: /\b(?:ai|a\.i\.|llms?|machine learning|language models?|ai agents?|copilots?|generative)\b/i, does: 'AI', partners: 'AI and data consultancies, systems integrators that deploy AI for enterprises, and cloud marketplaces and model platforms that list AI products' },
   { re: /\b(?:support|ticket\w*|help ?desk|customer service)\b/i, does: 'customer support', partners: 'customer experience consultancies, helpdesk and CRM integrators, and outsourcing providers that run support for brands' },
 ];
-/** The kinds of partner that the product's own words point to (at most three). */
-export function productKinds(text: string): Array<{ does: string; partners: string }> {
-  return PRODUCT_CUES.filter((c) => c.re.test(text)).slice(0, 3).map((c) => ({ does: c.does, partners: c.partners }));
+// Stems that a company or product NAME may hold ("Lokalize" is "localize" with a k, "Cargotrail" holds "cargo"); read only from the names, and said to be read from the name.
+const NAME_STEMS: Array<[RegExp, string]> = [
+  [/locali[sz]|translat|lingu/, 'languages and localisation'], [/cargo|freight|shipp|logist|fleet|parcel|haul/, 'shipments and supply chains'], [/phish|cyber|secur|threat|shield/, 'security'],
+  [/voice|speech|speak|\bvox/, 'voice and conversations'], [/payment|payroll|wallet|checkout/, 'payments'], [/billing|invoic|ledger/, 'billing and revenue'],
+];
+/** The kinds of partner that the product's own words point to (at most three); a kind read only from a company or product name is marked. */
+export function productKinds(text: string, names = ''): Array<{ does: string; partners: string; fromName: boolean }> {
+  const out: Array<{ does: string; partners: string; fromName: boolean }> = PRODUCT_CUES.filter((c) => c.re.test(text)).slice(0, 3).map((c) => ({ does: c.does, partners: c.partners, fromName: false }));
+  const nm = names.toLowerCase().replace(/[^a-z0-9 ]+/g, ' ');
+  const nmk = nm.replace(/k/g, 'c');
+  for (const [re, does] of NAME_STEMS) {
+    if (out.length >= 3 || out.some((o) => o.does === does) || !(re.test(nm) || re.test(nmk))) continue;
+    const cue = PRODUCT_CUES.find((c) => c.does === does);
+    if (cue) out.push({ does, partners: cue.partners, fromName: true });
+  }
+  return out;
 }

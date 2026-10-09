@@ -46,6 +46,7 @@ const TOPICS: Array<[string, RegExp]> = [
   ['offline', /\b(?:offline|no network|without a mobile network|remote areas?|low connectivity)\b/i],
   ['coverage', /\b(?:all types|every type|models?|trade|segments?|regions?|languages?|sources?|serviceab\w*|pin ?codes?|areas?|countries|territories|locations?|coverage|worldwide|global|multilingual)\b/i],
   ['devices', /\b(?:devices?|browsers?|emulators?)\b/i],
+  ['manual-work', /\b(?:automat\w*|manual\w*|by hand|hand[- ]built|spreadsheets?)\b/i],
   ['support', /\b(?:support|service desk|24x7|help ?desk|expert)\b/i],
   ['accuracy', /\b(?:accura\w*|explain\w*|black box|trust\w*|evidence|validat\w*|detect\w*)\b/i],
   ['compliance-rev', /\b(?:asc ?606|ifrs ?15|revenue recogni\w*)\b/i],
@@ -121,6 +122,25 @@ function noteParts(note: string): { core: string; who: string } {
 }
 // A note that holds a finite verb reads as a clause ("spreadsheets break when pricing changes"); the others are noun phrases ("costly physical devices").
 const isClause = (t: string): boolean => /\b(?:is|are|was|were|has|have|had|can|cannot|do|does|did|will|would|take|takes|break|breaks|cause|causes|need|needs|require|requires|keep|keeps|give|gives|lack|lacks|force|forces|follow|follows|rely|relies|run|runs|leave|leaves|miss|misses|fail|fails|show|shows|slow|rotate|rotates|report|reports)\b/i.test(t);
+// The clauses of a product description ("AI-personalized, gamified simulations delivered across email, SMS and Teams"): a short piece joins the clause before it
+// (a list continues) and a one or two word piece at the start joins the clause after it. Used to answer a complaint with the user's own words about the product.
+function productClauses(description: string): string[] {
+  const t = description.replace(/\(([^()]*)\)/g, (_m, inner: string) => (/[A-Za-z]{3,}/.test(inner) ? `, ${inner},` : ` (${inner})`)).replace(/\s+(?:with|so)\s+/gi, ', ');
+  const pieces = splitTopLevel(t, false).map((x) => stripEnd(x)).filter(Boolean);
+  const out: string[] = []; let carry = '';
+  pieces.forEach((p, i) => {
+    const n = p.split(/\s+/).length;
+    const next = pieces[i + 1] ? pieces[i + 1].split(/\s+/).length : 0;
+    const inList = out.length > 0 && /\b(?:across|via|including|such as)\b/i.test(out[out.length - 1]);
+    if (carry) { out.push(`${carry}, ${p}`); carry = ''; }
+    else if (inList && n <= 4) out[out.length - 1] += `, ${p}`;
+    else if (n <= 2 && next >= 4) carry = p;
+    else if (out.length && n <= 4 && /\band\b/i.test(p)) out[out.length - 1] += `, ${p}`;
+    else out.push(p);
+  });
+  if (carry) out.push(carry);
+  return out.filter((x) => x.split(/\s+/).length >= 3 && x.split(/\s+/).length <= 18 && !/^(?:an?|the)\s/i.test(x) || /^(?:an?|the)\s/i.test(x) && x.split(/\s+/).length >= 3 && x.split(/\s+/).length <= 18);
+}
 // The parts of a product description that name something it has or does ("real devices (35,000+)", "test automation"): list items, bracket lists and "with ..." tails.
 function productParts(description: string): string[] {
   const t = description.replace(/\(([^()]*)\)/g, (_m, inner: string) => (/[A-Za-z]{3,}/.test(inner) ? `, ${inner},` : ` (${inner})`)).replace(/\s+(?:and|with|plus)\s+/gi, ', ');
@@ -213,9 +233,27 @@ export function generateCompetitiveIntel(args: {
     }
     return out.filter((x, i, a) => a.indexOf(x) === i);
   };
+  const prodClauses = productClauses(label.rest.startsWith('(') ? label.whole.replace(/^[^)]*\)\s*,?\s*/, '') : label.rest || label.whole).filter((x) => !nameWord || !x.toLowerCase().includes(nameWord)).map((x, k) => (k === 0 ? (/\bthat\s+\w+/i.test(x) ? `it ${x.replace(/^.*?\bthat\s+/i, '')}` : '') : x)).filter(Boolean);   // the first clause is the category statement ("a platform that automates ..."): only what comes after "that" can answer a complaint
+  // the clause of the product description that best answers what this alternative is said to get wrong (each clause answers one card)
+  // a word that only one clause holds says more than a word every clause holds ("phishing", "training"); the best pairs of card and clause are given out first
+  const clauseOfCard = new Map<Comp, string>();
+  {
+    const dfOf = (w: string): number => Math.max(1, prodClauses.filter((cl) => [...toks(cl)].some((y) => sameWord(w, y))).length);
+    const pairs: Array<{ c: Comp; cl: string; n: number }> = [];
+    for (const c of comps) {
+      const text = `${c.text} ${c.notes.join(' ')}`; const target = toks(text);
+      for (const cl of prodClauses) {
+        const n = [...toks(cl)].filter((y) => y.length >= 6 && [...target].some((w) => sameWord(w, y))).reduce((sum, y) => sum + 1 / dfOf(y), 0) + (topicsOf(cl).has('manual-work') && topicsOf(text).has('manual-work') ? 0.5 : 0);
+        if (n > 0.2) pairs.push({ c, cl, n });
+      }
+    }
+    for (const pr of pairs.sort((x, y) => y.n - x.n)) if (!clauseOfCard.has(pr.c) && ![...clauseOfCard.values()].includes(pr.cl)) clauseOfCard.set(pr.c, pr.cl);
+  }
+  const clauseFor = (c: Comp): string => { const cl = clauseOfCard.get(c); return cl ? clauseCut(cl, 160) : ''; };
   const leadFor = (c: Comp, i: number): string[] => {
+    const cl = clauseFor(c);
     // popularity and company-fact claims (users, awards, funding) answer no alternative: when they are all there is, no card leads with them
-    const mine = partsFor(c.text, ...c.notes);
+    const mine = [...(cl ? [cl] : []), ...partsFor(c.text, ...c.notes).filter((x) => !cl || !cl.toLowerCase().includes(x.toLowerCase()))].filter((x, k, a) => a.indexOf(x) === k);
     if (!testable.length) return mine.slice(0, 2);
     const rel0 = S.filter((s) => related(stripEnd(s), c.raw) || c.notes.some((n) => related(s, n)));
     const rel = rel0.filter((x) => !POPULARITY.test(x));
@@ -233,6 +271,8 @@ export function generateCompetitiveIntel(args: {
   // ---- the objection handlers ----
   const kindOf = (objection: string, named: Comp | undefined): ObjKind => {
     const o = objection.toLowerCase();
+    const asksHow = /^\s*(?:how (?:does|do|is|are)|why (?:do|does|is|are)|what (?:is|are|does|do)|what's)\b/.test(o) && !/\b(compared?|cheaper|better|than|versus|vs|competitors?|alternatives?|expensive)\b/.test(o);
+    if (asksHow && /\b(price|prices|pricing|cost|costs|charges?|rates?|fees?)\b/.test(o)) return 'explain';
     if (/\b(price|prices|pricing|expensive|cost|costs|budget|cheaper|cheap|charges?|rates?|fees?)\b/.test(o)) return 'price';
     if (named || /\b(differ\w*|different|versus|vs|compared? (?:to|with)|instead of|why (?:\w+ ){0,3}over|better than|competitors?|alternatives?|other (?:vendors?|options?|tools?)|rivals?)\b/.test(o)) return 'comparison';
     if (/\b(timing|not ready|ready|later|next year|not now|right now|this quarter)\b/.test(o)) return 'timing';
@@ -242,6 +282,7 @@ export function generateCompetitiveIntel(args: {
     return 'other';
   };
   const said = new Set<string>();
+  let proofUsed = false;
   // the first variant of a spoken sentence that no earlier line of this answer used; none left means the line is left out (no sentence is said twice)
   const pick = (variants: string[], fallback = ''): string => { const v1 = variants.find((x) => !said.has(x)) ?? (fallback && !said.has(fallback) ? fallback : ''); if (v1) said.add(v1); return v1; };
     const handleObjection = (objection: string): { approach: string; say: string; need: string; hasEvidence: boolean } => {
@@ -267,7 +308,7 @@ export function generateCompetitiveIntel(args: {
     const quoted = stripEnd(objection).length <= 70 ? q(objection) : 'this point';
     const descText = (() => { const t = label.rest.startsWith('(') ? label.whole : label.rest; const after = t.startsWith('(') ? t : t; const cut = label.rest.startsWith('(') ? label.whole.replace(/^[^)]*\)\s*,?\s*/, '') : after; return clauseCut(cut || label.whole, 280); })();
     const weakLine0 = weakFits && !!weakCore;
-    const explainLine = kind === 'explain' && label.whole.split(/\s+/).length > 6 ? pick([`Here is how I would put it: ${lc(descText)}.`]) : '';
+    const explainLine = kind === 'explain' && !/\b(price|prices|pricing|cost|costs|charges?|rates?|fees?)\b/.test(o) && !/^\s*why\b/.test(o) && label.whole.split(/\s+/).length > 6 ? pick([`Here is how I would put it: ${lc(descText)}.`]) : '';
     const evidence = explainLine ? explainLine
       : useful.length ? pick([`${leadForms[0]}: ${sayList(useful.slice(0, 2))}.`, `On ${quoted}, ${leadForms[1]}: ${sayList(useful.slice(0, 2))}.`])
       : counterFor[kind] || (kind === 'comparison' && weakLine0) ? ''
@@ -307,7 +348,13 @@ export function generateCompetitiveIntel(args: {
       : /\b(easy|easily|get(?:ting)? started|onboard\w*)\b/i.test(o) ? 'the steps a new customer follows to get started, who does what, and how long it takes'
       : 'the specific fact that settles it';
     const pattern = answerFor(objection, v);
-    return { approach: /^Ask what lies behind it/.test(pattern) ? '' : pattern, say: (kind === 'comparison' && weakLine ? [pick(ACK[kind], `On ${quoted}, here is how I see it.`), weakLine, evidence, redirect] : [pick(ACK[kind], `On ${quoted}, here is how I see it.`), pick(COUNTER[kind]), evidence, weakLine, redirect]).filter(Boolean).join(' '), need, hasEvidence: useful.length > 0 || !!counterFor[kind] || !!explainLine || (kind === 'comparison' && weakLine0) };
+    // an approach that starts with a verb a seller can say ("Explain how weight is declared") is also what the seller says: "Let me explain how weight is declared"
+    const spoken = /^(Explain|Show|Offer|Compare|Name|Map|State)\b/.test(pattern) ? `Let me ${pattern.charAt(0).toLowerCase()}${pattern.slice(1)}` : '';
+    const explainSpoken = kind === 'explain' && spoken && !explainLine ? pick([spoken]) : '';
+    // an objection the sector data has no approach for gets, once, the proof that settles questions of this kind in the sector
+    let approach = /^Ask what lies behind it/.test(pattern) ? '' : pattern;
+    if (!approach && v && !proofUsed && (kind === 'capability' || kind === 'other') && !explainLine) { approach = `The proof that settles this in ${v.name}: ${lc(stripEnd(v.proofShape))}.`; proofUsed = true; }
+    return { approach, say: (explainSpoken ? [pick(ACK[kind], `On ${quoted}, here is how I see it.`), explainSpoken, redirect] : kind === 'comparison' && weakLine ? [pick(ACK[kind], `On ${quoted}, here is how I see it.`), weakLine, evidence, redirect] : [pick(ACK[kind], `On ${quoted}, here is how I see it.`), pick(COUNTER[kind]), evidence, weakLine, redirect]).filter(Boolean).join(' '), need, hasEvidence: useful.length > 0 || !!counterFor[kind] || !!explainLine || !!explainSpoken || (kind === 'comparison' && weakLine0) };
   };
 
   // ---- the answer ----
@@ -351,9 +398,14 @@ The alternatives you named: ${comps.map((c) => (c.desc ? c.ref : c.name)).join('
     const qs: string[] = [];
     for (const d of c.weak.slice(0, 2)) {
       const core = noteParts(d).core;
-      if (core.length > 140 || usedWeakQ.has(d)) continue;
+      if (usedWeakQ.has(d)) continue;
       usedWeakQ.add(d);
-      qs.push(isClause(core) ? `How often does it happen that ${lowerFirstIfCommon(core)}? When did it last happen, and how did it show up in ${metric}?` : `Does this affect you today: ${lowerFirstIfCommon(core)}? If so, how does it show up in ${metric}?`);
+      if (core.length <= 60) qs.push(isClause(core) ? `How often does it happen that ${lowerFirstIfCommon(core)}? When did it last happen, and how did it show up in ${metric}?` : `Does this affect you today: ${lowerFirstIfCommon(core)}? If so, how does it show up in ${metric}?`);
+      else {
+        // a long note is not echoed: the sector's own question that touches it, else what the alternative cost
+        const near = disc.find((x) => !usedQ.has(x) && !qs.includes(x) && related(x, core));
+        if (near) { qs.push(near); usedQ.add(near); } else if (!qs.some((x) => x.startsWith('What did '))) qs.push(`What did ${c.ref} cost you over the last quarter? Count it in ${metric}, in time or in money.`);
+      }
     }
     if (!qs.length) qs.push(c.desc ? `How well does your current setup work for you today, measured by ${metric} over the last quarter?` : `How well does ${c.name} work for you today, measured by ${metric} over the last quarter?`);
     for (let k = 0; qs.length < 3 && k < disc.length; k++) { const d = disc[(i * 2 + k) % disc.length]; if (!usedQ.has(d) && !qs.includes(d)) { qs.push(d); usedQ.add(d); } }
