@@ -72,10 +72,11 @@ test("with churn reasons typed, the renewal sentence still follows the kind of c
 
 test("a product with no kind named is told which kinds have reasons of their own; a named kind is not", async () => {
   const neutral = await retain("Brightline", "fintech");
-  // run 22: the lines written for one kind of company exist for these kinds are named once, at the end, in "To sharpen this, give"
-  assert.match(neutral, /To sharpen this, give:[^]*what Brightline sells, in the product input[^]*lines written for one kind of company exist for these kinds: payments and banking APIs; spend and expense/);
+  // run 22: what the company sells is asked for once, at the end, in "To sharpen this, give"
+  assert.match(neutral, /To sharpen this, give:[^]*what Brightline sells, said in a few words after its name in the product input/);
+  assert.doesNotMatch(neutral, /payments and banking APIs; spend and expense|lines written for one kind of company/);   // run 22 round 2: the kinds are no longer listed
   const named = await retain("a payments API platform that moves money through partner banks", "fintech");
-  assert.doesNotMatch(named, /lines written for one kind of company exist for these kinds/);
+  assert.doesNotMatch(named, /what a payments API platform that moves money through partner banks sells|said in a few words after its name/);
   const full = await retain("Brightline", "fintech", { churn_reasons: "price; missing integration" });
-  assert.match(full, /lines written for one kind of company exist for these kinds/);
+  assert.match(full, /said in a few words after its name in the product input/);
 });

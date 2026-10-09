@@ -52,7 +52,8 @@ function wordingModel(ctx: Context, given: boolean): BusinessModel | null {
 }
 
 /** The line that says how the sector and the model were read; when the wording model differs from the one read, the line says which one the plan follows. */
-function readLine(ctx: Context, model: BusinessModel | null): string {
+function readLine(ctx: Context, model: BusinessModel | null, neutralConnectivity = false): string {
+  if (neutralConnectivity && ctx.how === 'sector' && model === 'connectivity') return `*Sector: ${ctx.sector}. Business model: not given, so the plan uses wording that fits any company in the sector (set business_model to change it).*`;
   return model !== ctx.model && model ? `*Sector: ${ctx.sector}. Business model: ${MODEL_NAME[model]} (the usual model in this sector, assumed; set business_model to change it).*` : ctx.line;
 }
 
@@ -147,19 +148,32 @@ function capabilityPieces(desc: string): string[] {
   const pieces: string[] = [];
   for (const sent of sentences) {
     if (sent.split(/\s+/).length <= 16 && !/;/.test(sent)) { pieces.push(sent); continue; }
-    const parts = splitPhrases(sent).map((p) => stripEnd(p.replace(/^(?:and|with|plus)\s+/i, ''))).filter(Boolean);
     // A piece that stops right after a preposition and one short noun, or right after "that" and a verb, is the start of a list: the pieces that follow it are its items.
-    const opensList = (t: string): boolean => /\b(?:that|which|who)\s+\w+$/i.test(t) || (/\b(?:for|of|with|across|including|such as)\s+(?![\d])\S+(?:\s+\S+)?$/i.test(t) && !/\b(?:for|of|with|across|including|such as)\s+[^,]*\band\b/i.test(t.slice(Math.max(0, t.search(/\b(?:for|of|with|across|including|such as)\s+\S+(?:\s+\S+)?$/i)))));
-    const merged: string[] = []; let open = false; let started = false;
-    for (const part of parts) {
-      const w = part.split(/\s+/).length;
-      const plain = !/^[0-9]/.test(part) && !/^(?:a|an|the|one)\b/i.test(part);
-      const relative = merged.length > 0 && /\b(?:that|which|who)\s+\w+$/i.test(merged[merged.length - 1]);
-      if (merged.length && open && w <= (started ? 4 : relative ? 3 : 2) && plain) { merged[merged.length - 1] += `, ${part}`; open = !/ and /.test(part); started = true; continue; }
-      if (merged.length && open && started && w <= 6 && plain && / and /.test(part)) { merged[merged.length - 1] += `, ${part}`; open = false; continue; }
-      merged.push(part); open = opensList(part); started = false;
+    const opensList = (t: string): boolean => /\b(?:that|which|who)\s+\w+$/i.test(t) || (/\b(?:for|of|with|over|across|including|such as)\s+(?![\d])\S+(?:\s+\S+)?$/i.test(t) && !/\b(?:for|of|with|over|across|including|such as)\s+[^,]*\band\b/i.test(t.slice(Math.max(0, t.search(/\b(?:for|of|with|over|across|including|such as)\s+\S+(?:\s+\S+)?$/i)))));
+    for (const line of sent.split(/\n|;/).map((x) => x.trim()).filter(Boolean)) {
+      // the line is cut at its commas; a piece that opens with a joining word continues the one before it
+      const parts: string[] = [];
+      for (const raw of splitTopLevel(line, false)) {
+        const piece = stripEnd(raw.replace(/^(?:and|or|plus)\s+/i, ''));
+        if (!piece) continue;
+        if (parts.length && /^(?:which|that|where|because|including|while|then|with)\b/i.test(piece)) parts[parts.length - 1] += `, ${piece}`;
+        else parts.push(piece);
+      }
+      const merged: string[] = []; let open = false; let started = false; let names = false;
+      for (const part of parts) {
+        const w = part.split(/\s+/).length;
+        const plain = !/^[0-9]/.test(part) && !/^(?:a|an|the|one)\b/i.test(part);
+        const relative = merged.length > 0 && /\b(?:that|which|who)\s+\w+$/i.test(merged[merged.length - 1]);
+        // a run of single names ("Docker, Linux, Windows, macOS") is one part, with the item that ends the list
+        if (merged.length && w === 1 && /^[^,\s]+(?:, [^,\s]+)*$/.test(merged[merged.length - 1])) { merged[merged.length - 1] += `, ${part}`; names = true; open = false; continue; }
+        if (merged.length && names && w <= 6 && / and /.test(part)) { merged[merged.length - 1] += `, ${part}`; names = false; continue; }
+        names = false;
+        if (merged.length && open && w <= (started ? 4 : relative ? 3 : 2) && plain) { merged[merged.length - 1] += `, ${part}`; open = !/ and /.test(part); started = true; continue; }
+        if (merged.length && open && w <= (started ? 6 : 4) && plain && / and /.test(part)) { merged[merged.length - 1] += `, ${part}`; open = false; continue; }
+        merged.push(part); open = opensList(part); started = false;
+      }
+      pieces.push(...merged);
     }
-    pieces.push(...merged);
   }
   return pieces.filter((x) => x.split(/\s+/).length <= 24).filter((x, i, a) => a.findIndex((y) => y.toLowerCase() === x.toLowerCase()) === i);
 }
@@ -368,6 +382,61 @@ function painsFor(ctx: Context): string[] {
   return pb.pains;
 }
 
+// ---- matching the parts of a product to segments by meaning ----
+const STOPW = new Set(['with', 'from', 'that', 'this', 'their', 'your', 'have', 'into', 'over', 'such', 'than', 'then', 'them', 'they', 'what', 'when', 'where', 'which', 'while', 'about', 'across', 'after', 'also', 'before', 'between', 'each', 'every', 'more', 'most', 'other', 'some', 'these', 'those', 'through', 'under', 'using', 'usually', 'involves', 'teams', 'team', 'work', 'works', 'needs', 'need', 'make', 'makes', 'many', 'much']);
+const wordsOf = (t: string): string[] => (t.toLowerCase().match(/[a-z][a-z0-9+-]{3,}/g) ?? []).filter((w) => !STOPW.has(w));
+const stemsOf = (t: string): Set<string> => new Set(wordsOf(t).map((w) => w.slice(0, 5)));
+// What each kind of segment looks for in a product, as words that may appear in a part of the product (cues, no facts about any company).
+const SEGMENT_CUES: Array<[RegExp, RegExp]> = [
+  [/bank|financ|insur|lend|mortgage|fintech|payments?|wealth|asset|invest|fund|pension|credit/i, /secur|complian|audit|\bsso\b|sign.?on|saml|scim|access|permission|polic|encrypt|governance|residency|certif|soc ?2|\biso\b|risk|fraud|aml|kyc|identity|verif|underwrit|credit|ledger|reconcil|payment|\bach\b|balance|income|report|regulat|self.hosted|on.prem|ownership|bank/i],
+  [/government|public sector|defen[cs]e|municipal|state/i, /complian|audit|residency|self.hosted|on.prem|air.?gap|secur|access|\bsso\b|certif|polic|permission|encrypt/i],
+  [/manufactur|industr|plant|automotive|\bauto\b|energy|utilit|engineering|construction|infrastructure|civil/i, /erp|integrat|offline|edge|uptime|mobile|device|\biot\b|sensor|asset|maintenance|cost|schedule|job|field|site|project|change order|rfi|document|safety|quality|supply|equipment|labor/i],
+  [/retail|e-?commerce|d2c|store|consumer|fmcg|brand|merchant|seller|restaurant|hotel|hospitality|travel|shop/i, /checkout|payment|inventory|catalog|stock|order|\bpos\b|storefront|return|shipping|carrier|label|loyalty|\bcrm\b|omnichannel|channel|marketplace|price|promotion|rate|booking|reservation|guest|mobile app|scale|peak|tracking|fulfil/i],
+  [/gaming|game|media|entertain|stream|publish/i, /\bgpu\b|\barm\b|performance|latency|real.?time|scale|concurren|stream|build|runner|cach|\bcdn\b|subscription|billing|usage|royalt|content|rights|machine/i],
+  [/saas|software|technology|\btech\b|startup|developer|\bai\b|platform|digital|\bit\b|engineering teams?/i, /\bapi\b|\bsdk\b|integrat|webhook|developer|automation|cloud|devops|\bci\b|pipeline|workflow|usage|billing|metered|self.serve|analytics|open|cach|dashboard|runner/i],
+  [/logistic|freight|transport|3pl|courier|shipping|supply chain|distribution|warehouse|fleet/i, /track|route|shipment|carrier|\beta\b|dispatch|warehouse|inventory|label|delivery|fleet|proof|order|visibility|freight/i],
+  [/telecom|operator|network|\bisp\b|connectivity/i, /network|\bsim\b|\bsms\b|voice|message|\bapi\b|route|operator|coverage|sd-?wan|bandwidth|latency|connect/i],
+  [/educat|school|universit|learning|college/i, /student|learn|course|content|accessib|privacy|child|complian|\bsso\b|\blms\b|identity|verif/i],
+  [/property|real estate|lease|landlord|tenant|rental|residential|commercial|housing/i, /lease|tenant|rent|unit|property|accounting|invoice|maintenance|work order|payment|ledger|portal|screening|identity|verif|document|inspection|income|balance|cost|project/i],
+];
+/** How well one part of a product (or one sector measure, pain or question) fits a segment: cue words, words shared with the segment name and words shared with its buying steps. */
+function fitScore(segText: string, review: string, part: string): number {
+  let score = 0;
+  for (const [segRe, cueRe] of SEGMENT_CUES) {
+    if (!segRe.test(segText)) continue;
+    const g = new RegExp(cueRe.source, 'gi'); const hits = new Set<string>(); let m: RegExpExecArray | null;
+    while ((m = g.exec(part))) hits.add(m[0].toLowerCase());
+    score += 3 * hits.size;
+  }
+  const partStems = stemsOf(part);
+  for (const w of stemsOf(segText)) if (partStems.has(w)) score += 2;
+  for (const w of stemsOf(review)) if (partStems.has(w)) score += 1;
+  return score;
+}
+
+// ---- what a goal needs, from the user's figure only ----
+const NUMBER_WORDS: Record<string, number> = { one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10, eleven: 11, twelve: 12, fifteen: 15, twenty: 20, thirty: 30, forty: 40, fifty: 50 };
+const COUNT_UNIT = /(deals?|meetings?|pilots?|pilot sites?|sites?|customers?|clients?|demos?|workshops?|surveys?|accounts?|opportunities|sign-?ups?|calls?|trials?|partners?|references?)\b/i;
+function goalNeeds(goals: string[], segs: string[], ctxBuyer: string | null): { lines: string[]; deals: boolean } {
+  const lines: string[] = []; let deals = false;
+  const k = segs.length;
+  for (const g of goals) {
+    const m = g.match(new RegExp(`(?:^|[^\\w$.,])(\\d[\\d,]*|${Object.keys(NUMBER_WORDS).join('|')})\\s+((?:[a-z-]+\\s+){0,3}?)${COUNT_UNIT.source}`, 'i'));
+    if (!m) continue;
+    const typed = m[1]; const n = /^\d/.test(typed) ? parseInt(typed.replace(/,/g, ''), 10) : NUMBER_WORDS[typed.toLowerCase()];
+    if (!n || n < 2) continue;
+    const phrase = `${typed} ${m[2]}${m[3]}`.replace(/\s+/g, ' ').trim();
+    const share = Math.ceil(n / Math.max(k, 1));
+    const where = k > 1 ? `about ${share} in each of ${k} segments if you share them evenly (${n} divided by ${k}, rounded up)` : `all in ${segs[0]}`;
+    if (/^deals?$/i.test(m[3])) {
+      deals = true;
+      lines.push(`${upper1(phrase)} need at least ${typed} buying conversations in all, ${where}. Your win rate decides how many more are needed: it was not given.`);
+    } else lines.push(`${upper1(phrase)} is ${where}.`);
+  }
+  void ctxBuyer;
+  return { lines, deals };
+}
+
 function parseLaunchDate(input?: string): { date: Date | null; exact: boolean; label: string } {
   const text = (input ?? '').trim();
   if (!text || text.toLowerCase() === 'tbd') return { date: null, exact: false, label: '' };
@@ -404,7 +473,7 @@ export function writeLaunchPlan(args: {
   const goals = splitPhrases(args.goals).length ? splitPhrases(args.goals) : [args.goals.trim()];
   const ctx = readContext({ model: args.business_model, vertical: args.industry }, { seller: [args.product_feature], context: [args.goals], buyer: [args.target_segments] });
   const pb = ctx.v ? playbookFor(ctx.v) : null;
-  const buyer = (args.goals.match(/\bwith\s+(?:the\s+)?([A-Za-z][A-Za-z .&/-]{1,50}?)\s+as\s+(?:the\s+)?(?:buyer|sponsor|champion|decision[- ]maker)\b/i) || [])[1]?.trim() ?? null;
+  const buyer = (args.goals.match(/\bwith\s+(?:the\s+)?([A-Za-z][A-Za-z .&/-]{1,50}?)(?:\s*\([^)]*\))?\s+as\s+(?:the\s+)?(?:buyer|sponsor|champion|decision[- ]maker)\b/i) || [])[1]?.trim() ?? null;
   const committeeBuyer = (!!buyer && /\b(c[a-z]o|chief|head|vp|director|leader|manager)\b/i.test(buyer)) || segmentKinds(args.target_segments).some((k) => ['investment institutions', 'banks and financial services', 'government and public sector'].includes(k.kind));
   const model = wordingModel(ctx, !!args.business_model);
   const salesLed = committeeBuyer || (model !== null && model !== 'saas' && model !== 'marketplace') || (ctx.v !== null && ctx.v.id !== 'saas' && ctx.v.id !== 'software');
@@ -451,10 +520,13 @@ export function writeLaunchPlan(args: {
   const ownerKind = (task: string): string => { const t = task.toLowerCase(); return /strateg|position|messag/.test(t) ? 'strategy' : /content|blog|article|page|guide/.test(t) ? 'content' : /sales|enablement|brief|train/.test(t) ? 'sales' : 'execution'; };
 
   // sector tasks (from the sector data), each in the phase where it belongs
-  const buyerRoles = ctx.v ? (buyer ? andList([buyer, ...ctx.v.buyerRoles.filter((r) => !r.toLowerCase().includes(buyer.toLowerCase()) && initials(r).toLowerCase() !== buyer.toLowerCase().replace(/\./g, '')).slice(0, 3)]) : andList(ctx.v.buyerRoles.slice(0, 4))) : '';
+  const normRole = (r: string): string => r.toLowerCase().replace(/\b(?:of|the|and)\b/g, ' ').replace(/[^a-z0-9]+/g, ' ').trim();
+  const sameRole = (r: string): boolean => !!buyer && (normRole(r) === normRole(buyer) || normRole(r).includes(normRole(buyer)) || normRole(buyer).includes(normRole(r)) || initials(r).toLowerCase() === buyer.toLowerCase().replace(/\./g, ''));
+  const otherRoles = ctx.v ? ctx.v.buyerRoles.filter((r) => !sameRole(r)).slice(0, buyer ? 3 : 4) : [];
+  const buyerRoles = ctx.v ? (buyer ? andList([buyer, ...otherRoles]) : andList(otherRoles)) : '';
   const phases = PHASES[launchType];
   const sectorTasks: Array<{ task: string; detail: string; phase: number; owner: string }> = ctx.v && pb ? [
-    { task: 'Brief the buying committee', detail: `Brief the buyers in these roles on ${c.N}: ${buyerRoles}; cover what it does, what it replaces and what a first step asks of them`, phase: 0, owner: 'sales' },
+    { task: 'Brief the buying committee', detail: `Brief the buyers named under Who the launch speaks to on ${c.N}: what it does, what it replaces and what a first step asks of them`, phase: 0, owner: 'sales' },
     { task: pb.launchTasks[0], detail: '', phase: 0, owner: 'strategy' },
     { task: pb.launchTasks[1], detail: '', phase: 1, owner: 'execution' },
     { task: 'Prepare the proof point', detail: 'Collect the proof described under Who the launch speaks to from one customer in each segment, with its source and date', phase: 1, owner: 'content' },
@@ -515,34 +587,67 @@ export function writeLaunchPlan(args: {
   out.push('|------|----------------|------------------|');
   for (const g of goals) out.push(`| ${cell(stripEnd(g))} | ${kindOf(g) === 'Other' ? 'Other measure' : kindOf(g)} | ${trackedBy[kindOf(g)]} |`);
   out.push('');
+  const needs = goalNeeds(goals, segs, buyer);
+  if (needs.lines.length) { out.push(`**What the goals need.** ${needs.lines.join(' ')}`); out.push(''); }
 
   // ---- segments and messages ----
   out.push('## Who the launch speaks to');
-  const roleLine = ctx.v ? `Write to the buyers in these roles: ${buyerRoles}.` : buyer ? `Write to the ${buyer}.` : '';
-  const proofLine = ctx.v ? `Proof to collect from one customer in each segment: ${lcFirst(ctx.v.proofShape).replace(/[.]$/, '')}.` : 'Proof to collect from one customer in each segment: a before and after on the goal you set, with its source and date.';
-  const nextStep = pb ? `Next step to ask for: ${pb.cta}.` : `The next step to ask for: a working session on the buyer's own data or process.`;
-  out.push([roleLine, ctx.v ? `The buying group: ${lcFirst(ctx.v.committee)}` : '', proofLine, nextStep].filter(Boolean).join(' '));
-  out.push('');
+  const roleLine = ctx.v
+    ? (buyer ? `Write to the ${buyer} first, then to the other roles in the group: ${andList(otherRoles)}.` : `Write to the buyers in these roles: ${buyerRoles}.`)
+    : buyer ? `Write to the ${buyer}.` : '';
   const pains = painsFor(ctx);
   const metrics = ctx.v ? ctx.v.metrics : [];
   const vocab = ctx.v ? ctx.v.vocabulary : [];
   const discovery = ctx.v ? ctx.v.discovery : [];
+  const proofLine = ctx.v ? `Proof to collect from one customer in each segment: ${lcFirst(ctx.v.proofShape).replace(/[.]$/, '')}.` : 'Proof to collect from one customer in each segment: a before and after on the goal you set, with its source and date.';
+  const nextStep = pb ? `Next step to ask for: ${pb.cta}.` : `The next step to ask for: a working session on the buyer's own data or process.`;
+  out.push([roleLine, ctx.v ? `The buying group: ${lcFirst(ctx.v.committee)}` : '', proofLine, nextStep, metrics.length ? `Measures this sector watches, to use in the proof: ${andList(metrics.slice(0, 5))}.` : ''].filter(Boolean).join(' '));
+  out.push('');
+  const general = discovery.slice(0, 3);
+  if (general.length || pains.length) {
+    out.push(`${pains.length ? `Problems to test in the first conversations: ${pains.join('; ')}. ` : ''}${general.length ? 'Questions to ask in any segment:' : ''}`.trim());
+    if (general.length) { out.push(''); out.push(general.map((x) => `- ${x.replace(/\?*$/, '?')}`).join('\n')); }
+    out.push('');
+  }
   const segChan = (seg: string) => (channelsGiven.length ? null : segmentNotes(seg)?.channels?.slice(0, 2) ?? null);
   // segments that share the same buying steps are described together, once
   const reviewGroups = new Map<string, string[]>();
   for (const seg of segs) { const n = segmentNotes(seg); if (n) reviewGroups.set(n.review, [...(reviewGroups.get(n.review) ?? []), seg]); }
   const channelGroups = new Map<string, string[]>();
   for (const seg of segs) { const ch = segChan(seg); if (ch && ch.length) channelGroups.set(andList(ch), [...(channelGroups.get(andList(ch)) ?? []), seg]); }
-  for (const [si, seg] of segs.entries()) {
-    const pairs = caps.length >= segs.length * 2;
-    const lead = caps.length > 1 ? (pairs ? [caps[si * 2], caps[si * 2 + 1]] : [caps[si % caps.length]]) : [];
+  // each part of the product goes to the segment it fits best (by cue words, shared words and the segment's buying steps); a part leads once
+  const usedParts = new Set<number>();
+  const usedAsks = new Set<string>();
+  const leadFor = (seg: string): { parts: string[]; fits: boolean } => {
+    if (caps.length < 2) return { parts: [], fits: false };
+    const review = segmentNotes(seg)?.review ?? '';
+    const segText = `${seg} ${segmentNotes(seg)?.kind ?? ''}`;
+    // a single word is a name, not a part to lead with, unless the parts are all single words
+    const eligible = caps.map((cap, i) => ({ cap, i })).filter((x) => x.cap.split(/\s+/).length >= 2);
+    const pool = eligible.length >= 2 ? eligible : caps.map((cap, i) => ({ cap, i }));
+    const ranked = pool.map((x) => ({ ...x, score: fitScore(segText, review, x.cap) })).sort((x, y) => y.score - x.score || x.i - y.i);
+    const fresh = ranked.filter((r) => !usedParts.has(r.i));
+    const best = (fresh.length ? fresh : ranked).filter((r) => r.score > 0).slice(0, 2);
+    let chosen = best.length ? best : pool.slice(0, 1).map((x) => ({ ...x, score: 0 }));
+    // two parts are named only when together they stay short
+    if (chosen.length > 1 && chosen[0].cap.length + chosen[1].cap.length > 170) chosen = chosen.slice(0, 1);
+    if (best.length) chosen.forEach((r) => usedParts.add(r.i));
+    return { parts: chosen.sort((x, y) => x.i - y.i).map((r) => r.cap), fits: best.length > 0 };
+  };
+  for (const seg of segs) {
     const notes = segmentNotes(seg);
-    const metric = metrics.length ? metrics[si % metrics.length] : '';
+    const { parts: lead, fits } = leadFor(seg);
+    const segText = `${seg} ${notes?.kind ?? ''} ${lead.join(' ')}`;
     const lines: string[] = [];
-    lines.push(`For ${seg}, lead with ${lead.length ? andList(lead.map((x) => quoted(x))) : `the part of ${c.N} that ${discovery.length ? 'answers the first question below' : 'matters most to them'}`}.${metric ? ` Measure the result by ${metric}, a measure this sector watches.` : ''}`);
-    if (pains.length) lines.push(`A problem to test with ${seg}: ${pains[si % pains.length]}.`);
-    if (notes && reviewGroups.get(notes.review)![0] === seg) lines.push(`For ${andList(reviewGroups.get(notes.review)!)} a purchase usually involves ${notes.review}; have those answers ready before they are asked.`);
-    if (discovery.length) lines.push(`First question to ask: ${discovery[si % discovery.length].replace(/\?*$/, '?')}`);
+    lines.push(lead.length
+      ? (fits ? `For ${seg}, lead with ${andList(lead.map((x) => quoted(x)))}.` : `Nothing in your description points to ${seg} more than to another segment, so open with ${andList(lead.map((x) => quoted(x)))}, the first part you list, and move to the part their answers point to.`)
+      : `For ${seg}, say in the words that segment uses what ${c.N} changes for its work.`);
+    if (notes && reviewGroups.get(notes.review)![0] === seg) { const grp = reviewGroups.get(notes.review)!; const rv = grp.some((g) => /e-?commerce|online|d2c|marketplace/i.test(g)) ? notes.review.replace('many stores or outlets', 'many storefronts and sales channels') : notes.review; lines.push(`For ${andList(grp)} a purchase usually involves ${rv}; have those answers ready before they are asked.`); }
+    // a question or a measure of the sector goes to a segment only when it fits it
+    const q2 = discovery.slice(3).filter((d) => !usedAsks.has(d)).map((d) => ({ d, score: fitScore(segText, notes?.review ?? '', d) })).sort((x, y) => y.score - x.score)[0];
+    if (q2 && q2.score >= 3) { usedAsks.add(q2.d); lines.push(`Ask: ${q2.d.replace(/\?*$/, '?')}`); }
+    const m2 = metrics.filter((mm) => !usedAsks.has(mm)).map((mm) => ({ mm, score: fitScore(segText, notes?.review ?? '', mm) })).sort((x, y) => y.score - x.score)[0];
+    if (m2 && m2.score >= 3) { usedAsks.add(m2.mm); lines.push(`Measure the result by ${m2.mm}.`); }
     const ch = segChan(seg);
     if (ch && ch.length && channelGroups.get(andList(ch))![0] === seg) lines.push(`Reach ${listOf(channelGroups.get(andList(ch))!)} through ${andList(ch)}.`);
     out.push(`### ${seg}`);
@@ -626,8 +731,10 @@ export function writeLaunchPlan(args: {
   if (!channelsGiven.length) missing.push(['the channels you can use, in the available_channels input', 'which tasks stay in the plan and where the messages go']);
   if (!args.team_size) missing.push(['the team size, in the team_size input; the plan assumes small (2 to 5)', 'who owns each task']);
   if (!args.budget_level) missing.push(['the budget level, in the budget_level input; the plan assumes moderate', 'the tactics in Channels and budget']);
+  // a product described in some detail is not asked for again; a bare name or a short phrase is
   const kinds = kindsWithLines(ctx, ['pains', 'cta', 'launchTasks', 'channels', 'adoption', 'checklist']);
-  if (kinds.length) missing.push([`what ${prod.name ?? 'the solution'} sells, in the product_feature input`, `the pilot, integration and adoption tasks, which now fit any company in the sector; lines written for one kind of company exist for these kinds: ${kinds.join('; ')}`]);
+  if (kinds.length && prod.desc.split(/\s+/).filter(Boolean).length < 8) missing.push([`what ${prod.name ?? 'the solution'} sells, in the product_feature input`, 'the pilot, integration and adoption tasks, which now fit any company in the sector']);
+  if (needs.deals) missing.push(['your win rate from buying conversation to signed deal', 'the number of conversations to book, which is now the number of deals as a minimum']);
   const kindsOfGoals = new Set(goals.map(kindOf));
   if (!kindsOfGoals.has('Adoption') && !kindsOfGoals.has('Revenue')) missing.push(['a target for pipeline or adoption in the goals', 'the Follow-up phase, which has no adoption target to track']);
   missing.push(['a result you already hold from a customer in these segments, with its source and date', 'the proof line, which now describes the kind of proof to collect']);
@@ -834,12 +941,16 @@ export function writeRetentionPlaybook(args: {
   const sign = product ? `The ${product} team` : 'Your account team';
   const segment = args.customer_segment.trim();
   const ctx = readContext({ model: MODEL_OF_CHOICE[choice], vertical: args.industry }, { seller: [args.product], context: [args.churn_reasons, args.available_data_signals], buyer: [args.customer_segment] });
-  const model = wordingModel(ctx, choice !== 'enterprise_contract');
+  const model0 = wordingModel(ctx, choice !== 'enterprise_contract');
+  // an enterprise contract the user chose is read as people-delivered services only for an IT services firm, and as connectivity only for a telecom company
+  const model = choice === 'enterprise_contract' && ((model0 === 'services' && ctx.v?.id !== 'ites') || (model0 === 'connectivity' && ctx.v?.id !== 'telecom')) ? null : model0;
   const contractModel = model === 'services' || model === 'connectivity' || model === 'investment' ? model : null;
   const subscription = !contractModel && (['saas_subscription', 'usage_based', 'freemium', 'marketplace', 'transactional'].includes(choice) || (choice === 'enterprise_contract' && model === 'saas'));
-  const ctxLine = !ctx.model && choice === 'enterprise_contract'
+  const ctxLine = choice === 'enterprise_contract' && (!ctx.model || model !== ctx.model)
     ? ctx.line.replace(/Business model: [^]*$/, 'Business model: enterprise contract (from your business_model input; name your offer in the product input and a services, connectivity or investment contract is read from it).*')
     : ctx.line;
+  // AI native without a kind read is written for case-by-case decision AI (cost per case, human review); other AI products get the reasons as questions
+  const caseAI = ctx.v?.id === 'ai-native' && !ctx.v.subtype && !/investment/i.test(ctx.v.name);
   const churn = parseChurn(args.current_churn_rate);
   const severity = churn.monthly > 8 ? 'CRITICAL' : churn.monthly > 5 ? 'HIGH' : churn.monthly > 3 ? 'MODERATE' : 'LOW';
   const typedRate = roundTypedPercents(args.current_churn_rate).trim();
@@ -868,7 +979,7 @@ export function writeRetentionPlaybook(args: {
   out.push('');
   out.push('## Where you stand');
   const stand: string[] = [];
-  stand.push(`This is written for ${headSeg ? segment : 'the segment you described'}${product && !segment.toLowerCase().includes(product.toLowerCase()) ? ` (customers of ${product})` : ''}, on a ${modelName} model, with ${readableChoice(csTeamSize)} customer success capacity${args.cs_team_size ? '' : ' (assumed)'}.`);
+  stand.push(`This is written for ${headSeg ? segment : 'the segment you described'}${product && !segment.toLowerCase().includes(product.toLowerCase()) && !/customers of/i.test(segment) ? ` (customers of ${product})` : ''}, on ${aAn(modelName)} ${modelName} model, with ${readableChoice(csTeamSize)} customer success capacity${args.cs_team_size ? '' : ' (assumed)'}.`);
   if (headSeg === null) stand.push(`The segment, as you described it: ${quoted(segment)}.`);
   if (churn.n === null) stand.push(`You gave a churn rate of ${quoted(typedRate)}, which could not be read as a number, so no severity is shown.`);
   else {
@@ -882,7 +993,7 @@ export function writeRetentionPlaybook(args: {
   out.push('');
   const sectorParas: string[] = [];
   if (notes && enterpriseLike) sectorParas.push(`In this segment a ${subscription ? 'purchase' : 'renewal'} usually involves ${notes.review}, so check each reason for leaving against those steps as well as the product and the price.`);
-  if (ctx.v && pb && enterpriseLike) sectorParas.push(`In ${ctx.v.name}: ${pb.renewal}`);
+  if (ctx.v && pb && enterpriseLike && !caseAI) sectorParas.push(`In ${ctx.v.name}: ${pb.renewal}`);
   if (sectorParas.length) { out.push(sectorParas.join(' ')); out.push(''); }
 
   // ---- the reasons ----
@@ -1031,7 +1142,7 @@ export function writeRetentionPlaybook(args: {
   if (ctx.v && enterpriseLike) {
     out.push(`## What to expect at renewal in ${ctx.v.name}`);
     out.push('');
-    out.push(`Buyers in ${ctx.v.name} often raise: ${ctx.v.objections.map((o) => lcFirst(stripEnd(o.objection).replace(/\?$/, ''))).join('; ')}. They use words such as ${andList(ctx.v.vocabulary.slice(0, 6))}; use the same words in your messages.`);
+    out.push(`Buyers in ${ctx.v.name} often raise: ${ctx.v.objections.map((o) => lcFirst(stripEnd(o.objection).replace(/\?$/, ''))).join('; ')}.${caseAI ? '' : ` They use words such as ${andList(ctx.v.vocabulary.slice(0, 6))}; use the same words in your messages.`}`);
     out.push('');
   } else if (ctx.v && pb) {
     out.push(`## What ${ctx.v.name} customers measure`);
@@ -1050,7 +1161,7 @@ export function writeRetentionPlaybook(args: {
   if (churn.n !== null && churn.period === 'unstated') missing.push(['whether the churn rate is monthly, quarterly or yearly', `the annual figure, which now reads ${typedRate} as monthly`]);
   if (!args.industry && !ctx.v) missing.push(['the industry, in the industry input', 'the sector measures, objections and renewal habits, which are now left out']);
   const kinds = kindsWithLines(ctx, ['churnReasons', 'renewal']);
-  if (kinds.length) missing.push([`what ${product || 'your company'} sells, in the product input`, `the reasons and steps, which now fit any company in the sector; lines written for one kind of company exist for these kinds: ${kinds.join('; ')}`]);
+  if (kinds.length) missing.push([`what ${product || 'your company'} sells, said in a few words after its name in the product input`, 'the reasons and steps, which now fit any company in the sector']);
   out.push(sharpenBlock(missing));
   return dropRepeatedLines(out.join('\n')).replace(/\n{3,}/g, '\n\n').trimEnd() + '\n';
 
@@ -1059,7 +1170,8 @@ export function writeRetentionPlaybook(args: {
     const k: string[] = [];
     const baseKey = contractModel ?? (choice === 'services_contract' ? 'services' : choice === 'connectivity_contract' ? 'connectivity' : choice === 'investment_mandate' ? 'investment' : choice);
     const base = COMMON_REASONS[baseKey] ?? COMMON_REASONS.saas_subscription;
-    const own = pb && enterpriseLike ? pb.churnReasons : [];
+    // a reason that needs a fact the user did not give (that the price follows volume or cases) is printed as a question
+    const own = pb && enterpriseLike ? pb.churnReasons.map((r) => (caseAI && /cost/i.test(r.reason) ? { reason: 'Did the cost grow faster than the value as use grew?', signal: 'If the price follows volume or use: cost per unit of use rises faster than the value customers report', action: 'Show the cost against the value delivered, with their own volumes, and offer a price that follows the value' } : r)) : [];
     // the unit of a transaction in this sector ("shipment", "payment"), read from the sector's own measures
     const unit = (ctx.v?.metrics.join(' ').match(/\b(?:cost|price|fee|rate)s? per (\w+)/i) ?? [])[1] ?? 'transaction';
     const unitize = (t: string): string => (choice === 'transactional' ? t.replace(/\btransactions\b/g, `${unit}s`).replace(/\btransaction\b/g, unit) : t);
@@ -1082,7 +1194,7 @@ export function writeRetentionPlaybook(args: {
     k.push('');
     k.push('## Step 2: a short interview for the larger losses');
     k.push('');
-    const metricAsk = ctx.v && ctx.v.metrics.length >= 2 ? `While you used ${productRef}, how did ${ctx.v.metrics[0]} and ${ctx.v.metrics[1]} change for you?` : `While you used ${productRef}, what changed for you, and by how much?`;
+    const metricAsk = ctx.v && ctx.v.metrics.length >= 2 && !caseAI ? `While you used ${productRef}, how did ${ctx.v.metrics[0]} and ${ctx.v.metrics[1]} change for you?` : `While you used ${productRef}, what changed for you, and by how much?`;
     const qs = [
       'Thank you for the time. I am trying to understand what we could have done better.',
       `Walk me through how you came to the decision to ${leaveInf}: when did you first start thinking about it?`,
@@ -1179,6 +1291,18 @@ export function writeCrisisPlan(args: {
   const model = wordingModel(ctx, !!args.business_model);
   const pb = ctx.v ? playbookFor(ctx.v) : null;
   const sectorWords = !!ctx.v && (ctx.v.id !== 'saas' || /billing/i.test(ctx.v.name));
+  // sector words are printed when the kind of company was read, or when the vertical's own words are distinctive (not for the broad software verticals)
+  const sectorVocab = !!ctx.v && (!!ctx.v.subtype || /billing/i.test(ctx.v.name) || !['saas', 'vertical-saas', 'software'].includes(ctx.v.id));
+  // a per-site connectivity business or a people-delivered services firm is assumed only when the user's words or the sector (ITeS) say so
+  const modelRead = ctx.how === 'input' || ctx.how === 'read' || !!args.business_model;
+  const kindModel: 'connectivity' | 'services' | null = model === 'connectivity' && modelRead ? 'connectivity' : model === 'services' && (modelRead || ctx.v?.id === 'ites') ? 'services' : null;
+  // a crisis is measured by service measures; the adoption and onboarding measures of a sector are not crisis measures
+  const serviceMeasures = ctx.v ? ctx.v.metrics.filter((m) => /uptime|availab|latency|success rate|error|fail|incident|repair|restor|response time|resolution|processing time|deliver|settle|downtime|exception|attain|accuracy|delay|damage|claim|credit/i.test(m) && !/adoption|onboard|first value|go.live|retention|expansion|admin|reference/i.test(m)).slice(0, 3) : [];
+  const measureText = serviceMeasures.length && ctx.v ? ` Customers in ${ctx.v.name} also watch ${andList(serviceMeasures)}: say which of them you see affected.` : '';
+  let measureShown = false;
+  const measureOnce = (): string => { if (measureShown) return ''; measureShown = true; return measureText; };
+  // AI native without a kind read: the sector's outage sentence is about scoring and review queues, which does not fit every AI product
+  const outageText = ctx.v?.id === 'ai-native' && !ctx.v.subtype && !/investment/i.test(ctx.v.name) ? 'an outage stops the AI features customers rely on, so their people take the work back by hand until service returns' : pb?.outage ?? '';
   const enterprise = base === 'b2b_enterprise';
   const consumers = base === 'b2c_consumer' || base === 'mixed';
 
@@ -1221,6 +1345,62 @@ export function writeCrisisPlan(args: {
   let securityDone = '';
   const usedOwn = new Set<string>();
 
+  const severityTable = (): string => {
+    const ceo = /CEO/.test(lead) ? lead : `${lead} and the CEO`;
+    const rows = kindModel === 'connectivity'
+      ? [['SEV-1', 'The core network, or the sites of several customers, down', '15 minutes', ceo], ['SEV-2', 'One customer\'s sites down, or a regional link failing', '30 minutes', team.core[0]], ['SEV-3', 'Degraded performance at some sites', '1 hour', 'Network operations lead']]
+      : kindModel === 'services'
+      ? [['SEV-1', 'A managed service stopped for a client', '15 minutes', ceo], ['SEV-2', 'Service levels missed for a client', '30 minutes', team.core[0]], ['SEV-3', 'Degraded service for some users', '1 hour', 'Delivery lead']]
+      : [['SEV-1', 'A complete outage for all customers', '15 minutes', ceo], ['SEV-2', 'A major function down for many customers', '30 minutes', team.core[0]], ['SEV-3', 'Degraded performance', '1 hour', 'Engineering lead']];
+    return `**Severity levels** (the response time is the time to respond, an example to replace)
+
+| Level | What it means | Respond within | Escalate to |
+|-------|---------------|----------------|-------------|
+${rows.map((l) => `| ${l.join(' | ')} |`).join('\n')}
+`;
+  };
+  const updateCadence = (): string => `**While it lasts**
+
+| After | Update | Channel |
+|-------|--------|---------|
+| 15 minutes | "Identified", with a one-line plain description of the cause | ${enterprise ? 'Status page, and a direct update from the account owner' : 'Status page'} |
+| 30 minutes | "Working on a fix", with the time of the next update | ${consumers ? 'Status page and social channels' : 'Status page, and a direct update from the account owner'} |
+| 60 minutes | Progress, or a revised time | Status page and an email to the affected |
+| Every 30 minutes | A further update until it is resolved | Status page |
+`;
+  const slaRecovery = (): string => `**What counts as a breach:** read the service-level clauses of each affected contract first; the credits and the notice duties differ by contract.
+
+**Recovery**
+1. Find the root cause and what restores the service level.
+2. Work out the service credits owed under each contract.
+3. Put a recovery plan with dates in writing for the client.
+
+${audiences([['Client service owner', 'A call from the account owner', 'What happened and the recovery plan with dates', 'Account team'], ['Client leadership', 'An executive call', 'The impact, the credits and what changes', lead]])}`;
+  const aiFirst = (): string => `**If the AI took a wrong action: the first two hours**
+1. Pause the automation that took the action, and send that type of action to human review.
+2. Find the affected cases from the audit trail: what the AI did, on whose request and with what data.
+3. Stop any action that changes a record or reaches a customer until a person approves it.
+`;
+  const aiCorrection = (): string => `**Correction**
+1. Reverse or correct each affected case, and record who approved it.
+2. Tell each affected customer what happened and what was fixed.
+3. Add the failing cases to your evaluation set before the automation is switched back on.
+4. Re-enable in stages, with a person approving each action until the evaluation passes.
+`;
+  // overlapping playbooks are merged: a sector outage takes the generic severity levels and updates, a delivery failure takes the SLA recovery, a wrong model output takes the correction steps
+  const absorbs: Array<{ own: RegExp; generic: RegExp; add: () => string }> = [
+    { own: /outage|message_delivery|payment_failure/, generic: /outage|downtime|\bdown\b/, add: () => `${pb ? `**What an outage looks like here:** ${outageText}.\n\n` : ''}${severityTable()}\n${updateCadence()}` },
+    { own: /delivery_failure/, generic: /\bsla\b|sla_|service[ _]level/, add: slaRecovery },
+    { own: /model_error/, generic: /ai_wrong|wrong[ _]action|ai[ _]error|hallucinat/, add: () => `${aiFirst()}\n${aiCorrection()}` },
+  ];
+  const ownKey = (c: string): string | undefined => pb?.crises.find((k) => c.toLowerCase().includes(k.key))?.key;
+  const absorbed = new Map<string, () => string>();
+  for (const a of absorbs) {
+    const ownC = crises.find((c) => { const k = ownKey(c); return !!k && a.own.test(k); });
+    const genC = crises.find((c) => !ownKey(c) && a.generic.test(c.toLowerCase()));
+    if (ownC && genC) { crises = crises.filter((c) => c !== genC); absorbed.set(ownKey(ownC)!, a.add); }
+  }
+
   const playbook = (crisis: string, wasTyped: boolean): string => {
     const lower = crisis.toLowerCase();
     const name = crisis.replace(/_/g, ' ');
@@ -1236,13 +1416,13 @@ export function writeCrisisPlan(args: {
       const label = !wasTyped || own.title.toLowerCase() === name.toLowerCase() ? own.title : `${own.title}: ${name}`;
       return `### ${label}
 
-**What it means here:** ${own.what}.${ctx.v && sectorWords && /outage|sync|dispatch|network|delivery|posting|billing|recognition|payment|tracking|transaction/.test(own.key) ? ` The first measures to move in ${ctx.v.name} are ${andList(ctx.v.metrics.slice(0, 3))}; tell customers which of them you see affected.` : ''}
+**What it means here:** ${own.what}.${/outage|sync|dispatch|network|delivery|posting|billing|recognition|payment|tracking|transaction/.test(own.key) ? measureOnce() : ''}
 
 **First hour**
 1. Name the owner: ${lead} as incident commander, with ${team.core[0]}.
 ${own.first.map((x, i) => `${i + 2}. ${x}.`).join('\n')}
 
-${audiences(own.tell.map((x) => [x.who, x.how, x.focus, acct] as [string, string, string, string]))}`;
+${audiences(own.tell.map((x) => [x.who, x.how, x.focus, acct] as [string, string, string, string]))}${absorbed.has(own.key) ? `\n${absorbed.get(own.key)!()}` : ''}`;
     }
     if (/vulnerab/.test(lower)) return `### ${heading('Security vulnerability', name)}
 
@@ -1271,20 +1451,13 @@ ${pb ? `**What could be exposed here:** ${pb.breach}.\n\n` : ''}**First four hou
 ${audiences([['Affected customers', toCustomers, 'What was exposed, for how long, what you have done, what they should do', acct], ['Regulators', `Per the duty that applies${compItems.length ? ` (you listed ${comp})` : ''}`, 'A notification approved by counsel', legalLead]])}`;
     if (/\bsla\b|sla_|service[ _]level/.test(lower)) return `### ${heading('SLA breach', name)}
 
-**What counts as a breach:** read the service-level clauses of each affected contract first; the credits and the notice duties differ by contract.
-
 **First four hours**
 1. Confirm the breach: which contracts, which clause, which period.
 2. Name the incident owner: ${lead} as sponsor and the delivery head as owner.
 3. Tell the account owner first, so that no client hears of it from a report before they hear it from a person.
 4. Start the incident log: facts, times and decisions.
 
-**Recovery**
-1. Find the root cause and what restores the service level.
-2. Work out the service credits owed under each contract.
-3. Put a recovery plan with dates in writing for the client.
-
-${audiences([['Client service owner', 'A call from the account owner', 'What happened and the recovery plan with dates', 'Account team'], ['Client leadership', 'An executive call', 'The impact, the credits and what changes', lead]])}${ctx.v && sectorWords ? `\nIn ${ctx.v.name} the usual measures are ${andList(ctx.v.metrics.slice(0, 3))}: put the ones that are in your contracts on the recovery plan.\n` : ''}`;
+${slaRecovery()}${measureText && !measureShown ? `\nPut the measures that are in your contracts on the recovery plan.${measureOnce()}\n` : ''}`;
     if (/regulat/.test(lower)) return `### ${heading('Regulatory action', name)}
 
 **Compliance items you listed:** ${comp || 'none, so the steps refer to "each requirement you have"'}.
@@ -1320,12 +1493,7 @@ ${audiences([['Affected customers', enterprise ? 'A call from the account owner'
 3. Stop any action that changes a record or reaches a customer until a person approves it.
 4. Name the owner: ${lead} with the data or AI lead.
 
-**Correction**
-1. Reverse or correct each affected case, and record who approved it.
-2. Tell each affected customer what happened and what was fixed.
-3. Add the failing cases to your evaluation set before the automation is switched back on.
-4. Re-enable in stages, with a person approving each action until the evaluation passes.
-`;
+${aiCorrection()}`;
     if (/breach|security|hack|exposure/.test(lower)) {
       if (securityDone) return `### ${heading('Security incident', name)}\n\nFollow the steps of "${securityDone}" above, and add the audiences and facts that are specific to this one.\n`;
       securityDone = name;
@@ -1356,34 +1524,16 @@ ${pb ? `**What could be exposed here:** ${pb.breach}.\n\n` : ''}**How to rate it
 ${audiences([['Regulators', 'A formal filing', 'The notification counsel has approved', legalLead], [enterprise ? 'Enterprise accounts' : 'Customers', enterprise ? 'A call from the account owner, then a written note' : 'Email', 'What happened, what you are doing, what they should do', acct], ['Media, if needed', 'A short statement', 'The facts only', 'Communications lead']])}`;
     }
     if (/outage|downtime|\bdown\b/.test(lower)) {
-      const rows = model === 'connectivity'
-        ? [['SEV-1', 'The core network, or the sites of several customers, down', '15 minutes', /CEO/.test(lead) ? lead : `${lead} and the CEO`], ['SEV-2', 'One customer\'s sites down, or a regional link failing', '30 minutes', team.core[0]], ['SEV-3', 'Degraded performance at some sites', '1 hour', 'Network operations lead']]
-        : model === 'services'
-        ? [['SEV-1', 'A managed service stopped for a client', '15 minutes', /CEO/.test(lead) ? lead : `${lead} and the CEO`], ['SEV-2', 'Service levels missed for a client', '30 minutes', team.core[0]], ['SEV-3', 'Degraded service for some users', '1 hour', 'Delivery lead']]
-        : [['SEV-1', 'A complete outage for all customers', '15 minutes', /CEO/.test(lead) ? lead : `${lead} and the CEO`], ['SEV-2', 'A major function down for many customers', '30 minutes', team.core[0]], ['SEV-3', 'Degraded performance', '1 hour', 'Engineering lead']];
       return `### ${heading('Service outage', name)}
 
-${pb ? `**What it looks like here:** ${pb.outage}.\n\n` : ''}**Severity levels** (the response time is the time to respond, an example to replace)
-
-| Level | What it means | Respond within | Escalate to |
-|-------|---------------|----------------|-------------|
-${rows.map((l) => `| ${l.join(' | ')} |`).join('\n')}
-
+${pb ? `**What it looks like here:** ${outageText}.\n\n` : ''}${severityTable()}
 **First fifteen minutes**
 1. Acknowledge on the status page, or to your customers' service owners: "Investigating reports of a problem with the service of ${N}".
-2. Assemble the incident room: ${model === 'connectivity' ? 'network operations, field engineering and account owners' : model === 'services' ? 'delivery, support and account owners' : 'engineering, support and communications'}.
+2. Assemble the incident room: ${kindModel === 'connectivity' ? 'network operations, field engineering and account owners' : kindModel === 'services' ? 'delivery, support and account owners' : 'engineering, support and account owners'}.
 3. Start the diagnosis and name the owner of the fix.
 4. Brief the support and account teams, so they are ready for the volume.
-${ctx.v && sectorWords ? `\nThe first measures to move in ${ctx.v.name} are ${andList(ctx.v.metrics.slice(0, 3))}: tell customers which of them you see affected.\n` : ''}
-**While it lasts**
-
-| After | Update | Channel |
-|-------|--------|---------|
-| 15 minutes | "Identified", with a one-line plain description of the cause | ${enterprise ? 'Status page, and a direct update from the account owner' : 'Status page'} |
-| 30 minutes | "Working on a fix", with the time of the next update | ${consumers ? 'Status page and social channels' : 'Status page, and a direct update from the account owner'} |
-| 60 minutes | Progress, or a revised time | Status page and an email to the affected |
-| Every 30 minutes | A further update until it is resolved | Status page |
-`;
+${measureText && !measureShown ? `\n${measureOnce().trim()}\n` : ''}
+${updateCadence()}`;
     }
     if (/(^|[^a-z])pr([^a-z]|$)/.test(lower) || /reputation|media|social/.test(lower)) return `### ${heading('PR or reputation incident', name)}
 
@@ -1464,7 +1614,7 @@ ${ctx.v && sectorWords ? `\nThe first measures to move in ${ctx.v.name} are ${an
   const out: string[] = [];
   out.push(`# Crisis response plan: ${N}`);
   out.push('');
-  out.push(readLine(ctx, model));
+  out.push(readLine(ctx, model, true));
   out.push('');
   out.push('## The plan in brief');
   const industryName = readableChoice(args.industry);
@@ -1482,9 +1632,9 @@ ${ctx.v && sectorWords ? `\nThe first measures to move in ${ctx.v.name} are ${an
   out.push('');
   out.push(`The incident commander is the ${lead}. The core team is always activated: ${andList(team.core)}. The extended team is brought in as needed: ${andList(team.extended)}.`);
   out.push('');
-  out.push(`The plan names roles, not people, because no names were given: before a crisis, write down a person, a deputy, a phone number and an email for each role, and keep the list where the team can reach it when systems are down.${compItems.length ? ` Counsel confirms which of ${comp} apply to each incident.` : ''} In every crisis, tell employees the facts and what not to say outside, before the media can.`);
+  out.push(`The plan names roles, not people, because no names were given: before a crisis, write down a person, a deputy, a phone number and an email for each role, and keep the list where the team can reach it when systems are down. Measure every incident by time to detect, time to restore, customers affected and messages sent.${compItems.length ? ` Counsel confirms which of ${comp} apply to each incident.` : ''} In every crisis, tell employees the facts and what not to say outside, before the media can.`);
   out.push('');
-  if (ctx.v && sectorWords) { out.push(`In ${ctx.v.name} customers use words such as ${andList(ctx.v.vocabulary.slice(0, 6))}: use them in customer messages.`); out.push(''); }
+  if (ctx.v && sectorVocab) { out.push(`In ${ctx.v.name} customers work with ${andList(ctx.v.vocabulary.slice(0, 6))}: use these words in customer messages, and say which of them an incident touches.`); out.push(''); }
   out.push('## Playbooks');
   out.push('');
   for (const c of crises) out.push(playbook(c, typed.length > 0));
@@ -1495,8 +1645,7 @@ ${ctx.v && sectorWords ? `\nThe first measures to move in ${ctx.v.name} are ${an
   const missing: Array<[string, string]> = [];
   if (!typed.length) missing.push(['the crises you have seen or fear, in the potential_crises input', 'the playbooks, which are now a default set for the sector']);
   if (!compItems.length) missing.push(['the compliance items that apply to you, in the compliance_requirements input', 'the notification steps, which now say "each requirement you have"']);
-  const kinds = kindsWithLines(ctx, ['crises', 'outage', 'breach']);
-  if (!prod.desc || !prod.name) missing.push(['what the company sells, in the company input, as the name followed by a short description', `which crises and which words are used, and who is on the team${kinds.length ? `; lines written for one kind of company exist for these kinds: ${kinds.join('; ')}` : ''}`]);
+  if (!prod.desc) missing.push(['what the company sells, in the company input, as the name followed by a short description', `which crises and which words are used, and who is on the team`]);
   if (!args.company_size) missing.push(['the company size, in the company_size input; the plan assumes scale-up (50 to 200)', 'the response team']);
   if (!args.business_model) missing.push(['the business model, in the business_model input', 'the severity levels and the words used for credits and service levels']);
   out.push(sharpenBlock(missing));

@@ -50,8 +50,9 @@ test("launch_commander: a long product description is quoted whole at a word bou
   // run 22: the description is listed in parts, each part whole (nothing is cut with three dots, nothing is doubled)
   const section = r.text.split("## What is being launched")[1].split("## Goals and how each is measured")[0];
   assert.doesNotMatch(section, /\.\.\./);
-  assert.match(section, /path control, one control centre and managed security/);
-  assert.match(section, /one managed service/);
+  assert.match(section, /^- path control$/m);   // run 22 round 2: a list is cut at its commas, each part whole
+  assert.match(section, /^- one control centre and managed security$/m);
+  assert.match(section, /^- one managed service$/m);
   assert.equal(section.split("\n").filter((l) => l.startsWith("- ")).length, new Set(section.split("\n").filter((l) => l.startsWith("- "))).size, "no part is doubled");
 });
 test("launch_commander: with no sector in the words, the matrix still has no bracket and names the segment's buying steps", async () => {
