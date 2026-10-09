@@ -138,6 +138,10 @@ test("round 2: the recruitment email names what the product does for the partner
   assert.match(out, /not the rates of the tiers above/);
   assert.doesNotMatch(out, /\| (?:Referrer|Advocate|Authorized|Silver|Gold|Platinum), \d+ deals? at/);
 });
+test("round 2: an AI company name adds AI partner kinds even when the product is a bare name", async () => {
+  const out = await text("partner_architect", { company: "Lingua AI", product: "Lingua", partner_model: "referral", partner_goals: "Partner-sourced pipeline among banks; no numeric target given", your_deal_size: "$60,000 ACV" });
+  assert.match(out, /Your product works with AI, so also look for AI and data consultancies/);
+});
 test("round 2: a bare product name says once that the kinds come from the model and the segments, and asks for one line on what it does", async () => {
   const out = await text("partner_architect", { company: "Plainco", product: "Plainco", partner_model: "referral", partner_goals: "Partner-sourced pipeline among retail; no numeric target given", your_deal_size: "$20,000 ACV" });
   assert.match(out, /Referral partners are usually advisers and consultants/);
