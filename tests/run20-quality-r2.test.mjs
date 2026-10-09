@@ -34,37 +34,39 @@ test("splitPhrases: 'and ...' with its own subject is a separate strength; a run
 });
 test("competitive_intel: an objection with no supporting strength says exactly which fact the user must supply and why", async () => {
   const r = await call("competitive_intel", { ...CI, your_strengths: "supports usage and hybrid pricing models, SOC 2 Type II reports" });
-  const h = r.text.split("## Objection Handlers")[1].split("## Win/Loss Analysis")[0];
-  const netsuite = h.split("### 1.")[1].split("### 2.")[0];
-  assert.match(netsuite, /Fact needed from you: a yes or no to this exact question/);
-  assert.match(netsuite, /Why: .* a question a buyer can check/);
+  const h = r.text.split("## Objection handlers")[1];
+  const netsuite = h.split('### "Does Ledgerline integrate with NetSuite?"')[1].split("###")[0];
+  assert.match(netsuite, /accurate answer than a guess/);
+  assert.match(r.text, /a fact that answers "Does Ledgerline integrate with NetSuite\?": a yes or no to this exact question/);
+  assert.match(r.text, /\(it would change this answer, which now promises to confirm instead of showing evidence\)/);
   assert.doesNotMatch(r.text, /Ask what lies behind it/);
-  const golive = h.split("### 3.")[1].split("---")[0];
-  assert.match(golive, /Fact needed from you: the real elapsed time from signature to go-live/);
+  assert.match(r.text, /a fact that answers "How long does it take to go live\?": the real elapsed time from signature to go-live/);
 });
 test("competitive_intel: a comparison objection is answered from the strengths and the weak point of the alternative it names", async () => {
   const r = await call("competitive_intel", CI);
-  const h = r.text.split("## Objection Handlers")[1].split("## Win/Loss Analysis")[0];
-  const cmp = h.split("### 2.")[1].split("### 3.")[0];
-  assert.match(cmp, /What I can point to:/);
+  const h = r.text.split("## Objection handlers")[1];
+  const cmp = h.split('### "Why Ledgerline over the ERP add-on?"')[1].split("###")[0];
+  assert.match(cmp, /(?:I can point to|our own materials say):/);
   assert.match(cmp, /only handles flat fees/);
-  assert.doesNotMatch(cmp, /Fact needed from you/);
+  assert.doesNotMatch(cmp, /accurate answer than a guess/);
 });
 test("competitive_intel: discovery questions are about the buyer's situation, not 'how does the competitor handle our strength'", async () => {
   const r = await call("competitive_intel", CI);
   assert.doesNotMatch(r.text, /Ask how this approach handles|Ask how .* handles "/);
-  assert.match(r.text, /Where does this show up in your work today, and when did it last happen: "spreadsheets break when pricing changes"/);
+  assert.match(r.text, /How often does this happen in your operation: spreadsheets break when pricing changes\?/);
 });
 test("competitive_intel: with one strength, the cards do not repeat it; a card with nothing of its own says so", async () => {
   const r = await call("competitive_intel", { your_product: "Probetool API platform", competitors: "disconnected tools for design, a Slack thread for API discovery, separate frameworks for tests", your_strengths: "used by 500,000 companies (page claims)",
     competitor_details: "each stage is its own project with its own source of truth and drift accumulates" });
-  const cards = r.text.split("## Objection Handlers")[0].split("## Competitor Battle Cards")[1];
+  const cards = r.text.split("## Objection handlers")[0].split(/\n(?=## Against )/).slice(1).join("\n");
+  assert.equal(r.text.split(/\n(?=## Against )/).length - 1, 3, "three cards");
   assert.ok((cards.match(/used by 500,000 companies/gi) || []).length <= 1, "the popularity claim is not repeated on every card");
   assert.doesNotMatch(cards, /test for "used by/i);
+  assert.match(r.text, /your_strengths that a buyer can test/);
 });
 test("competitive_intel: a note that names no alternative is labelled so, not attached to one card as its own", async () => {
   const r = await call("competitive_intel", { your_product: "Branchwire SD-WAN", competitors: "legacy WAN built on hardware, traditional VPNs", your_strengths: "managed SD-WAN with 24x7 support", competitor_details: "a single congested highway prone to jams" });
-  assert.match(r.text, /Competitor details about the whole category \(not tied to one alternative\)/);
+  assert.match(r.text, /Across the alternatives:\*\* A single congested highway prone to jams/);
 });
 test("competitive_intel: no 'resolution rate' or 'inference cost' words for an investment seller", async () => {
   const r = await call("competitive_intel", { your_product: "Quantara, systematic investment strategies powered by adaptive AI for institutions", competitors: "traditional quant strategies with static factor exposures", your_strengths: "signals explained in plain language" });
@@ -95,9 +97,9 @@ test("craft_gtm_analyzer: 'Asset allocators' is not a content asset; the role in
   const plan = "Branchwire plan for next quarter.\nGoal: ten hypothetical deals.\nAudience: Asset allocators, investment managers.\nBuyer roles: CIO, IT Infrastructure Head, network manager.\nProof: 99.5% uptime across 2000 branches (hypothetical).";
   const t = (await call("craft_gtm_analyzer", { document_content: plan, document_type: "quarterly_plan", industry: "telecom" })).text;
   assert.match(t, /### A: ARTIFACT[^\n]*\n\*\*Score: 0\/10/);
-  assert.match(t, /Deciders your plan names:[^\n]*Head of IT Infrastructure/);
-  assert.doesNotMatch(t, /Not named:[^\n]*Head of IT Infrastructure/);
-  assert.match(t, /Your plan names:\*\* uptime\b/);   // run 21b: the neutral telecom entry names "uptime"; "uptime per site" belongs to the connectivity sub-type
+  assert.match(t, /Your plan names [^.\n]*Head of IT Infrastructure/);
+  assert.doesNotMatch(t, /does not name [^.\n]*Head of IT Infrastructure/);
+  assert.match(t, /your plan names uptime\b/);   // run 21b: the neutral telecom entry names "uptime"; "uptime per site" belongs to the connectivity sub-type
 });
 test("craft_gtm_analyzer: a long risk line is not cut inside a word", async () => {
   const t = (await call("craft_gtm_analyzer", { document_content: "Plan.\nRisks: How is it different from a corporate credit card?; How is it different from a bank debit card?; How long does it take to set up my account and connect it to the ledger?", document_type: "quarterly_plan" })).text;

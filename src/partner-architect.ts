@@ -1,9 +1,8 @@
-import { describeChoice, readableChoice, EXAMPLE_FIGURE, EXAMPLE_FIGURES, SUGGESTION_FOOTER } from './utils.js';
-import { readContext, splitItems, q, andList, capEcho, cleanCompanyName, lcFirst } from './context.js';
-import { playbookFor, segmentKinds, kindsNote } from './sector-playbooks.js';
+import { readableChoice } from './utils.js';
+import { readContext, splitItems, q, capEcho, cleanCompanyName, lcFirst } from './context.js';
+import { playbookFor, kindsNote } from './sector-playbooks.js';
+import { stripEnd, lc, listAnd, productLabel, closing, finalise, segmentsOfGoal } from './rw-gtm.js';
 
-// Every rate, fee, deal count and staff count in the tier definitions is an example figure.
-const hasFigure = (text: string): boolean => /\d/.test(text);
 // Run 19 (D80): a one-line definition for every KPI the program structures list (no figure).
 const KPI_DEFINITION: Record<string, string> = {
   'Partner-sourced revenue': 'Revenue from deals a partner sourced',
@@ -57,14 +56,6 @@ export function generatePartnerArchitect(args: {
   const dealSizeRead = readAmount(args.your_deal_size);
   const dealSizeMatch = dealSizeRead !== null;
   const dealSize = dealSizeRead ?? 5000;
-  // When no amount is found in the deal size, the figures below use an assumed one: say so.
-  const dealSizeShown = dealSizeMatch
-    ? args.your_deal_size
-    : `${args.your_deal_size} (no amount found, so ${money(dealSize)} is assumed) ${EXAMPLE_FIGURE}`;
-  const dealSizeBasis = dealSizeMatch
-    ? `${args.your_deal_size} deal size`
-    : `an assumed ${money(dealSize)} deal size ${EXAMPLE_FIGURE}`;
-  
   interface PartnerTier {
     name: string;
     requirements: string[];
@@ -137,169 +128,150 @@ export function generatePartnerArchitect(args: {
     program.tiers[1] = { ...program.tiers[1], benefits: ['Joint account planning for referred accounts', 'Invitations to customer and executive events', 'Priority referral processing'], support: 'Quarterly review with a partner manager, annual partner event' };
   }
   const pb = ctx.v ? playbookFor(ctx.v) : null;
-  const goalSegments = segmentKinds(args.partner_goals);
-  const sameName = args.product.trim().toLowerCase() === args.company.trim().toLowerCase() || args.product.trim().split(/\s+/).length <= 3 && args.product.toLowerCase().includes(args.company.toLowerCase());
+  const goalSegments = segmentsOfGoal(args.partner_goals);
   // a figure is a number that is not part of a word (3PL, 4G and CPaaS hold no target)
   const goalHasFigure = /(?<![A-Za-z0-9])\d[\d,.]*(?![A-Za-z0-9])/.test(args.partner_goals.replace(/\bno numeric target given\b/gi, ''));
-  const firstKind = pb ? ({ referral: pb.partners.refer, affiliate: pb.partners.refer, reseller: pb.partners.resell, integration_tech: pb.partners.integrate, oem_white_label: pb.partners.integrate, agency_si: pb.partners.implement } as Record<string, string[]>)[partnerModel]?.[0] ?? '' : '';
   const exampleDeals = 10;
-  
-  const supportAdjustments: Record<string, string> = {
-    minimal_self_serve: `Note: With minimal support capacity, prioritize self-serve onboarding, comprehensive documentation, and automated reporting. Consider limiting to 2 tiers max. ${EXAMPLE_FIGURE}`,
-    moderate: 'With moderate capacity, balance 1:1 support for top partners with self-serve for others. Consider office hours model.',
-    high_touch: 'With high-touch capacity, you can offer white-glove onboarding and dedicated partner managers across tiers.'
+  const pm = partnerModel.replace(/_/g, ' ');
+  const company = stripEnd(args.company);
+  const label = productLabel(args.product, args.company);
+  const startsWithCompany = label.name !== null && label.name.toLowerCase() === company.toLowerCase();
+  // the offer as a noun phrase: the product as typed when it carries the company name or is a short name, else the company's own description of it
+  const offer = startsWithCompany || (args.product.trim().split(/\s+/).length <= 3 && /^[A-Z]/.test(args.product.trim())) ? stripEnd(args.product) : `${company}'s ${lc(stripEnd(args.product).replace(/^(?:an?|the)\s+/i, ''))}`;
+  // in the email the offer follows "about": "our managed SD-WAN for branch offices"
+  const offerInEmail = startsWithCompany && label.rest ? `our ${lc(label.rest)}` : startsWithCompany ? 'our offer' : /^(?:an?|the)\s/i.test(args.product.trim()) ? stripEnd(args.product) : args.product.trim().split(/\s+/).length <= 3 && /^[A-Z]/.test(args.product.trim()) ? stripEnd(args.product) : `our ${lc(stripEnd(args.product))}`;
+  // what a reseller or OEM partner buys, by business model (a services firm has no licences, a connectivity seller no seats)
+  const thing: Record<string, string> = { saas: 'licences or subscriptions', services: 'your services', connectivity: 'your connectivity services', transactions: 'your product on its usual per-transaction terms', marketplace: 'access to your marketplace', hardware_software: 'your hardware and software', investment: 'access to your strategies' };
+  const buys = (ctx.model && thing[ctx.model]) || 'your product';
+  const overview: Record<string, string> = {
+    reseller: `Partners buy ${buys} from you at a discount and resell them to end customers, so they own the whole sales cycle.`,
+    referral: 'Partners introduce leads and your own team runs the sale, which asks less of a partner and reaches further.',
+    integration_tech: 'Technology partners build integrations with your product; the value comes from the extra capability and the customers you share.',
+    agency_si: `Services partners implement, customise and support ${ctx.model === 'saas' || !ctx.model ? 'your product' : buys}, and earn implementation fees as well as referral fees.`,
+    affiliate: 'Performance based partners bring traffic and conversions through their own tracked links.',
+    oem_white_label: 'Partners embed your product inside their own, which means deep integration and significant volume.',
   };
+  const capacityWords: Record<string, string> = { minimal_self_serve: 'minimal, self serve', moderate: 'moderate', high_touch: 'high touch' };
+  const capacity = args.partner_support_capacity ? capacityWords[args.partner_support_capacity] ?? readableChoice(args.partner_support_capacity) : 'moderate';
+  const supportAdjustments: Record<string, string> = {
+    minimal_self_serve: 'With minimal support capacity, put the effort into self serve onboarding, thorough documentation and automated reporting, and keep the program to two tiers at most.',
+    moderate: 'With moderate capacity, give your top partners one to one support and put the others on self serve with office hours.',
+    high_touch: 'With high touch capacity, you can offer white glove onboarding and dedicated partner managers across the tiers.',
+  };
+  const contractBasis = ctx.model === 'services' || ctx.model === 'connectivity' || ctx.model === 'investment';
+  const dealLine = dealSizeMatch
+    ? `A typical deal is ${stripEnd(args.your_deal_size)}${contractBasis ? ', which this plan treats as the annual contract value' : ''}.`
+    : `You gave ${q(args.your_deal_size)} as the deal size, which holds no amount, so every figure below assumes ${money(dealSize)}.`;
 
-  return `# Partner Program Architecture
-## ${args.company}: ${partnerModel.replace(/_/g, ' ')} program
+  let out = `# Partner program for ${company}
 
-**Partner Model:** ${partnerModel.replace(/_/g, ' ')}
-**Product:** ${args.product}
-**Average Deal Size:** ${dealSizeShown}
-**Support Capacity:** ${describeChoice(args.partner_support_capacity, supportCapacity)}
+This is a ${pm} partner program for ${offer}. ${dealLine} You can support partners at a ${capacity} level.
 
-${ctx.line}${kindsNote(ctx.v, sameName ? args.company : args.product, 'product')}
+**Your stated goal:** ${q(args.partner_goals)}
 
----
+${ctx.line}${kindsNote(ctx.v, company, 'product')}
 
-## Program Overview
+## How the program works
 
-${program.overview}
-${partnerModel === 'affiliate' || partnerModel === 'referral' ? (ctx.v && /enterprise/i.test(ctx.v.salesMotion) ? `\n*Sector note: deals in ${ctx.v.name} run as enterprise sales with a buying committee, so ${partnerModel} partners usually bring leads, not closed deals. Measure qualified opportunities, not only referrals.*\n` : '') : ''}${ctx.model === 'services' || ctx.model === 'connectivity' || ctx.model === 'investment' ? `\n*The deal size you gave is treated as the annual contract value. Check how your contract term and notice period change what a partner should earn.*\n` : ''}
+${overview[partnerModel] ?? overview.referral}${(partnerModel === 'affiliate' || partnerModel === 'referral') && ctx.v && /enterprise/i.test(ctx.v.salesMotion) ? ` Deals in ${ctx.v.name} run as enterprise sales with a buying committee, so ${pm} partners usually bring leads rather than closed deals: measure qualified opportunities, not only referrals.` : ''}${contractBasis ? ` A fee or discount on a contract that runs for several years needs a rule: decide whether it is paid on the first year only or on each year of the term, and check how your notice period changes what a partner should earn.` : ''}
 
-${supportAdjustments[supportCapacity] || ''}
+${supportAdjustments[args.partner_support_capacity ?? 'moderate'] ?? supportAdjustments.moderate}
 
----
+## ${ctx.v ? 'Partners That Fit This Sector' : 'Partners That Reach Your Segments'}
 
-## Partner Tiers
+`;
+  const kindsKey: Record<string, keyof NonNullable<typeof pb>['partners']> = { referral: 'refer', affiliate: 'refer', reseller: 'resell', integration_tech: 'integrate', oem_white_label: 'integrate', agency_si: 'implement' };
+  const lines: string[] = [];
+  if (existingPartners.length) lines.push(`Start with the partners you already have: ${listAnd(existingPartners.map((x) => q(x)))}. You gave no deal counts for them, so each starts in the first tier (${program.tiers[0].name}) and moves up as it meets the requirements of the next.`);
+  if (pb && ctx.v) {
+    lines.push(`In ${ctx.v.name}, ${pm} partners are usually ${listAnd(pb.partners[kindsKey[partnerModel] ?? 'refer'])}. ${pb.partnerWhy}`);
+    lines.push(`Between them they reach the people who decide: ${lcFirst(ctx.v.committee)}`);
+  }
+  if (goalSegments.length) lines.push(`For the segments in your goal:\n${goalSegments.map((g) => `- **${cap1(g.kind)}:** look for ${g.partners}. Buyers there are shaped by ${g.review}.`).join('\n')}`);
+  if ((pb && /investment/i.test(ctx.v!.name)) || goalSegments.some((g) => g.kind === 'investment institutions')) lines.push('Independence matters here: investment consultants who advise allocators on suppliers may not be paid to recommend one. Use a non-commission relationship with them (shared research, introductions on request), and a referral fee only where compliance allows it, in writing and disclosed.');
+  if (!pb && !goalSegments.length) lines.push('Your inputs name neither a sector this tool knows nor a segment it has partner kinds for, so this section lists none.');
+  else if (!pb) lines.push('The partner kinds above come from the segments in your goal, not from what your product does.');
+  if (ctx.v) lines.push(`Words your buyers use, for partner materials: ${ctx.v.vocabulary.join(', ')}. A joint proof point that lands: ${lc(ctx.v.proofShape)}`);
+  out += `These are kinds of company, not names: pick the ones that already advise or sell to your buyers.\n\n${lines.join('\n\n')}\n\n`;
 
-${program.tiers.map((tier, i) => `
-### Tier ${i + 1}: ${tier.name}
+  out += `## Partner tiers
 
-**Requirements to Qualify:**${tier.requirements.some(hasFigure) ? ` ${EXAMPLE_FIGURES}` : ''}
-${tier.requirements.map(r => `- ${r}`).join('\n')}
+Every rate, amount, deal count and fund size in the tiers and tables below is an example to replace with your own.
 
-**Benefits:**${tier.benefits.some(hasFigure) ? ` ${EXAMPLE_FIGURES}` : ''}
-${tier.benefits.map(b => `- ${b}`).join('\n')}
+${program.tiers.map((tier, i) => `### Tier ${i + 1}: ${tier.name}
 
-**Commission/Economics:**
-\`${tier.commission}\`${hasFigure(tier.commission) ? ` ${EXAMPLE_FIGURE}` : ''}
+- **To qualify:** ${tier.requirements.map(lc).join('; ')}.
+- **Benefits:** ${tier.benefits.map((b) => lc(b.replace(/\badvisory board seat\b/i, 'a place on the partner advisory board'))).join('; ')}.
+- **Partner earns:** ${tier.commission}.
+- **Support:** ${lc(tier.support)}.`).join('\n\n')}
 
-**Support Level:**
-${tier.support}
+## What a partner earns
 
----
-`).join('')}
+The table applies the example rates to ${dealSizeMatch ? 'your' : 'the assumed'} deal size.
 
-## Economic Model
-
-### Partner Economics Calculator
-
-${EXAMPLE_FIGURES} The commission rates and deal counts in this table are illustrations, applied to ${dealSizeMatch ? 'your' : 'the assumed'} deal size.
-| Scenario | Partner Effort | Partner Earnings | Your Revenue |
-|----------|---------------|------------------|--------------|
-| ${program.tiers[0].name} (1 deal) | Low | ${money(dealSize * 0.10)} | ${money(dealSize * 0.90)} |
-| ${program.tiers.length > 1 ? program.tiers[1].name : program.tiers[0].name} (5 deals) | Medium | ${money(dealSize * 0.15 * 5)} | ${money(dealSize * 0.85 * 5)} |
-| Top partner (20 deals, example 25% rate) | High | ${money(dealSize * 0.25 * 20)} | ${money(dealSize * 0.75 * 20)} |
-
-### Commission Viability Check
-
-Based on ${dealSizeBasis}, the first-tier example commission of ${money(dealSize * 0.10)} per closed deal (example thresholds below):
-- ${dealSize * 0.10 < 500 ? `At an example commission of ${money(dealSize * 0.10)} partner support is not justified: a partner earns too little per deal to be worth a person on your side, so keep the program self-serve and consider affiliate or referral links only.` : dealSize * 0.10 < 3000 ? `At an example commission of ${money(dealSize * 0.10)} a shared partner manager (pooled across partners, not one per partner) is the most the economics support.` : dealSize * 0.10 < 10000 ? `At an example commission of ${money(dealSize * 0.10)} a named contact for your top partners is justified; keep the others on pooled support.` : `At an example commission of ${money(dealSize * 0.10)} a named partner manager and tailored onboarding for each active partner are justified.`}
-- ${dealSize > 1000 ? 'The deal size leaves room for a meaningful commission' : 'The deal size is small for a reseller model: consider affiliate or referral'}
-
----
-
-## Program KPIs
-
-**Your stated goal:** ${q(capEcho(args.partner_goals, 220).short)}
-
-${goalHasFigure ? 'Use the figures in your goal as the targets of the first rows below.' : 'Your goal holds no number, so each target below is set from your first quarter of data.'} A worked example at your deal size: ${exampleDeals} closed partner-sourced deals are ${money(dealSize * exampleDeals)} in annual contract value ${EXAMPLE_FIGURE}
-
-| Metric | Definition | Target | Tracking |
-|--------|------------|--------|----------|
-${program.kpis.map((kpi, i) => `| ${kpi} | ${KPI_DEFINITION[kpi] || 'The measure for this program'} | ${i === 0 ? (goalHasFigure ? 'From your goal above' : 'Set from your first quarter of data') : 'Set from your first quarter of data'} | Your CRM or partner portal |`).join('\n')}
-
----
-
-${existingPartners.length ? `## Your Existing Partners
-
-${existingPartners.map((x) => `- ${q(x)}`).join('\n')}
-
-You gave no details beyond this, so none is placed in a tier. Check each against the tier requirements above: until a partner meets them it sits in the first tier (${program.tiers[0].name}).
-
----
-
-` : ''}## ${ctx.v ? 'Partners That Fit This Sector' : 'Partners That Reach Your Segments'}
-
-*Kinds of company, not names. Pick the ones that already advise or sell to your buyers.*
+| Scenario | Partner earns | You keep |
+|----------|---------------|----------|
+| ${program.tiers[0].name}, 1 deal at 10% | ${money(dealSize * 0.10)} | ${money(dealSize * 0.90)} |
+| ${program.tiers.length > 1 ? program.tiers[1].name : program.tiers[0].name}, 5 deals at 15% | ${money(dealSize * 0.15 * 5)} | ${money(dealSize * 0.85 * 5)} |
+| Top partner, 20 deals at 25% | ${money(dealSize * 0.25 * 20)} | ${money(dealSize * 0.75 * 20)} |
 
 ${(() => {
-  const kindsKey: Record<string, keyof NonNullable<typeof pb>['partners']> = { referral: 'refer', affiliate: 'refer', reseller: 'resell', integration_tech: 'integrate', oem_white_label: 'integrate', agency_si: 'implement' };
-  const key = kindsKey[partnerModel] ?? 'refer';
-  const lines: string[] = [];
-  if (pb && ctx.v) {
-    lines.push(`**In ${ctx.v.name}** (${partnerModel.replace(/_/g, ' ')} partners): ${andList(pb.partners[key])}.`);
-    lines.push(`**Why:** ${pb.partnerWhy}`);
-    lines.push(`**Who they reach:** ${ctx.v.committee}`);
-  }
-  if (goalSegments.length) lines.push(`**For the segments in your goal:** ${goalSegments.map((g) => `for ${g.kind}, ${g.partners}`).join('; ')}.`);
-  if ((pb && /investment/i.test(ctx.v!.name)) || goalSegments.some((g) => g.kind === 'investment institutions')) lines.push('**Independence:** investment consultants who advise allocators on suppliers may not be paid to recommend one. Use a non-commission relationship with them (shared research, introductions on request), and a referral fee only where compliance allows it, in writing and disclosed.');
-  if (!pb && goalSegments.length) lines.unshift('**Assumed:** the sector is not clear from your inputs, so the partner kinds below come from the segments in your goal, not from what your product does. Name the industry (the industry input) for partner kinds that fit the product.');
-  if (!lines.length) lines.push('The sector is not clear from your inputs, and your goal names no segment this tool knows: name the industry (the industry input) or the segments you aim at to get partner kinds.');
-  if (ctx.v) lines.push(`**Words this buyer uses, for partner materials:** ${ctx.v.vocabulary.join(', ')}. **A joint proof point that lands:** ${ctx.v.proofShape}`);
-  return lines.join('\n\n');
+  const c = dealSize * 0.10; const first = money(c);
+  const verdict = c < 500 ? `At ${first} a deal a partner earns too little to be worth a person on your side, so keep the program self serve and consider affiliate or referral links only.`
+    : c < 3000 ? `At ${first} a deal, a shared partner manager (pooled across partners, not one per partner) is the most the economics support.`
+    : c < 10000 ? `At ${first} a deal, a named contact for your top partners is justified; keep the others on pooled support.`
+    : `At ${first} a deal, a named partner manager and tailored onboarding for each active partner are justified.`;
+  return `**What the economics support:** the first tier earns ${first} on one closed deal at the example 10% rate. ${verdict} ${dealSize > 1000 ? 'The deal size leaves room for a meaningful commission.' : 'The deal size is small for a reseller model, so consider affiliate or referral instead.'}`;
 })()}
 
----
+## Targets and KPIs
 
-## Onboarding Flow
+${goalHasFigure ? `Your goal holds figures, so use them as the target of ${program.kpis[0].toLowerCase()}.` : 'Your goal holds no number, so set each target after the first quarter of data.'} A worked example at your deal size: ${exampleDeals} closed partner-sourced deals are ${money(dealSize * exampleDeals)} in annual contract value, as an example.
 
-### Day 0-7: Welcome & Setup
-- [ ] Partner agreement signed
-- [ ] Portal access provisioned
-- [ ] Welcome kit sent (digital)
-- [ ] Kickoff call scheduled (if ${supportCapacity === 'minimal_self_serve' ? 'top tier only' : 'applicable'})
+| Metric | What it measures |
+|--------|------------------|
+${program.kpis.map((kpi) => `| ${kpi} | ${KPI_DEFINITION[kpi] || 'The measure for this program'} |`).join('\n')}
 
-### Day 7-30: Enable
-- [ ] ${partnerModel === 'reseller' || partnerModel === 'agency_si' ? 'Certification started/completed' : 'Training materials reviewed'}
-- [ ] ${partnerModel === 'integration_tech' ? 'Integration development started' : 'Sales materials accessed'}${ctx.v ? `\n- [ ] Walk through the objections buyers in ${ctx.v.name} raise: ${andList(ctx.v.objections.slice(0, 3).map((o) => lcFirst(o.objection)))}` : ''}
-- [ ] First ${partnerModel === 'affiliate' ? 'campaigns launched' : partnerModel === 'integration_tech' ? 'API calls made' : 'prospect identified'}
+Track all of them in your CRM or partner portal.
 
-### Day 30-60: Activate
-- [ ] First ${partnerModel === 'referral' || partnerModel === 'affiliate' ? 'referral/lead submitted' : 'deal registered'}
-- [ ] ${partnerModel === 'integration_tech' ? 'Integration live in marketplace' : 'Pipeline developing'}
-- [ ] Regular cadence established
+## The first 90 days
 
-### Day 60-90: Optimize
-- [ ] First ${partnerModel === 'affiliate' ? 'commission paid' : 'deal closed'}
-- [ ] Performance review completed
-- [ ] Expansion plan discussed
+- **Days 0 to 7, welcome and set up:** the partner signs the agreement, gets portal access and a digital welcome kit, and has a kickoff call (${supportCapacity === 'minimal_self_serve' ? 'top tier only' : 'where it applies'}).
+- **Days 7 to 30, enable:** ${partnerModel === 'reseller' || partnerModel === 'agency_si' ? 'certification is started or completed' : 'training materials are reviewed'}, ${partnerModel === 'integration_tech' ? 'integration development begins' : 'sales materials are in use'}${ctx.v ? `, and the partner walks through the objections buyers in ${ctx.v.name} raise: ${listAnd(ctx.v.objections.slice(0, 3).map((o) => lcFirst(o.objection)))}` : ''}. The first ${partnerModel === 'affiliate' ? 'campaign goes live' : partnerModel === 'integration_tech' ? 'API calls are made' : 'prospect is identified'}.
+- **Days 30 to 60, activate:** the first ${partnerModel === 'referral' || partnerModel === 'affiliate' ? 'referral or lead is submitted' : 'deal is registered'}, ${partnerModel === 'integration_tech' ? 'the integration goes live in the marketplace' : 'a pipeline starts to build'} and a regular cadence is set.
+- **Days 60 to 90, optimise:** the first ${partnerModel === 'affiliate' ? 'commission is paid' : 'deal closes'}, you hold a performance review and discuss the expansion plan.
 
----
-
-## Partner Communications
-
-### Recruitment Email Template
+## Recruitment email
 
 \`\`\`
-Subject: ${cap1(partnerModel.replace(/_/g, ' '))} partnership with ${args.company}
+Subject: ${cap1(pm)} partnership with ${company}
 
 Hello,
 
-I am writing from ${args.company}.${sameName ? '' : ` In short, ${args.company} offers ${q(capEcho(args.product, 160).short)}.`}${pb ? ` Your clients include the people who decide on this: ${andList(ctx.v!.buyerRoles.slice(0, 3))}.` : ''} I think there is a strong opportunity for us to work together. Partners ${partnerModel === 'reseller' ? 'can expand their revenue by offering our solution alongside their services' : partnerModel === 'referral' ? 'earn a commission on each closed deal (see the tiers above)' : partnerModel === 'integration_tech' ? 'can increase their product value through deep integration' : 'can grow their business with our tools'}.
-${partnerModel === 'reseller' ? `\nWith deals averaging ${args.your_deal_size}, partners at the Silver tier would earn about ${money(dealSize * 0.20 * 5)} a quarter. ${EXAMPLE_FIGURE}\n` : ''}
+I am writing from ${company} about ${offerInEmail}.${pb && ctx.v ? ` Your clients include the people who decide on this: ${listAnd(ctx.v.buyerRoles.slice(0, 3))}.` : ''} ${({
+    reseller: 'As a partner you can grow your revenue by offering it alongside your own services.',
+    referral: 'As a referral partner you would earn a fee on each closed deal, and our team would run the sale.',
+    integration_tech: 'A deeper integration would add to the value of both products for the customers we share.',
+    agency_si: 'As an implementation partner you would deliver the work, supported by our team.',
+    affiliate: 'As an affiliate you would earn on each sale or lead that comes through your links.',
+    oem_white_label: 'As an OEM partner you would build it into your own product under your own brand.',
+  } as Record<string, string>)[partnerModel] ?? 'We think there is a strong opportunity to work together.'}
+
 Would you be open to a 15-minute call to explore fit?
 
-The ${args.company} partnerships team
+The ${company} partnerships team
 \`\`\`
-
----
-
-*Partner program architecture generated using the CRAFT GTM framework*
-*Customized for ${partnerModel.replace(/_/g, ' ')} model with ${readableChoice(supportCapacity)} support capacity*
-
-${SUGGESTION_FOOTER}`;
+`;
+  const asks: Array<[string, string]> = [];
+  if (!args.partner_support_capacity) asks.push([`partner_support_capacity, which this plan assumes is ${capacity}`, 'the number of tiers and who supports partners']);
+  if (!existingPartners.length) asks.push(['existing_partners, with the deals each has closed', 'which tier each partner starts in']);
+  if (!goalHasFigure) asks.push(['a numeric partner target, such as deals or pipeline for the year', `the target of ${program.kpis[0].toLowerCase()}`]);
+  if (!dealSizeMatch) asks.push(['your deal size as one amount, such as $50K', 'every amount in the tiers and tables']);
+  if (!ctx.v && !goalSegments.length) asks.push(['industry, or a product description that names your sector', 'the partner kinds and the buyer roles in the email']);
+  if (contractBasis) asks.push(['your contract term and notice period', 'how long a partner fee should run']);
+  if (ctx.how === 'sector' || ctx.how === 'unknown') asks.push(['business_model, which this plan reads from your sector or text', 'the wording of price and contract terms']);
+  out += `\n${closing(asks)}`;
+  return finalise(out);
 }
 
 // Reads one amount from text: "$5,000", "$50K" and "$1.5M" give 5000, 50000 and 1500000 (run 7, T5).

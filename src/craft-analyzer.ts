@@ -1,7 +1,11 @@
 import { analyzeCRAFTDimensions, isMarketLine, type CRAFTDimension } from './utils.js';
-import { VERTICALS, profileFor } from './verticals.ts';
-import { andList, readContext, q, qc, splitPhrases } from './context.js';
+import { VERTICALS, BUYER_CONTEXTS, profileFor, buyerContextFor } from './verticals.ts';
+import { andList, readContext, q, splitPhrases } from './context.js';
 import { answerFor } from './context.js';
+import { lc, closing, finalise, clauseCut } from './rw-gtm.js';
+
+// A plan line in quotes, in full when it fits and otherwise ended at a clause break (never with three dots).
+const qc = (t: string, max = 220): string => q(clauseCut(t, max));
 
 export function generateCRAFTAnalyzer(args: {
   document_content: string;
@@ -19,11 +23,6 @@ export function generateCRAFTAnalyzer(args: {
   const labelled = content.split('\n').map((l) => { const m = l.match(/^\s*([A-Za-z][A-Za-z /&'-]{1,40}):\s*(.+)$/); return m ? { label: m[1].trim(), text: m[2].trim() } : null; }).filter((x): x is { label: string; text: string } => !!x);
   const planAudience = labelled.find((x) => /^(?:target )?audience$|^icp$|^segments?$/i.test(x.label));
   const planGoal = labelled.find((x) => /^(?:goals?|objectives?|targets?|outcomes?|success(?: criteria| metrics?)?)$/i.test(x.label));
-  const audience = args.intended_audience || 'Not specified';
-  const outcome = args.desired_outcome || 'Not specified';
-  const audienceShown = args.intended_audience || (planAudience ? `not given as an input; your plan's own Audience line says: ${qc(planAudience.text, 160)}` : 'not given, and the plan has no Audience line');
-  const outcomeShown = args.desired_outcome || (planGoal ? `not given as an input; your plan's own ${planGoal.label} line says: ${qc(planGoal.text, 200)}` : 'not given, and the plan has no Goal line');
-  
   // The plan is read in its parts when it is labelled (Message and How we differ are the seller's words; Buyer roles are job titles; Audience is the buyer);
   // a plan with no such lines is read whole, as deal text. Its Goal line is not read: it often lists the segments, which are the buyer's sector, not yours.
   const byLabel = (re: RegExp): string[] => labelled.filter((x) => re.test(x.label)).map((x) => x.text);
@@ -47,108 +46,6 @@ export function generateCRAFTAnalyzer(args: {
   else if (percentage >= 60) { rating = 'GOOD'; }
   else if (percentage >= 40) { rating = 'NEEDS WORK'; }
   else { rating = 'SIGNIFICANT GAPS'; }
-  
-  // Run 12 (R12-21): the terms each dimension looks for, named when a dimension scores under 7 with no gap listed.
-  // Run 19 (D80, problem 5): the answer names only what the plan lacks and says what it does have.
-  const TERMS: Record<string, string> = {
-    character: 'owners, roles and teams',
-    result: 'measurable goals and targets',
-    artifact: 'deliverables and outputs',
-    frame: 'budget, constraints and assumptions',
-    timeline: 'dates, deadlines and milestones',
-  };
-  const noGap = (key: string, d: CRAFTDimension, strong: string): string => {
-    if (d.score >= 7) return `- ${strong}`;
-    const have = d.groupsFound.length ? `found ${andList(d.groupsFound)}` : 'found little';
-    return d.groupsMissing.length
-      ? `- Partly covered: ${have}; not found: ${andList(d.groupsMissing)}`
-      : `- Partly covered: ${have}, but only ${d.found.length} term${d.found.length === 1 ? '' : 's'} matched; add more detail`;
-  };
-  // The body of one dimension: what the plan contains (its own line), the gaps, the recommended section.
-  const body = (key: string, d: CRAFTDimension, strong: string, foundLabel: string): string => `**${foundLabel}:**
-${d.found.length > 0 ? d.found.slice(0, 5).map(f => `- "${f}"`).join('\n') : '- None'}
-${d.evidence.length > 0 ? `\n**Your plan's own line${d.evidence.length > 1 ? 's' : ''}:**\n${d.evidence.map(e => `> ${e}`).join('\n')}\n` : ''}
-**Gaps identified:**
-${d.gaps.length > 0 ? d.gaps.map(g => `- ${g}`).join('\n') : noGap(key, d, strong)}
-
-${d.gaps.length > 0 ? `\n**Recommended improvement:**\n${generateImprovement(key, d.gaps)}` : ''}`;
-
-  // Generate improved sections for gaps
-  const generateImprovement = (dimension: string, gaps: string[]): string => {
-    if (gaps.length === 0) return 'No improvements needed';
-    
-    switch (dimension) {
-      case 'character':
-        return `**Add this section (fill the empty cells):**
-\`\`\`
-## Roles & Responsibilities
-
-| Role | Responsibility | Name/Team |
-|------|---------------|-----------|
-| Owner | Overall accountability |  |
-| Executor | Day-to-day execution |  |
-| Approver | Sign-off authority |  |
-| Consulted | Input needed |  |
-| Informed | Keep updated |  |
-\`\`\``;
-      
-      case 'result':
-        return `**Add this section (fill the empty cells):**
-\`\`\`
-## Success Metrics
-
-| KPI | Current | Target | Timeline |
-|-----|---------|--------|----------|
-| Primary metric |  |  |  |
-| Secondary metric |  |  |  |
-| Leading indicator |  |  |  |
-
-Success Definition (one measurable outcome, with a date):
-\`\`\``;
-      
-      case 'artifact':
-        return `**Add this section (fill the empty cells):**
-\`\`\`
-## Deliverables
-
-| Deliverable | Description | Owner | Due Date |
-|-------------|-------------|-------|----------|
-|  |  |  |  |
-|  |  |  |  |
-\`\`\``;
-      
-      case 'frame':
-        return `**Add this section (fill the empty cells):**
-\`\`\`
-## Context & Constraints
-
-**Target Audience:** (use the audience line of your plan)
-**Budget:** 
-**Resources Available:** 
-**Constraints:** 
-**Assumptions:** 
-\`\`\``;
-      
-      case 'timeline':
-        return `**Add this section (fill the empty cells):**
-\`\`\`
-## Timeline & Milestones
-
-| Phase | Milestone | Date | Status |
-|-------|-----------|------|--------|
-| Phase 1 |  |  |  |
-| Phase 2 |  |  |  |
-| Phase 3 |  |  |  |
-
-Key Deadlines:
-- : 
-- : 
-\`\`\``;
-      
-      default:
-        return 'Review and enhance this section';
-    }
-  };
   
   // Run 20: what the plan states, line by line, and the gaps that matter for a go-to-market plan (read from the plan's own lines).
   const countsFor = (label: string, text: string): string => {
@@ -180,118 +77,77 @@ Key Deadlines:
     if (m) for (const item of splitPhrases(m[1])) riskItems.push({ line: item, answered: false, pattern: answerFor(item, sectorCtx0.v) });
     else riskItems.push({ ...r, pattern: r.answered ? '' : answerFor(r.line, sectorCtx0.v) });
   }
-  // Build the analysis output
-  let output = `# CRAFT Document Analysis
-## ${docType.replace(/_/g, ' ').toUpperCase()}
+  // ---- the review ----
+  const DIM_NAME: Record<string, string> = { character: 'Character', result: 'Result', artifact: 'Artifact', frame: 'Frame', timeline: 'Timeline' };
+  const DIM_WHO: Record<string, string> = { character: 'who runs it', result: 'what success looks like', artifact: 'what gets produced', frame: 'the context and limits', timeline: 'when it happens' };
+  const dims = (['character', 'result', 'artifact', 'frame', 'timeline'] as const).map((key) => ({ key, name: DIM_NAME[key], d: analysis[key] }));
+  const strong = dims.filter((x) => x.d.score >= 7);
+  const empty = dims.filter((x) => x.d.score < 4);
+  const status = (n: number): string => (n >= 7 ? 'Yes' : n >= 4 ? 'Note' : 'No');
+  const verdict = `${strong.length ? `The plan is clear on ${andList(strong.map((x) => `${x.name} (${DIM_WHO[x.key]})`))}.` : 'No dimension of the plan is clear yet.'} ${empty.length ? `It has little or nothing yet on ${andList(empty.map((x) => `${x.name} (${DIM_WHO[x.key]})`))}.` : 'Nothing is missing entirely, but some parts are thin.'}`;
 
-**Document Length:** ${content.length} characters
+  // the buyer's industry, read from the plan's audience and goal lines (and the audience input), else from the whole plan without the broad technology and media words
+  const buyerTexts = [args.intended_audience, planAudience?.text, planGoal?.text, args.desired_outcome];
+  const buyerCtx = buyerContextFor(...buyerTexts) ?? (() => { const t = content; for (const c of BUYER_CONTEXTS) if (c.id !== 'technology' && c.id !== 'telecom-media' && c.id !== 'gaming' && c.match.test(t)) return c; return null; })();
+
+  // the plan's own title, when its first line is a sentence and not a labelled line ("Brightdesk plan for Q1 2027.")
+  const firstLine = content.split('\n')[0].trim();
+  const planTitle = firstLine && !/^[A-Za-z][A-Za-z /&'-]{1,40}:\s/.test(firstLine) ? clauseCut(firstLine.split(/(?<=[.!?])\s+/)[0], 140) : '';
+
+  let output = `# CRAFT review: ${docType.replace(/_/g, ' ')}
+
+${planTitle ? `**Plan:** ${planTitle}\n\n` : ''}**Document Length:** ${content.length} characters
 **Words (estimate):** ~${Math.round(content.length / 5)}, from the character count
-**Intended Audience:** ${audienceShown}
-**Desired Outcome:** ${outcomeShown}
 
----
+${args.intended_audience ? `**Written for:** ${args.intended_audience}.` : planAudience ? `**Written for:** ${qc(planAudience.text, 200)} (the plan's own Audience line).` : ''}${args.desired_outcome ? `\n\n**Meant to drive:** ${args.desired_outcome}.` : planGoal ? `\n\n**Meant to drive:** ${qc(planGoal.text, 240)} (the plan's own ${planGoal.label} line).` : ''}
 
-## Overall Score: ${totalScore}/${maxScore} (${percentage}%)
+## Overall Score: ${totalScore}/${maxScore} (${percentage}%), rated ${rating}
 
-| Rating | ${rating} |
-|--------|-------------|
-
-Scores come from a keyword check of the lines that describe your own plan, not a reading of the whole plan: check each gap against your document. Lines that describe your customers, market or product (Audience, Buyer roles, Message, Proof, How we differ ...) are shown below but are not scored as your owner, goal, deliverables or dates; they count only toward Frame.
-
----
-
-## Dimension Scores
+${verdict} The scores come from a keyword check of the lines that describe your own plan, not a reading of the whole plan, so check each gap against your document. Lines that describe your customers, market or product (Audience, Buyer roles, Message, Proof, How we differ) are not scored as your owner, goal, deliverables or dates; they count only toward Frame.
 
 | Dimension | Score | Status | Assessment |
 |-----------|-------|--------|------------|
-| **C**haracter (Who) | ${analysis.character.score}/10 | ${analysis.character.score >= 7 ? 'Yes' : analysis.character.score >= 4 ? 'Note' : 'No'} | ${analysis.character.score >= 7 ? 'Clear ownership' : analysis.character.score >= 4 ? 'Partial ownership' : 'Missing ownership'} |
-| **R**esult (What success) | ${analysis.result.score}/10 | ${analysis.result.score >= 7 ? 'Yes' : analysis.result.score >= 4 ? 'Note' : 'No'} | ${analysis.result.score >= 7 ? 'Clear goals' : analysis.result.score >= 4 ? 'Vague goals' : 'No measurable goals'} |
-| **A**rtifact (What's produced) | ${analysis.artifact.score}/10 | ${analysis.artifact.score >= 7 ? 'Yes' : analysis.artifact.score >= 4 ? 'Note' : 'No'} | ${analysis.artifact.score >= 7 ? 'Clear deliverables' : analysis.artifact.score >= 4 ? 'Some deliverables' : 'Unclear outputs'} |
-| **F**rame (Context) | ${analysis.frame.score}/10 | ${analysis.frame.score >= 7 ? 'Yes' : analysis.frame.score >= 4 ? 'Note' : 'No'} | ${analysis.frame.score >= 7 ? 'Clear context' : analysis.frame.score >= 4 ? 'Partial context' : 'Missing context'} |
-| **T**imeline (When) | ${analysis.timeline.score}/10 | ${analysis.timeline.score >= 7 ? 'Yes' : analysis.timeline.score >= 4 ? 'Note' : 'No'} | ${analysis.timeline.score >= 7 ? 'Clear timeline' : analysis.timeline.score >= 4 ? 'Vague timeline' : 'No timeline'} |
-
----
-
-## Detailed Analysis
-
-### C: CHARACTER (Who executes?)
-**Score: ${analysis.character.score}/10**
-
-${body('character', analysis.character, 'Character dimension is well-defined', 'Words matched')}
-
----
-
-### R: RESULT (What does success look like?)
-**Score: ${analysis.result.score}/10**
-
-${body('result', analysis.result, 'Results are well-defined', 'Words matched')}
-
----
-
-### A: ARTIFACT (What gets produced?)
-**Score: ${analysis.artifact.score}/10**
-
-${body('artifact', analysis.artifact, 'Artifacts are well-defined', 'Words matched')}
-
----
-
-### F: FRAME (Context & constraints)
-**Score: ${analysis.frame.score}/10**
-
-${body('frame', analysis.frame, 'Frame/context is well-defined', 'Words matched')}
-
----
-
-### T: TIMELINE (When does it happen?)
-**Score: ${analysis.timeline.score}/10**
-
-${body('timeline', analysis.timeline, 'Timeline is well-defined', 'Words matched')}
-
-*Timeline scores dates, quarters (such as Q1) and durations with a number (such as 30 days). Words such as by, plan, quarter, month or milestone are not dates and are not scored.*
-
----
-
-## What Your Plan States
-
-${stated.length ? `| Your plan's line | Counted toward |\n|---|---|\n${stated.map((x) => `| ${qc(`${x.label}: ${x.text}`, 170)} | ${x.counts} |`).join('\n')}` : 'The plan has no labelled lines (such as "Goal:" or "Owner:"), so the tool read it as running text.'}
-
----
-
-## Gaps That Matter For This Plan
-
-*These are not part of the score. Each is read from your plan's own lines.*
-
-${matters.length ? matters.map((m) => `- **${m.title}:** ${m.detail}`).join('\n') : '- No structural gap found by this check. Read the plan once for sense before you send it.'}
-
----
-
-## Priority Improvements
+| **C**haracter (who) | ${analysis.character.score}/10 | ${status(analysis.character.score)} | ${analysis.character.score >= 7 ? 'Clear ownership' : analysis.character.score >= 4 ? 'Partial ownership' : 'Missing ownership'} |
+| **R**esult (what success is) | ${analysis.result.score}/10 | ${status(analysis.result.score)} | ${analysis.result.score >= 7 ? 'Clear goals' : analysis.result.score >= 4 ? 'Vague goals' : 'No measurable goals'} |
+| **A**rtifact (what is produced) | ${analysis.artifact.score}/10 | ${status(analysis.artifact.score)} | ${analysis.artifact.score >= 7 ? 'Clear deliverables' : analysis.artifact.score >= 4 ? 'Some deliverables' : 'Unclear outputs'} |
+| **F**rame (context) | ${analysis.frame.score}/10 | ${status(analysis.frame.score)} | ${analysis.frame.score >= 7 ? 'Clear context' : analysis.frame.score >= 4 ? 'Partial context' : 'Missing context'} |
+| **T**imeline (when) | ${analysis.timeline.score}/10 | ${status(analysis.timeline.score)} | ${analysis.timeline.score >= 7 ? 'Clear timeline' : analysis.timeline.score >= 4 ? 'Vague timeline' : 'No timeline'} |
 
 `;
+  // the shared check cuts a long plan line at 157 characters and adds three dots; the plan's own sentence is restored here, ended at a clause break
+  const flat = content.replace(/\s+/g, ' ');
+  const fullEvidence = (e: string): string => {
+    if (!e.endsWith('...')) return e;
+    const at = flat.indexOf(e.slice(0, -3));
+    if (at < 0) return e.slice(0, -3).replace(/[,;:\s]+\S*$/, '');
+    let end = at + e.length - 3;
+    while (end < flat.length && !/[.;!?]/.test(flat[end])) end++;
+    return clauseCut(flat.slice(at, end + 1), 260);
+  };
+  const countGroups: Array<[string, (c: string) => boolean]> = [
+    ['Counted toward the dimension they name', (c) => /^(?:Result|Character|Frame|Timeline)$/.test(c)],
+    ['Counted toward Frame only, because they describe your customers and market', (c) => /^Frame only/.test(c)],
+    ['Not scored, because they describe your product or your customers', (c) => /^Not scored/.test(c)],
+    ['Read as risks', (c) => /^Risks section/.test(c)],
+    ['Read for all five areas', (c) => /^Read for all five/.test(c)],
+  ];
+  const countLines = countGroups.map(([title, test]) => { const xs = stated.filter((x) => test(x.counts)); return xs.length ? `${title}: ${andList(xs.map((x) => q(x.label)))}.` : ''; }).filter(Boolean);
 
-  // Prioritize improvements by lowest scores
-  const dimensions = [
-    { name: 'Character', key: 'character', score: analysis.character.score, gaps: analysis.character.gaps, missing: analysis.character.groupsMissing },
-    { name: 'Result', key: 'result', score: analysis.result.score, gaps: analysis.result.gaps, missing: analysis.result.groupsMissing },
-    { name: 'Artifact', key: 'artifact', score: analysis.artifact.score, gaps: analysis.artifact.gaps, missing: analysis.artifact.groupsMissing },
-    { name: 'Frame', key: 'frame', score: analysis.frame.score, gaps: analysis.frame.gaps, missing: analysis.frame.groupsMissing },
-    { name: 'Timeline', key: 'timeline', score: analysis.timeline.score, gaps: analysis.timeline.gaps, missing: analysis.timeline.groupsMissing }
-  ].filter(d => d.score < 7).sort((a, b) => a.score - b.score);
-  // The recommended action for a dimension: its first gap, or the generic action when it lists none
-  // (a dimension can score below 7 with no gap listed, for example Frame with one match).
-  const actionFor = (d: { key: string; gaps: string[]; missing: string[] }): string => d.gaps[0] || (d.missing.length ? `Add ${andList(d.missing)}` : `Add ${TERMS[d.key]}`);
-
-  if (dimensions.length === 0) {
-    output += `**Document is well-structured!** All CRAFT dimensions score 7/10 or higher.\n\n`;
-  } else {
-    output += `| Priority | Dimension | Current Score | Action |\n|----------|-----------|---------------|--------|\n`;
-    dimensions.forEach((d, i) => {
-      output += `| ${i + 1} | ${d.name} | ${d.score}/10 | ${actionFor(d)} |\n`;
-    });
+  // ---- what to fix first: the gaps that matter, each once, ordered by the lowest dimension score ----
+  const dimOfMatter: Record<string, keyof typeof analysis> = { 'Nobody on your side is named to run the plan': 'character', 'No channel is named': 'frame', 'The goal is not traced to activity': 'result', 'No dates': 'timeline', 'No budget or headcount': 'frame', 'No review rhythm': 'timeline', 'No deliverables': 'artifact' };
+  type Fix = { title: string; detail: string; score: number };
+  const fixes: Fix[] = matters.map((m) => ({ title: m.title, detail: m.detail, score: (analysis[dimOfMatter[m.title] ?? 'frame'] as CRAFTDimension).score }));
+  if (analysis.result.found.length === 0) fixes.push({ title: 'No measurable result', detail: 'State one goal with a number and a date, such as a count of meetings, a pipeline value or a number of deals.', score: analysis.result.score });
+  if (analysis.frame.found.length === 0) fixes.push({ title: 'No audience or limits', detail: 'Say who the plan is for, what budget and people it has, and what it assumes.', score: analysis.frame.score });
+  for (const x of dims) {
+    if (x.d.score < 7 && x.d.found.length > 0 && x.d.groupsMissing.length && !fixes.some((f) => dimOfMatter[f.title] === x.key)) {
+      fixes.push({ title: `${x.name} is partly covered`, detail: `The plan has ${andList(x.d.groupsFound.length ? x.d.groupsFound : ['little'])}; it does not have ${andList(x.d.groupsMissing)}.`, score: x.d.score });
+    }
   }
+  fixes.sort((a, b) => a.score - b.score);
+  output += `## What to fix first\n\n${fixes.length ? fixes.map((f, i) => `${i + 1}. **${f.title}.** ${f.detail}`).join('\n') : 'This check finds no structural gap. Read the plan once for sense before you send it.'}\n\n`;
 
-  // Run 19 (D80, problem 8): a sector check from the sector data file. It is not a score: it names the deciders and the measures
-  // of the sector that the plan itself names, and those it does not.
+  // ---- the sector check ----
   const planLower = content.toLowerCase();
   const roleNamed = (role: string): boolean => {
     const acronym = /^Chief .* Officer$/.test(role) ? role.split(' ').filter((w) => /^[A-Z]/.test(w) && w !== 'Officer').map((w) => w[0]).join('') + 'O' : '';
@@ -312,66 +168,60 @@ ${matters.length ? matters.map((m) => `- **${m.title}:** ${m.detail}`).join('\n'
   // A plan whose buyers are asset allocators, a CIO and portfolio managers is an investment sale even when the product words name no sector.
   const investPlan = !sectorCtx.v && ((content.match(/\b(asset allocators?|portfolio managers?|investment committees?|investment managers?|wealth managers?|pensions?|endowments?)\b/gi) ?? []).length >= 2);
   const checkV = sectorCtx.v ?? (investPlan ? profileFor(VERTICALS.find((x) => x.id === 'ai-native')!, 'investment') : null);
-  const sectorCheck = checkV
-    ? (() => {
-        const v = checkV;
-        const rolesNamed = v.buyerRoles.filter(roleNamed);
-        const rolesMissing = v.buyerRoles.filter((r) => !roleNamed(r));
-        const keyOf = (m: string): string => m.split(/\s+/).find((w) => w.length >= 6 && !['percent', 'number'].includes(w.toLowerCase())) ?? m;
-        const metricsNamed = v.metrics.filter((m) => planLower.includes(m.toLowerCase()) || content.split('\n').some((line) => /\d/.test(line) && new RegExp(`\\b${keyOf(m).toLowerCase().replace(/[^a-z-]/g, '')}\\b`).test(line.toLowerCase())));
-        return `## Sector Check
+  output += `## Sector Check\n\n`;
+  if (checkV) {
+    const v = checkV;
+    const rolesNamed = v.buyerRoles.filter(roleNamed);
+    const rolesMissing = v.buyerRoles.filter((r) => !roleNamed(r));
+    const keyOf = (m: string): string => m.split(/\s+/).find((w) => w.length >= 6 && !['percent', 'number'].includes(w.toLowerCase())) ?? m;
+    const metricsNamed = v.metrics.filter((m) => planLower.includes(m.toLowerCase()) || content.split('\n').some((line) => /\d/.test(line) && new RegExp(`\\b${keyOf(m).toLowerCase().replace(/[^a-z-]/g, '')}\\b`).test(line.toLowerCase())));
+    output += `*Sector: ${sectorCtx.v ? sectorCtx.sector : `read from the buyers your plan names as ${v.name}`}. This is not part of the score.*
 
-*Sector: ${sectorCtx.v ? sectorCtx.sector : `read from the buyers your plan names as ${checkV!.name}`}. This is not part of the score.*
+Deals in this sector are decided like this: ${lc(v.committee)} Your plan names ${rolesNamed.length ? andList(rolesNamed) : 'none of the usual deciders'}${rolesMissing.length ? `, and does not name ${andList(rolesMissing)}` : ''}.
 
-- **Who usually decides:** ${v.committee}
-- **Deciders your plan names:** ${rolesNamed.length ? andList(rolesNamed) : 'none of the usual roles'}. **Not named:** ${rolesMissing.length ? andList(rolesMissing) : 'none'}.
-- **What this sector measures:** ${v.metrics.join(', ')}. **Your plan names:** ${metricsNamed.length ? andList(metricsNamed) : 'none of them'}.
-- **A proof point that lands:** ${v.proofShape}
-- **Words this buyer uses:** ${v.vocabulary.join(', ')}.
+The sector measures ${andList(v.metrics)}; your plan names ${metricsNamed.length ? andList(metricsNamed) : 'none of them'}. A proof point that lands: ${lc(v.proofShape)} Words this buyer uses: ${v.vocabulary.join(', ')}.
 `;
-      })()
-    : `## Sector Check
+    if (buyerCtx) output += `\nThe buyers your plan aims at are in ${buyerCtx.name}. ${buyerCtx.reviews} ${buyerCtx.buying}\n`;
+  } else if (buyerCtx) {
+    output += `*Sector: the plan sells into ${buyerCtx.name}; no sector of your own is named in it. This is not part of the score.*
 
-The sector was not clear from your plan. Name the buyer's industry in the plan to get a check against that sector's deciders and measures.
+${buyerCtx.reviews} ${buyerCtx.buying} A plan for this buyer should show when the review steps start, who owns each, and what the buyer risks if the purchase goes wrong: ${buyerCtx.risks}.
 `;
-  output += `
----
+  } else {
+    output += `Neither your product lines nor your buyers name an industry this tool knows. Name the buyer's industry in the plan, or pass the industry input, to get a check against that sector's deciders and measures.\n`;
+  }
 
-${sectorCheck}`;
+  // ---- risks: a risk to the plan is told apart from a question a customer asks ----
+  const isCustomerQuestion = (t: string): boolean => /\?\s*$/.test(t.trim()) || /^\s*(?:do|does|did|is|are|can|could|will|would|how|what|which|why|when|where)\b/i.test(t.trim());
+  // a piece of an abbreviation ("i.e", "e.g") left by the sentence split is not a risk
+  const items = riskItems.filter((r) => !/^\s*(?:i\.?e|e\.?g|etc|vs|approx|incl)\.?\s*$/i.test(r.line));
+  const questions = items.filter((r) => isCustomerQuestion(r.line));
+  const realRisks = items.filter((r) => !isCustomerQuestion(r.line));
+  output += `\n## Risks in your plan\n\n`;
+  if (items.length === 0) output += 'No risk is named in the plan. Name the top two and how you would respond to each.\n';
+  const open = realRisks.filter((r) => !r.answered);
+  for (const r of realRisks) {
+    const text = r.line.replace(/[.]$/, '');
+    output += r.answered ? `- A risk with a response: ${q(text)}.\n` : `- A risk without a response: ${q(text)}.${r.pattern && !/^Ask what lies behind it/.test(r.pattern) ? ` A usual response: ${lc(r.pattern)}` : ''}\n`;
+  }
+  if (open.length) output += `\nFor ${open.length === 1 ? 'that risk' : `each of the ${open.length} risks without a response`}, add a response, an owner and the signal that triggers it.\n`;
+  if (questions.length) {
+    output += `${realRisks.length ? '\n' : ''}${questions.length === 1 ? 'One item on your Risks line reads' : `${questions.length} items on your Risks line read`} as ${questions.length === 1 ? 'a question' : 'questions'} a customer would ask, not as ${questions.length === 1 ? 'a risk' : 'risks'} to the plan: ${andList(questions.map((r) => q(r.line.replace(/[.]$/, ''))))}. If you meant them as buyer objections, move them to your objection list and answer them there. For the plan itself, name what could stop the goal being met, with a response, an owner and a trigger for each${buyerCtx ? `; for ${buyerCtx.name} buyers the first candidate is how the buyer reviews and approves a purchase, as described above` : ''}.\n`;
+  }
 
-  // Run 19: a risk the plan names without any response is flagged; a plan that names none is asked for two.
-  output += `
----
+  // ---- how the score was reached: each dimension with its score, the words matched and the plan's own lines ----
+  const DIM_HEAD: Record<string, string> = { character: 'C: CHARACTER (who runs it)', result: 'R: RESULT (what success looks like)', artifact: 'A: ARTIFACT (what gets produced)', frame: 'F: FRAME (context and limits)', timeline: 'T: TIMELINE (when it happens)' };
+  output += `\n## Dimension by dimension\n\n${dims.map((x) => `### ${DIM_HEAD[x.key]}\n**Score: ${x.d.score}/10**\n\n**Words matched:**\n${x.d.found.length ? x.d.found.slice(0, 5).map((f) => `- "${f}"`).join('\n') : '- None'}${x.d.evidence.length ? `\n\n**Your plan's own line${x.d.evidence.length > 1 ? 's' : ''}:**\n${x.d.evidence.map((e) => `> ${fullEvidence(e)}`).join('\n')}` : ''}${x.d.groupsMissing.length ? `\n\n**Not found:** ${x.d.groupsMissing.join('; ')}.` : ''}`).join('\n\n')}
 
-## Risks in Your Plan
+Timeline counts dates, quarters (such as Q1) and durations with a number (such as 30 days). Words such as by, plan, quarter, month or milestone are not dates and are not scored.${analysis.timeline.found.length === 0 && analysis.timelineWords.length ? ` Your plan has the words ${andList(analysis.timelineWords.slice(0, 3).map((w) => q(w)))}, which are not dates.` : ''}
 
-${riskItems.length === 0
-  ? 'No risk is named in the plan: name the top two and how you would respond to each.'
-  : riskItems.map(r => r.answered ? `- Risk with a response: "${r.line.replace(/[.]$/, '')}"` : `- Risk named without a response: "${r.line.replace(/[.]$/, '')}". Add a response, an owner and the signal that triggers it.${r.pattern && !/^Ask what lies behind it/.test(r.pattern) ? ` A usual response: ${r.pattern}` : ''}`).join('\n')}
+${stated.length ? `How the labelled lines of the plan count. ${countLines.join(' ')}` : 'The plan has no labelled lines such as "Goal:" or "Owner:", so it was read as running text.'}
 `;
 
-  output += `
----
-
-## Document Excerpt Analyzed
-
-\`\`\`
-${content.substring(0, 500)}${content.length > 500 ? '...\n\n(The document continues: ' + (content.length - 500) + ' more characters.)' : ''}
-\`\`\`
-
----
-
-## Next Steps
-
-1. ${matters[0] ? `${matters[0].title}. ${matters[0].detail}` : dimensions[0] ? `Address ${dimensions[0].name}: ${actionFor(dimensions[0])}` : 'Document is well-structured: ready for review'}
-2. ${matters[1] ? `${matters[1].title}. ${matters[1].detail}` : dimensions[1] ? `Improve ${dimensions[1].name}: ${actionFor(dimensions[1])}` : 'Consider adding more detail to strongest sections'}
-3. ${matters[2] ? `${matters[2].title}. ${matters[2].detail}` : `Review with ${audience !== 'Not specified' ? audience : planAudience ? qc(planAudience.text, 90) : 'intended stakeholders'}`}
-4. ${outcome !== 'Not specified' ? `Ensure the document drives: ${outcome}` : planGoal ? `Check that the plan drives its own goal: ${qc(planGoal.text, 120)}` : 'Define the desired outcome of this document'}
-
----
-
-*Analysis performed using the CRAFT GTM framework*
-*Document type: ${docType.replace(/_/g, ' ')}*`;
-
-  return output;
+  const asks: Array<[string, string]> = [];
+  if (!args.intended_audience && !planAudience) asks.push(['intended_audience: who reads and approves the plan', 'which objections and questions the review checks the plan against']);
+  if (!args.desired_outcome && !planGoal) asks.push(['desired_outcome: what the plan should make happen', 'whether the review can check the plan against its purpose']);
+  if (!checkV && !buyerCtx) asks.push(['the industry input, or the buyer\'s industry in the plan', 'the sector check of deciders and measures']);
+  output += `\n${closing(asks)}`;
+  return finalise(output);
 }
