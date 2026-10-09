@@ -182,7 +182,7 @@ test("competitive_intel: a competitor detail reaches the competitor it describes
   assert.match(cards[0], /take many months to implement/);
   assert.doesNotMatch(cards[0], /spreadsheets break/);
   assert.match(cards[1], /spreadsheets break when pricing changes/);
-  assert.match(cards[0], /How often does this happen in your operation: legacy billing systems take many months to implement\?/);
+  assert.match(cards[0], /How often does it happen that legacy billing systems take many months to implement\?/);
 });
 test("competitive_intel: a weak point of the alternative is not listed as where it is ahead", async () => {
   const r = await call("competitive_intel", CI);

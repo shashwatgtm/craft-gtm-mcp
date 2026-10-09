@@ -1,7 +1,7 @@
 import { readableChoice } from './utils.js';
 import { readContext, splitItems, q, capEcho, cleanCompanyName, lcFirst } from './context.js';
 import { playbookFor, kindsNote } from './sector-playbooks.js';
-import { stripEnd, lc, listAnd, productLabel, closing, finalise, segmentsOfGoal } from './rw-gtm.js';
+import { stripEnd, lc, listAnd, productLabel, closing, finalise, segmentsOfGoal, productKinds, MODEL_KINDS } from './rw-gtm.js';
 
 // Run 19 (D80): a one-line definition for every KPI the program structures list (no figure).
 const KPI_DEFINITION: Record<string, string> = {
@@ -128,7 +128,9 @@ export function generatePartnerArchitect(args: {
     program.tiers[1] = { ...program.tiers[1], benefits: ['Joint account planning for referred accounts', 'Invitations to customer and executive events', 'Priority referral processing'], support: 'Quarterly review with a partner manager, annual partner event' };
   }
   const pb = ctx.v ? playbookFor(ctx.v) : null;
-  const goalSegments = segmentsOfGoal(args.partner_goals);
+  const productText = `${args.company} ${args.product}`;
+  const { found: goalSegments, unknown: unknownSegments } = segmentsOfGoal(args.partner_goals, productText);
+  const prodKinds = productKinds(productText);
   // a figure is a number that is not part of a word (3PL, 4G and CPaaS hold no target)
   const goalHasFigure = /(?<![A-Za-z0-9])\d[\d,.]*(?![A-Za-z0-9])/.test(args.partner_goals.replace(/\bno numeric target given\b/gi, ''));
   const exampleDeals = 10;
@@ -139,7 +141,7 @@ export function generatePartnerArchitect(args: {
   // the offer as a noun phrase: the product as typed when it carries the company name or is a short name, else the company's own description of it
   const offer = startsWithCompany || (args.product.trim().split(/\s+/).length <= 3 && /^[A-Z]/.test(args.product.trim())) ? stripEnd(args.product) : `${company}'s ${lc(stripEnd(args.product).replace(/^(?:an?|the)\s+/i, ''))}`;
   // in the email the offer follows "about": "our managed SD-WAN for branch offices"
-  const offerInEmail = startsWithCompany && label.rest ? `our ${lc(label.rest)}` : startsWithCompany ? 'our offer' : /^(?:an?|the)\s/i.test(args.product.trim()) ? stripEnd(args.product) : args.product.trim().split(/\s+/).length <= 3 && /^[A-Z]/.test(args.product.trim()) ? stripEnd(args.product) : `our ${lc(stripEnd(args.product))}`;
+  const offerInEmail = startsWithCompany && label.rest ? `our ${lc(label.rest.replace(/^(?:an?|the)\s+/i, ''))}` : startsWithCompany ? 'our offer' : /^(?:an?|the)\s/i.test(args.product.trim()) ? stripEnd(args.product) : args.product.trim().split(/\s+/).length <= 3 && /^[A-Z]/.test(args.product.trim()) ? stripEnd(args.product) : `our ${lc(stripEnd(args.product))}`;
   // what a reseller or OEM partner buys, by business model (a services firm has no licences, a connectivity seller no seats)
   const thing: Record<string, string> = { saas: 'licences or subscriptions', services: 'your services', connectivity: 'your connectivity services', transactions: 'your product on its usual per-transaction terms', marketplace: 'access to your marketplace', hardware_software: 'your hardware and software', investment: 'access to your strategies' };
   const buys = (ctx.model && thing[ctx.model]) || 'your product';
@@ -187,10 +189,12 @@ ${supportAdjustments[args.partner_support_capacity ?? 'moderate'] ?? supportAdju
     lines.push(`In ${ctx.v.name}, ${pm} partners are usually ${listAnd(pb.partners[kindsKey[partnerModel] ?? 'refer'])}. ${pb.partnerWhy}`);
     lines.push(`Between them they reach the people who decide: ${lcFirst(ctx.v.committee)}`);
   }
-  if (goalSegments.length) lines.push(`For the segments in your goal:\n${goalSegments.map((g) => `- **${cap1(g.kind)}:** look for ${g.partners}. Buyers there are shaped by ${g.review}.`).join('\n')}`);
-  if ((pb && /investment/i.test(ctx.v!.name)) || goalSegments.some((g) => g.kind === 'investment institutions')) lines.push('Independence matters here: investment consultants who advise allocators on suppliers may not be paid to recommend one. Use a non-commission relationship with them (shared research, introductions on request), and a referral fee only where compliance allows it, in writing and disclosed.');
-  if (!pb && !goalSegments.length) lines.push('Your inputs name neither a sector this tool knows nor a segment it has partner kinds for, so this section lists none.');
-  else if (!pb) lines.push('The partner kinds above come from the segments in your goal, not from what your product does.');
+  if (!pb) lines.push(`${cap1(pm)} partners are usually ${MODEL_KINDS[partnerModel] ?? MODEL_KINDS.referral}.`);
+  for (const k of prodKinds) lines.push(`Your product works with ${k.does}, so also look for ${k.partners}.`);
+  if (goalSegments.length) lines.push(`To reach the segments in your goal (keep the kinds whose clients already buy a product like yours):\n${goalSegments.map((g) => `- **${cap1(g.name)}:** look for ${g.partners}.${g.buying ? ` ${g.buying}` : ''}`).join('\n')}`);
+  if (unknownSegments.length) lines.push(`This tool has no partner kinds for ${listAnd(unknownSegments)}. To find them, ask five of your best customers in ${unknownSegments.length > 1 ? 'each of those segments' : 'that segment'} who advised them on the purchase and who set the product up, and recruit from those answers.`);
+  if ((pb && /investment/i.test(ctx.v!.name)) || goalSegments.some((g) => g.name === 'investment institutions')) lines.push('Independence matters here: investment consultants who advise allocators on suppliers may not be paid to recommend one. Use a non-commission relationship with them (shared research, introductions on request), and a referral fee only where compliance allows it, in writing and disclosed.');
+  if (!pb && !prodKinds.length) lines.push(`These kinds come from the partner model${goalSegments.length ? ' and the segments in your goal' : ''}, not from what the product does: your product input does not say what it does.`);
   if (ctx.v) lines.push(`Words your buyers use, for partner materials: ${ctx.v.vocabulary.join(', ')}. A joint proof point that lands: ${lc(ctx.v.proofShape)}`);
   out += `These are kinds of company, not names: pick the ones that already advise or sell to your buyers.\n\n${lines.join('\n\n')}\n\n`;
 
@@ -207,13 +211,13 @@ ${program.tiers.map((tier, i) => `### Tier ${i + 1}: ${tier.name}
 
 ## What a partner earns
 
-The table applies the example rates to ${dealSizeMatch ? 'your' : 'the assumed'} deal size.
+The table applies three fixed example rates (10%, 15% and 25%) to ${dealSizeMatch ? 'your' : 'the assumed'} deal size, to show what a starting, an active and a top partner would cost you. They are not the rates of the tiers above (${program.tiers.some((t) => /25%/.test(t.commission)) ? 'one tier uses 25%, the others differ' : 'no tier uses 25%'}): set the rate of each tier yourself, then read the matching row.
 
 | Scenario | Partner earns | You keep |
 |----------|---------------|----------|
-| ${program.tiers[0].name}, 1 deal at 10% | ${money(dealSize * 0.10)} | ${money(dealSize * 0.90)} |
-| ${program.tiers.length > 1 ? program.tiers[1].name : program.tiers[0].name}, 5 deals at 15% | ${money(dealSize * 0.15 * 5)} | ${money(dealSize * 0.85 * 5)} |
-| Top partner, 20 deals at 25% | ${money(dealSize * 0.25 * 20)} | ${money(dealSize * 0.75 * 20)} |
+| A starting partner, 1 deal at 10% | ${money(dealSize * 0.10)} | ${money(dealSize * 0.90)} |
+| An active partner, 5 deals at 15% | ${money(dealSize * 0.15 * 5)} | ${money(dealSize * 0.85 * 5)} |
+| A top partner, 20 deals at 25% | ${money(dealSize * 0.25 * 20)} | ${money(dealSize * 0.75 * 20)} |
 
 ${(() => {
   const c = dealSize * 0.10; const first = money(c);
@@ -248,7 +252,7 @@ Subject: ${cap1(pm)} partnership with ${company}
 
 Hello,
 
-I am writing from ${company} about ${offerInEmail}.${pb && ctx.v ? ` Your clients include the people who decide on this: ${listAnd(ctx.v.buyerRoles.slice(0, 3))}.` : ''} ${({
+${startsWithCompany && !label.rest ? `I am writing from ${company} to ask whether you would partner with us.` : `I am writing from ${company} about ${offerInEmail}.`}${goalSegments.length ? ` We are looking for partners whose clients include ${listAnd(goalSegments.map((g) => g.name))}.` : ''}${prodKinds.length ? ` ${cap1(startsWithCompany && !label.rest ? 'our product' : offerInEmail)} works with ${listAnd(prodKinds.map((k) => k.does))}, which is the part your clients would use.` : pb && ctx.v && pb.pains[0] ? ` Many buyers in ${ctx.v.name} are dealing with ${lc(stripEnd(pb.pains[0]))}, and we think ${startsWithCompany && !label.rest ? 'our product' : offerInEmail} can help your clients with that.` : ''}${pb && ctx.v ? ` The people who decide on this are usually ${listAnd(ctx.v.buyerRoles.slice(0, 3))}.` : ''} ${({
     reseller: 'As a partner you can grow your revenue by offering it alongside your own services.',
     referral: 'As a referral partner you would earn a fee on each closed deal, and our team would run the sale.',
     integration_tech: 'A deeper integration would add to the value of both products for the customers we share.',
@@ -267,7 +271,7 @@ The ${company} partnerships team
   if (!existingPartners.length) asks.push(['existing_partners, with the deals each has closed', 'which tier each partner starts in']);
   if (!goalHasFigure) asks.push(['a numeric partner target, such as deals or pipeline for the year', `the target of ${program.kpis[0].toLowerCase()}`]);
   if (!dealSizeMatch) asks.push(['your deal size as one amount, such as $50K', 'every amount in the tiers and tables']);
-  if (!ctx.v && !goalSegments.length) asks.push(['industry, or a product description that names your sector', 'the partner kinds and the buyer roles in the email']);
+  if (!ctx.v && !prodKinds.length) asks.push(['product: one line on what it does and who uses it', 'the partner kinds in this plan and what the recruitment email says about the product']);
   if (contractBasis) asks.push(['your contract term and notice period', 'how long a partner fee should run']);
   if (ctx.how === 'sector' || ctx.how === 'unknown') asks.push(['business_model, which this plan reads from your sector or text', 'the wording of price and contract terms']);
   out += `\n${closing(asks)}`;

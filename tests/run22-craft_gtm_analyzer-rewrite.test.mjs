@@ -109,6 +109,37 @@ test("a long plan is reviewed without pasting it back", async () => {
   assert.doesNotMatch(out, /a sentence about the offer that goes on\. a sentence about the offer/i);
 });
 
+// ---- round 2 (judges of round 1): every "the plan names X" is a real check of the plan text; an AI seller whose plan mentions contact centres is not read
+// as customer service automation; the fix list ties each gap to the dimension score it explains.
+const PLAN_VOX = `Voxlane go-to-market plan for next quarter.
+Goal: build a pipeline of $400,000 from contact centers and call platforms, which is ten deals at a contract value of $40,000.
+Audience: developers and product teams that build voice products; contact center platform providers.
+Buyer roles: SVP Product, developers, engineering and risk teams, frontline supervisors who coach agents.
+Message: Voxlane Voice AI platform (speech-to-text, text-to-speech, Voice Agent API and Audio Intelligence APIs) used by contact centers and agents.
+Risks: Do you support my accent?; Is there a free tier?`;
+test("round 2: a speech API plan that mentions contact centres gets no customer service automation roles or measures", async () => {
+  const out = await A(PLAN_VOX);
+  const sector = out.split("## Sector Check")[1].split("## Risks")[0];
+  assert.doesNotMatch(sector, /automated resolution rate|customer satisfaction on automated cases|resolution rate|escalation rate|cost per resolution/i);
+  assert.match(sector, /word error rate|latency|language and accent coverage/i);
+});
+test("round 2: 'the plan names' is a real check: a role by its function on a roles line, a measure only when its words are in the plan", async () => {
+  const out = await A(PLAN_VOX);
+  const sector = out.split("## Sector Check")[1].split("## Risks")[0];
+  assert.match(sector, /roles in your plan match [^.\n]*Head of Product/);
+  assert.match(sector, /roles in your plan match [^.\n]*Head of Engineering|roles in your plan match [^.\n]*VP Engineering/);
+  assert.doesNotMatch(sector, /No role in your plan matches/);
+  const none = await A("Voxlane plan.\nGoal: 10 deals by 31 March.\nMessage: Voxlane voice AI platform for developers.", { industry: "ai_native" });
+  assert.match(none.split("## Sector Check")[1].split("## Risks")[0], /your plan uses the words for none of them/);
+  const some = await A("Voxlane plan.\nGoal: word error rate under target and response latency under 300 ms by 31 March.\nMessage: Voxlane voice AI platform for developers.");
+  assert.match(some.split("## Sector Check")[1].split("## Risks")[0], /your plan uses the words for word error rate and response latency/);
+});
+test("round 2: every gap of the fix list says which dimension score it explains", async () => {
+  const out = await A(PLAN_A);
+  const fix = out.split("## What to fix first")[1].split("## Sector Check")[0];
+  assert.match(fix, /\(Character 0\/10\)/); assert.match(fix, /\(Timeline 0\/10\)/); assert.match(fix, /\(Artifact 0\/10\)/);
+});
+
 const POOL = ["T6", "T7", "T8", "T9", "H1", "H3", "H5", "H6", "H8", "P1", "P4", "P6", "P7", "P9", "Q1", "Q3", "Q8", "Q11", "Q13", "Q17"];
 for (const id of POOL) {
   test(`pool ${id}: clean review that quotes the plan's goal`, { skip: !POOL_OK }, async () => {
