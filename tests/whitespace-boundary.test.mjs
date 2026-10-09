@@ -54,7 +54,8 @@ test("craft_gtm_analyzer: Document Length, Words estimate and every score line a
 test("craft_gtm_analyzer: interior double spaces and interior newlines are kept exactly (excerpt and length)", async () => {
   const doc = "Goal:  30 SQLs per month.\n\nChannel:  outbound\nplus webinars.\r\nOwner: VP Marketing.";
   const r = await analyze("  \n" + doc + "\n  ");
-  assert.ok(r.text.includes("```\n" + doc + "\n```"), "excerpt holds the document with its interior whitespace");
+  // run 22 rewrite: the review no longer pastes an excerpt block of the document; the length below is still measured on the document with its interior whitespace
+  assert.ok(!r.text.includes("```"), "no pasted excerpt block");
   assert.match(r.text, new RegExp(`\\*\\*Document Length:\\*\\* ${doc.length} characters`));
   assert.match(r.text, new RegExp(`~${Math.round(doc.length / 5)}, from the character count`));
 });

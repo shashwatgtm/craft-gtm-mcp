@@ -27,6 +27,6 @@ test("a named product keeps its name", async () => {
 // ("Quick guide: Billing and monetization platform for... against the competition").
 test("competitive_intel names a plain description by its noun phrase", async () => {
   const out = await call("competitive_intel", { your_product: "Freight visibility platform for shippers that tracks every load across carriers and modes", competitors: "legacy tracking portals with weekly manual updates, spreadsheets kept by each planner", your_strengths: "one view of every load across carriers and modes (page claim)", competitor_details: "a portal built for one carrier shows only that carrier" });
-  assert.doesNotMatch(out, /Quick guide: [^\n]*\.\.\. against/);
-  assert.match(out, /Quick guide: Freight visibility platform against the competition/);
+  assert.doesNotMatch(out, /\.\.\./);
+  assert.match(out, /^# Battle cards: Freight visibility platform\n/);
 });

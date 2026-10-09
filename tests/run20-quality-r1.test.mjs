@@ -99,13 +99,13 @@ test("craft_gtm_analyzer: customer job titles and customer quotes are not the pl
   assert.equal(dim(t, "C: CHARACTER"), 0);
   assert.equal(dim(t, "T: TIMELINE"), 0);
   assert.match(t, /Nobody on your side is named to run the plan/);
-  assert.match(t, /Frame only \(describes your customers and market/);
+  assert.match(t, /Counted toward Frame only, because they describe your customers and market/);
 });
 test("craft_gtm_analyzer: audience and outcome are read from the plan's own lines instead of 'Not specified'", async () => {
   const t = await analyze(PLAN);
-  assert.doesNotMatch(t, /Intended Audience:\*\* Not specified/);
-  assert.match(t, /Intended Audience:\*\* not given as an input; your plan's own Audience line says: "Retail, FMCG and 3PL operators"/);
-  assert.match(t, /Desired Outcome:\*\* not given as an input; your plan's own Goal line says: "build a hypothetical pipeline of \$1,500,000/);
+  assert.doesNotMatch(t, /Not specified/);
+  assert.match(t, /\*\*Written for:\*\* "Retail, FMCG and 3PL operators" \(the plan's own Audience line\)/);
+  assert.match(t, /\*\*Meant to drive:\*\* "build a hypothetical pipeline of \$1,500,000/);
 });
 test("craft_gtm_analyzer: a goal with a figure is a target with a number, and the answer says what the goal is not traced to", async () => {
   const t = await analyze(PLAN);
@@ -115,8 +115,8 @@ test("craft_gtm_analyzer: a goal with a figure is a target with a number, and th
 });
 test("craft_gtm_analyzer: each item of a Risks line gets its own line and a usual response", async () => {
   const t = await analyze(PLAN);
-  assert.match(t, /Risk named without a response: "drivers will not use a new app"/);
-  assert.match(t, /Risk named without a response: "integration effort"/);
+  assert.match(t, /A risk without a response: "drivers will not use a new app"/);
+  assert.match(t, /A risk without a response: "integration effort"/);
   assert.match(t, /A usual response:/);
 });
 test("craft_gtm_analyzer: the add-this-section templates hold no bracket placeholder", async () => {
@@ -127,7 +127,7 @@ test("craft_gtm_analyzer: a plan that does name an owner, a channel, a date and 
   const t = await analyze("Owner: head of marketing. Goal: 40 qualified meetings by 31 March. Channels: webinars and outbound email. Budget: $20K. Weekly review of meetings booked. Deliverables: a deck and a case study.");
   assert.ok(dim(t, "C: CHARACTER") >= 6);
   assert.ok(dim(t, "T: TIMELINE") >= 4);
-  const gaps = t.split("## Gaps That Matter For This Plan")[1].split("---")[0];
+  const gaps = t.split("## What to fix first")[1].split("## Sector Check")[0];
   assert.doesNotMatch(gaps, /No channel is named|No dates|No budget|No review rhythm|No deliverables|Nobody on your side/);
 });
 
@@ -169,37 +169,35 @@ const CI = { your_product: "Ledgerline billing platform for subscription compani
 test("competitive_intel: a strengths sentence is split into phrases, never into fragments that start with 'and'", async () => {
   const r = await call("competitive_intel", CI);
   assert.equal(r.isError, false);
-  const win = r.text.split("### When We Win")[1].split("### When We Lose")[0];
-  const items = [...win.matchAll(/^\d+\. \*\*(.*)\*\*$/gm)].map((m) => m[1]);
+  const items = r.text.split("**You win on:** ")[1].split("\n")[0].replace(/\.$/, "").split("; ");
   assert.ok(items.length >= 2);
   for (const it of items) assert.doesNotMatch(it, /^(and|or|but|with|which)\b/i, it);
 });
 test("competitive_intel: a competitor detail reaches the competitor it describes, and is used in the trap question", async () => {
   const r = await call("competitive_intel", CI);
-  const cards = r.text.split("## Objection Handlers")[0].split("## Competitor Battle Cards")[1].split(/\n### \d\. /).slice(1);
+  const cards = r.text.split(/\n(?=## Against )/).slice(1).map((c) => c.split("## Objection handlers")[0]);
   assert.equal(cards.length, 2);
   assert.match(cards[0], /take many months to implement/);
   assert.doesNotMatch(cards[0], /spreadsheets break/);
   assert.match(cards[1], /spreadsheets break when pricing changes/);
-  assert.match(cards[0], /Where does this show up in your work today, and when did it last happen: "legacy billing systems take many months to implement"/);
+  assert.match(cards[0], /How often does this happen in your operation: legacy billing systems take many months to implement\?/);
 });
 test("competitive_intel: a weak point of the alternative is not listed as where it is ahead", async () => {
   const r = await call("competitive_intel", CI);
-  const card = r.text.split(/\n### 1\. /)[1].split(/\n### 2\. /)[0];
-  assert.match(card, /Weak points of .*from your notes/);
-  const ahead = card.split("may be ahead:**")[1].split("**Discovery questions")[0];
-  assert.doesNotMatch(ahead, /take many months to implement/);
+  const card = r.text.split(/\n(?=## Against )/)[1];
+  assert.match(card, /take many months to implement/);
+  assert.doesNotMatch(card, /may be ahead[^\n]*take many months to implement/);
 });
 test("competitive_intel: an objection is answered with the strength that answers it, or says plainly that none does; no bracket placeholder", async () => {
   const r = await call("competitive_intel", CI);
   assert.doesNotMatch(r.text, BRACKET);
-  const h = r.text.split("## Objection Handlers")[1].split("## Win/Loss Analysis")[0];
-  const golive = h.split("### 2.")[1].split("### 3.")[0];
+  const h = r.text.split("## Objection handlers")[1];
+  const golive = h.split('### "How long does it take to go live?"')[1].split("###")[0];
   assert.match(golive, /implementations that go live in weeks/);
-  const erp = h.split("### 1.")[1].split("### 2.")[0];
-  assert.match(erp, /Fact needed from you: a yes or no to this exact question/);
+  const erp = h.split('### "Does it integrate with our ERP?"')[1].split("###")[0];
   assert.match(erp, /accurate answer than a guess/);
-  const secure = h.split("### 3.")[1].split("---")[0];
+  assert.match(r.text, /a fact that answers "Does it integrate with our ERP\?": a yes or no to this exact question/);
+  const secure = h.split('### "Is it secure?"')[1].split("###")[0];
   assert.match(secure, /SOC 2 Type II/);
 });
 test("competitive_intel: the win rate table is not a table of 'not supplied'", async () => {

@@ -239,7 +239,7 @@ test("partner_architect: existing partners and the goal are used; no value-prop 
   assert.match(goalLine, /^\*\*Your stated goal:\*\*/);
   assert.doesNotMatch(r.text, /\| [^|\n]* \| [^|\n]* \| [^|\n]*20% of new revenue from partners in 12 months[^|\n]* \|/);
   assert.match(r.text, /Head of Sales Operations|distributor|National Sales Head/i);
-  assert.match(r.text, /Field sales app for consumer goods brands/);
+  assert.match(r.text, /field sales app for consumer goods brands/i);
 });
 
 test("partner_architect: a named industry gives the sector's buyers and words; without it the answer says the sector was not clear", async () => {
@@ -295,18 +295,19 @@ test("competitive_intel: each competitor gets its own intel; strengths are the u
     common_objections: "our distributor system has a free sales app, we already use a sales tool, reps will not use another app",
     recent_wins: "offline order capture on low-end phones, rollout in six weeks", recent_losses: "buyers wanted billing and sales in one system" });
   assert.equal(r.isError, false);
-  const cards = r.text.split(/\n### \d\. Competitor /).slice(1);
+  // run 22 rewrite: one "## Against ..." card per competitor, then the objection handlers
+  const cards = r.text.split(/\n(?=## Against )/).slice(1).map((c) => c.split("## Objection handlers")[0]);
   assert.equal(cards.length, 2);
-  const [a, b] = cards.map((c) => c.split("## Objection Handlers")[0]);
+  const [a, b] = cards;
   assert.match(a, /slow to roll out/); assert.doesNotMatch(a, /bundles a free sales app/);
   assert.match(b, /bundles a free sales app/); assert.doesNotMatch(b, /slow to roll out/);
   assert.match(r.text, /offline order capture on low-end phones/i);
   assert.doesNotMatch(r.text, /Superior customer support|Faster implementation|More comprehensive features|Better value/);
   assert.doesNotMatch(r.text, /\[Your rating\]|\[Your example\]|\[how it helps with this\]|\[your key strength\]/i);
-  const handlers = r.text.split("## Objection Handlers")[1].split("## Win/Loss Analysis")[0];
-  const counters = [...handlers.matchAll(/\*\*Counter:\*\* "([^\n]*)"/g)].map((m) => m[1]);
+  const handlers = r.text.split("## Objection handlers")[1].split("To sharpen this")[0];
+  const counters = [...handlers.matchAll(/\*\*What to say:\*\*\n\n> "([^\n]*)"/g)].map((m) => m[1]);
   assert.equal(counters.length, 3);
-  assert.equal(new Set(counters).size, 3, "three objections, three different counters");
+  assert.equal(new Set(counters).size, 3, "three objections, three different answers");
   assert.doesNotMatch(handlers, /Timing is definitely important/); // "already" is not a timing word
 });
 test("competitive_intel: a win phrase is never turned into a claim the user did not make", async () => {
