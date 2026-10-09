@@ -113,8 +113,8 @@ test("round 2: the product's own words add partner kinds (localisation agencies)
   const out = await text("partner_architect", WB);
   assertClean(out, "Wordbridge");
   assert.match(out, /localisation and translation agencies/);
-  assert.match(out, /\*\*Education:\*\* look for/);
-  assert.match(out, /\*\*Software and technology companies:\*\* look for/);
+  assert.match(out, /\*\*Education:\*\* reach it through the kinds above[^\n]*education technology integrators/);
+  assert.match(out, /\*\*Software and technology companies:\*\* reach it through the kinds above/);
   assert.doesNotMatch(out, /no partner kinds for/i);
 });
 test("round 2: a freight visibility platform gets supply chain kinds, not plant automation, for manufacturing segments", async () => {
@@ -134,7 +134,7 @@ test("round 2: the recruitment email names what the product does for the partner
   const out = await text("partner_architect", WB);
   const email = out.slice(out.indexOf("Subject:"));
   assert.match(email, /works with languages and localisation/);
-  assert.match(email, /clients include/);
+  assert.match(email, /Our goal is partner-sourced pipeline among enterprise software, financial services, education, web and mobile apps/);
   assert.match(out, /not the rates of the tiers above/);
   assert.doesNotMatch(out, /\| (?:Referrer|Advocate|Authorized|Silver|Gold|Platinum), \d+ deals? at/);
 });
@@ -148,6 +148,46 @@ test("round 2: a bare product name says once that the kinds come from the model 
   assert.equal((out.match(/not from what the product does/g) || []).length, 1);
   assert.match(closingOf(out), /product: one line on what it does and who uses it \(it would change the partner kinds/);
   assert.doesNotMatch(out.slice(out.indexOf("Subject:")), /about our offer/);
+});
+
+// ---- round 3 (judge of round 2): bare product names ----
+const BARE = (extra) => text("partner_architect", { company: "Lokalize", product: "Lokalize", partner_model: "referral", partner_goals: "Partner-sourced pipeline for Lokalize among enterprise software, financial services, web and mobile apps; no numeric target given", your_deal_size: "$9,000 ACV", ...extra });
+test("round 3: the company name's own words are read ('Lokalize' is 'localize'), and the line says it is read from the name", async () => {
+  const out = await BARE();
+  assertClean(out, "Lokalize");
+  assert.match(out, /name suggests languages and localisation[^\n]*localisation and translation agencies/i);
+});
+test("round 3: a segment line says which kinds fit it, and a localisation name does not lead with core banking or audit kinds", async () => {
+  const out = await BARE();
+  const fin = out.split("\n").find((l) => /^- \*\*Banks and financial services:\*\*/.test(l)) || "";
+  assert.ok(fin, "financial services line");
+  assert.doesNotMatch(fin, /core banking|audit and advisory/);
+  assert.match(fin, /localisation and translation agencies|kinds above/i);
+});
+const FR = () => text("partner_architect", { company: "Cargotrail", product: "Cargotrail Movement", partner_model: "referral", partner_goals: "Partner-sourced pipeline for Cargotrail Movement among Automotive, Chemical, Food and beverage; no numeric target given", your_deal_size: "$250,000 ACV" });
+test("round 3: manufacturing and food segments lead to supply chain and logistics kinds, not trade marketing agencies or resellers near plants", async () => {
+  const out = await FR();
+  assertClean(out, "Cargotrail");
+  assert.match(out, /supply chain and logistics consultancies/);
+  assert.doesNotMatch(out, /trade marketing|resellers close to the plants|plant automation/i);
+  assert.match(out, /\*\*Consumer goods and food:\*\* (?:look for|reach it through)[^\n]*(?:supply chain|logistics|kinds above)/);
+  const plain = await text("partner_architect", { company: "Plainco", product: "Plainco", partner_model: "referral", partner_goals: "Partner-sourced pipeline among Automotive, Food and beverage; no numeric target given", your_deal_size: "$250,000 ACV" });
+  assert.match(plain, /\*\*Consumer goods and food:\*\* look for supply chain and logistics consultancies/);
+  assert.match(plain, /\*\*Manufacturing:\*\* look for supply chain and logistics consultancies, ERP and transport system integrators/);
+});
+test("round 3: the email carries only what the inputs hold: the company, the goal in the user's words, the segments; no product claim from a name", async () => {
+  const out = await FR();
+  const email = out.slice(out.indexOf("Subject:"));
+  assert.match(email, /Automotive, Chemical, Food and beverage/);
+  assert.doesNotMatch(email, /works with|which is the part your clients would use/);
+  const loc = (await BARE()).slice((await BARE()).indexOf("Subject:"));
+  assert.doesNotMatch(loc, /works with/);
+});
+test("round 3: a reseller program still gets resellers, a referral program does not", async () => {
+  const ref = await FR();
+  const res = await text("partner_architect", { company: "Cargotrail", product: "Cargotrail Movement", partner_model: "reseller", partner_goals: "Resellers among Automotive, Chemical, Food and beverage", your_deal_size: "$250,000 ACV" });
+  assert.match(res, /resellers/i);
+  assert.doesNotMatch(ref, /resellers close/);
 });
 
 const POOL = ["T6", "T7", "T8", "T9", "H1", "H2", "H4", "H6", "H7", "P2", "P6", "P7", "P9", "Q3", "Q8", "Q11", "Q13", "Q14", "Q17"];

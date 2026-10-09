@@ -140,6 +140,20 @@ test("round 2: every gap of the fix list says which dimension score it explains"
   assert.match(fix, /\(Character 0\/10\)/); assert.match(fix, /\(Timeline 0\/10\)/); assert.match(fix, /\(Artifact 0\/10\)/);
 });
 
+// ---- round 3 (judge of round 2) ----
+test("round 3: a measure is counted when the plan holds its distinctive word or its short form (latency, CSAT), and said not to be used only when neither is there", async () => {
+  const out = await A("Voxlane plan for next quarter.\nGoal: 10 deals.\nMessage: Voxlane Voice AI platform for developers with low latency and accented speech support.\nBuyer roles: SVP Product.");
+  const sector = out.split("## Sector Check")[1].split("## Risks")[0];
+  assert.match(sector, /your plan uses the words for [^.\n]*response latency/);
+  const cs = await A("Teamwork plan.\nGoal: 10 deals.\nMessage: Teamwork raises CSAT and cuts cost at contact centres.\nBuyer roles: Chief Customer Officer.", { industry: "ites" });
+  assert.match(cs.split("## Sector Check")[1].split("## Risks")[0], /your plan uses the words for [^.\n]*customer satisfaction/);
+});
+test("round 3: 'next quarter' is not described as no period appearing", async () => {
+  const out = await A(PLAN_A);
+  assert.doesNotMatch(out, /No period or date appears \(the plan says/);
+  assert.match(out, /The plan says "next quarter" but gives no date or duration/);
+});
+
 const POOL = ["T6", "T7", "T8", "T9", "H1", "H3", "H5", "H6", "H8", "P1", "P4", "P6", "P7", "P9", "Q1", "Q3", "Q8", "Q11", "Q13", "Q17"];
 for (const id of POOL) {
   test(`pool ${id}: clean review that quotes the plan's goal`, { skip: !POOL_OK }, async () => {

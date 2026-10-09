@@ -134,7 +134,9 @@ test("round 2: the product's own part (real devices with a count) is set against
 test("round 2: a weak point is asked as a clean sentence: a clause with 'how often does it happen that', a noun phrase with 'does this affect you today'", async () => {
   const out = await text("competitive_intel", BS);
   assert.match(out, /Does this affect you today: costly physical devices\? If so, how does it show up in /);
-  assert.match(out, /How often does it happen that [Cc]hrome dev tools were not very accurate or reliable for real device testing\? When did it last happen/);
+  assert.match(out, /Which tools are in the pipeline today|What did browser developer tools and emulators cost you over the last quarter/);   // a long note is not echoed
+  const clauseQ = await text("competitive_intel", { your_product: "Ledgerline billing platform", competitors: "manual spreadsheets kept by finance teams, legacy billing systems", your_strengths: "supports usage pricing", competitor_details: "spreadsheets break when pricing changes; legacy billing systems take months to implement" });
+  assert.match(clauseQ, /How often does it happen that spreadsheets break when pricing changes\? When did it last happen/);
   assert.doesNotMatch(out, /How often does this happen in your operation/);
 });
 test("round 2: a source label on a note is kept as its source in the script ('in reviewers' words on the page')", async () => {
@@ -176,6 +178,40 @@ test("round 2: a weak point about rates is not pasted into an objection about de
   const block = out.split('### "What should I do if a courier partner delays delivery?"')[1].split("###")[0];
   assert.doesNotMatch(block, /rates were confusing/);
   assert.match(block, /42\+ courier partners \(page claims\)/);
+});
+
+// ---- round 3 (judge of round 2) ----
+const PG = { your_product: "Phishguard, a human risk platform that automates adaptive phishing training and email incident response, with AI-personalized, gamified simulations delivered across email, SMS and Teams, so employees learn to report real attacks",
+  competitors: "legacy awareness tools with a fixed curriculum, periodic; one-size-fits-all phishing simulations, campaigns that security teams must build; schedule and manage by hand",
+  your_strengths: "founded in 2016 in Helsinki; 3M users worldwide, 7M simulations a month and 40+ languages (page claims)",
+  competitor_details: "traditional phishing training follows a fixed curriculum built around periodic, one-size-fits-all simulations, and security teams have to manually build, schedule and manage the campaigns" };
+test("round 3: cards of one split description do not lead with the same line, and the lead carries the product clause that answers the complaint", async () => {
+  const out = await text("competitive_intel", PG);
+  assertClean(out, "Phishguard r3");
+  const leads = out.split("\n").filter((l) => /lead with:\*\*|What answers it/.test(l)).map((l) => l.replace(/^\*\*[^*]*\*\*/, "").trim());
+  assert.ok(leads.length >= 1, "lead lines");
+  assert.equal(new Set(leads).size, leads.length, "no two cards lead with the same line");
+  assert.match(out, /gamified simulations delivered across email, SMS and Teams/);
+});
+test("round 3: a long note is not echoed in a question; the question is the sector's own or about what the alternative cost", async () => {
+  const out = await text("competitive_intel", PG);
+  const qs = out.split("\n").filter((l) => /^\d\. /.test(l));
+  for (const q of qs) assert.doesNotMatch(q, /follows a fixed curriculum built around|have to manually build, schedule and manage/, q);
+  assert.doesNotMatch(out, /How often does it happen that/);
+});
+const SW = { your_product: "Shipwell, a shipping platform for online sellers: domestic and cross-border shipping, fulfilment and one-click checkout", competitors: "dealing with couriers one by one", your_strengths: "19,000+ pin codes, 42+ courier partners (page claims)",
+  common_objections: "What should I do if a courier partner delays delivery?, Why do shipping charges vary by destination and weight?, How does Shipwell pricing work?" };
+test("round 3: a delay objection gets the proof that settles it, not a bare count; 'why do charges vary' is explained, not met with a budget line", async () => {
+  const out = await text("competitive_intel", SW);
+  assertClean(out, "Shipwell r3");
+  const delay = out.split('### "What should I do if a courier partner delays delivery?"')[1].split("###")[0];
+  assert.match(delay, /42\+ courier partners \(page claims\)/);
+  assert.match(delay, /delivery time by pin code/i);
+  const vary = out.split('### "Why do shipping charges vary by destination and weight?"')[1].split("###")[0];
+  assert.doesNotMatch(vary, /budget matters|cost your team to leave/);
+  assert.match(vary, /Let me explain how weight is declared and checked/);
+  const pricing = out.split('### "How does Shipwell pricing work?"')[1].split("###")[0];
+  assert.doesNotMatch(pricing, /budget matters/);
 });
 
 // ---- the pool scenarios (private) ----
