@@ -53,7 +53,7 @@ test("competitive_intel: a comparison objection is answered from the strengths a
 test("competitive_intel: discovery questions are about the buyer's situation, not 'how does the competitor handle our strength'", async () => {
   const r = await call("competitive_intel", CI);
   assert.doesNotMatch(r.text, /Ask how this approach handles|Ask how .* handles "/);
-  assert.match(r.text, /How often does this happen in your operation: spreadsheets break when pricing changes\?/);
+  assert.match(r.text, /How often does it happen that spreadsheets break when pricing changes\?/);
 });
 test("competitive_intel: with one strength, the cards do not repeat it; a card with nothing of its own says so", async () => {
   const r = await call("competitive_intel", { your_product: "Probetool API platform", competitors: "disconnected tools for design, a Slack thread for API discovery, separate frameworks for tests", your_strengths: "used by 500,000 companies (page claims)",
@@ -97,9 +97,9 @@ test("craft_gtm_analyzer: 'Asset allocators' is not a content asset; the role in
   const plan = "Branchwire plan for next quarter.\nGoal: ten hypothetical deals.\nAudience: Asset allocators, investment managers.\nBuyer roles: CIO, IT Infrastructure Head, network manager.\nProof: 99.5% uptime across 2000 branches (hypothetical).";
   const t = (await call("craft_gtm_analyzer", { document_content: plan, document_type: "quarterly_plan", industry: "telecom" })).text;
   assert.match(t, /### A: ARTIFACT[^\n]*\n\*\*Score: 0\/10/);
-  assert.match(t, /Your plan names [^.\n]*Head of IT Infrastructure/);
-  assert.doesNotMatch(t, /does not name [^.\n]*Head of IT Infrastructure/);
-  assert.match(t, /your plan names uptime\b/);   // run 21b: the neutral telecom entry names "uptime"; "uptime per site" belongs to the connectivity sub-type
+  assert.match(t, /roles in your plan match [^.\n]*Head of IT Infrastructure/);
+  assert.doesNotMatch(t, /none matches [^.\n]*Head of IT Infrastructure/);
+  assert.match(t, /your plan uses the words for uptime\b/);   // run 21b: the neutral telecom entry names "uptime"; "uptime per site" belongs to the connectivity sub-type
 });
 test("craft_gtm_analyzer: a long risk line is not cut inside a word", async () => {
   const t = (await call("craft_gtm_analyzer", { document_content: "Plan.\nRisks: How is it different from a corporate credit card?; How is it different from a bank debit card?; How long does it take to set up my account and connect it to the ledger?", document_type: "quarterly_plan" })).text;

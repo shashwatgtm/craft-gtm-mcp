@@ -1,5 +1,5 @@
 import { analyzeCRAFTDimensions, isMarketLine, type CRAFTDimension } from './utils.js';
-import { VERTICALS, BUYER_CONTEXTS, profileFor, buyerContextFor } from './verticals.ts';
+import { VERTICALS, SUBTYPES, AI_SUPPORT_PROFILE, BUYER_CONTEXTS, profileFor, buyerContextFor, type Vertical } from './verticals.ts';
 import { andList, readContext, q, splitPhrases } from './context.js';
 import { answerFor } from './context.js';
 import { lc, closing, finalise, clauseCut } from './rw-gtm.js';
@@ -99,7 +99,7 @@ export function generateCRAFTAnalyzer(args: {
 ${planTitle ? `**Plan:** ${planTitle}\n\n` : ''}**Document Length:** ${content.length} characters
 **Words (estimate):** ~${Math.round(content.length / 5)}, from the character count
 
-${args.intended_audience ? `**Written for:** ${args.intended_audience}.` : planAudience ? `**Written for:** ${qc(planAudience.text, 200)} (the plan's own Audience line).` : ''}${args.desired_outcome ? `\n\n**Meant to drive:** ${args.desired_outcome}.` : planGoal ? `\n\n**Meant to drive:** ${qc(planGoal.text, 240)} (the plan's own ${planGoal.label} line).` : ''}
+${args.intended_audience ? `**Written for:** ${args.intended_audience}.` : planAudience ? `**Written for:** ${qc(planAudience.text, 320)} (the plan's own Audience line).` : ''}${args.desired_outcome ? `\n\n**Meant to drive:** ${args.desired_outcome}.` : planGoal ? `\n\n**Meant to drive:** ${qc(planGoal.text, 320)} (the plan's own ${planGoal.label} line).` : ''}
 
 ## Overall Score: ${totalScore}/${maxScore} (${percentage}%), rated ${rating}
 
@@ -122,7 +122,7 @@ ${verdict} The scores come from a keyword check of the lines that describe your 
     if (at < 0) return e.slice(0, -3).replace(/[,;:\s]+\S*$/, '');
     let end = at + e.length - 3;
     while (end < flat.length && !/[.;!?]/.test(flat[end])) end++;
-    return clauseCut(flat.slice(at, end + 1), 260);
+    return clauseCut(flat.slice(at, end + 1), 320);
   };
   const countGroups: Array<[string, (c: string) => boolean]> = [
     ['Counted toward the dimension they name', (c) => /^(?:Result|Character|Frame|Timeline)$/.test(c)],
@@ -135,17 +135,17 @@ ${verdict} The scores come from a keyword check of the lines that describe your 
 
   // ---- what to fix first: the gaps that matter, each once, ordered by the lowest dimension score ----
   const dimOfMatter: Record<string, keyof typeof analysis> = { 'Nobody on your side is named to run the plan': 'character', 'No channel is named': 'frame', 'The goal is not traced to activity': 'result', 'No dates': 'timeline', 'No budget or headcount': 'frame', 'No review rhythm': 'timeline', 'No deliverables': 'artifact' };
-  type Fix = { title: string; detail: string; score: number };
-  const fixes: Fix[] = matters.map((m) => ({ title: m.title, detail: m.detail, score: (analysis[dimOfMatter[m.title] ?? 'frame'] as CRAFTDimension).score }));
-  if (analysis.result.found.length === 0) fixes.push({ title: 'No measurable result', detail: 'State one goal with a number and a date, such as a count of meetings, a pipeline value or a number of deals.', score: analysis.result.score });
-  if (analysis.frame.found.length === 0) fixes.push({ title: 'No audience or limits', detail: 'Say who the plan is for, what budget and people it has, and what it assumes.', score: analysis.frame.score });
+  type Fix = { title: string; detail: string; score: number; dim: string };
+  const fixes: Fix[] = matters.map((m) => ({ title: m.title, detail: m.detail, score: (analysis[dimOfMatter[m.title] ?? 'frame'] as CRAFTDimension).score, dim: DIM_NAME[dimOfMatter[m.title] ?? 'frame'] }));
+  if (analysis.result.found.length === 0) fixes.push({ title: 'No measurable result', detail: 'State one goal with a number and a date, such as a count of meetings, a pipeline value or a number of deals.', score: analysis.result.score, dim: 'Result' });
+  if (analysis.frame.found.length === 0) fixes.push({ title: 'No audience or limits', detail: 'Say who the plan is for, what budget and people it has, and what it assumes.', score: analysis.frame.score, dim: 'Frame' });
   for (const x of dims) {
     if (x.d.score < 7 && x.d.found.length > 0 && x.d.groupsMissing.length && !fixes.some((f) => dimOfMatter[f.title] === x.key)) {
-      fixes.push({ title: `${x.name} is partly covered`, detail: `The plan has ${andList(x.d.groupsFound.length ? x.d.groupsFound : ['little'])}; it does not have ${andList(x.d.groupsMissing)}.`, score: x.d.score });
+      fixes.push({ title: `${x.name} is partly covered`, detail: `The plan has ${andList(x.d.groupsFound.length ? x.d.groupsFound : ['little'])}; it does not have ${andList(x.d.groupsMissing)}.`, score: x.d.score, dim: x.name });
     }
   }
   fixes.sort((a, b) => a.score - b.score);
-  output += `## What to fix first\n\n${fixes.length ? fixes.map((f, i) => `${i + 1}. **${f.title}.** ${f.detail}`).join('\n') : 'This check finds no structural gap. Read the plan once for sense before you send it.'}\n\n`;
+  output += `## What to fix first\n\n${fixes.length ? fixes.map((f, i) => `${i + 1}. **${f.title}.** (${f.dim} ${f.score}/10) ${f.detail}`).join('\n') : 'This check finds no structural gap. Read the plan once for sense before you send it.'}\n\n`;
 
   // ---- the sector check ----
   const planLower = content.toLowerCase();
@@ -167,19 +167,38 @@ ${verdict} The scores come from a keyword check of the lines that describe your 
   };
   // A plan whose buyers are asset allocators, a CIO and portfolio managers is an investment sale even when the product words name no sector.
   const investPlan = !sectorCtx.v && ((content.match(/\b(asset allocators?|portfolio managers?|investment committees?|investment managers?|wealth managers?|pensions?|endowments?)\b/gi) ?? []).length >= 2);
-  const checkV = sectorCtx.v ?? (investPlan ? profileFor(VERTICALS.find((x) => x.id === 'ai-native')!, 'investment') : null);
+  let checkV: Vertical | null = sectorCtx.v ?? (investPlan ? profileFor(VERTICALS.find((x) => x.id === 'ai-native')!, 'investment') : null);
+  // The shared reader takes an AI seller whose plan mentions contact centres or tickets for a customer service automation seller. When the
+  // seller's OWN lines (the plan title, Message, positioning) name a kind of AI product (voice and language models ...) that kind is used; when they
+  // name no kind and no support words, only the checks of the whole vertical are printed (its roles and measures), not the support profile's.
+  if (checkV && checkV.committee === AI_SUPPORT_PROFILE.committee) {
+    const own = [content.split('\n')[0], ...sellerLines].join(' \n ');
+    const base = VERTICALS.find((x) => x.id === 'ai-native')!;
+    const st = SUBTYPES.find((x) => x.vertical === 'ai-native' && x.match.test(own));
+    if (st) checkV = { ...base, ...st.notes, name: `${base.name}, ${st.name}`, subtype: st.id };
+    else if (!/\b(?:customer|technical|tech|it|client|user) support|support (?:tickets?|agents?|teams?|desks?|automation)|tickets?|help ?desks?|contact cent(?:re|er)s?|call cent(?:re|er)s?|service desks?|customer service|customer care\b/i.test(own)) checkV = base;
+  }
+  // "The plan names X" is only said when the plan's text holds X: a measure by its words (or its words without a tail such as "per site"), a role by its
+  // function word on a line that lists roles (buyer roles, owners, champions) or holds a title.
+  const roleLines = (() => { const labelled = content.split('\n').filter((l) => /^\s*(?:buyers?|buyer roles?|personas?|roles?|stakeholders?|champions?|decision makers?|economic buyer|owners?|team)\b[^:]*:/i.test(l)); return labelled.length ? labelled : content.split('\n').filter((l) => /\b(?:head of|chief|vp|svp|evp|director|manager|officer|lead|cto|cfo|ciso|cio|coo|cmo|teams?)\b/i.test(l)); })();
+  const FUNCTION_SKIP = new Set(['chief', 'head', 'of', 'officer', 'vp', 'svp', 'evp', 'director', 'manager', 'lead', 'senior', 'sr', 'the', 'and', 'or', 'group', 'general', 'global', 'vice', 'president', 'owner', 'business', 'unit', 'operations']);
+  const roleFunctionNamed = (role: string): boolean => {
+    const keys = role.toLowerCase().split(/[^a-z]+/).filter((w) => w.length >= 3 && !FUNCTION_SKIP.has(w));
+    if (!keys.length) return false;
+    return roleLines.some((line) => keys.every((k) => new RegExp(`\\b${k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}s?\\b`, 'i').test(line)));
+  };
+  const metricWordsIn = (m: string): boolean => [m, m.replace(/\s+(?:per|of|on|for|by|at|to)\s+.*$/i, '')].filter((x) => x.length >= 6).some((x) => planLower.includes(x.toLowerCase()));
   output += `## Sector Check\n\n`;
   if (checkV) {
     const v = checkV;
-    const rolesNamed = v.buyerRoles.filter(roleNamed);
-    const rolesMissing = v.buyerRoles.filter((r) => !roleNamed(r));
-    const keyOf = (m: string): string => m.split(/\s+/).find((w) => w.length >= 6 && !['percent', 'number'].includes(w.toLowerCase())) ?? m;
-    const metricsNamed = v.metrics.filter((m) => planLower.includes(m.toLowerCase()) || content.split('\n').some((line) => /\d/.test(line) && new RegExp(`\\b${keyOf(m).toLowerCase().replace(/[^a-z-]/g, '')}\\b`).test(line.toLowerCase())));
+    const rolesNamed = v.buyerRoles.filter((r) => roleNamed(r) || roleFunctionNamed(r));
+    const rolesMissing = v.buyerRoles.filter((r) => !rolesNamed.includes(r));
+    const metricsNamed = v.metrics.filter(metricWordsIn);
     output += `*Sector: ${sectorCtx.v ? sectorCtx.sector : `read from the buyers your plan names as ${v.name}`}. This is not part of the score.*
 
-Deals in this sector are decided like this: ${lc(v.committee)} Your plan names ${rolesNamed.length ? andList(rolesNamed) : 'none of the usual deciders'}${rolesMissing.length ? `, and does not name ${andList(rolesMissing)}` : ''}.
+Deals in this sector are decided like this: ${lc(v.committee)} ${rolesNamed.length ? `The roles in your plan match ${andList(rolesNamed)}` : 'No role in your plan matches the usual deciders'}${rolesMissing.length ? `${rolesNamed.length ? ', and' : ':'} none matches ${andList(rolesMissing)}` : ''}.
 
-The sector measures ${andList(v.metrics)}; your plan names ${metricsNamed.length ? andList(metricsNamed) : 'none of them'}. A proof point that lands: ${lc(v.proofShape)} Words this buyer uses: ${v.vocabulary.join(', ')}.
+The sector measures ${andList(v.metrics)}; your plan uses the words for ${metricsNamed.length ? andList(metricsNamed) : 'none of them'}. A proof point that lands: ${lc(v.proofShape)} Words this buyer uses: ${v.vocabulary.join(', ')}.
 `;
     if (buyerCtx) output += `\nThe buyers your plan aims at are in ${buyerCtx.name}. ${buyerCtx.reviews} ${buyerCtx.buying}\n`;
   } else if (buyerCtx) {
