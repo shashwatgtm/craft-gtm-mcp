@@ -154,6 +154,32 @@ test("round 3: 'next quarter' is not described as no period appearing", async ()
   assert.match(out, /The plan says "next quarter" but gives no date or duration/);
 });
 
+// ---- round 4 (final judge): the first fixes are the plan's own, the proof line is challenged, a wide audience is questioned ----
+test("round 4: the owner and date fixes quote the plan's own goal, so two plans do not get the same fix list", async () => {
+  const a = (await A(PLAN_A)).split("## What to fix first")[1].split("## Sector Check")[0];
+  const c = (await A(PLAN_C)).split("## What to fix first")[1].split("## Sector Check")[0];
+  assert.match(a, /Name who owns "build a pipeline of \$500,000 from last mile fleets/);
+  assert.match(c, /Name who owns "build a pipeline of \$300,000 from financial services/);
+  assert.notEqual(a.split("\n")[2], c.split("\n")[2]);
+  assert.match(a, /The goal "build a pipeline of \$500,000[^"]*" has no end date/);
+});
+test("round 4: a high Frame score is explained by the lines it counts, next to the channel and budget fixes", async () => {
+  const out = await A(PLAN_A);
+  assert.match(out, /Frame 6\/10 counts your Audience and Buyer lines, not a channel or a budget/);
+});
+test("round 4: a proof line made of company facts (funding, users, awards) is challenged", async () => {
+  const out = await A(PLAN_A + "\nProof: a $40 million Series B in 2022; 3M users worldwide; named a leader in 2023.");
+  const fix = out.split("## What to fix first")[1].split("## Sector Check")[0];
+  assert.match(fix, /The proof is a company fact, not a result/);
+  assert.match(fix, /a \$40 million Series B in 2022/);
+});
+test("round 4: an audience wider than the goal's segment is questioned", async () => {
+  const out = await A("Wordly plan for next quarter.\nGoal: build a pipeline of $300,000 from banking, which is ten deals.\nAudience: banks, insurers, retailers, telecom operators, utilities, airlines and universities.\nMessage: Wordly answers customer questions in many languages.");
+  const fix = out.split("## What to fix first")[1].split("## Sector Check")[0];
+  assert.match(fix, /The audience is wider than the goal/);
+  assert.match(fix, /banking/);
+});
+
 const POOL = ["T6", "T7", "T8", "T9", "H1", "H3", "H5", "H6", "H8", "P1", "P4", "P6", "P7", "P9", "Q1", "Q3", "Q8", "Q11", "Q13", "Q17"];
 for (const id of POOL) {
   test(`pool ${id}: clean review that quotes the plan's goal`, { skip: !POOL_OK }, async () => {

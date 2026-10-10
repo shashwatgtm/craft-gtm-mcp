@@ -99,7 +99,7 @@ export const POPULARITY = /\b(?:used by|world's|leading|trusted by|award\w*|name
 // ---------------------------------------------------------------------------------------------------------------------
 // Partner kinds (partner_architect). Kinds of company, never names, never a figure. Three sources are combined: the partner model (who refers, resells,
 // integrates or implements in general), what the product does (cue words in its own description), and the buyer segments named in the goal.
-export interface SegmentKinds { name: string; partners: string; buying: string; resellers?: string }
+export interface SegmentKinds { name: string; partners: string; buying: string; resellers?: string; motion?: string; risks?: string }
 const buyingOf = (id: string): string => BUYER_CONTEXTS.find((c) => c.id === id)?.buying ?? '';
 const SEGMENTS: Array<SegmentKinds & { re: RegExp }> = [
   { re: /\b(?:banks?|banking|bfsi|financial[ _]services?|insur\w+|lenders?|lending|nbfc|fintech)\b/i, name: 'banks and financial services', partners: 'risk and compliance consultancies, core banking and payments integrators, audit and advisory firms', buying: buyingOf('financial') },
@@ -116,6 +116,23 @@ const SEGMENTS: Array<SegmentKinds & { re: RegExp }> = [
   { re: /\b(?:games?|gaming)\b/i, name: 'games', partners: 'game services studios, live operations and backend service providers, publisher partnership teams', buying: buyingOf('gaming') },
   { re: /\b(?:software|saas|technology|tech companies|ai companies|startups?|scale-?ups?|developers?|(?:web|mobile)(?: (?:and|&) (?:web|mobile))? apps?|app (?:makers|developers))\b/i, name: 'software and technology companies', partners: 'app and web development agencies, technology consultancies, cloud marketplaces, managed service providers', buying: buyingOf('technology') },
 ];
+// How a first account usually runs in each segment, and what its buyers fear (the risks come from the buyer contexts of the shared sector file).
+const MOTION: Record<string, [string, string]> = {
+  'banks and financial services': ['the risk review and the security questionnaire started early', 'financial'],
+  'government and public sector': ["the tender or framework route set by the buyer's process", 'public-sector'],
+  'retail and e-commerce': ['a trial on live orders', 'retail'],
+  'consumer goods and food': ['a pilot in one region judged against a comparable region', 'consumer-goods'],
+  'manufacturing': ['a pilot at one plant, lane or supplier', 'industrial'],
+  'energy and utilities': ['approval from operations, security and finance together', ''],
+  'logistics and distribution': ['a pilot on one lane or customer', ''],
+  'telecom': ['a staged rollout with a fallback for each stage', 'telecom-media'],
+  'media and publishing': ['a trial on one title or channel', ''],
+  'education': ['a rollout that is live before the intake', 'education'],
+  'construction and infrastructure': ['a pilot on one live project', 'construction'],
+  'games': ['a trial timed around a release', 'gaming'],
+  'software and technology companies': ['a trial by engineering before the security review', 'technology'],
+};
+const risksOf = (name: string): string => { const id = MOTION[name]?.[1]; return (id && BUYER_CONTEXTS.find((c) => c.id === id)?.risks) || ''; };
 /** The partner kinds of every customer segment a partner goal names (each comma piece after "among" is read on its own), and the pieces for which no kinds are known. */
 export function segmentsOfGoal(goal: string, productText = '', partnerModel = 'referral'): { found: SegmentKinds[]; unknown: string[] } {
   const g = goal.replace(/;?\s*no numeric target given\.?/i, '').trim();
@@ -132,7 +149,7 @@ export function segmentsOfGoal(goal: string, productText = '', partnerModel = 'r
       hit = true;
       if (found.some((o) => o.name === seg.name)) continue;
       const base = plant && seg.name === 'manufacturing' ? `plant automation integrators, ${seg.partners}` : seg.partners;
-      found.push({ name: seg.name, partners: seg.resellers && /^(?:reseller|oem_white_label)$/.test(partnerModel) ? `${base}, ${seg.resellers}` : base, buying: seg.buying });
+      found.push({ name: seg.name, partners: seg.resellers && /^(?:reseller|oem_white_label)$/.test(partnerModel) ? `${base}, ${seg.resellers}` : base, buying: seg.buying, motion: MOTION[seg.name]?.[0], risks: risksOf(seg.name) });
     }
     if (!hit && after) unknown.push(piece);
   }

@@ -38,7 +38,7 @@ test("competitive_intel: an objection with no supporting strength says exactly w
   const netsuite = h.split('### "Does Ledgerline integrate with NetSuite?"')[1].split("###")[0];
   assert.match(netsuite, /accurate answer than a guess/);
   assert.match(r.text, /a fact that answers "Does Ledgerline integrate with NetSuite\?": a yes or no to this exact question/);
-  assert.match(r.text, /\(it would change this answer, which now promises to confirm instead of showing evidence\)/);
+  assert.match(r.text, /\(it would change this answer, which now gives a pattern of answer instead of a fact\)/);
   assert.doesNotMatch(r.text, /Ask what lies behind it/);
   assert.match(r.text, /a fact that answers "How long does it take to go live\?": the real elapsed time from signature to go-live/);
 });
