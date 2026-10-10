@@ -149,13 +149,49 @@ ${verdict} The scores come from a keyword check of the lines that describe your 
     const f = fixes.find((x) => x.title === 'No channel is named') ?? fixes.find((x) => x.title === 'No budget or headcount');
     if (f) f.detail += ` (Frame ${analysis.frame.score}/10 counts your Audience and Buyer lines, not a channel or a budget.)`;
   }
-  // a proof line made of company facts (funding, users, awards) is not a result a buyer can weigh
-  const proofLine = labelled.filter((x) => /^(?:proof|references?|testimonials?|case stud\w*)$/i.test(x.label)).find((x) => POPULARITY.test(x.text) || /\b(?:series [a-e]|raised|funding|leader|gartner|g2)\b/i.test(x.text));
-  if (proofLine) fixes.push({ title: 'The proof is a company fact, not a result.', detail: `The line ${qc(`${proofLine.label}: ${proofLine.text}`, 170)} gives facts about the company. A buyer weighs a customer's result with a number and where it came from: add one before the plan goes out.`, score: analysis.frame.score, dim: 'Frame' });
+  // The proof line is read item by item (items are separated by semicolons outside brackets). A customer result is an item with an outcome verb and a
+  // number (a customer named or not), or a customer story or case that is named; users, funding, awards and analyst rankings are company facts. The line is
+  // called company facts only when no result is on it; when a result is there, the fix says what is missing around it (its source, a second customer).
+  const proofItems = labelled.filter((x) => /^(?:proof|references?|testimonials?|case stud\w*)$/i.test(x.label)).flatMap((x) => {
+    const parts: string[] = []; let depth = 0; let cur = ''; let quote = '';
+    const chars = Array.from(x.text);
+    chars.forEach((ch, i) => {
+      const prev = chars[i - 1] ?? ''; const next = chars[i + 1] ?? '';
+      // a semicolon inside a quotation or a bracket does not end the item
+      if (!quote && (ch === '"' || ch === '\u201C' || (ch === "'" && (i === 0 || /[\s:(]/.test(prev)) && /\w/.test(next)))) quote = ch === '\u201C' ? '\u201D' : ch;
+      else if (quote && ch === quote && (ch !== "'" || (/[\w.!?,)]/.test(prev) && (!next || /[\s;,.)]/.test(next))))) quote = '';
+      if (!quote && ch === '(') depth++;
+      if (!quote && ch === ')') depth = Math.max(0, depth - 1);
+      if (ch === ';' && depth === 0 && !quote) { parts.push(cur); cur = ''; } else cur += ch;
+    });
+    parts.push(cur);
+    return parts.map((t) => t.trim().replace(/[.\s]+$/, '')).filter(Boolean).map((t) => ({ label: x.label, text: t }));
+  });
+  // an outcome is a verb of change or a word of direction, with a figure that is not a year; what a customer says ("says", "reports", a quote) counts when it holds a figure
+  const OUTCOME_VERB = /\b(?:achiev\w*|reduc\w*|cuts?|cutting|sav(?:e|ed|es|ing|ings)|increas\w*|improv\w*|unlock\w*|grew|grow\w*|boost\w*|doubl\w*|tripl\w*|lower\w*|avoid\w*|shorten\w*|accelerat\w*|speed\w*|decreas\w*|eliminat\w*|gain\w*|generat(?:ed|es|ing)|recover\w*|resolv\w*|jump\w*|drop\w*|rose|rise[sn]?|fell|fall\w*|scal(?:ed|es|ing)|expand(?:ed|s|ing)|roi|growth|payback|uplift|savings?|reduction|improvement|increase|decrease|faster|slower|higher|shorter|instead of|(?:up|down) from|from [^;()]{1,40} to|win rate|deploys? [^;()]{0,30} faster)\b/i;
+  const figureIn = (t: string): boolean => /\d/.test(t.replace(/\b(?:19|20)\d{2}\b/g, ''));
+  const OWN_COMPANY_FACT = /\b(?:series [a-e]|valuation|ipo|funding round|headcount)\b|\braised \$|\braised\b[^;]*\b(?:million|billion|m|bn)\b/i;
+  const NAMED_CASE = /\b(?:case stud(?:y|ies)|customer stor(?:y|ies)|client stor(?:y|ies)|success stor(?:y|ies)|client spotlight|customer spotlight|testimonial|customer quote|customer words|says)\b/i;
+  const SOURCE_NAMED = /\(|\b(?:page|story|study|spotlight|source|audited|published|report|review|survey|interview|quote|quoted|headline|press release|filing|customer words)\b/i;
+  const resultItems = proofItems.filter((x) => OUTCOME_VERB.test(x.text) && figureIn(x.text) && !OWN_COMPANY_FACT.test(x.text));
+  const namedNoFigure = proofItems.filter((x) => !resultItems.includes(x) && NAMED_CASE.test(x.text) && !figureIn(x.text));
+  const factItems = proofItems.filter((x) => !resultItems.includes(x) && !namedNoFigure.includes(x) && (POPULARITY.test(x.text) || /\b(?:series [a-e]|raised|funding|leader|gartner|g2)\b/i.test(x.text)));
+  if (resultItems.length === 0 && namedNoFigure.length === 0 && factItems.length) {
+    fixes.push({ title: 'The proof is a company fact, not a result', detail: `The line ${qc(`${factItems[0].label}: ${proofItems.filter((x) => x.label === factItems[0].label).map((x) => x.text).join('; ')}`, 170)} gives facts about the company. A buyer weighs a customer's result with a number and where it came from: add one before the plan goes out.`, score: analysis.frame.score, dim: 'Frame' });
+  } else if (resultItems.length || namedNoFigure.length) {
+    // a source is flagged missing only when no result on the line carries one (a source may stand at the end of a run of items)
+    const unsourced = resultItems.every((x) => !SOURCE_NAMED.test(x.text)) ? resultItems : [];
+    const customers = resultItems.length + namedNoFigure.length;
+    const lines: string[] = [];
+    if (unsourced.length) lines.push(`${qc(unsourced[0].text, 150)} has no source named: say where the result comes from (the case study, the page or the person who confirmed it).`);
+    if (namedNoFigure.length) lines.push(`${qc(namedNoFigure[0].text, 150)} names a customer but gives no number: add the result in figures.`);
+    if (customers === 1) lines.push(`Only one customer result is given${unsourced.length || namedNoFigure.length ? '' : `, ${qc((resultItems[0] ?? namedNoFigure[0]).text, 150)}`}: add the result of a second customer, so the proof does not rest on one case.`);
+    if (lines.length) fixes.push({ title: customers === 1 ? 'The proof rests on one customer result' : 'A customer result needs more around it', detail: lines.join(' '), score: analysis.frame.score, dim: 'Frame' });
+  }
   // an audience of many groups against a goal that names one
   const audienceItems = planAudience ? planAudience.text.split(/,|\band\b/).map((x) => x.trim()).filter(Boolean) : [];
   const goalFrom = planGoal ? (planGoal.text.match(/\bfrom ([^,.;]+)/i) || [])[1] : '';
-  if (goalFrom && audienceItems.length >= 5) fixes.push({ title: 'The audience is wider than the goal.', detail: `The Audience line lists ${audienceItems.length} groups, but the goal comes from ${q(goalFrom.trim())}: say which group is first and why, so the plan is not read as aimed at everyone.`, score: analysis.frame.score, dim: 'Frame' });
+  if (goalFrom && audienceItems.length >= 5) fixes.push({ title: 'The audience is wider than the goal', detail: `The Audience line lists ${audienceItems.length} groups, but the goal comes from ${q(goalFrom.trim())}: say which group is first and why, so the plan is not read as aimed at everyone.`, score: analysis.frame.score, dim: 'Frame' });
   fixes.sort((a, b) => a.score - b.score);
   output += `## What to fix first\n\n${fixes.length ? fixes.map((f, i) => `${i + 1}. **${f.title}.** (${f.dim} ${f.score}/10) ${f.detail}`).join('\n') : 'This check finds no structural gap. Read the plan once for sense before you send it.'}\n\n`;
 
@@ -209,17 +245,46 @@ ${verdict} The scores come from a keyword check of the lines that describe your 
     const last = m.toLowerCase().split(/[^a-z]+/).filter((w) => w.length >= 6 && !GENERIC_METRIC.has(w)).pop();
     return !!last && new RegExp(`\\b${last}\\b`).test(planLower);
   };
+  // The measures the plan states itself, in its own words ("25% higher onboarding conversion", "40% on processing fees", "cutting CX costs by 45%"): read from
+  // the seller's lines and the proof, never made up, and no figure is repeated or added. They are named next to the sector's general measures.
+  const MEASURE_STOP = new Set(['the', 'a', 'an', 'and', 'or', 'of', 'in', 'on', 'at', 'to', 'for', 'with', 'by', 'from', 'as', 'is', 'are', 'than', 'more', 'less', 'higher', 'lower', 'faster', 'better', 'fewer', 'up', 'down', 'over', 'average', 'around', 'about', 'per', 'across', 'while', 'when', 'that', 'which', 'without', 'after', 'within', 'using', 'via', 'into']);
+  const MEASURE_VERB = /^(?:achiev\w+|reduc\w+|cut(?:ting)?|sav(?:e|ed|es|ing)|increas\w+|improv\w+|unlock\w+|boost\w+|doubl\w+|tripl\w+|lower\w*|avoid\w*|shorten\w*|accelerat\w+|decreas\w+|eliminat\w+|gain\w*|generat\w+|recover\w+|rais\w+|grew|get|got|win|won|help\w*)$/i;
+  const planMeasures = (): string[] => {
+    const lines = content.split('\n').filter((l) => /^\s*(?:message|messaging|positioning|how we differ|differentiat\w+|proof|references?|case stud\w*|testimonials?)\s*:/i.test(l)).map((l) => l.replace(/^[^:]*:/, ''));
+    const found: string[] = [];
+    const take = (raw: string): void => {
+      let words = raw.trim().split(/\s+/).filter(Boolean);
+      // what follows the last outcome verb is the measure ("a UK telecom cutting CX costs" gives "CX costs")
+      let lastVerb = -1; words.forEach((w, i) => { if (MEASURE_VERB.test(w)) lastVerb = i; });
+      words = words.slice(lastVerb + 1);
+      while (words.length && MEASURE_STOP.has(words[0].toLowerCase())) words.shift();
+      const stopAt = words.findIndex((w) => MEASURE_STOP.has(w.toLowerCase()));
+      if (stopAt >= 0) words = words.slice(0, stopAt);
+      if (!words.length || words.length > 3 || words.some((w) => /\d/.test(w))) return;
+      const phrase = words.join(' ');
+      if (phrase.replace(/[^a-z]/gi, '').length < 5 || found.some((f) => f.toLowerCase() === phrase.toLowerCase())) return;
+      found.push(phrase);
+    };
+    for (const l of lines) {
+      const t = l.replace(/\([^)]*\)/g, ' ');
+      for (const m of t.matchAll(/\d[\d.,]*\s?(?:%|x\b|X\b|points?\b)\s+(?:(?:higher|lower|more|less|better|faster|fewer|improved|increased|reduced)\s+)?(?:on\s+)?([A-Za-z][\w-]*(?:\s+[A-Za-z][\w-]*){0,3})/g)) take(m[1]);
+      for (const m of t.matchAll(/([A-Za-z][\w-]*(?:\s+[A-Za-z][\w-]*){0,3})\s+by\s+(?:\d[\d.,]*\s?%|\d[\d.,]*\s?x\b)/gi)) take(m[1]);
+    }
+    return found.slice(0, 4);
+  };
   output += `## Sector Check\n\n`;
   if (checkV) {
     const v = checkV;
     const rolesNamed = v.buyerRoles.filter((r) => roleNamed(r) || roleFunctionNamed(r));
     const rolesMissing = v.buyerRoles.filter((r) => !rolesNamed.includes(r));
     const metricsNamed = v.metrics.filter(metricWordsIn);
+    const sameAsSector = (phrase: string): boolean => v.metrics.some((m) => m.toLowerCase().includes(phrase.toLowerCase()) || phrase.toLowerCase().includes(m.toLowerCase()) || SHORT_FORMS.some(([plan, metric]) => plan.test(phrase) && metric.test(m)));
+    const ownMeasures = planMeasures().filter((m) => !sameAsSector(m));
     output += `*Sector: ${sectorCtx.v ? sectorCtx.sector : `read from the buyers your plan names as ${v.name}`}. This is not part of the score.*
 
 Deals in this sector are decided like this: ${lc(v.committee)} ${rolesNamed.length ? `The roles in your plan match ${andList(rolesNamed)}` : 'No role in your plan matches the usual deciders'}${rolesMissing.length ? `${rolesNamed.length ? ', and' : ':'} none matches ${andList(rolesMissing)}` : ''}.
 
-The sector measures ${andList(v.metrics)}; your plan uses the words for ${metricsNamed.length ? andList(metricsNamed) : 'none of them'}. A proof point that lands: ${lc(v.proofShape)} Words this buyer uses: ${v.vocabulary.join(', ')}.
+The sector measures ${andList(v.metrics)}; your plan uses the words for ${metricsNamed.length ? andList(metricsNamed) : 'none of them'}. A proof point that lands: ${lc(v.proofShape)} Words this buyer uses: ${v.vocabulary.join(', ')}.${ownMeasures.length ? ` Your plan also states results in these measures of its own: ${andList(ownMeasures)}. Keep those words for your product; the list above is the sector's general set, and part of it may not fit what you sell.` : ''}
 `;
     if (buyerCtx) output += `\nThe buyers your plan aims at are in ${buyerCtx.name}. ${buyerCtx.reviews} ${buyerCtx.buying}\n`;
   } else if (buyerCtx) {

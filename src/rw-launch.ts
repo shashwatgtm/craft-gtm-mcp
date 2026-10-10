@@ -490,11 +490,25 @@ export function writeLaunchPlan(args: {
   const prod = productParts(args.product_feature);
   const caps = prod.wrapped ? [] : capabilityList(prod.desc);
   const descShown = !prod.wrapped && !caps.length && prod.desc ? prod.desc : '';
+  // The neutral regulated finance read (no kind of fintech product was found) holds lines written for a finance team that reports and reconciles. A product that
+  // connects data or payments through an interface that engineering teams build in is described in its own words instead: its parts name the problems to test,
+  // the teams that integrate it name the channels, and its first integration names the go-live task. The feature lead of each segment is not changed.
+  const partsForLayer = caps.filter((x) => x.split(/\s+/).length >= 2);
+  const integrationLayer = !!ctx.v && ctx.v.id === 'fintech' && !ctx.v.subtype && !prod.wrapped && partsForLayer.length >= 3 && /\b(?:account connection|connects? (?:bank|financial|accounts?)|bank (?:data|connection|link\w*)|financial data|open (?:finance|banking)|account (?:data|aggregation|linking)|data (?:network|layer)|aggregat\w+)\b/i.test(prod.desc);
+  const layer = integrationLayer ? (() => {
+    const [a, b, d] = partsForLayer;
+    return {
+      pains: [`manual steps, waiting and failures in ${a}`, `${b} that is slow, partial or done by hand`, `engineering time the buyer's team spends building and keeping up the integrations behind ${d}`],
+      channels: ['account-based email to product, engineering and risk leaders', 'LinkedIn posts from your experts and customers', `a technical session for the engineering teams that would build with ${a}`, 'partner and adviser referrals'],
+      tasks: [`Write the integration guide for the buyer's engineering and product teams, starting with ${a}`, `Plan the go-live of the first integration, starting with ${a}, with the buyer's engineering team, and run the old way beside it until the results match`],
+      first: a,
+    };
+  })() : null;
 
   // channels: the ones named, else the sector's own
   const channelsGiven = args.available_channels ? splitTopLevel(args.available_channels).map((c) => (c.toLowerCase() === 'linkedin' ? 'LinkedIn' : c)) : [];
   const segChannels = segmentKinds(args.target_segments).flatMap((k) => k.channels ?? []).filter((c, i, a) => a.indexOf(c) === i).slice(0, 4);
-  const shownChannels = channelsGiven.length ? channelsGiven : pb ? pb.channels : segChannels.length ? segChannels : salesLed ? ['account-based outreach to named buyers', 'LinkedIn posts from your experts and customers', 'executive roundtable or briefing'] : ['email', 'LinkedIn', 'blog'];
+  const shownChannels = channelsGiven.length ? channelsGiven : layer ? layer.channels : pb ? pb.channels : segChannels.length ? segChannels : salesLed ? ['account-based outreach to named buyers', 'LinkedIn posts from your experts and customers', 'executive roundtable or briefing'] : ['email', 'LinkedIn', 'blog'];
   const filterWords = (channelsGiven.length ? channelsGiven : ['email', 'linkedin', 'blog']).map((c) => c.toLowerCase());
   const adoption = pb ? pb.adoption.measure : 'product or service usage';
   const c: LaunchCtx = { N: prod.name ?? 'your solution', NS: prod.name ?? 'Your solution', segs, segList, segRef: segs.length <= 3 ? segList : 'the target segments', segEach: segs.length <= 3 ? `each of ${segList}` : 'each target segment', buyer, channels: shownChannels, channelList: channelsGiven.length ? andList(channelsGiven) : 'the channels listed under Channels and budget', mode, caps, adoption, goals, ctx, launchWord: LAUNCH_WORD[launchType] };
@@ -540,9 +554,9 @@ export function writeLaunchPlan(args: {
   const sectorTasks: Array<{ task: string; detail: string; phase: number; owner: string }> = ctx.v && pb ? [
     { task: 'Brief the buying committee', detail: `Brief the buyers named under Who the launch speaks to on ${c.N}: what it does, what it replaces and what a first step asks of them`, phase: 0, owner: 'sales' },
     { task: pb.launchTasks[0], detail: '', phase: 0, owner: 'strategy' },
-    { task: pb.launchTasks[1], detail: '', phase: 1, owner: 'execution' },
+    { task: layer ? layer.tasks[0] : pb.launchTasks[1], detail: '', phase: 1, owner: 'execution' },
     { task: 'Prepare the proof point', detail: 'Collect the proof described under Who the launch speaks to from one customer in each segment, with its source and date', phase: 1, owner: 'content' },
-    { task: pb.launchTasks[2], detail: '', phase: 1, owner: 'execution' },
+    { task: layer ? layer.tasks[1] : pb.launchTasks[2], detail: '', phase: 1, owner: 'execution' },
     { task: 'Prepare sales answers to the usual objections', detail: `Prepare answers to ${andList(ctx.v.objections.slice(0, 3).map((o) => q(stripEnd(o.objection).replace(/[?]$/, ''))))}, using the responses under Risks and how to meet them`, phase: 2, owner: 'sales' },
   ] : [];
 
@@ -607,7 +621,7 @@ export function writeLaunchPlan(args: {
   const roleLine = ctx.v
     ? (buyer ? `Write to the ${buyer} first, then to the other roles in the group: ${andList(otherRoles)}.` : `Write to the buyers in these roles: ${buyerRoles}.`)
     : buyer ? `Write to the ${buyer}.` : '';
-  const pains = painsFor(ctx);
+  const pains = layer ? layer.pains : painsFor(ctx);
   const metrics = ctx.v ? ctx.v.metrics : [];
   const vocab = ctx.v ? ctx.v.vocabulary : [];
   const discovery = ctx.v ? ctx.v.discovery : [];
@@ -659,7 +673,8 @@ export function writeLaunchPlan(args: {
     const q2 = discovery.slice(3).filter((d) => !usedAsks.has(d)).map((d) => ({ d, score: fitScore(segText, notes?.review ?? '', d) })).sort((x, y) => y.score - x.score)[0];
     if (q2 && q2.score >= 3) { usedAsks.add(q2.d); lines.push(`Ask: ${q2.d.replace(/\?*$/, '?')}`); }
     const m2 = metrics.filter((mm) => !usedAsks.has(mm)).map((mm) => ({ mm, score: fitScore(segText, notes?.review ?? '', mm) })).sort((x, y) => y.score - x.score)[0];
-    if (m2 && m2.score >= 3) { usedAsks.add(m2.mm); lines.push(`Measure the result by ${m2.mm}.`); }
+    if (layer && lead.length) lines.push(`Measure the result by how many of the buyer's flows use ${lead[0]}.`);
+    else if (m2 && m2.score >= 3) { usedAsks.add(m2.mm); lines.push(`Measure the result by ${m2.mm}.`); }
     // a thin section is filled from the segment's own words and the part that leads it: a question about what it uses today, then the proof to bring
     const sentencesIn = (): number => (lines.join(' ').match(/[.?](?:\s|$)/g) ?? []).length;
     const asked = lines.some((l) => l.startsWith('Ask:'));
@@ -734,7 +749,7 @@ export function writeLaunchPlan(args: {
     `Tracking in place for each goal in the goals table`,
     contractSale ? 'Fallback and rollback plan written' : 'Rollback plan written',
     'One owner named for the weeks after launch',
-    ...(pb ? pb.checklist : []),
+    ...(pb ? (layer ? pb.checklist.map((x) => (/reporting dates/i.test(x) ? `Go-live of the first integration, starting with ${layer.first}, agreed with the buyer's engineering team` : x)) : pb.checklist) : []),
   ];
   out.push(checks.map((x) => `- [ ] ${x}`).join('\n'));
 
@@ -954,9 +969,11 @@ export function writeRetentionPlaybook(args: {
   const dataSignals = typedList(args.available_data_signals);
   const current = typedList(args.current_interventions);
   const product = args.product ? args.product.trim() : '';
-  // a long product name is used once in the title; the drafts say "your service" instead of repeating it
+  // a long product name is used once in the title; the drafts, written by the seller to its customer, say "our service" instead of repeating it
   const productShort = product && product.split(/\s+/).length <= 5 ? product : '';
-  const productRef = productShort || 'your service';
+  // a product given as a description of more than five words (not just a name) is used once in the reasons
+  const described = !!product && !productShort;
+  const productRef = productShort || 'our service';
   const accountRef = productShort || 'your account';
   const sign = productShort ? `The ${productShort} team` : 'Your account team';
   const segment = args.customer_segment.trim();
@@ -1095,7 +1112,7 @@ export function writeRetentionPlaybook(args: {
   const signalWords = (key: string): string[] => key.split('_').filter((w) => w.length >= 4 && !['trend', 'rate', 'requested', 'sentiment'].includes(w));
   const trackedFor = (key: string): string | null => dataSignals.find((ds) => signalWords(key).some((w) => ds.toLowerCase().includes(w.slice(0, 4)))) ?? null;
   const usedSignals = new Set<string>();
-  const LABELS: Record<string, string> = { ticket_backlog_trend: 'open request backlog trend', aov_trend: 'value per transaction trend', category_breadth: 'breadth of use', purchase_frequency: 'transaction frequency', feature_adoption: subscription ? 'feature adoption' : 'service adoption' };
+  const LABELS: Record<string, string> = { ticket_backlog_trend: 'open request backlog trend', aov_trend: 'value per transaction trend', category_breadth: 'breadth of use', purchase_frequency: 'transaction frequency', feature_adoption: subscription ? 'feature adoption' : 'service adoption', support_nps: 'support NPS' };
   const label = (sg: string): string => LABELS[sg] ?? sg.replace(/_/g, ' ');
   out.push('## Health score');
   out.push('');
@@ -1107,7 +1124,7 @@ export function writeRetentionPlaybook(args: {
   // an AI company priced by the case is not described by a cost per case on a subscription: its measures of accuracy and of how often a person steps in are used
   const readMetrics = (ctx.v?.metrics ?? []).filter((m) => !(caseAI && /\bper (?:case|decision)\b|\bcost\b/i.test(m)));
   const m0 = readMetrics[0]; const m1 = readMetrics[1];
-  const sponsorRole = ctx.v && !caseAI && ctx.v.buyerRoles[0] ? `the ${lcFirst(ctx.v.buyerRoles[0])}` : 'the sponsor';
+  const sponsorRole = ctx.v && !caseAI && ctx.v.buyerRoles[0] ? `the ${/^[A-Z]{2,}\b/.test(ctx.v.buyerRoles[0]) ? lcFirst(ctx.v.buyerRoles[0]) : ctx.v.buyerRoles[0].split(' ').map((w) => (w.length > 1 && w === w.toUpperCase() ? w : w.toLowerCase())).join(' ')}` : 'the sponsor';
   const adoptionPhrase = pb && !caseAI ? pb.adoption.measure : 'how much of the product the customer uses, across its teams';
   const READ: Record<string, string> = {
     login_frequency: 'how often the people who do the daily work sign in, by role', feature_adoption: adoptionPhrase, support_tickets: 'tickets and escalations, and whether the same problem returns', billing_health: 'late or disputed invoices and requests to downgrade',
@@ -1193,12 +1210,12 @@ export function writeRetentionPlaybook(args: {
   if (!reasons.length) missing.push(['the churn reasons (why customers leave), in the churn_reasons input', 'this kit, which would become a playbook with a signal, a step, an owner and a draft message for each reason']);
   if (!dataSignals.length) missing.push(['the data signals you can track, in the available_data_signals input', 'the health score table, where every signal is now marked "to add"']);
   if (!current.length) missing.push(['what you already do to keep customers, in the current_interventions input', 'the comparison with each reason, which shows what is covered and what is not']);
-  if (!product) missing.push(['the product or company name, in the product input', 'the title and the drafts, which now say "your service"']);
+  if (!product) missing.push(['the product or company name, in the product input', 'the title and the drafts, which now say "our service"']);
   if (!args.cs_team_size) missing.push(['the customer success team size, in the cs_team_size input; the plan assumes small (1 to 3)', 'the split between personal, one-to-many and automated contact']);
   if (churn.n !== null && churn.period === 'unstated') missing.push(['whether the churn rate is monthly, quarterly or yearly', `the annual figure, which now reads ${typedRate} as monthly`]);
   if (!args.industry && !ctx.v) missing.push(['the industry, in the industry input', 'the sector measures, objections and renewal habits, which are now left out']);
   const kinds = kindsWithLines(ctx, ['churnReasons', 'renewal']);
-  if (kinds.length) missing.push([`what ${productShort || 'your product'} sells, said in a few words after its name in the product input`, 'the reasons and steps, which now fit any company in the sector']);
+  if (kinds.length && !described) missing.push([`what ${productShort || 'your product'} sells, said in a few words after its name in the product input`, 'the reasons and steps, which now fit any company in the sector']);
   out.push(sharpenBlock(missing));
   return dropRepeatedLines(out.join('\n')).replace(/\n{3,}/g, '\n\n').trimEnd() + '\n';
 
@@ -1270,7 +1287,7 @@ export function writeRetentionPlaybook(args: {
     if (current.length) { k.push(`You already do ${andList(current.map((d) => quoted(d)))}: ask each departed ${cust} whether they reached them, and what they thought.`); k.push(''); }
     k.push('## The likely reasons to test');
     k.push('');
-    k.push(`These are common for ${aAn(modelName)} ${modelName} model${ctx.v && enterpriseLike ? ` in ${ctx.v.name}` : ''}, in no order of likelihood. For each: the signal that points to it and a first step if it proves true.`);
+    k.push(`These are common for ${aAn(modelName)} ${modelName} model${ctx.v && enterpriseLike ? ` in ${ctx.v.name}` : ''}, in no order of likelihood.${described ? ` Read each one against how your customers use ${quoted(product)}.` : ''} For each: the signal that points to it and a first step if it proves true.`);
     k.push('');
     list.forEach((r, i) => { k.push(`### ${i + 1}. ${r}`); k.push(''); k.push(`**Signal:** ${stripEnd(signalOf(r))}.`); k.push(`**First step if true:** ${stripEnd(stepOf(r))}.`); k.push(''); });
     k.push('## After the first answers');
