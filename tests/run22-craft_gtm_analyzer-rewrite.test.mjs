@@ -180,6 +180,13 @@ test("round 4: an audience wider than the goal's segment is questioned", async (
   assert.match(fix, /banking/);
 });
 
+test("round 4: a quoted goal is never cut inside a number", async () => {
+  const out = await A("Lanehop plan for next quarter.\nGoal: build a pipeline of $600,000, which is ten deals at a contract value of $60,000 each from last mile fleets in the first half of the year.\nMessage: Lanehop re-plans routes live.");
+  const fix = out.split("## What to fix first")[1].split("## Sector Check")[0];
+  assert.doesNotMatch(fix, /\$60"|\$60[^,0-9]/);
+  assert.match(fix, /Name who owns "build a pipeline of \$600,000"|\$60,000/);
+});
+
 const POOL = ["T6", "T7", "T8", "T9", "H1", "H3", "H5", "H6", "H8", "P1", "P4", "P6", "P7", "P9", "Q1", "Q3", "Q8", "Q11", "Q13", "Q17"];
 for (const id of POOL) {
   test(`pool ${id}: clean review that quotes the plan's goal`, { skip: !POOL_OK }, async () => {

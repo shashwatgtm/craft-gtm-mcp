@@ -34,7 +34,9 @@ export function clauseCut(text: string, max: number): string {
   const head = t.slice(0, max);
   // the strongest break first: a semicolon or colon, then a dash or an opening bracket, then a comma; each must leave at least half of the room used
   for (const marks of [[';', ':'], [' - ', ' ('], [',']]) {
-    const at = Math.max(...marks.map((m) => head.lastIndexOf(m)));
+    // a comma inside a number (60,000) is not a break
+    const lastBreak = (m: string): number => { let i = head.lastIndexOf(m); while (i > 0 && m === ',' && /\d/.test(head[i - 1] ?? '') && /\d/.test(t[i + 1] ?? '')) i = head.lastIndexOf(m, i - 1); return i; };
+    const at = Math.max(...marks.map(lastBreak));
     if (at >= max * 0.5) return head.slice(0, at).trim();
   }
   return t;
