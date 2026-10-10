@@ -190,6 +190,17 @@ test("round 3: a reseller program still gets resellers, a referral program does 
   assert.doesNotMatch(ref, /resellers close/);
 });
 
+// ---- round 4 (final judge): bare names use the segments' own motion, risks and kinds in the tiers, the 90 days and the email ----
+test("round 4: the segments' buying motion is in the tiers note and the 90 day plan; the email names the kinds that already serve those clients and what they deal with", async () => {
+  const out = await text("partner_architect", { company: "Plainmove", product: "Plainmove", partner_model: "referral", partner_goals: "Partner-sourced pipeline for Plainmove among Automotive, Chemical, Food and beverage; no numeric target given", your_deal_size: "$250,000 ACV" });
+  assertClean(out, "Plainmove");
+  assert.match(out.split("## Partner tiers")[1].split("### Tier 1")[0], /manufacturing: a pilot at one plant, lane or supplier/);
+  assert.match(out.split("## The first 90 days")[1].split("## Recruitment email")[0], /Agree how a first referred account would run in manufacturing and consumer goods and food/);
+  const email = out.slice(out.indexOf("Subject:"));
+  assert.match(email, /We are looking for partners such as supply chain and logistics consultancies[^.]*that already serve clients in manufacturing and consumer goods and food/);
+  assert.match(email, /Clients in manufacturing are often dealing with a line stoppage/);
+});
+
 const POOL = ["T6", "T7", "T8", "T9", "H1", "H2", "H4", "H6", "H7", "P2", "P6", "P7", "P9", "Q3", "Q8", "Q11", "Q13", "Q14", "Q17"];
 for (const id of POOL) {
   test(`pool ${id}: clean answer that uses every input`, { skip: !POOL_OK }, async () => {

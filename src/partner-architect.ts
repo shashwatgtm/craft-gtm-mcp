@@ -201,7 +201,7 @@ ${supportAdjustments[args.partner_support_capacity ?? 'moderate'] ?? supportAdju
 
   out += `## Partner tiers
 
-Every rate, amount, deal count and fund size in the tiers and tables below is an example to replace with your own.
+Every rate, amount, deal count and fund size in the tiers and tables below is an example to replace with your own.${goalSegments.some((g) => g.motion) ? `\n\nIn your segments a partner is judged on how it runs the first account: ${goalSegments.filter((g) => g.motion).map((g) => `${g.name}: ${g.motion}`).join('; ')}. Qualify partners on that, not only on the count of referrals.` : ''}
 
 ${program.tiers.map((tier, i) => `### Tier ${i + 1}: ${tier.name}
 
@@ -243,7 +243,7 @@ Track all of them in your CRM or partner portal.
 
 - **Days 0 to 7, welcome and set up:** the partner signs the agreement, gets portal access and a digital welcome kit, and has a kickoff call (${supportCapacity === 'minimal_self_serve' ? 'top tier only' : 'where it applies'}).
 - **Days 7 to 30, enable:** ${partnerModel === 'reseller' || partnerModel === 'agency_si' ? 'certification is started or completed' : 'training materials are reviewed'}, ${partnerModel === 'integration_tech' ? 'integration development begins' : 'sales materials are in use'}${ctx.v ? `, and the partner walks through the objections buyers in ${ctx.v.name} raise: ${listAnd(ctx.v.objections.slice(0, 3).map((o) => lcFirst(o.objection)))}` : ''}. The first ${partnerModel === 'affiliate' ? 'campaign goes live' : partnerModel === 'integration_tech' ? 'API calls are made' : 'prospect is identified'}.
-- **Days 30 to 60, activate:** the first ${partnerModel === 'referral' || partnerModel === 'affiliate' ? 'referral or lead is submitted' : 'deal is registered'}, ${partnerModel === 'integration_tech' ? 'the integration goes live in the marketplace' : 'a pipeline starts to build'} and a regular cadence is set.
+- **Days 30 to 60, activate:** the first ${partnerModel === 'referral' || partnerModel === 'affiliate' ? 'referral or lead is submitted' : 'deal is registered'}, ${partnerModel === 'integration_tech' ? 'the integration goes live in the marketplace' : 'a pipeline starts to build'} and a regular cadence is set.${goalSegments.some((g) => g.motion) ? ` Agree how a first referred account would run in ${listAnd(goalSegments.filter((g) => g.motion).map((g) => g.name))}: ${goalSegments.find((g) => g.motion)!.motion} comes first.` : ''}
 - **Days 60 to 90, optimise:** the first ${partnerModel === 'affiliate' ? 'commission is paid' : 'deal closes'}, you hold a performance review and discuss the expansion plan.
 
 ## Recruitment email
@@ -253,7 +253,7 @@ Subject: ${cap1(pm)} partnership with ${company}
 
 Hello,
 
-${startsWithCompany && !label.rest ? `I am writing from ${company} to ask whether you would partner with us.` : `I am writing from ${company} about ${offerInEmail}.`}${goalClean && goalClean.length <= 240 ? ` Our goal is ${lc(goalClean)}.` : goalSegments.length ? ` We are looking for partners whose clients include ${listAnd(goalSegments.map((g) => g.name))}.` : ''}${prodKinds.some((k) => !k.fromName) ? ` ${cap1(startsWithCompany && !label.rest ? 'our product' : offerInEmail)} works with ${listAnd(prodKinds.filter((k) => !k.fromName).map((k) => k.does))}, which is the part your clients would use.` : pb && ctx.v && pb.pains[0] ? ` Many buyers in ${ctx.v.name} are dealing with ${lc(stripEnd(pb.pains[0]))}, and we think ${startsWithCompany && !label.rest ? 'our product' : offerInEmail} can help your clients with that.` : ''}${pb && ctx.v ? ` The people who decide on this are usually ${listAnd(ctx.v.buyerRoles.slice(0, 3))}.` : ''} ${({
+${startsWithCompany && !label.rest ? `I am writing from ${company} to ask whether you would partner with us.` : `I am writing from ${company} about ${offerInEmail}.`}${goalClean && goalClean.length <= 240 ? ` Our goal is ${lc(goalClean)}.` : goalSegments.length ? ` We are looking for partners whose clients include ${listAnd(goalSegments.map((g) => g.name))}.` : ''}${goalSegments.length ? ` We are looking for partners such as ${listAnd(goalSegments[0].partners.split(', ').slice(0, 2))} that already serve clients in ${listAnd(goalSegments.map((g) => g.name.replace(/public sector/, 'public bodies')))}.${goalSegments.find((g) => g.risks) ? ` Clients in ${goalSegments.find((g) => g.risks)!.name} are often dealing with ${goalSegments.find((g) => g.risks)!.risks}.` : ''}` : ''}${prodKinds.some((k) => !k.fromName) ? ` ${cap1(startsWithCompany && !label.rest ? 'our product' : offerInEmail)} works with ${listAnd(prodKinds.filter((k) => !k.fromName).map((k) => k.does))}, which is the part your clients would use.` : pb && ctx.v && pb.pains[0] ? ` Many buyers in ${ctx.v.name} are dealing with ${lc(stripEnd(pb.pains[0]))}, and we think ${startsWithCompany && !label.rest ? 'our product' : offerInEmail} can help your clients with that.` : ''}${pb && ctx.v ? ` The people who decide on this are usually ${listAnd(ctx.v.buyerRoles.slice(0, 3))}.` : ''} ${({
     reseller: 'As a partner you can grow your revenue by offering it alongside your own services.',
     referral: 'As a referral partner you would earn a fee on each closed deal, and our team would run the sale.',
     integration_tech: 'A deeper integration would add to the value of both products for the customers we share.',

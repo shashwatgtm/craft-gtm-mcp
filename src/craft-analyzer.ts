@@ -2,7 +2,7 @@ import { analyzeCRAFTDimensions, isMarketLine, type CRAFTDimension } from './uti
 import { VERTICALS, SUBTYPES, AI_SUPPORT_PROFILE, BUYER_CONTEXTS, profileFor, buyerContextFor, type Vertical } from './verticals.ts';
 import { andList, readContext, q, splitPhrases } from './context.js';
 import { answerFor } from './context.js';
-import { lc, closing, finalise, clauseCut } from './rw-gtm.js';
+import { lc, closing, finalise, clauseCut, POPULARITY } from './rw-gtm.js';
 
 // A plan line in quotes, in full when it fits and otherwise ended at a clause break (never with three dots).
 const qc = (t: string, max = 220): string => q(clauseCut(t, max));
@@ -61,11 +61,11 @@ export function generateCRAFTAnalyzer(args: {
   const ownText = content.split('\n').filter((l) => !isMarketLine(l)).join('\n');
   const buyerLine = labelled.find((x) => /^buyer(?:s| roles?)?$/i.test(x.label));
   const matters: Array<{ title: string; detail: string }> = [];
-  if (analysis.character.found.length === 0) matters.push({ title: 'Nobody on your side is named to run the plan', detail: `${buyerLine ? `The line ${qc(`${buyerLine.label}: ${buyerLine.text}`, 140)} names the customer's roles, which are not owners. ` : ''}Name who owns the goal and who does each piece of the work.` });
+  if (analysis.character.found.length === 0) matters.push({ title: 'Nobody on your side is named to run the plan', detail: `${buyerLine ? `The line ${qc(`${buyerLine.label}: ${buyerLine.text}`, 140)} names the customer's roles, which are not owners. ` : ''}Name who owns ${planGoal ? qc(planGoal.text, 110) : 'the goal'} and who does each piece of the work.` });
   if (!/\b(email|e-mail|linkedin|outbound|inbound|webinars?|events?|conferences?|roundtables?|partners?|referrals?|paid|ads|seo|abm|account-based|sdrs?|cold|calls?|social|community|press|field|direct|content|newsletter)\b/i.test(ownText)) matters.push({ title: 'No channel is named', detail: 'Say where the first conversations come from (outbound, events, partners, referrals, paid, content), and who is reached first.' });
   const hasNumberGoal = planGoal && /\d/.test(planGoal.text);
   if (hasNumberGoal && !/\b(win rate|close rate|conversion|meetings?|opportunit\w*|funnel|demos?|mqls?|sqls?|stage)\b/i.test(ownText.replace(planGoal!.text, ''))) matters.push({ title: 'The goal is not traced to activity', detail: `${qc(planGoal!.text, 150)} is a result, but no win rate, meeting count or stage conversion is stated, so it cannot be traced back to the work that would produce it. Work backwards from the goal: deals needed, opportunities needed, meetings needed.` });
-  if (analysis.timeline.found.length === 0) matters.push({ title: 'No dates', detail: `${/\bnext quarter\b/i.test(ownText) ? 'The plan says "next quarter" but gives no date or duration' : analysis.timelineWords.length ? `Only the words ${andList(analysis.timelineWords.slice(0, 3).map((w) => q(w)))} appear` : 'No period or date appears'}. Put a date on the first meeting, the pilot or first delivery, and the review.` });
+  if (analysis.timeline.found.length === 0) matters.push({ title: 'No dates', detail: `${/\bnext quarter\b/i.test(ownText) ? 'The plan says "next quarter" but gives no date or duration' : analysis.timelineWords.length ? `Only the words ${andList(analysis.timelineWords.slice(0, 3).map((w) => q(w)))} appear` : 'No period or date appears'}.${planGoal ? ` The goal ${qc(planGoal.text, 110)} has no end date: say by when it must be won, and put a date on the first meeting, the pilot or first delivery, and the review.` : ' Put a date on the first meeting, the pilot or first delivery, and the review.'}` });
   if (!analysis.frame.groupsFound.includes('a budget or resources')) matters.push({ title: 'No budget or headcount', detail: 'State what money and people the plan has, so the goal can be checked against what it costs.' });
   if (!/\b(weekly|monthly|fortnightly|review|check-?in|cadence|stand-?up|steering)\b/i.test(ownText)) matters.push({ title: 'No review rhythm', detail: 'Say when the plan is reviewed and by whom, and which number is looked at first.' });
   if (analysis.artifact.found.length === 0) matters.push({ title: 'No deliverables', detail: 'List what gets made (deck, one-pager, email sequence, event, case study) and who makes it.' });
@@ -144,6 +144,18 @@ ${verdict} The scores come from a keyword check of the lines that describe your 
       fixes.push({ title: `${x.name} is partly covered`, detail: `The plan has ${andList(x.d.groupsFound.length ? x.d.groupsFound : ['little'])}; it does not have ${andList(x.d.groupsMissing)}.`, score: x.d.score, dim: x.name });
     }
   }
+  // the Frame score counts the Audience and Buyer lines: said next to the first fix that asks for what those lines do not hold
+  if (analysis.frame.score >= 4) {
+    const f = fixes.find((x) => x.title === 'No channel is named') ?? fixes.find((x) => x.title === 'No budget or headcount');
+    if (f) f.detail += ` (Frame ${analysis.frame.score}/10 counts your Audience and Buyer lines, not a channel or a budget.)`;
+  }
+  // a proof line made of company facts (funding, users, awards) is not a result a buyer can weigh
+  const proofLine = labelled.filter((x) => /^(?:proof|references?|testimonials?|case stud\w*)$/i.test(x.label)).find((x) => POPULARITY.test(x.text) || /\b(?:series [a-e]|raised|funding|leader|gartner|g2)\b/i.test(x.text));
+  if (proofLine) fixes.push({ title: 'The proof is a company fact, not a result.', detail: `The line ${qc(`${proofLine.label}: ${proofLine.text}`, 170)} gives facts about the company. A buyer weighs a customer's result with a number and where it came from: add one before the plan goes out.`, score: analysis.frame.score, dim: 'Frame' });
+  // an audience of many groups against a goal that names one
+  const audienceItems = planAudience ? planAudience.text.split(/,|\band\b/).map((x) => x.trim()).filter(Boolean) : [];
+  const goalFrom = planGoal ? (planGoal.text.match(/\bfrom ([^,.;]+)/i) || [])[1] : '';
+  if (goalFrom && audienceItems.length >= 5) fixes.push({ title: 'The audience is wider than the goal.', detail: `The Audience line lists ${audienceItems.length} groups, but the goal comes from ${q(goalFrom.trim())}: say which group is first and why, so the plan is not read as aimed at everyone.`, score: analysis.frame.score, dim: 'Frame' });
   fixes.sort((a, b) => a.score - b.score);
   output += `## What to fix first\n\n${fixes.length ? fixes.map((f, i) => `${i + 1}. **${f.title}.** (${f.dim} ${f.score}/10) ${f.detail}`).join('\n') : 'This check finds no structural gap. Read the plan once for sense before you send it.'}\n\n`;
 

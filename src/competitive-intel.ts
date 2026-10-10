@@ -162,7 +162,15 @@ export function generateCompetitiveIntel(args: {
   business_model?: string;
   industry?: string;
 }): string {
-  const competitorsRaw = splitTopLevel(args.competitors, false);
+  // an item that opens with a one or two word fragment and a semicolon or comma ("periodic; one-size-fits-all phishing simulations") continues the item before it
+  const competitorsRaw = (() => {
+    const out: string[] = [];
+    for (const c of splitTopLevel(args.competitors, false)) {
+      if (out.length && isDescription(c) && /^[a-z][\w-]*(?:\s[\w-]+)?;\s+\S/.test(c)) out[out.length - 1] += `, ${c.replace(/^([\w-]+(?:\s[\w-]+)?);\s+/, '$1, ')}`;
+      else out.push(c);
+    }
+    return out;
+  })();
   const wins = splitItems(args.recent_wins);
   const losses = splitItems(args.recent_losses);
   const objections = args.common_objections ? splitObjections(args.common_objections) : [];
@@ -329,7 +337,7 @@ export function generateCompetitiveIntel(args: {
       timing: ['Find the event that makes it urgent for you (a renewal, an audit, a season or a target) and plan back from it.', 'Work back from the date that matters to you and see what has to start when.'],
       risk: ['I would suggest we agree in writing what success looks like before anything is signed.', 'A small first step with success criteria written down limits your exposure.'],
     };
-    const setupQ = /\b(how long|how quickly|how fast|take to)\b/.test(o);
+    const setupQ = /\b(how long|how quickly|how fast|take to|get(?:ting)? started|how easy)\b/.test(o);
     const REDIRECTS: Record<ObjKind, string[]> = {
       price: ['What would it cost your team to leave this problem unsolved?', 'If the problem stays as it is for another year, what does that cost you?', 'What is the problem costing you each quarter today?'],
       comparison: ['What matters most to you in making this decision?', 'Which of the options on your list worries you most, and why?', 'What would make you choose one option over another?'],
@@ -341,20 +349,29 @@ export function generateCompetitiveIntel(args: {
     };
     const redirect = pick(REDIRECTS[kind], `What would settle ${quoted} for you?`);
     const rest = objection.replace(/^\s*(?:does|do|can|is|are|will|how|why|what|which)\s+/i, '').replace(/[?]+$/, '');
-    const need = /^\s*how (?:long|quickly|fast)\b|\btake to\b/i.test(objection) ? 'the real elapsed time from signature to go-live for a customer like this buyer, and the case it was measured on'
+    const need = /^\s*(?:why|how)\b/i.test(o) && /\b(charges?|rates?|fees?)\b/i.test(o) && !/\b(compared?|cheaper|better|than)\b/i.test(o) ? 'the rule that sets the charge, in your own words, with one worked example'
+      : /^\s*what happens (?:if|when)\b/i.test(o) ? 'what happens at each step for that exact case, who does it and how long it takes'
+      : /^\s*how (?:long|quickly|fast)\b|\btake to\b/i.test(objection) ? 'the real elapsed time from signature to go-live for a customer like this buyer, and the case it was measured on'
       : /\b(differ\w*|different)\b|^\s*why\b/i.test(objection) ? 'two or three concrete differences a buyer can check for themselves, in your own words'
       : /^\s*(?:does|do|can|is|are|will)\b/i.test(objection) ? 'a yes or no to this exact question, with any limits and the date it applies from'
+      : /^\s*(?:why|how)\b/i.test(o) && /\b(charges?|rates?|fees?)\b/i.test(o) ? 'the rule that sets the charge, in your own words, with one worked example'
       : /\b(price|cost|expensive|budget|cheap\w*)\b/i.test(o) ? 'the price or range you can quote and what it includes'
       : /\b(easy|easily|get(?:ting)? started|onboard\w*)\b/i.test(o) ? 'the steps a new customer follows to get started, who does what, and how long it takes'
       : 'the specific fact that settles it';
     const pattern = answerFor(objection, v);
     // an approach that starts with a verb a seller can say ("Explain how weight is declared") is also what the seller says: "Let me explain how weight is declared"
     const spoken = /^(Explain|Show|Offer|Compare|Name|Map|State)\b/.test(pattern) ? `Let me ${pattern.charAt(0).toLowerCase()}${pattern.slice(1)}` : '';
-    const explainSpoken = kind === 'explain' && spoken && !explainLine ? pick([spoken]) : '';
+    const explainSpoken = kind === 'explain' && spoken && !explainLine ? pick([/^Explain\s+/.test(pattern) ? `Here is what I would walk you through: ${pattern.replace(/^Explain\s+/, '').replace(/[.]$/, '')}.` : spoken]) : '';
+    // the usual pattern of answer for a question with no fact behind it, in a sentence the rep can adapt
+    const KIND_PATTERN = /\b(get(?:ting)? started|how easy|onboard\w*|set ?up|how long)\b/.test(o) ? 'Name the first steps a new customer takes, who does each and how long each takes, and offer one team to start with.'
+      : /^\s*what happens (?:if|when)\b/.test(o) ? 'Walk through one real case from start to finish, and say who does what at each step.'
+      : kind === 'explain' && /\b(pricing|price|cost)\b/.test(o) ? 'Show what each plan includes and what changes the price, then compare it with what the problem costs the buyer today.' : '';
+    const usual = /^Ask what lies behind it/.test(pattern) ? KIND_PATTERN : pattern;
+    const usualLine = usual && !explainSpoken && !explainLine && !useful.length && !counterFor[kind] && !(kind === 'comparison' && weakLine0) ? pick([`Until then, I would suggest we ${lc(usual.replace(/[.]$/, ''))}.`]) : '';
     // an objection the sector data has no approach for gets, once, the proof that settles questions of this kind in the sector
-    let approach = /^Ask what lies behind it/.test(pattern) ? '' : pattern;
+    let approach = /^Ask what lies behind it/.test(pattern) ? KIND_PATTERN : pattern;
     if (!approach && v && !proofUsed && (kind === 'capability' || kind === 'other') && !explainLine) { approach = `The proof that settles this in ${v.name}: ${lc(stripEnd(v.proofShape))}.`; proofUsed = true; }
-    return { approach, say: (explainSpoken ? [pick(ACK[kind], `On ${quoted}, here is how I see it.`), explainSpoken, redirect] : kind === 'comparison' && weakLine ? [pick(ACK[kind], `On ${quoted}, here is how I see it.`), weakLine, evidence, redirect] : [pick(ACK[kind], `On ${quoted}, here is how I see it.`), pick(COUNTER[kind]), evidence, weakLine, redirect]).filter(Boolean).join(' '), need, hasEvidence: useful.length > 0 || !!counterFor[kind] || !!explainLine || !!explainSpoken || (kind === 'comparison' && weakLine0) };
+    return { approach, say: (explainSpoken ? [pick(ACK[kind], `On ${quoted}, here is how I see it.`), explainSpoken, redirect] : kind === 'comparison' && weakLine ? [pick(ACK[kind], `On ${quoted}, here is how I see it.`), weakLine, evidence, redirect] : [pick(ACK[kind], `On ${quoted}, here is how I see it.`), pick(COUNTER[kind]), evidence, usualLine, weakLine, redirect]).filter(Boolean).join(' '), need, hasEvidence: useful.length > 0 || !!counterFor[kind] || !!explainLine || (!!explainSpoken && !/\b(charges?|rates?|fees?)\b/.test(o)) || (kind === 'comparison' && weakLine0) };
   };
 
   // ---- the answer ----
@@ -400,7 +417,7 @@ The alternatives you named: ${comps.map((c) => (c.desc ? c.ref : c.name)).join('
       const core = noteParts(d).core;
       if (usedWeakQ.has(d)) continue;
       usedWeakQ.add(d);
-      if (core.length <= 60) qs.push(isClause(core) ? `How often does it happen that ${lowerFirstIfCommon(core)}? When did it last happen, and how did it show up in ${metric}?` : `Does this affect you today: ${lowerFirstIfCommon(core)}? If so, how does it show up in ${metric}?`);
+      if (core.length <= 60) qs.push(isClause(core) ? `How often does it happen that ${lowerFirstIfCommon(core)}? When did it last happen, and how did it show up in ${metric}?` : `How do you handle ${lowerFirstIfCommon(core)} today, and what does it cost you each quarter?`);
       else {
         // a long note is not echoed: the sector's own question that touches it, else what the alternative cost
         const near = disc.find((x) => !usedQ.has(x) && !qs.includes(x) && related(x, core));
@@ -419,13 +436,22 @@ The alternatives you named: ${comps.map((c) => (c.desc ? c.ref : c.name)).join('
 
   out += `## Objection handlers\n\n`;
   const needs: Array<[string, string]> = [];
-  if (objections.length === 0) out += `You listed no objections, so the section below holds the ones your sector raises.\n\n`;
+  if (objections.length === 0) {
+    out += `You listed no objections, so the section below holds the one each alternative is likely to raise and the ones your sector raises.\n\n`;
+    comps.slice(0, 2).forEach((c, i) => {
+      const lead = leadFor(c, i);
+      const w = c.weak[0] ? noteParts(c.weak[0]) : null;
+      if (!lead.length && !w) return;
+      const weakSay = w ? (w.who ? `Against ${c.ref}, in ${w.who}: ${w.core}.` : `Against ${c.ref} we have seen ${isClause(w.core) ? 'that ' : ''}${lowerFirstIfCommon(w.core)}.`) : '';
+      out += `### If the buyer says "We already use ${c.ref}"\n\n**What to say:**\n\n> "${[pick(['Many teams start there, and it is worth comparing properly.', 'That is a common place to start from.']), weakSay, lead.length ? `What answers it is: ${sayList(lead.slice(0, 2))}.` : '', pick(['What would make you change what you use today?', 'What would you need to see to change what you use today?'])].filter(Boolean).join(' ')}"\n\n`;
+    });
+  }
   objections.forEach((obj) => {
     const h = handleObjection(obj);
     out += `### "${stripEnd(obj)}"\n\n`;
     if (h.approach) out += `**Approach:** ${h.approach}\n\n`;
     out += `**What to say:**\n\n> "${h.say}"\n\n`;
-    if (!h.hasEvidence) needs.push([`a fact that answers "${stripEnd(obj)}": ${h.need}`, 'this answer, which now promises to confirm instead of showing evidence']);
+    if (!h.hasEvidence) needs.push([`a fact that answers "${stripEnd(obj)}": ${h.need}`, 'this answer, which now gives a pattern of answer instead of a fact']);
   });
   const missingObjections = v ? v.objections.filter((o) => !objections.some((u) => words(u).filter((w) => words(o.objection).includes(w)).length >= 1)).slice(0, 3) : [];
   if (missingObjections.length) out += `### Objections ${v!.name} buyers often raise that you did not list\n\n${missingObjections.map((o) => `- **${o.objection}:** ${o.response}`).join('\n')}\n\n`;

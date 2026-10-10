@@ -133,7 +133,7 @@ test("round 2: the product's own part (real devices with a count) is set against
 });
 test("round 2: a weak point is asked as a clean sentence: a clause with 'how often does it happen that', a noun phrase with 'does this affect you today'", async () => {
   const out = await text("competitive_intel", BS);
-  assert.match(out, /Does this affect you today: costly physical devices\? If so, how does it show up in /);
+  assert.match(out, /How do you handle costly physical devices today, and what does it cost you each quarter\?/);
   assert.match(out, /Which tools are in the pipeline today|What did browser developer tools and emulators cost you over the last quarter/);   // a long note is not echoed
   const clauseQ = await text("competitive_intel", { your_product: "Ledgerline billing platform", competitors: "manual spreadsheets kept by finance teams, legacy billing systems", your_strengths: "supports usage pricing", competitor_details: "spreadsheets break when pricing changes; legacy billing systems take months to implement" });
   assert.match(clauseQ, /How often does it happen that spreadsheets break when pricing changes\? When did it last happen/);
@@ -209,9 +209,44 @@ test("round 3: a delay objection gets the proof that settles it, not a bare coun
   assert.match(delay, /delivery time by pin code/i);
   const vary = out.split('### "Why do shipping charges vary by destination and weight?"')[1].split("###")[0];
   assert.doesNotMatch(vary, /budget matters|cost your team to leave/);
-  assert.match(vary, /Let me explain how weight is declared and checked/);
+  assert.match(vary, /how weight is declared and checked/);
   const pricing = out.split('### "How does Shipwell pricing work?"')[1].split("###")[0];
   assert.doesNotMatch(pricing, /budget matters/);
+});
+
+// ---- round 4 (final judge) ----
+test("round 4: a description split by commas into fragments (\"periodic; one-size-fits-all ...\") is one card, not three", async () => {
+  const out = await text("competitive_intel", PG);
+  const cards = out.split(/\n(?=## Against )/).slice(1);
+  assert.equal(cards.length, 2, "two cards: the legacy tools with the periodic simulations, and the hand built campaigns");
+  assert.match(cards[0], /periodic, one-size-fits-all phishing simulations/);
+});
+test("round 4: an objection with no fact gets the sector-free pattern of answer in a sentence the rep can adapt, not only a promise to confirm", async () => {
+  const out = await text("competitive_intel", { ...SW, common_objections: "How easy is it to get started with Shipwell?, What happens if an order is undelivered or marked RTO?" });
+  const start = out.split('### "How easy is it to get started with Shipwell?"')[1].split("###")[0];
+  assert.match(start, /I would suggest we name the first steps a new customer takes, who does each and how long each takes/);
+  const rto = out.split('### "What happens if an order is undelivered or marked RTO?"')[1].split("###")[0];
+  assert.match(rto, /I would suggest we walk through one real case from start to finish/);
+  assert.match(start, /Until then, I would suggest we name the first steps/);   // the confirmation stays, the pattern follows it
+  assert.match(closingOf(out), /which now gives a pattern of answer instead of a fact/);
+});
+test("round 4: 'why do charges vary' says what the rep will walk through, and asks for the rule that sets the charge", async () => {
+  const out = await text("competitive_intel", SW);
+  const vary = out.split('### "Why do shipping charges vary by destination and weight?"')[1].split("###")[0];
+  assert.match(vary, /Here is what I would walk you through: how weight is declared and checked, and how a disputed charge is raised/);
+  assert.doesNotMatch(vary, /Let me explain/);
+  assert.match(closingOf(out), /a fact that answers "Why do shipping charges vary by destination and weight\?": the rule that sets the charge/);
+});
+test("round 4: with no objections given, the likely 'we already use X' objection of each alternative is answered from the user's notes and parts", async () => {
+  const out = await text("competitive_intel", BS);
+  assert.match(out, /### If the buyer says "We already use buying and maintaining physical devices"/);
+  const block = out.split('### If the buyer says "We already use buying and maintaining physical devices"')[1].split("###")[0];
+  assert.match(block, /costly physical devices/);
+  assert.match(block, /real devices \(35,000\+\)/);
+});
+test("round 4: a weak point is asked as a question that tests it ('how do you handle X today and what does it cost')", async () => {
+  const out = await text("competitive_intel", BS);
+  assert.match(out, /How do you handle costly physical devices today, and what does it cost you each quarter\?/);
 });
 
 // ---- the pool scenarios (private) ----
