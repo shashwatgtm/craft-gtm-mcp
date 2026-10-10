@@ -54,7 +54,7 @@ export function productLabel(product: string, company?: string): ProductLabel {
   if (co && whole.toLowerCase().startsWith(co.toLowerCase()) && (whole.length === co.length || /[\s,:\-\u2013]/.test(whole.charAt(co.length)))) {
     return { name: co, rest: whole.slice(co.length).replace(/^[\s,:\-\u2013]+/, ''), whole };
   }
-  // a name followed by a bracket: "Gnani.ai Voice AI platform (voice agents, analytics ...)"
+  // a name followed by a bracket: "Voxa.ai Voice AI platform (voice agents, analytics ...)"
   const br = whole.indexOf('(');
   if (br > 0) {
     const before = whole.slice(0, br).trim();
