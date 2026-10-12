@@ -95,7 +95,10 @@ for (const t of TOOLS) {
           const r = await call(t.name, { ...BASE[t.name], [field]: hostile });
           checkSafe(r.text, label);
           assert.doesNotMatch(r.text, /PWNED-7731(?![^“]*”)/, label + ": instruction text not quoted");
-          if (echoed && !r.isError) assert.ok(r.text.includes(words), label + ": the user's words are missing: " + words);
+          // Run 30D: the production text rule lowers the first letter of a phrase the tool reuses mid-sentence, so the words count
+          // as kept with that one letter lowered too.
+          const kept = r.text.includes(words) || r.text.includes(words[0].toLowerCase() + words.slice(1));
+          if (echoed && !r.isError) assert.ok(kept, label + ": the user's words are missing: " + words);
         }
       }
     });
