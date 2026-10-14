@@ -56,7 +56,9 @@ test("F010: an ordinary churn rate is read as before", async () => {
 const CI = { your_product: "our route planner", competitors: "Competitor A, Competitor B", your_weaknesses: "smaller partner network", common_objections: "too expensive" };
 
 test("F011: a negated win reason never becomes a strength it denies", async () => {
-  for (const win of ["support was not needed", "no support team involved", "they never contacted our service desk", "the team did not matter"]) {
+  for (const win of ["support was not needed", "no support team involved", "they never contacted our service desk", "the team did not matter",
+    // round 2 (run 32D auditor)
+    "support was unnecessary", "didnt need support", "hardly any support needed", "lack of support calls", "zero support tickets in the pilot"]) {
     const r = await call("competitive_intel", { ...CI, recent_wins: win, recent_losses: "price" });
     assert.equal(r.isError, false, r.text.slice(0, 300));
     assert.doesNotMatch(r.text, /Superior customer support/, `negated win read as support strength: ${win}`);
@@ -71,7 +73,7 @@ test("F011: an ordinary support win is still read as a support strength", async 
 const LC = { product_feature: "our route planner", launch_type: "feature_launch", target_segments: "regional carriers, 3PL operators", goals: "40 qualified meetings" };
 
 test("F012: an impossible calendar date is refused, never rolled over", async () => {
-  for (const d of ["2027-02-30", "2027-02-29", "2027-04-31", "2027-13-01", "February 30, 2027", "30 February 2027", "02/30/2027"]) {
+  for (const d of ["2027-02-30", "2027-02-29", "2027-04-31", "2027-13-01", "February 30, 2027", "30 February 2027", "02/30/2027", "Launch on 2027-02-30", "around 2027-04-31 if possible"]) {
     const r = await call("launch_commander", { ...LC, launch_date: d });
     assert.doesNotMatch(r.text, /March 2027|Mar 2027|2 March|1 May 2027|May 1, 2027|January 2028/, `rolled over: ${d}`);
     assert.match(r.text, /not a real calendar date|not a valid date/i, `not refused: ${d}`);
