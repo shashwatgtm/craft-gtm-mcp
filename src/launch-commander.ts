@@ -24,9 +24,10 @@ function monthOf(name: string): number {
   return i < 0 || !MONTH_NAMES[i].toLowerCase().startsWith(name.toLowerCase()) ? 0 : i + 1;
 }
 function impossibleDate(s: string): string | null {
-  let m = s.match(/^\s*(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})(?![\d])/);
+  // anywhere in the text ("Launch on 2027-02-30"), not only at its start (run 32D round 2)
+  let m = s.match(/(?<![\d/.-])(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})(?![\d])/);
   if (m) return realDay(+m[1], +m[2], +m[3]);
-  m = s.match(/^\s*(\d{1,2})\/(\d{1,2})\/(\d{4})\s*$/);
+  m = s.match(/(?<![\d/.-])(\d{1,2})\/(\d{1,2})\/(\d{4})(?![\d])/);
   if (m) {
     // month first (how the date parser reads it) or day first: refused only when neither reading is a real date
     const mdy = realDay(+m[3], +m[1], +m[2]);

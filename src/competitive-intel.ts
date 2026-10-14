@@ -267,7 +267,7 @@ ${objections.length > 0 ? objections.slice(0, 3).map((o, i) => `${i + 1}. "${o}"
 // Extract strength from a win reason
 // Run 32D (Codex F011): a win reason that denies something ("support was not needed", "no support team involved") is kept
 // in the user's own words, never turned into the strength it denies.
-const NEGATED = /\b(?:not|no(?!-)|never|without|nothing|none|neither|nor)\b|n['’]t\b/;
+const NEGATED = /\b(?:not|no(?!-)|never|without|nothing|none|neither|nor|unnecessary|unneeded|hardly|barely|zero|lack|lacked|lacking|didnt|doesnt|wasnt|werent|isnt|dont)\b|n['’]t\b/;
 function extractStrengthFromWin(win: string): string {
   const winLower = win.toLowerCase();
 
