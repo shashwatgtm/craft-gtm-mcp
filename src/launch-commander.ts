@@ -9,12 +9,47 @@ interface Phase {
   tasks: string[];
 }
 
+// Run 32D (Codex F012): a date whose day does not exist in its month (2027-02-30, 30 February 2027) or whose month does not
+// exist (2027-13-01) is refused, never rolled over to another date. Returns the reason, or null for any other input.
+const MONTHS = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+function realDay(y: number, m: number, d: number): string | null {
+  if (m < 1 || m > 12) return `there is no month ${m}`;
+  const days = new Date(Date.UTC(y, m, 0)).getUTCDate();
+  if (d < 1 || d > days) return `${MONTH_NAMES[m - 1]} ${y} has ${days} days`;
+  return null;
+}
+function monthOf(name: string): number {
+  const i = MONTHS.indexOf(name.slice(0, 3).toLowerCase());
+  return i < 0 || !MONTH_NAMES[i].toLowerCase().startsWith(name.toLowerCase()) ? 0 : i + 1;
+}
+function impossibleDate(s: string): string | null {
+  let m = s.match(/^\s*(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})(?![\d])/);
+  if (m) return realDay(+m[1], +m[2], +m[3]);
+  m = s.match(/^\s*(\d{1,2})\/(\d{1,2})\/(\d{4})\s*$/);
+  if (m) {
+    // month first (how the date parser reads it) or day first: refused only when neither reading is a real date
+    const mdy = realDay(+m[3], +m[1], +m[2]);
+    const dmy = realDay(+m[3], +m[2], +m[1]);
+    return mdy && dmy ? mdy : null;
+  }
+  m = s.match(/\b([A-Za-z]{3,9})\.?\s+(\d{1,2})(?:st|nd|rd|th)?,?\s+(\d{4})\b/);
+  if (m && monthOf(m[1])) return realDay(+m[3], monthOf(m[1]), +m[2]);
+  m = s.match(/\b(\d{1,2})(?:st|nd|rd|th)?\s+([A-Za-z]{3,9})\.?,?\s+(\d{4})\b/);
+  if (m && monthOf(m[2])) return realDay(+m[3], monthOf(m[2]), +m[1]);
+  return null;
+}
+
 // Parse flexible date formats
 function parseLaunchDate(dateInput?: string): { date: Date | null; isFlexible: boolean; displayDate: string } {
   if (!dateInput || dateInput.toLowerCase() === 'tbd') {
     return { date: null, isFlexible: true, displayDate: 'TBD (To Be Determined)' };
   }
-  
+  const impossible = impossibleDate(dateInput);
+  if (impossible) {
+    throw new Error(`launch_date "${dateInput}" is not a real calendar date (${impossible}). Use a real date such as 2027-06-15, a month such as June 2027, a quarter such as Q3 2027, or TBD.`);
+  }
+
   // Check for quarter format: Q1 2025, Q2 2025, etc.
   const quarterMatch = dateInput.match(/Q([1-4])\s*(\d{4})/i);
   if (quarterMatch) {

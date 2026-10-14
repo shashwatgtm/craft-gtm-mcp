@@ -11,7 +11,7 @@ import {
 } from "@modelcontextprotocol/sdk/types.js";
 
 import { tools } from "./tools.js";
-import { neutraliseDeep } from "./echo-safe.js";
+import { neutraliseDeep, neutraliseText, neutraliseAnswer } from "./echo-safe.js";
 import { generatePMFScorecard } from "./pmf-scorecard.js";
 import { generateLaunchCommander } from "./launch-commander.js";
 import { generateCustomerInterviewKit } from "./interview-kit.js";
@@ -100,7 +100,8 @@ function checkRequiredInputs(
 ): string | null {
   const tool = tools.find((t) => t.name === name);
   if (!tool) {
-    return `Unknown tool: ${name}. Available tools: ${tools.map((t) => t.name).join(", ")}.`;
+    // Run 32D (30D-1): the name the caller sent is made inert before it is repeated.
+    return `Unknown tool: ${neutraliseText(String(name))}. Available tools: ${tools.map((t) => t.name).join(", ")}.`;
   }
   const required = ((tool.inputSchema as { required?: string[] }).required ?? []) as string[];
   // Run 16 R16-10 (rule B52): a required text (a string with no fixed list of choices) that is empty or only whitespace counts as missing.
@@ -161,7 +162,7 @@ export function createServer(): Server {
 
     const problem = checkRequiredInputs(name, args as Record<string, unknown> | undefined);
     if (problem) {
-      return { content: [{ type: "text", text: problem }], isError: true };
+      return { content: [{ type: "text", text: neutraliseAnswer(problem) }], isError: true };
     }
 
     try {
@@ -193,14 +194,15 @@ export function createServer(): Server {
           result = generateCRAFTAnalyzer(args as Parameters<typeof generateCRAFTAnalyzer>[0]);
           break;
         default:
-          throw new Error(`Unknown tool: ${name}`);
+          throw new Error(`Unknown tool: ${neutraliseText(String(name))}`);
       }
 
+      // Run 32D (30D-5): the finished answer is made inert again where the tool joined two inert pieces into markup.
       return {
         content: [
           {
             type: "text",
-            text: result,
+            text: neutraliseAnswer(result),
           },
         ],
       };
@@ -210,7 +212,7 @@ export function createServer(): Server {
         content: [
           {
             type: "text",
-            text: `Error executing ${name}: ${errorMessage}`,
+            text: neutraliseAnswer(`Error executing ${name}: ${errorMessage}`),
           },
         ],
         isError: true,

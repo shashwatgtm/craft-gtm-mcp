@@ -15,11 +15,20 @@ export function generateRetentionPlaybook(args: {
   const dataSignals = args.available_data_signals ? parseListItems(args.available_data_signals) : [];
   
   // Parse churn rate
+  // Run 32D (Codex F010): a minus sign written right before the number is kept ("-2% net"), and a churn rate with no
+  // number in it is missing (null), never 0% HEALTHY.
   const churnMatch = args.current_churn_rate.match(/(\d+(?:\.\d+)?)/);
-  const churnRate = churnMatch ? parseFloat(churnMatch[1]) : 0;
-  
+  let churnRate: number | null = null;
+  if (churnMatch) {
+    const at = churnMatch.index ?? 0;
+    const text = args.current_churn_rate;
+    const minus = at > 0 && /[-−]/.test(text[at - 1]) && (at === 1 || !/[\w.%]/.test(text[at - 2]));
+    churnRate = parseFloat(churnMatch[1]) * (minus ? -1 : 1);
+  }
+
   // Determine severity
-  const churnSeverity = churnRate > 8 ? 'CRITICAL' : churnRate > 5 ? 'HIGH' : churnRate > 3 ? 'MODERATE' : 'HEALTHY';
+  const churnSeverity = churnRate === null ? 'NOT GIVEN' : churnRate > 8 ? 'CRITICAL' : churnRate > 5 ? 'HIGH' : churnRate > 3 ? 'MODERATE' : 'HEALTHY';
+  const churnShown = churnRate === null ? 'not given' : `${churnRate}%`;
   // CS team size as shown to the user (readable, and marked when it is the assumed default)
   const csTeamShown = describeChoice(args.cs_team_size, csTeamSize);
 
@@ -118,7 +127,7 @@ export function generateRetentionPlaybook(args: {
 ## ${cap(lowerFirstIfCommon(args.customer_segment))}
 
 **Business Model:** ${readableChoice(businessModel)}
-**Current Churn Rate:** ${args.current_churn_rate} (${churnSeverity}, judged against example benchmarks)
+**Current Churn Rate:** ${args.current_churn_rate} (${churnRate === null ? 'no churn rate number given, so no severity is judged' : `${churnSeverity}, judged against example benchmarks`})
 **CS Team Capacity:** ${csTeamShown}
 
 ---
@@ -127,8 +136,8 @@ export function generateRetentionPlaybook(args: {
 
 | Metric | Value | Status (against example benchmarks) |
 |--------|-------|--------|
-| Monthly Churn | ${churnRate}% | ${churnSeverity} |
-| Annual Revenue at Risk (your monthly churn, annualized) | ~${(churnRate * 12).toFixed(0)}% (monthly churn times twelve, not compounded) | ${churnRate * 12 > 50 ? 'Urgent' : 'Monitor'} |
+| Monthly Churn | ${churnShown} | ${churnSeverity} |
+| Annual Revenue at Risk (your monthly churn, annualized) | ${churnRate === null ? 'not given (add your monthly churn rate)' : `~${(churnRate * 12).toFixed(0)}% (monthly churn times twelve, not compounded)${churnRate < 0 ? '; a negative churn rate means net expansion, so no revenue is at risk from churn' : ''}`} | ${churnRate === null ? '-' : churnRate * 12 > 50 ? 'Urgent' : 'Monitor'} |
 | Benchmark (${readableChoice(businessModel)}) | ${businessModel === 'saas_subscription' ? '3-5%' : businessModel === 'consumer' ? '5-8%' : '4-6%'} ${EXAMPLE_FIGURE} | - |
 
 ---
@@ -218,7 +227,7 @@ ${EXAMPLE_FIGURES} The allocation is a starting split for this team size.
 
 | Metric | Target (${EXAMPLE_FIGURES.replace(/\.$/, '')}) | Current | Tracking |
 |--------|--------|---------|----------|
-| Monthly Churn Rate | <${businessModel === 'saas_subscription' ? '3' : '5'}% | ${churnRate}% | Billing system |
+| Monthly Churn Rate | <${businessModel === 'saas_subscription' ? '3' : '5'}% | ${churnShown} | Billing system |
 | Health Score Coverage | 100% | - | CS platform |
 | Intervention Response Rate | >50% | - | Email/call tracking |
 | Save Rate (at-risk to retained) | >30% | - | CS platform |
@@ -238,7 +247,7 @@ ${SUGGESTION_FOOTER}`;
 function generateChurnDiscoveryKit(
   segment: string,
   businessModel: string,
-  churnRate: number,
+  churnRate: number | null,
   severity: string,
   csTeamShown: string
 ): string {
@@ -259,7 +268,7 @@ function generateChurnDiscoveryKit(
 
 | Metric | Value | Assessment (against example benchmarks) |
 |--------|-------|------------|
-| **Churn Rate** | ${churnRate}% | ${severity} |
+| **Churn Rate** | ${churnRate === null ? 'not given' : `${churnRate}%`} | ${severity} |
 | **Business Model** | ${readableChoice(businessModel)} | |
 | **CS Team** | ${csTeamShown} | |
 
