@@ -1,4 +1,5 @@
 import { analyzeCRAFTDimensions } from './utils.js';
+import { dropLoneBackslash } from './escape-inputs.js';
 
 export function generateCRAFTAnalyzer(args: {
   document_content: string;
@@ -265,7 +266,7 @@ ${analysis.timeline.gaps.length > 0 ? `\n**Recommended improvement:**\n${generat
 ## Document Excerpt Analyzed
 
 \`\`\`
-${content.substring(0, 500)}${content.length > 500 ? '...\n\n[Document continues: ' + (content.length - 500) + ' more characters]' : ''}
+${dropLoneBackslash(content.substring(0, 500))}${content.length > 500 ? '...\n\n[Document continues: ' + (content.length - 500) + ' more characters]' : ''}
 \`\`\`
 
 ---

@@ -11,7 +11,7 @@ import {
 } from "@modelcontextprotocol/sdk/types.js";
 
 import { tools } from "./tools.js";
-import { cleanDeep, escapeDeep } from "./escape-inputs.js";
+import { cleanDeep, escapeDeep, escapeText } from "./escape-inputs.js";
 import { generatePMFScorecard } from "./pmf-scorecard.js";
 import { generateLaunchCommander } from "./launch-commander.js";
 import { generateCustomerInterviewKit } from "./interview-kit.js";
@@ -100,7 +100,7 @@ function checkRequiredInputs(
 ): string | null {
   const tool = tools.find((t) => t.name === name);
   if (!tool) {
-    return `Unknown tool: ${name}. Available tools: ${tools.map((t) => t.name).join(", ")}.`;
+    return `Unknown tool: ${escapeText(String(name))}. Available tools: ${tools.map((t) => t.name).join(", ")}.`;
   }
   const required = ((tool.inputSchema as { required?: string[] }).required ?? []) as string[];
   // Run 16 R16-10 (rule B52): a required text (a string with no fixed list of choices) that is empty or only whitespace counts as missing.
@@ -193,7 +193,7 @@ export function createServer(): Server {
           result = generateCRAFTAnalyzer(args as Parameters<typeof generateCRAFTAnalyzer>[0]);
           break;
         default:
-          throw new Error(`Unknown tool: ${name}`);
+          throw new Error(`Unknown tool: ${escapeText(String(name))}`);
       }
 
       return {
@@ -210,7 +210,7 @@ export function createServer(): Server {
         content: [
           {
             type: "text",
-            text: `Error executing ${name}: ${errorMessage}`,
+            text: `Error executing ${escapeText(String(name))}: ${errorMessage}`,
           },
         ],
         isError: true,
