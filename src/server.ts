@@ -11,7 +11,7 @@ import {
 } from "@modelcontextprotocol/sdk/types.js";
 
 import { tools } from "./tools.js";
-import { neutraliseDeep } from "./echo-safe.js";
+import { cleanDeep, escapeDeep } from "./escape-inputs.js";
 import { generatePMFScorecard } from "./pmf-scorecard.js";
 import { generateLaunchCommander } from "./launch-commander.js";
 import { generateCustomerInterviewKit } from "./interview-kit.js";
@@ -155,11 +155,11 @@ export function createServer(): Server {
   server.setRequestHandler(CallToolRequestSchema, async (request) => {
     const { name } = request.params;
     // Run 20 (D086): the one place where a tools/call reaches a tool, on both the hosted path (netlify/functions/mcp.mjs and
-    // api.mjs) and the stdio path (src/index.ts), because all use this server. Markup in what the user typed is made inert once,
-    // here; the words stay (src/echo-safe.ts).
-    const args = neutraliseDeep(request.params.arguments);
-
-    const problem = checkRequiredInputs(name, args as Record<string, unknown> | undefined);
+    // api.mjs) and the stdio path (src/index.ts), because all use this server.
+    // Run 40S (D6, safe by design): the input checks read the text as typed (hidden characters removed); then every text is escaped once, so nothing the caller typed can form markup in any answer. The words stay (src/escape-inputs.ts).
+    const typed = cleanDeep(request.params.arguments);
+    const problem = checkRequiredInputs(name, typed as Record<string, unknown> | undefined);
+    const args = escapeDeep(typed);
     if (problem) {
       return { content: [{ type: "text", text: problem }], isError: true };
     }
