@@ -1,3 +1,4 @@
+import { escapePiece } from './escape-inputs.js';
 import { parseListItems, describeChoice, readableChoice, lowerFirstIfCommon, EXAMPLE_FIGURES, SUGGESTION_FOOTER } from './utils.js';
 
 export function generateCustomerInterviewKit(args: {
@@ -236,7 +237,7 @@ export function generateCustomerInterviewKit(args: {
       ],
       probing: [
         `Walk me through a recent project you're proud of.`,
-        `What skills separate great ${/s$/i.test(args.target_persona.trim()) ? args.target_persona.trim() : `${args.target_persona}s`} from good ones?`,
+        `What skills separate great ${escapePiece(/s$/i.test(args.target_persona.trim()) ? args.target_persona.trim() : `${args.target_persona}s`)} from good ones?`,
         `What do you wish you had known when you started?`,
         `What trends are you watching in your field?`,
         `What frustrates you most about your role?`
@@ -260,7 +261,7 @@ export function generateCustomerInterviewKit(args: {
 ## Hypothesis Validation Questions
 
 ${hypotheses.map((h, i) => `
-### Hypothesis ${i + 1}: ${h}
+### Hypothesis ${i + 1}: ${escapePiece(h)}
 
 | To Validate | Ask |
 |-------------|-----|

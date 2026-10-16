@@ -1,3 +1,4 @@
+import { escapePiece } from './escape-inputs.js';
 // ============================================================================
 // UTILITY FUNCTIONS - Metric Parsing & Analysis
 // ============================================================================
@@ -152,13 +153,13 @@ function keepsFirstCapital(word: string, next: string, third = ''): boolean {
 // ("Native Salesforce integration" becomes "native Salesforce integration"; "Salesforce data you can trust" stays).
 export function lowerFirstIfCommon(phrase: string): string {
   const t = fixNames(phrase.trim());
-  if (isJobTitle(t)) return lowerJobTitle(t);
+  if (isJobTitle(t)) return escapePiece(lowerJobTitle(t));
   const parts = t.split(/(\s+)/);
-  if (keepsFirstCapital(parts[0] || '', parts[2] || '', parts[4] || '')) return t;
+  if (keepsFirstCapital(parts[0] || '', parts[2] || '', parts[4] || '')) return escapePiece(t);
   parts[0] = parts[0].replace(/[A-Z]/, c => c.toLowerCase());
   // Run 11: after a lowered first word, a capitalised common second word is lowered too ("why forecasting matters now").
   if (parts[2] && isCommonWord(parts[2])) parts[2] = parts[2].charAt(0).toLowerCase() + parts[2].slice(1);
-  return parts.join('');
+  return escapePiece(parts.join(''));
 }
 // The same for a whole phrase (this replaces a plain toLowerCase(), which also lowered names and acronyms): the first
 // word follows the rule above, and a later word is lowered only when it is a common word. A capitalised word straight
@@ -167,22 +168,22 @@ export function lowerCommonWords(phrase: string): string {
   let afterName = false;
   let first = true;
   const t = fixNames(phrase.trim());
-  if (isJobTitle(t)) return lowerJobTitle(t);
+  if (isJobTitle(t)) return escapePiece(lowerJobTitle(t));
   const parts = t.split(/(\s+)/);
-  return parts.map((w, i) => {
+  return escapePiece(parts.map((w, i) => {
     if (!w.trim()) return w;
     const lower = first ? !keepsFirstCapital(w, parts[i + 2] || '', parts[i + 4] || '') : !afterName && isCommonWord(w);
     first = false;
     afterName = !lower && /^[A-Z]/.test(w);
     return lower ? w.replace(/[A-Z]/, c => c.toLowerCase()) : w;
-  }).join('');
+  }).join(''));
 }
 // Text only (run 9): a phrase that starts a sentence, a heading or a table cell starts with a capital. A first word
 // written with a small letter and an inner capital (iPhone, eBay) is a name and is kept as typed.
 export function cap(phrase: string): string {
   const t = fixNames(phrase.trim());
-  if (/^[a-z]+[A-Z]/.test(t.split(/\s+/)[0] || '')) return t;
-  return t.charAt(0).toUpperCase() + t.slice(1);
+  if (/^[a-z]+[A-Z]/.test(t.split(/\s+/)[0] || '')) return escapePiece(t);
+  return escapePiece(t.charAt(0).toUpperCase() + t.slice(1));
 }
 
 // Readable forms of enum values that carry digits or abbreviations.

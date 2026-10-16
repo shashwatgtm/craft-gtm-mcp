@@ -1,3 +1,4 @@
+import { escapePiece } from './escape-inputs.js';
 import { parseListItems, describeChoice, readableChoice, lowerFirstIfCommon, cap, EXAMPLE_FIGURE, EXAMPLE_FIGURES, SUGGESTION_FOOTER } from './utils.js';
 
 export function generateRetentionPlaybook(args: {
@@ -106,7 +107,7 @@ export function generateRetentionPlaybook(args: {
     
     // Default intervention
     return {
-      trigger: `"${reason}" identified in customer feedback`,
+      trigger: `"${escapePiece(reason)}" identified in customer feedback`,
       action: 'Personalized outreach + root cause analysis',
       owner: capacity.highTouch > 30 ? 'CSM' : 'CS team, after an automated check-in',
       timing: 'Within 48 hours of signal',
@@ -167,7 +168,7 @@ Risk Levels (${EXAMPLE_FIGURES.replace(/\.$/, '')}):
     const reason = churnReasons[i];
     const intervention = generateIntervention(reason);
     
-    output += `### ${i + 1}. "${reason}"
+    output += `### ${i + 1}. "${escapePiece(reason)}"
 
 **Trigger:** ${intervention.trigger}
 

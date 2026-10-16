@@ -1,3 +1,4 @@
+import { escapePiece } from './escape-inputs.js';
 import { parseListItems, describeChoice, readableChoice, EXAMPLE_FIGURE, EXAMPLE_FIGURES, SUGGESTION_FOOTER } from './utils.js';
 
 // Default crises by industry
@@ -56,7 +57,7 @@ export function generateCrisisPlanner(args: {
   const heading = (kind: string, name: string): string => {
     const shown = name.trim().replace(/\bpr\b/gi, 'PR').replace(/\bhipaa\b/gi, 'HIPAA');
     const same = shown.toLowerCase() === kind.toLowerCase() || (kind.startsWith('PR ') && shown === 'PR incident');
-    return same ? kind : `${kind}: ${shown}`;
+    return same ? kind : `${kind}: ${escapePiece(shown)}`;
   };
   // The first security crisis gets the full steps; a later one points back to them.
   let securityDone = '';
@@ -76,7 +77,7 @@ export function generateCrisisPlanner(args: {
       if (securityDone) {
         return `### ${heading('Security incident', crisisName)}
 
-Use the ${securityDone} steps above.
+Use the ${escapePiece(securityDone)} steps above.
 
 ---
 `;

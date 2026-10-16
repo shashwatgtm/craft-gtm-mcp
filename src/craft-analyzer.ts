@@ -1,5 +1,5 @@
 import { analyzeCRAFTDimensions } from './utils.js';
-import { dropLoneBackslash } from './escape-inputs.js';
+import { escapePiece } from './escape-inputs.js';
 
 export function generateCRAFTAnalyzer(args: {
   document_content: string;
@@ -155,7 +155,7 @@ Scores come from a keyword check, not a reading of the plan: check each gap agai
 
 **Words matched:**
 ${analysis.character.found.length > 0 
-  ? analysis.character.found.slice(0, 5).map(f => `- "${f}"`).join('\n')
+  ? analysis.character.found.slice(0, 5).map(f => `- "${escapePiece(f)}"`).join('\n')
   : '- None'}
 
 **Gaps identified:**
@@ -172,7 +172,7 @@ ${analysis.character.gaps.length > 0 ? `\n**Recommended improvement:**\n${genera
 
 **Words matched:**
 ${analysis.result.found.length > 0 
-  ? analysis.result.found.slice(0, 5).map(f => `- "${f}"`).join('\n')
+  ? analysis.result.found.slice(0, 5).map(f => `- "${escapePiece(f)}"`).join('\n')
   : '- None'}
 
 **Gaps identified:**
@@ -189,7 +189,7 @@ ${analysis.result.gaps.length > 0 ? `\n**Recommended improvement:**\n${generateI
 
 **Words matched:**
 ${analysis.artifact.found.length > 0 
-  ? analysis.artifact.found.slice(0, 5).map(f => `- "${f}"`).join('\n')
+  ? analysis.artifact.found.slice(0, 5).map(f => `- "${escapePiece(f)}"`).join('\n')
   : '- None'}
 
 **Gaps identified:**
@@ -206,7 +206,7 @@ ${analysis.artifact.gaps.length > 0 ? `\n**Recommended improvement:**\n${generat
 
 **Words matched:**
 ${analysis.frame.found.length > 0 
-  ? analysis.frame.found.slice(0, 5).map(f => `- "${f}"`).join('\n')
+  ? analysis.frame.found.slice(0, 5).map(f => `- "${escapePiece(f)}"`).join('\n')
   : '- None'}
 
 **Gaps identified:**
@@ -223,7 +223,7 @@ ${analysis.frame.gaps.length > 0 ? `\n**Recommended improvement:**\n${generateIm
 
 **Words matched:**
 ${analysis.timeline.found.length > 0 
-  ? analysis.timeline.found.slice(0, 5).map(f => `- "${f}"`).join('\n')
+  ? analysis.timeline.found.slice(0, 5).map(f => `- "${escapePiece(f)}"`).join('\n')
   : '- None'}
 
 **Gaps identified:**
@@ -266,7 +266,7 @@ ${analysis.timeline.gaps.length > 0 ? `\n**Recommended improvement:**\n${generat
 ## Document Excerpt Analyzed
 
 \`\`\`
-${dropLoneBackslash(content.substring(0, 500))}${content.length > 500 ? '...\n\n[Document continues: ' + (content.length - 500) + ' more characters]' : ''}
+${escapePiece(content.substring(0, 500))}${content.length > 500 ? '...\n\n[Document continues: ' + (content.length - 500) + ' more characters]' : ''}
 \`\`\`
 
 ---

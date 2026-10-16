@@ -1,3 +1,4 @@
+import { escapePiece } from './escape-inputs.js';
 import { parseListItems, lowerCommonWords, lowerFirstIfCommon, EXAMPLE_FIGURE, SUGGESTION_FOOTER } from './utils.js';
 
 export function generateCompetitiveIntel(args: {
@@ -66,7 +67,7 @@ export function generateCompetitiveIntel(args: {
     if (objLower.includes('price') || objLower.includes('expensive') || objLower.includes('cost') || objLower.includes('budget')) {
       return {
         acknowledge: "I understand budget is a consideration.",
-        counter: `[Only if true and provable: ${S[0] || 'our solution'} typically delivers ROI within [X months]. One customer saved [specific amount] by [specific outcome].]`,
+        counter: `[Only if true and provable: ${S[0] ? escapePiece(S[0]) : 'our solution'} typically delivers ROI within [X months]. One customer saved [specific amount] by [specific outcome].]`,
         redirect: "What would the cost of NOT solving this problem be for your team?"
       };
     }
@@ -104,7 +105,7 @@ export function generateCompetitiveIntel(args: {
     }
     
     return {
-      acknowledge: `I appreciate you raising that concern about "${objection}".`,
+      acknowledge: `I appreciate you raising that concern about "${escapePiece(objection)}".`,
       counter: `Here's how we address that: ${S[0] ? lowerFirstIfCommon(S[0]) : '[your key strength]'} [how it helps with this]. [Your example]`,
       redirect: "Can you tell me more about why that's a concern for your situation?"
     };
@@ -119,15 +120,15 @@ export function generateCompetitiveIntel(args: {
 
 ### When We Win
 
-${S.length > 0 ? S.map((s, i) => `${i + 1}. **${s}**`).join('\n') : 'Not known yet (add your_strengths or recent_wins).'}
+${S.length > 0 ? S.map((s, i) => `${i + 1}. **${escapePiece(s)}**`).join('\n') : 'Not known yet (add your_strengths or recent_wins).'}
 
-${wins.length > 0 ? `\n**Recent Win Patterns:**\n${wins.map(w => `- ${w}`).join('\n')}` : ''}
+${wins.length > 0 ? `\n**Recent Win Patterns:**\n${wins.map(w => `- ${escapePiece(w)}`).join('\n')}` : ''}
 
 ### When We Lose
 
-${W.length > 0 ? W.map((w, i) => `${i + 1}. **${w}**`).join('\n') : 'Not known yet (add your_weaknesses or recent_losses).'}
+${W.length > 0 ? W.map((w, i) => `${i + 1}. **${escapePiece(w)}**`).join('\n') : 'Not known yet (add your_weaknesses or recent_losses).'}
 
-${losses.length > 0 ? `\n**Recent Loss Patterns:**\n${losses.map(l => `- ${l}`).join('\n')}` : ''}
+${losses.length > 0 ? `\n**Recent Loss Patterns:**\n${losses.map(l => `- ${escapePiece(l)}`).join('\n')}` : ''}
 
 ---
 
@@ -139,41 +140,42 @@ ${losses.length > 0 ? `\n**Recent Loss Patterns:**\n${losses.map(l => `- ${l}`).
   for (let i = 0; i < competitors.length; i++) {
     const comp = competitors[i];
     const info = competitorInfo[comp] || [];
+    const compShown = escapePiece(comp);
     
-    output += `### ${i + 1}. ${comp}
+    output += `### ${i + 1}. ${compShown}
 
-${info.length > 0 ? `**Known Intel:**\n${info.map(i => `- ${i}`).join('\n')}\n` : ''}
+${info.length > 0 ? `**Known Intel:**\n${info.map(i => `- ${escapePiece(i)}`).join('\n')}\n` : ''}
 
 **Head-to-Head Comparison:**
 
-| Dimension | ${args.your_product} | ${comp} |
+| Dimension | ${args.your_product} | ${compShown} |
 |-----------|------------|---------|
-${S.length > 0 ? S.slice(0, 2).map(s => `| ${s} | Strong | [Your rating] |`).join('\n') : '| [Your key strength] | [Your rating] | [Your rating] |'}
-${W.length > 0 ? `| Our gap: ${W[0]} | Gap for us | [Your rating] |` : '| [Your main gap] | [Your rating] | [Your rating] |'}
+${S.length > 0 ? S.slice(0, 2).map(s => `| ${escapePiece(s)} | Strong | [Your rating] |`).join('\n') : '| [Your key strength] | [Your rating] | [Your rating] |'}
+${W.length > 0 ? `| Our gap: ${escapePiece(W[0])} | Gap for us | [Your rating] |` : '| [Your main gap] | [Your rating] | [Your rating] |'}
 
-**Our Advantages Over ${comp}:**
-${S.length > 0 ? S.slice(0, 3).map(s => `- ${s}`).join('\n') : '- [Your advantages]'}
+**Our Advantages Over ${compShown}:**
+${S.length > 0 ? S.slice(0, 3).map(s => `- ${escapePiece(s)}`).join('\n') : '- [Your advantages]'}
 
 **Their Advantages Over Us:**
-${W.length > 0 ? W.slice(0, 2).map(w => `- Where we fall short: ${w}`).join('\n') : '- [Where they are ahead of you]'}
+${W.length > 0 ? W.slice(0, 2).map(w => `- Where we fall short: ${escapePiece(w)}`).join('\n') : '- [Where they are ahead of you]'}
 
-**${comp} Trap Questions:**
+**${compShown} Trap Questions:**
 *Questions to ask the buyer*
 
-1. Ask how ${comp} compares on: ${S[0] || '[your key strength]'}
-2. Ask how ${comp} compares on: ${S[1] || '[your second strength]'}
-3. Ask how ${comp} compares on: [key metric]
+1. Ask how ${compShown} compares on: ${S[0] ? escapePiece(S[0]) : '[your key strength]'}
+2. Ask how ${compShown} compares on: ${S[1] ? escapePiece(S[1]) : '[your second strength]'}
+3. Ask how ${compShown} compares on: [key metric]
 
-**"Why Not ${comp}?" Response:**
+**"Why Not ${compShown}?" Response:**
 
 \`\`\`
-If prospect asks: "Why should we choose you over ${comp}?"
+If prospect asks: "Why should we choose you over ${compShown}?"
 
-"That's a great question, and ${comp} is solid at [acknowledge their strength].
+"That's a great question, and ${compShown} is solid at [acknowledge their strength].
 
 Here's why customers choose us:
 
-${S.length > 0 ? S.slice(0, 2).map((s, n) => `${n + 1}. ${s}: [brief explanation]`).join('\n') : '1. [Your key strength]: [brief explanation]'}
+${S.length > 0 ? S.slice(0, 2).map((s, n) => `${n + 1}. ${escapePiece(s)}: [brief explanation]`).join('\n') : '1. [Your key strength]: [brief explanation]'}
 
 [Only if true and provable: Would it help to talk to a customer who evaluated both?]"
 \`\`\`
@@ -200,7 +202,7 @@ ${S.length > 0 ? S.slice(0, 2).map((s, n) => `${n + 1}. ${s}: [brief explanation
     const obj = objections[i];
     const handler = generateObjectionHandler(obj);
     
-    output += `### ${i + 1}. "${obj}"
+    output += `### ${i + 1}. "${escapePiece(obj)}"
 
 **Acknowledge:** "${handler.acknowledge}"
 
@@ -226,19 +228,19 @@ ${handler.redirect}"
 
 ### We Win When:
 ${wins.length > 0 
-  ? wins.map(w => `- ${w}`).join('\n')
+  ? wins.map(w => `- ${escapePiece(w)}`).join('\n')
   : S.length > 0 ? S.slice(0, 2).map(s => `- The buyer's priority is ${lowerFirstIfCommon(s)}`).join('\n') : '- Not known yet (add recent_wins)'}
 
 ### We Lose When:
 ${losses.length > 0 
-  ? losses.map(l => `- ${l}`).join('\n')
-  : W.length > 0 ? W.slice(0, 2).map(w => `- The buyer needs what we lack: ${w}`).join('\n') : '- Not known yet (add recent_losses)'}
+  ? losses.map(l => `- ${escapePiece(l)}`).join('\n')
+  : W.length > 0 ? W.slice(0, 2).map(w => `- The buyer needs what we lack: ${escapePiece(w)}`).join('\n') : '- Not known yet (add recent_losses)'}
 
 ### Win Rate by Competitor (Track This):
 
 | Competitor | Win Rate | Sample Size | Trend |
 |------------|----------|-------------|-------|
-${competitors.map(c => `| ${c} | __% | __ deals | __ |`).join('\n')}
+${competitors.map(c => `| ${escapePiece(c)} | __% | __ deals | __ |`).join('\n')}
 
 ---
 
@@ -248,13 +250,13 @@ ${competitors.map(c => `| ${c} | __% | __ deals | __ |`).join('\n')}
 Quick guide: ${args.your_product} against the competition
 
 OUR SUPERPOWERS:
-${S.length > 0 ? S.slice(0, 3).map(s => `• ${s}`).join('\n') : '• [Your key strengths]'}
+${S.length > 0 ? S.slice(0, 3).map(s => `• ${escapePiece(s)}`).join('\n') : '• [Your key strengths]'}
 
 WATCH OUT FOR:
-${W.length > 0 ? W.slice(0, 2).map(w => `• ${w}`).join('\n') : '• [Your main gaps]'}
+${W.length > 0 ? W.slice(0, 2).map(w => `• ${escapePiece(w)}`).join('\n') : '• [Your main gaps]'}
 
 TOP OBJECTION HANDLERS:
-${objections.length > 0 ? objections.slice(0, 3).map((o, i) => `${i + 1}. "${o}" → Focus on ${S[i] ? lowerFirstIfCommon(S[i]) : '[key value]'}`).join('\n') : 'None supplied yet: add common_objections.'}
+${objections.length > 0 ? objections.slice(0, 3).map((o, i) => `${i + 1}. "${escapePiece(o)}" → Focus on ${S[i] ? lowerFirstIfCommon(S[i]) : '[key value]'}`).join('\n') : 'None supplied yet: add common_objections.'}
 \`\`\`
 
 ---
@@ -291,7 +293,7 @@ function extractStrengthFromWin(win: string): string {
   }
   
   // Return cleaned up version of the win
-  return win.charAt(0).toUpperCase() + win.slice(1);
+  return escapePiece(win.charAt(0).toUpperCase() + win.slice(1));
 }
 
 // Extract weakness from a loss reason
@@ -318,7 +320,7 @@ function extractWeaknessFromLoss(loss: string): string {
   }
   
   // Return cleaned up version of the loss
-  return loss.charAt(0).toUpperCase() + loss.slice(1);
+  return escapePiece(loss.charAt(0).toUpperCase() + loss.slice(1));
 }
 
 // Discovery mode when user has minimal competitive knowledge
@@ -327,7 +329,7 @@ function generateCompetitiveDiscoveryKit(product: string, competitors: string[])
 
 ## Current Situation
 
-You've identified these competitors: **${competitors.join(', ')}**
+You've identified these competitors: **${escapePiece(competitors.join(', '))}**
 
 But you haven't provided:
 - Your strengths (why you win)
@@ -364,7 +366,7 @@ But you haven't provided:
 Ask your sales reps:
 
 ### Win Patterns
-1. "Think about your best wins against ${competitors[0] || 'competitors'}. What did we do right?"
+1. "Think about your best wins against ${competitors[0] ? escapePiece(competitors[0]) : 'competitors'}. What did we do right?"
 2. "When prospects choose us, what do they say is the deciding factor?"
 3. "Which features do you demo that get the best reaction?"
 
@@ -374,14 +376,14 @@ Ask your sales reps:
 6. "Which competitor do you hate going up against? Why?"
 
 ### Competitive Positioning
-7. "How do you position us vs ${competitors[0] || 'the main competitor'}?"
+7. "How do you position us vs ${competitors[0] ? escapePiece(competitors[0]) : 'the main competitor'}?"
 8. "What do you wish you could say about us that you can't today?"
 
 ---
 
 ## Step 3: Competitive Research Checklist
 
-For each competitor (${competitors.join(', ')}):
+For each competitor (${escapePiece(competitors.join(', '))}):
 
 - [ ] Review their website messaging: what do they claim?
 - [ ] Check G2/Capterra reviews: what do customers praise/complain about?
@@ -395,7 +397,7 @@ For each competitor (${competitors.join(', ')}):
 ## Quick Competitor Profiles to Fill In
 
 ${competitors.map(c => `
-### ${c}
+### ${escapePiece(c)}
 
 **What they claim:** [Check their homepage]
 **Target customer:** [Who do they focus on?]

@@ -1,3 +1,4 @@
+import { escapePiece } from './escape-inputs.js';
 import { formatDate, addDays, calculateDaysUntil, parseListItems, describeChoice, EXAMPLE_FIGURE } from './utils.js';
 
 interface Phase {
@@ -39,7 +40,7 @@ function parseLaunchDate(dateInput?: string): { date: Date | null; isFlexible: b
       return { 
         date: new Date(year, monthIndex, 15), 
         isFlexible: true, 
-        displayDate: `${monthMatch[1]} ${year} (planning mode)` 
+        displayDate: `${escapePiece(monthMatch[1])} ${year} (planning mode)` 
       };
     }
   }
@@ -164,19 +165,19 @@ export function generateLaunchCommander(args: {
 
 ## Launch Goals
 
-${args.goals.split(/\n|,(?!\d{3}(?!\d))/).map(g => `- ${g.trim()}`).join('\n')}
+${args.goals.split(/\n|,(?!\d{3}(?!\d))/).map(g => `- ${escapePiece(g.trim())}`).join('\n')}
 
 ---
 
 ## Target Segments
 
-${segments.map((s, i) => `${i + 1}. **${s}**`).join('\n')}
+${segments.map((s, i) => `${i + 1}. **${escapePiece(s)}**`).join('\n')}
 
 ---
 
 ## Active Channels
 ${args.available_channels ? '' : '\n*Channels not supplied: these defaults are assumed.*\n'}
-${channels.map(ch => `- ${ch.toLowerCase() === 'linkedin' ? 'LinkedIn' : ch}`).join('\n')}
+${channels.map(ch => `- ${ch.toLowerCase() === 'linkedin' ? 'LinkedIn' : escapePiece(ch)}`).join('\n')}
 
 **Budget-Appropriate Tactics:**
 ${availableTactics.map(t => `- ${t}`).join('\n')}
@@ -229,15 +230,16 @@ ${!launchDate
 `;
 
   for (const segment of segments) {
-    output += `### ${segment}
+    const segShown = escapePiece(segment);
+    output += `### ${segShown}
 
 | Element | Content |
 |---------|---------|
-| Primary Pain Point | [Define for ${segment}] |
-| Key Message | "For ${segment}, ${args.product_feature} [what it does for them]." |
-| Proof Point | [Case study/metric for ${segment}] |
-| CTA | [Specific action for ${segment}] |
-| Primary Channel | ${channels[0] || 'TBD'} |
+| Primary Pain Point | [Define for ${segShown}] |
+| Key Message | "For ${segShown}, ${args.product_feature} [what it does for them]." |
+| Proof Point | [Case study/metric for ${segShown}] |
+| CTA | [Specific action for ${segShown}] |
+| Primary Channel | ${channels[0] ? escapePiece(channels[0]) : 'TBD'} |
 
 `;
   }
@@ -250,7 +252,7 @@ ${!launchDate
     const i = goalList.findIndex((g, n) => !used.has(n) && re.test(g));
     if (i < 0) return '[set a target]';
     used.add(i);
-    return goalList[i];
+    return escapePiece(goalList[i]);
   };
   const rows = [
     ['Awareness', pick(/view|impression|visit|traffic|reach|download|follower/i), 'Analytics'],
@@ -258,7 +260,7 @@ ${!launchDate
     ['Adoption', pick(/activat|usage|active user|adopt|conversion|retention/i), 'Product Analytics'],
     ['Revenue', pick(/pipeline|revenue|\$|closed|arr|mrr|deal|sales/i), 'CRM'],
   ];
-  goalList.forEach((g, n) => { if (!used.has(n)) rows.push(['Other goal', g, '[Tracking method]']); });
+  goalList.forEach((g, n) => { if (!used.has(n)) rows.push(['Other goal', escapePiece(g), '[Tracking method]']); });
   const metricRows = rows.map(r => `| ${r[0]} | ${r[1]} | ${r[2]} |`).join('\n');
 
   output += `---
