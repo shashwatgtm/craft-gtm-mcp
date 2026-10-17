@@ -95,19 +95,19 @@ const shown = (res) => {
 // value and twin (the same layout, every marker character made "x"): from the 40S auditors' findings and generators
 const NL = S(10), CR = S(13);
 const CASES = [
-  ["alpha,-,+,#,##,1.,1),beta", "alpha,x,x,x,xx,xx,xx,beta"],                      // IMPACT F1: a marker before the split comma
-  ["alpha;-;+;#;12.;beta", "alpha;x;x;x;xxx;beta"],
+  ["alpha,-,+,#,##,1.,1),beta", "alpha,x,x,x,xx,1 q,1 q,beta"],                      // IMPACT F1: a marker before the split comma
+  ["alpha;-;+;#;12.;beta", "alpha;x;x;x;12 q;beta"],
   ["Acme Example cut churn 20%" + NL + "-.", "Acme Example cut churn 20%" + NL + "x."],     // IMPACT F4: a marker kept by a cut "."
   ["Acme Example cut churn 20%" + NL + "##.", "Acme Example cut churn 20%" + NL + "xx."],
-  ["Acme Example cut churn 20%" + NL + "1).", "Acme Example cut churn 20%" + NL + "xx."],
+  ["Acme Example cut churn 20%" + NL + "1).", "Acme Example cut churn 20%" + NL + "1 q."],
   ["Regional distributors (fleet" + NL + "-)", "Regional distributors (fleet" + NL + "x)"],  // IMPACT F6: a marker before ")" or "("
   ["Regional distributors (fleet" + NL + "#)", "Regional distributors (fleet" + NL + "x)"],
   ["Regional distributors" + NL + "-(fleet)", "Regional distributors" + NL + "x(fleet)"],
-  ["on-time delivery" + NL + "2024 ", "on-time delivery" + NL + "xxxx "],                // IMPACT F5: digits, then white space
-  ["fleet managers" + CR + NL + "12" + CR + NL, "fleet managers" + CR + NL + "xx" + CR + NL],
-  ["Acme Example" + NL + "12", "Acme Example" + NL + "xx"],                             // IMPACT F3, ICP F1: the digit tail
-  ["notes" + NL + "1", "notes" + NL + "x"],                                              // Revenue F4
-  ["x" + NL + "123456789", "x" + NL + "xxxxxxxxx"],
+  ["on-time delivery" + NL + "2024 ", "on-time delivery" + NL + "2024 q"],                // IMPACT F5: digits, then white space
+  ["fleet managers" + CR + NL + "12" + CR + NL, "fleet managers" + CR + NL + "12 q" + CR + NL],
+  ["Acme Example" + NL + "12", "Acme Example" + NL + "12 q"],                             // IMPACT F3, ICP F1: the digit tail
+  ["notes" + NL + "1", "notes" + NL + "1 q"],                                              // Revenue F4
+  ["x" + NL + "123456789", "x" + NL + "123456789 q"],
   ["cut churn 20% at Acme Example" + NL + "--:", "cut churn 20% at Acme Example" + NL + "xxx"], // IMPACT F7: a delimiter row
   ["cut churn 20% at Acme Example" + NL + "-:", "cut churn 20% at Acme Example" + NL + "xx"],
   ["cut churn 20% at Acme Example" + NL + ":-", "cut churn 20% at Acme Example" + NL + "xx"],

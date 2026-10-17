@@ -16,7 +16,7 @@ export const EXAMPLE_FIGURES = 'Example figures: replace with your own.';
 export const SUGGESTION_FOOTER = 'Suggested timings, lengths and counts: adjust them to your own.';
 
 // Text only (run 9): common words that may open an input phrase. Mid-sentence, only these are lowered
-// ("Fewer no-shows" becomes "fewer no-shows"). Any other capitalised word is kept as typed, because it may be a
+// ("Fewer errors" becomes "fewer errors"). Any other capitalised word is kept as typed, because it may be a
 // name or an acronym ("Salesforce data you can trust", "Microsoft Teams approvals", "AI deal scoring", "CRM hygiene").
 const COMMON_WORDS = new Set((
   'a an the this that these those our your their my its his her we you they it me us them all any each every ' +
@@ -61,8 +61,8 @@ const COMMON_WORDS = new Set((
   'cost costs price prices pricing budget budgets value roi time times hours days weeks months minutes setup ' +
   'set-up implementation integration integrations security compliance privacy risk risks errors error mistakes ' +
   'issues issue problems problem pain pains gaps gap delays delay bottlenecks friction complexity visibility ' +
-  'control access approvals approval handoffs handoff meetings meeting appointments appointment bookings ' +
-  'booking reminders reminder no-shows cancellations patients patient staff employees employee managers manager ' +
+  'control access approvals approval handoffs handoff meetings meeting bookings ' +
+  'booking reminders reminder cancellations staff employees employee managers manager ' +
   'leaders leader executives reps rep agents agent partners partner vendors vendor suppliers supplier companies ' +
   'company businesses business organisations organizations enterprises enterprise startups startup founders ' +
   'founder owners owner operations operators finance hr legal procurement engineering developers developer ' +
@@ -93,7 +93,7 @@ const COMMON_WORDS = new Set((
   'lost won '
 ).split(/\s+/).filter(Boolean));
 // A word counts as common when it is in the list, or ends in -ing or -ed ("Automated", "Missing"). A hyphenated
-// word counts by its first part ("Two-way", "No-shows").
+// word counts by its first part ("Two-way", "Real-time").
 function isCommonWord(word: string): boolean {
   const head = word.split('-')[0].replace(/[^A-Za-z']+$/, '');
   if (!/^[A-Z][a-z']*$/.test(head) || head === 'I' || /[A-Z]/.test(word.slice(1))) return false;
@@ -105,9 +105,9 @@ function isCommonWord(word: string): boolean {
 const KNOWN_NAMES = new Set((
   'Salesforce Microsoft Slack HubSpot LinkedIn Google Gmail Outlook Excel Zoom Zendesk Jira Notion Shopify Stripe ' +
   'Marketo Pardot Gong Intercom Freshworks Oracle SAP Workday ServiceNow Snowflake Tableau Asana Trello Dropbox ' +
-  'Apple Amazon AWS Azure Facebook Instagram WhatsApp YouTube Acme ExampleCo Sam ' +
-  // Run 11: the company and competitor names in the test inputs and the page examples.
-  'Clausewise Bengaluru Clari Northwind ClinicFlow Metricly'
+  'Apple Amazon AWS Azure Facebook Instagram WhatsApp YouTube Sam ' +
+  // Run 19: the invented company names of the page examples.
+  'Shelfwalk Answerloop Cloudmoat Spendrill Lanehop Branchwire Bengaluru Clari Northwind Metricly'
 ).split(/\s+/).filter(Boolean));
 function bareWord(word: string): string {
   return word.replace(/^[^A-Za-z0-9]+|[^A-Za-z0-9]+$/g, '');
@@ -118,7 +118,7 @@ function isKnownName(word: string): boolean {
 }
 // Run 11: a known name typed in lower case gets its capitals back ("bengaluru teams" becomes "Bengaluru teams"). Names
 // that are also ordinary words (Slack, Zoom, Notion, Gong, Sam ...) are kept when typed with a capital, never raised.
-const PLAIN_WORDS = new Set('slack zoom notion excel oracle stripe apple amazon gong sam outlook workday snowflake asana tableau intercom acme sap azure'.split(' '));
+const PLAIN_WORDS = new Set('slack zoom notion excel oracle stripe apple amazon gong sam outlook workday snowflake asana tableau intercom sap azure'.split(' '));
 const NAME_BY_LOWER = new Map([...KNOWN_NAMES].filter(n => !PLAIN_WORDS.has(n.toLowerCase())).map(n => [n.toLowerCase(), n] as [string, string]));
 function fixNames(phrase: string): string {
   return phrase.replace(/[A-Za-z]+/g, w => (w === w.toLowerCase() && NAME_BY_LOWER.get(w)) || w);
@@ -135,10 +135,10 @@ function lowerJobTitle(phrase: string): string {
 }
 // Run 10: the first word of an input phrase keeps its capital only when it is a known name, has an inner capital or is
 // all capitals (HubSpot, AI, CRM), holds a digit (B2B, Q4), or starts a name of two words: the next word is capitalised
-// too (New York, Clinic Group A, Competitor A) and is not a known name on its own ("Native Salesforce" is not a name).
+// too (New York, Group A, Competitor A) and is not a known name on its own ("Native Salesforce" is not a name).
 // Run 11: a one-letter word keeps its capital (I, X), and a common first word never makes the next word a name ("For
-// Clausewise contract review" becomes "for Clausewise contract review"), unless the next word is a one-letter label after
-// a noun (Competitor A) or the phrase opens with three capitalised words (Example Clinic Group).
+// Branchwire contract review" becomes "for Branchwire contract review"), unless the next word is a one-letter label after
+// a noun (Competitor A) or the phrase opens with three capitalised words (Example Logistics Co).
 function keepsFirstCapital(word: string, next: string, third = ''): boolean {
   const w = bareWord(word);
   if (!/^[A-Z]/.test(w) || (w.length === 1 && !(w === 'A' && next)) || isKnownName(w)) return true; // the article A is not a one-letter name
@@ -218,7 +218,16 @@ const READABLE_CHOICES: Record<string, string> = {
   saas: 'SaaS',
   enterprise_saas: 'enterprise SaaS',
   smb_saas: 'SMB SaaS',
-  saas_subscription: 'SaaS subscription'
+  saas_subscription: 'SaaS subscription',
+  // Run 19: the owner's verticals and the new contract models
+  logistics_tech: 'logistics tech',
+  vertical_saas: 'vertical SaaS',
+  ai_native: 'AI native',
+  ites: 'ITeS',
+  services_contract: 'services contract',
+  connectivity_contract: 'connectivity contract',
+  investment_mandate: 'investment mandate',
+  hardware_software: 'hardware plus software'
 };
 
 /** Readable form of an enum value: "small_2_5" becomes "small (2 to 5)"; other values lose their underscores. */
@@ -253,6 +262,8 @@ export interface ParsedMetrics {
   trialConversion?: number;
   expansionRevenue?: number;
   timeToValue?: number;
+  acv?: number;
+  retentionIsNet?: boolean;   // the retention figure was written as net revenue retention
   raw: string;
 }
 
@@ -310,6 +321,16 @@ export function parseMetrics(metricsText: string): ParsedMetrics {
   const retentionMatch = text.match(/retention[:\s]*([\d.]+)\s*%?/i);
   if (retentionMatch) {
     metrics.retentionRate = parseFloat(retentionMatch[1]);
+    metrics.retentionIsNet = /\b(?:net revenue retention|nrr|net retention)\b/i.test(text);
+  }
+
+  // Run 19 (D80, problem 3): annual or average contract value is read (it was dropped before)
+  const acvMatch = text.match(/\b(?:acv|annual contract value|average contract value)[:\s]*\$?(\d[\d,]*(?:\.\d+)?)\s*(k|m)?\b/i);
+  if (acvMatch) {
+    let value = parseFloat(acvMatch[1].replace(/,/g, ''));
+    if (acvMatch[2]?.toLowerCase() === 'k') value *= 1000;
+    if (acvMatch[2]?.toLowerCase() === 'm') value *= 1000000;
+    metrics.acv = value;
   }
   
   // Activation rate
@@ -361,21 +382,34 @@ export function parseMetrics(metricsText: string): ParsedMetrics {
   return metrics;
 }
 
+// Run 20 (ledger A17-O20): a number printed as a percentage has at most one decimal and never shows float noise
+// (0.8 * 12 is 9.600000000000001 in floating point and is printed as 9.6). The score itself always uses the exact value.
+export function pct(n: number): string {
+  if (!Number.isFinite(n)) return String(n);
+  const r = Number(n.toFixed(1));
+  return String(Object.is(r, -0) ? 0 : r);
+}
+
+// A percentage the user typed with more than one decimal, inside a short typed figure such as "2.3456% monthly", is shown rounded.
+export function roundTypedPercents(text: string): string {
+  return text.replace(/(\d+\.\d{2,})(\s*%)/g, (_m, n: string, p: string) => pct(parseFloat(n)) + p);
+}
+
 export function scoreMetric(value: number | undefined, benchmarks: { low: number; medium: number; high: number }, higherIsBetter: boolean = true, shown?: string, unit: string = ''): { score: number; label: string; analysis: string } {
   if (value === undefined) {
     return { score: 0, label: 'MISSING', analysis: 'Data not provided: not scored' };
   }
   // How the value is printed (the score always uses the exact value)
-  const v = (shown ?? String(value)) + unit;
+  const v = (shown ?? pct(value)) + unit;
 
   // The benchmark figures are the tool's example ranges, so each one is labelled.
   if (higherIsBetter) {
-    if (value >= benchmarks.high) return { score: 9, label: 'EXCELLENT', analysis: `${v} is at or above the excellent mark of ${benchmarks.high}${unit} ${EXAMPLE_FIGURE}` };
+    if (value >= benchmarks.high) return { score: 9, label: 'EXCELLENT', analysis: `${v} is ${value === benchmarks.high ? 'exactly at' : 'above'} the excellent mark of ${benchmarks.high}${unit} ${EXAMPLE_FIGURE}` };
     if (value >= benchmarks.medium) return { score: 7, label: 'GOOD', analysis: `${v} meets the healthy benchmark of ${benchmarks.medium}${unit} ${EXAMPLE_FIGURE}` };
     if (value >= benchmarks.low) return { score: 5, label: 'DEVELOPING', analysis: `${v} is below the target of ${benchmarks.medium}${unit} ${EXAMPLE_FIGURE}` };
     return { score: 3, label: 'CRITICAL', analysis: `${v} is significantly below the minimum of ${benchmarks.low}${unit} ${EXAMPLE_FIGURE}` };
   } else {
-    if (value <= benchmarks.low) return { score: 9, label: 'EXCELLENT', analysis: `${v}% is at or below the excellent mark of ${benchmarks.low}% ${EXAMPLE_FIGURE}` };
+    if (value <= benchmarks.low) return { score: 9, label: 'EXCELLENT', analysis: `${v}% is ${value === benchmarks.low ? 'exactly at' : 'below'} the excellent mark of ${benchmarks.low}% ${EXAMPLE_FIGURE}` };
     if (value <= benchmarks.medium) return { score: 7, label: 'GOOD', analysis: `${v}% is acceptable (benchmark: <${benchmarks.medium}%) ${EXAMPLE_FIGURE}` };
     if (value <= benchmarks.high) return { score: 5, label: 'DEVELOPING', analysis: `${v}% is elevated against the example benchmark: it needs attention` };
     return { score: 3, label: 'CRITICAL', analysis: `${v}% significantly exceeds maximum of ${benchmarks.high}% ${EXAMPLE_FIGURE}` };
@@ -405,12 +439,22 @@ export function parseListItems(text: string): string[] {
     .filter(item => item.length > 0);
 }
 
+export interface CRAFTDimension {
+  found: string[];            // the distinct words or dates matched in the plan
+  score: number;
+  gaps: string[];
+  evidence: string[];         // the plan's own lines that matched (at most 2)
+  groupsFound: string[];      // the named elements of this dimension that the plan contains
+  groupsMissing: string[];    // the named elements that it does not contain
+}
 export interface CRAFTAnalysis {
-  character: { found: string[]; score: number; gaps: string[] };
-  result: { found: string[]; score: number; gaps: string[] };
-  artifact: { found: string[]; score: number; gaps: string[] };
-  frame: { found: string[]; score: number; gaps: string[] };
-  timeline: { found: string[]; score: number; gaps: string[] };
+  character: CRAFTDimension;
+  result: CRAFTDimension;
+  artifact: CRAFTDimension;
+  frame: CRAFTDimension;
+  timeline: CRAFTDimension;
+  timelineWords: string[];    // structure words (milestone, phase, timeline ...) that are not dates: named, never scored
+  risks: Array<{ line: string; answered: boolean }>; // lines that name a risk, and whether the plan answers it
 }
 
 // Run 16 R16-13 (D46): keyword matches are whole words (a keyword is not inside a longer word), and each distinct
@@ -428,63 +472,133 @@ function addDistinct(found: string[], matches: string[]): void {
   }
 }
 
-export function analyzeCRAFTDimensions(content: string): CRAFTAnalysis {
-  const analysis: CRAFTAnalysis = {
-    character: { found: [], score: 0, gaps: [] },
-    result: { found: [], score: 0, gaps: [] },
-    artifact: { found: [], score: 0, gaps: [] },
-    frame: { found: [], score: 0, gaps: [] },
-    timeline: { found: [], score: 0, gaps: [] }
-  };
-  
-  const lines = content.split('\n');
-  
-  // CHARACTER patterns
-  const rolePatterns = [
+// Run 19 (D80, problem 5): each dimension is made of named elements. A pattern group is one element; the answer says which
+// elements the plan contains and which it lacks, so a gap is never named for something the plan already has.
+interface Group { label: string; patterns: RegExp[]; optional?: boolean }
+
+const MONTH = '(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)';
+
+const CHARACTER_GROUPS: Group[] = [
+  { label: 'a named role, title or team', patterns: [
     /\b(marketing|sales|product|engineering|cs|customer success|growth|content|demand gen|ops)\b\s*\b(manager|director|lead|head|vp|chief|team|specialist)\b/gi,
-    /\b(cmo|ceo|cto|coo|cro|vp|director|manager|lead|owner)\b/gi,
+    /\b(cmo|ceo|cto|coo|cro|vp|director|manager|lead|owner)\b/gi] },
+  { label: 'an owner or responsible party', patterns: [
     /\bresponsible\s+(?:for|party|team|person)\b/gi,
     /\b(?:who|team|person|role)\s+(?:will|should|must|owns|executes|leads)\b/gi,
-    /\bowner[:\s]/gi,
-    /\braci\b/gi
-  ];
-  
-  for (const line of lines) {
-    for (const pattern of rolePatterns) {
-      const matches = line.match(pattern);
-      if (matches) {
-        addDistinct(analysis.character.found, matches);
+    /\bowner[:\s]/gi] },
+  { label: 'a RACI', optional: true, patterns: [/\braci\b/gi] },
+];
+const RESULT_GROUPS: Group[] = [
+  { label: 'a KPI, metric or goal', patterns: [/\b(kpi|metric|goal|target|objective|okr|success\s*criteria)\b/gi] },
+  { label: 'a target with a number', patterns: [
+    /\b(increase|decrease|improve|reduce|achieve|reach|hit)\s+\d+/gi,
+    /\d+%?\s*(increase|decrease|improvement|reduction|growth)\b/gi,
+    /\b(roi|conversion|retention|churn|nps|csat)\b\s*[:\s]*\d+/gi,
+    // Run 20: a goal line that holds a figure ("Goal: a pipeline of $1,500,000, ten deals ...") states a target with a number.
+    /(?<=\b(?:goal|target|objective|kpi|okr|metric)s?\b[^\n]{0,80}?)\$\d+(?:,\d{3})*(?:\.\d+)?[kmb]?\b/gi] },
+  { label: 'a money target', optional: true, patterns: [/\$[\d,]+\s*(revenue|arr|mrr|pipeline|savings)\b/gi, /\bpipeline of \$\d+(?:,\d{3})*(?:\.\d+)?[kmb]?\b/gi] },
+];
+const ARTIFACT_GROUPS: Group[] = [
+  { label: 'a deliverable or output', patterns: [/\b(deliverable|output|create|produce|build(?!\s+(?:an?\s+)?(?:hypothetical\s+)?pipeline)|develop|launch|publish|ship)\b/gi] },
+  { label: 'a named document or tool', patterns: [/\b(document|report|dashboard|playbook|template|guide|framework|tool)\b/gi] },
+  { label: 'a campaign or content asset', patterns: [/\b(campaign|content|(?:marketing|sales|brand|creative|digital|content) assets?|material|collateral|deck|presentation)\b/gi] },
+  { label: 'a channel asset', patterns: [/\b(website|landing\s*page|email|blog|video|webinar|event)\b/gi] },
+];
+const FRAME_GROUPS: Group[] = [
+  { label: 'an audience, persona or segment', patterns: [/\b(audience|persona|icp|segment|target\s*market|buyer)\b/gi] },
+  { label: 'constraints or assumptions', patterns: [/\b(constraint|limitation|scope|boundary|requirement|assumption)\b/gi, /\b(?:figures|numbers)\b[^.\n]{0,40}\b(?:hypothetical|assumed|estimates?)\b/gi] },
+  { label: 'a budget or resources', patterns: [/\b(budget|resource|headcount|bandwidth|capacity)\b/gi] },
+  { label: 'context or current state', patterns: [/\b(context|background|situation|current\s*state|status quo|what (?:buyers|customers) use today)\b/gi] },
+  { label: 'a scope such as "for enterprise"', optional: true, patterns: [/\bfor\s+(enterprise|smb|mid-market|startup|b2b|b2c)\b/gi] },
+];
+// Timeline: only concrete time references count: a date, a quarter or half-year code, a financial-year code, or a duration with a number.
+// Words such as by, plan, quarter, month, day, deadline or milestone are not dates and are not scored; "may" is not a month unless a day or year goes with it.
+const TIMELINE_GROUPS: Group[] = [
+  { label: 'a date', patterns: [
+    new RegExp(`\\b\\d{1,2}(?:st|nd|rd|th)?\\s+(?:of\\s+)?${MONTH}\\b(?:\\s*,?\\s*\\d{4})?`, 'gi'),
+    new RegExp(`\\b${MONTH}\\s+\\d{1,2}(?:st|nd|rd|th)?\\b(?:\\s*,?\\s*\\d{4})?`, 'gi'),
+    new RegExp(`\\b${MONTH}\\s*,?\\s*\\d{4}\\b`, 'gi'),
+    /\b\d{4}-\d{2}-\d{2}\b/g,
+    /\b\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{2,4}\b/g] },
+  { label: 'a quarter or financial year', patterns: [
+    /\b(?:q[1-4]|h[12])(?:\s*(?:fy)?\s*'?\d{2,4})?\b/gi,
+    /\bfy\s*'?\d{2,4}\b/gi] },
+  { label: 'a duration with a number', patterns: [
+    /\b\d+[\s-]*(?:day|week|month|quarter|year)s?\b/gi,
+    /\b(?:week|day|month)\s+\d+\b/gi] },
+];
+const TIMELINE_WORDS = /\b(deadline|due|milestone|phase|sprint|timeline|schedule|roadmap|calendar)s?\b/gi;
+
+const RISK_WORD = /\brisks?\b/i;
+const RISK_ANSWER = /\b(mitigat\w*|contingenc\w*|fallback|back-?up|plan b|trigger|escalat\w*|response|respond|if (?:this|that|it)\b)/i;
+
+// The sentence (or line) of the plan that holds a position: the plan's own words, cut at sentence ends.
+function sentenceAt(line0: string, index: number): string {
+  // an abbreviation such as Sr. or Dr. does not end a sentence (same length, so positions hold)
+  const line = line0.replace(/\b(Sr|Jr|Dr|Mr|Mrs|Ms|St|vs|No|Inc|Ltd)\./g, (m) => m.slice(0, -1) + '\u2024');
+  let a = index; let b = index;
+  while (a > 0 && !/[.;!?]\s/.test(line.slice(a - 2, a))) a--;
+  while (b < line.length && !/[.;!?]/.test(line[b])) b++;
+  const t = line.slice(a, b + 1).trim().replace(/\s+/g, ' ').replace(/\u2024/g, '.');
+  return t.length > 160 ? t.slice(0, 157) + '...' : t;
+}
+
+function scoreGroups(lines: string[], groups: Group[]): { found: string[]; evidence: string[]; groupsFound: string[]; groupsMissing: string[] } {
+  const found: string[] = []; const evidence: string[] = []; const groupsFound: string[] = []; const groupsMissing: string[] = [];
+  for (const g of groups) {
+    let hit = false;
+    for (const line of lines) {
+      for (const pattern of g.patterns) {
+        const matches = line.match(pattern);
+        if (matches) {
+          addDistinct(found, matches); hit = true;
+          if (evidence.length < 2) {
+            const at = line.search(new RegExp(pattern.source, pattern.flags.replace('g', '')));
+            const shown = sentenceAt(line, Math.max(0, at));
+            if (shown && !evidence.includes(shown)) evidence.push(shown);
+          }
+        }
       }
     }
+    (hit ? groupsFound : g.optional ? [] : groupsMissing).push(g.label);
   }
-  
-  analysis.character.score = Math.min(10, analysis.character.found.length * 2 + (analysis.character.found.length > 0 ? 4 : 0));
+  return { found, evidence, groupsFound, groupsMissing };
+}
+
+// Run 20 (quality round 1): a line that describes the customers, the market or the product (not the seller's own plan) is not scored as
+// the plan's owner, goal, deliverable or date. "Buyer roles: General Manager Operations" names the customer's roles, "Customer quote: ...
+// in under six months" is a customer's words, and "Proof: ... Gartner ... 7 Consecutive Years" is an award. Such lines still count for
+// Frame (audience, context). A line is of this kind when its label (the words before the first colon) says so.
+const MARKET_LABEL = /^(?:buyer|buyers|buyer roles?|persona|personas|audience|target audience|customers?|prospects?|competitors?|alternatives?|what (?:buyers|customers) use today|proof|references?|testimonials?|quotes?|case stud(?:y|ies)|message|messaging|positioning|how we differ|differentiat\w+|stakeholders?|segments?|icp)\b/i;
+export function isMarketLine(line: string): boolean {
+  const m = line.match(/^\s*([^:\n]{1,60}):/);
+  return !!m && MARKET_LABEL.test(m[1].trim());
+}
+
+export function analyzeCRAFTDimensions(content: string): CRAFTAnalysis {
+  const lines = content.split('\n');
+  const ownLines = lines.filter((l) => !isMarketLine(l));
+  const make = (groups: Group[], unit: number, base: number, onlyOwn = true): CRAFTDimension => {
+    const r = scoreGroups(onlyOwn ? ownLines : lines, groups);
+    return { found: r.found, score: Math.min(10, r.found.length * unit + (r.found.length > 0 ? base : 0)), gaps: [], evidence: r.evidence, groupsFound: r.groupsFound, groupsMissing: r.groupsMissing };
+  };
+  const analysis: CRAFTAnalysis = {
+    character: make(CHARACTER_GROUPS, 2, 4),
+    result: make(RESULT_GROUPS, 2, 4),
+    artifact: make(ARTIFACT_GROUPS, 1, 4),
+    frame: make(FRAME_GROUPS, 1, 4, false),
+    timeline: make(TIMELINE_GROUPS, 2, 4),
+    timelineWords: [],
+    risks: [],
+  };
+
   if (analysis.character.found.length === 0) {
     analysis.character.gaps.push('No clear role/owner identified');
-    analysis.character.gaps.push('Add: "Owner: [Role/Name]" or "Responsible: [Team]"');
+    analysis.character.gaps.push('Add a line such as "Owner: Head of Marketing" or "Responsible: the sales team", with your own names');
   } else if (analysis.character.found.length < 2) {
     analysis.character.gaps.push('Consider adding RACI matrix for complex initiatives');
   }
-  
-  // RESULT patterns
-  const resultPatterns = [
-    /\b(kpi|metric|goal|target|objective|okr|success\s*criteria)\b/gi,
-    /\b(increase|decrease|improve|reduce|achieve|reach|hit)\s+\d+/gi,
-    /\d+%?\s*(increase|decrease|improvement|reduction|growth)\b/gi,
-    /\$[\d,]+\s*(revenue|arr|mrr|pipeline|savings)\b/gi,
-    /\b(roi|conversion|retention|churn|nps|csat)\b\s*[:\s]*\d+/gi
-  ];
-  
-  for (const line of lines) {
-    for (const pattern of resultPatterns) {
-      const matches = line.match(pattern);
-      if (matches) {
-        addDistinct(analysis.result.found, matches);
-      }
-    }
-  }
-  
-  analysis.result.score = Math.min(10, analysis.result.found.length * 2 + (analysis.result.found.length > 0 ? 4 : 0));
+
   if (analysis.result.found.length === 0) {
     analysis.result.gaps.push('No measurable outcomes defined');
     analysis.result.gaps.push('Add: Specific KPIs with target numbers');
@@ -492,77 +606,43 @@ export function analyzeCRAFTDimensions(content: string): CRAFTAnalysis {
   } else if (analysis.result.found.length < 3) {
     analysis.result.gaps.push('Consider adding leading and lagging indicators');
   }
-  
-  // ARTIFACT patterns
-  const artifactPatterns = [
-    /\b(deliverable|output|create|produce|build|develop|launch|publish|ship)\b/gi,
-    /\b(document|report|dashboard|playbook|template|guide|framework|tool)\b/gi,
-    /\b(campaign|content|asset|material|collateral|deck|presentation)\b/gi,
-    /\b(website|landing\s*page|email|blog|video|webinar|event)\b/gi
-  ];
-  
-  for (const line of lines) {
-    for (const pattern of artifactPatterns) {
-      const matches = line.match(pattern);
-      if (matches) {
-        addDistinct(analysis.artifact.found, matches);
-      }
-    }
-  }
-  
-  analysis.artifact.score = Math.min(10, analysis.artifact.found.length + (analysis.artifact.found.length > 0 ? 4 : 0));
+
   if (analysis.artifact.found.length === 0) {
     analysis.artifact.gaps.push('No clear deliverables specified');
     analysis.artifact.gaps.push('Add: List of specific outputs/artifacts');
   }
-  
-  // FRAME patterns
-  const framePatterns = [
-    /\b(audience|persona|icp|segment|target\s*market|buyer)\b/gi,
-    /\b(constraint|limitation|scope|boundary|requirement|assumption)\b/gi,
-    /\b(budget|resource|headcount|bandwidth|capacity)\b/gi,
-    /\b(context|background|situation|current\s*state)\b/gi,
-    /\bfor\s+(enterprise|smb|mid-market|startup|b2b|b2c)\b/gi
-  ];
-  
-  for (const line of lines) {
-    for (const pattern of framePatterns) {
-      const matches = line.match(pattern);
-      if (matches) {
-        addDistinct(analysis.frame.found, matches);
-      }
-    }
-  }
-  
-  analysis.frame.score = Math.min(10, analysis.frame.found.length + (analysis.frame.found.length > 0 ? 4 : 0));
+
   if (analysis.frame.found.length === 0) {
     analysis.frame.gaps.push('No audience or constraints defined');
     analysis.frame.gaps.push('Add: Target audience, budget, resources available');
   }
-  
-  // TIMELINE patterns
-  const timelinePatterns = [
-    /\b(q[1-4]|quarter|month|week|day|year)\b\s*\d*/gi,
-    /\b(deadline|due|by|until|milestone|phase|sprint)\b/gi,
-    /\b(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\b\s*\d*/gi,
-    /\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}/g,
-    /\b(timeline|schedule|roadmap|plan|calendar)\b/gi
-  ];
-  
-  for (const line of lines) {
-    for (const pattern of timelinePatterns) {
-      const matches = line.match(pattern);
-      if (matches) {
-        addDistinct(analysis.timeline.found, matches);
-      }
-    }
-  }
-  
-  analysis.timeline.score = Math.min(10, analysis.timeline.found.length * 2 + (analysis.timeline.found.length > 0 ? 4 : 0));
+
+  // Structure words that are not dates are named, never scored.
+  for (const line of ownLines) { const m = line.match(TIMELINE_WORDS); if (m) addDistinct(analysis.timelineWords, m); }
   if (analysis.timeline.found.length === 0) {
-    analysis.timeline.gaps.push('No timeline or deadlines specified');
+    analysis.timeline.gaps.push(analysis.timelineWords.length
+      ? `No dates, durations or quarters found. Words such as "${analysis.timelineWords.slice(0, 3).join('", "')}" are in the plan, but they are not dates`
+      : 'No dates, durations or quarters found');
     analysis.timeline.gaps.push('Add: Specific dates, phases, or milestones');
   }
-  
+
+  // A risk the plan names but never answers: judged sentence by sentence (the answer may sit in the same or the next sentence).
+  // Run 20: only the plan's own lines can name a risk of the plan ("digital risk protection" in an Alternatives line is not one).
+  const sentences = ownLines.join('\n').split(/\n|(?<=[.!?])\s+/).map((x) => x.trim()).filter(Boolean);
+  sentences.forEach((sent, i) => {
+    if (RISK_WORD.test(sent)) {
+      const answered = RISK_ANSWER.test(sent.replace(/\brisks?\b/gi, '')) || RISK_ANSWER.test(sentences[i + 1] || '');
+      analysis.risks.push({ line: sent.replace(/\s+/g, ' ').slice(0, 400), answered });
+    }
+  });
   return analysis;
+}
+
+/**
+ * Figures in a metrics text that no scoring rule reads. The text is split by line, semicolon and comma (not inside a number);
+ * a piece that holds a digit but none of the metric words the parser knows is returned, so the answer can name it as not scored.
+ */
+export function unscoredFigures(metricsText: string): string[] {
+  const known = /\b(mrr|arr|acv|annual contract value|average contract value|churn|nps|cac|ltv|retention|nrr|net revenue retention|activation|referral|growth|dau|mau|trial|expansion)\b/i;
+  return metricsText.split(/\n|;|,(?!\d{3}(?!\d))/).map((x) => x.trim()).filter((x) => /\d/.test(x) && !known.test(x)).map((x) => escapePiece(x));
 }

@@ -1,4 +1,7 @@
 // Run 16 R16-13 (D46): craft_gtm_analyzer matches keywords as whole words, and each distinct word is counted and listed once per area.
+// Run 19 (D80, problem 5): the Timeline area scores only concrete time references (a date, a quarter such as Q1, a duration with a
+// number). The Timeline expectations below were changed from the run 16 ones (which counted "by", "plan", "week", "phase" and a
+// bare month name) and every change is listed in independent-audit/run19/tool-changes-craft-gtm.md.
 // The inputs are the run 15 matrix cases O3 (mytest, minimal, emptyopt, longtext) plus inputs where the whole word is present.
 // Tested in-process through netlify/functions/mcp.mjs (no network, no deploy). Run: npm run build, then node --test tests/whole-word-keywords.test.mjs
 import { test } from "node:test";
@@ -30,8 +33,8 @@ for (const [name, extra] of [["mytest", {}], ["minimal", {}], ["emptyopt", { int
     const r = await call("craft_gtm_analyzer", { document_content: PLAN, document_type: "quarterly_plan", ...extra });
     assert.equal(r.isError, false);
     const t = area(r.text, "T: TIMELINE");
-    assert.deepEqual(t.words, ["Q1", "by", "plan"]);
-    assert.equal(t.score, 10);
+    assert.deepEqual(t.words, ["Q1"]);
+    assert.equal(t.score, 6);
     const c = area(r.text, "C: CHARACTER");
     assert.deepEqual(c.words, ["marketing lead", "Owner", "lead"]);
     assert.equal(c.score, 10);
@@ -39,11 +42,11 @@ for (const [name, extra] of [["mytest", {}], ["minimal", {}], ["emptyopt", { int
 }
 
 test("craft_gtm_analyzer longtext: a repeated word is counted and listed once", async () => {
-  const sentence = "Our buyers are operations leaders at mid-size clinic groups who lose revenue to missed appointments and manual rescheduling. They have tried reminder tools before, but the front desk still spends hours on the phone every week. ";
+  const sentence = "Our buyers are dispatch leaders at mid-size delivery fleets who lose time to manual re-planning. They have tried routing tools before, but the dispatch desk still spends hours on the phone every 2 weeks. ";
   const r = await call("craft_gtm_analyzer", { document_content: sentence.repeat(100).slice(0, 3990), document_type: "quarterly_plan" });
   assert.equal(r.isError, false);
   const t = area(r.text, "T: TIMELINE");
-  assert.deepEqual(t.words, ["week"]);
+  assert.deepEqual(t.words, ["2 weeks"]);
   assert.equal(t.score, 6);
 });
 
@@ -58,10 +61,10 @@ test("craft_gtm_analyzer: parts of longer words do not count", async () => {
 });
 
 test("craft_gtm_analyzer: whole words still count, in any letter case, each once", async () => {
-  const r = await call("craft_gtm_analyzer", { document_content: "Timeline: the plan starts in March and runs one Week per phase. Every week the owner reviews it. Plan B is for enterprise buyers.", document_type: "campaign_brief" });
+  const r = await call("craft_gtm_analyzer", { document_content: "Starts 3 March and runs 2 Weeks per phase. Every 2 weeks the owner reviews it. Plan B is for enterprise buyers.", document_type: "campaign_brief" });
   const t = area(r.text, "T: TIMELINE");
-  assert.deepEqual(t.words, ["Week", "phase", "March", "Timeline", "plan"]);
-  assert.equal(t.score, 10);
+  assert.deepEqual(t.words, ["3 March", "2 Weeks"]);
+  assert.equal(t.score, 8);
   const f = area(r.text, "F: FRAME");
   assert.deepEqual(f.words, ["for enterprise"]);
   assert.equal(f.score, 5);
@@ -70,6 +73,6 @@ test("craft_gtm_analyzer: whole words still count, in any letter case, each once
 test("craft_gtm_analyzer: full and short month names still count as whole words", async () => {
   const r = await call("craft_gtm_analyzer", { document_content: "Deadline: 15 January. Review in Sept 2026 and again in Dec.", document_type: "campaign_brief" });
   const t = area(r.text, "T: TIMELINE");
-  assert.deepEqual(t.words, ["Deadline", "January", "Sept 2026", "Dec"]);
-  assert.equal(t.score, 10);
+  assert.deepEqual(t.words, ["15 January", "Sept 2026"]); // a bare "Dec" is not a date
+  assert.equal(t.score, 8);
 });
