@@ -270,8 +270,9 @@ The ${company} partnerships team
   const asks: Array<[string, string]> = [];
   if (!args.partner_support_capacity) asks.push([`partner_support_capacity, which this plan assumes is ${capacity}`, 'the number of tiers and who supports partners']);
   if (!existingPartners.length) asks.push(['existing_partners, with the deals each has closed', 'which tier each partner starts in']);
-  if (!goalHasFigure) asks.push(['a numeric partner target, such as deals or pipeline for the year', `the target of ${program.kpis[0].toLowerCase()}`]);
-  if (!dealSizeMatch) asks.push(['your deal size as one amount, such as $50K', 'every amount in the tiers and tables']);
+  // one line each in both cases, so the layout does not depend on whether a figure was typed
+  asks.push(goalHasFigure ? ['the period your partner target covers, such as the year or a quarter', `the pace of ${program.kpis[0].toLowerCase()}`] : ['a numeric partner target, such as deals or pipeline for the year', `the target of ${program.kpis[0].toLowerCase()}`]);
+  asks.push(dealSizeMatch ? ['whether your deal size is a one-off price or a yearly amount', 'the commission amounts in the tiers and tables'] : ['your deal size as one amount, such as $50K', 'every amount in the tiers and tables']);
   if (!ctx.v && !prodKinds.some((k) => !k.fromName)) asks.push(['product: one line on what it does and who uses it', 'the partner kinds in this plan and what the recruitment email says about the product']);
   if (contractBasis) asks.push(['your contract term and notice period', 'how long a partner fee should run']);
   if (ctx.how === 'sector' || ctx.how === 'unknown') asks.push(['business_model, which this plan reads from your sector or text', 'the wording of price and contract terms']);

@@ -39,6 +39,8 @@ function dropRepeatedLines(text: string): string {
   return text.split('\n').filter((line) => {
     const key = line.trim().toLowerCase();
     if (key.length < 50 || /^\|[-: |]+\|$/.test(key) || /^#/.test(key)) return true;
+    // a line that quotes typed text is an item the caller listed: items typed twice stay, by position (layout never depends on the words)
+    if (/["“]/.test(key)) return true;
     if (seen.has(key)) return false;
     seen.add(key);
     return true;
@@ -182,7 +184,8 @@ function capabilityPieces(desc: string): string[] {
       pieces.push(...merged);
     }
   }
-  return pieces.filter((x) => x.split(/\s+/).length <= 24).filter((x, i, a) => a.findIndex((y) => y.toLowerCase() === x.toLowerCase()) === i);
+  // a part of two words or more that comes twice is listed once; a one word item is kept where the caller put it (by position)
+  return pieces.filter((x) => x.split(/\s+/).length <= 24).filter((x, i, a) => x.split(/\s+/).length < 2 || a.findIndex((y) => y.toLowerCase() === x.toLowerCase()) === i);
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------
@@ -592,12 +595,10 @@ export function writeLaunchPlan(args: {
 
   // ---- what is launched ----
   out.push('## What is being launched');
-  if (caps.length > 1) {
-    out.push(`${prod.name ? c.NS : 'Your solution'} is described by these parts:`);
+  if (caps.length >= 1) {
+    out.push(`${prod.name ? c.NS : 'Your solution'} is described by ${caps.length > 1 ? "these parts" : "this part"}:`);
     out.push('');
     out.push(caps.map((x) => `- ${x}`).join('\n'));
-  } else if (caps.length === 1) {
-    out.push(`You describe ${prod.name ? c.N : 'your solution'} as ${quoted(caps[0])}.`);
   } else if (prod.wrapped) out.push(`You describe ${c.N} in these words: ${quoted(prod.desc)}`);
   else if (descShown) out.push(`You describe ${prod.name ? c.N : 'your solution'} in these words: ${quoted(descShown)}.`);
   else out.push(`${c.NS} is the launch. No description was given, so the messages below are built from the sector and the segments.`);
@@ -1217,7 +1218,8 @@ export function writeRetentionPlaybook(args: {
   if (!current.length) missing.push(['what you already do to keep customers, in the current_interventions input', 'the comparison with each reason, which shows what is covered and what is not']);
   if (!product) missing.push(['the product or company name, in the product input', 'the title and the drafts, which now say "our service"']);
   if (!args.cs_team_size) missing.push(['the customer success team size, in the cs_team_size input; the plan assumes small (1 to 3)', 'the split between personal, one-to-many and automated contact']);
-  if (churn.n !== null && churn.period === 'unstated') missing.push(['whether the churn rate is monthly, quarterly or yearly', `the annual figure, which now reads ${typedRate} as monthly`]);
+  if (churn.n === null) missing.push(['the churn rate as a number with its period, such as 5% a month', 'the severity, the annual figure and the sizing of the plan']);
+  else if (churn.period === 'unstated') missing.push(['whether the churn rate is monthly, quarterly or yearly', `the annual figure, which now reads ${typedRate} as monthly`]);
   if (!args.industry && !ctx.v) missing.push(['the industry, in the industry input', 'the sector measures, objections and renewal habits, which are now left out']);
   const kinds = kindsWithLines(ctx, ['churnReasons', 'renewal']);
   if (kinds.length && !described) missing.push([`what ${productShort || 'your product'} sells, said in a few words after its name in the product input`, 'the reasons and steps, which now fit any company in the sector']);

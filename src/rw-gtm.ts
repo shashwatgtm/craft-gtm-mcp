@@ -90,7 +90,8 @@ export function finalise(out: string): string {
   const kept: string[] = [];
   for (const line of out.replace(/\r/g, '').split('\n')) {
     const key = line.trim().toLowerCase().replace(/\s+/g, ' ');
-    if (key.length >= 40 && !/^[|\-#>`\s]/.test(key) && seen.has(key)) continue;
+    // only plain prose lines are dropped when repeated: numbered lines, bullets and bold label lines stay where the writer put them, so the layout never depends on whether two typed items were alike
+    if (key.length >= 40 && !/^[|\-#>`\s]/.test(key) && !/^(?:\d{1,3}[.)]\s|[*+]\s|\*\*[^*]*\*\*$)/.test(key) && seen.has(key)) continue;
     if (key.length >= 40) seen.add(key);
     kept.push(line);
   }

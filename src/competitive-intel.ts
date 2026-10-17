@@ -213,8 +213,9 @@ export function generateCompetitiveIntel(args: {
     const desc = isDescription(raw);
     const name = shortOf(raw);
     const paren = raw.match(/\(([^)]*)\)\s*$/);
-    const notes = [...(paren && !desc && stripEnd(paren[1]) ? [`You describe ${name} as ${stripEnd(paren[1])}`] : []), ...(byCompetitor[raw] || [])];
     const ref = desc ? descRef(raw, i) : name;
+    // a bracketed note counts whether the item reads as a name or as a description (the layout never depends on the words typed)
+    const notes = [...(paren && stripEnd(paren[1]) ? [`You describe ${ref} as ${stripEnd(paren[1])}`] : []), ...(byCompetitor[raw] || [])];
     const text = withoutSource(raw);
     const heading = desc && text.length > 90 ? ref : desc ? lc(text).replace(/^(\w+(?:\s+\w+)?);\s+/, '$1, ') : name;
     return { raw, text, name, desc, ref, heading, notes, weak: notes.filter((x) => sideOf(x) === 'weak'), ahead: notes.filter((x) => sideOf(x) === 'ahead') };
