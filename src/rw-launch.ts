@@ -9,18 +9,19 @@ import { playbookFor, MODEL_LANGUAGE, segmentNotes, segmentKinds, SUBTYPE_PLAYBO
 import { SUBTYPES, SECTOR_MODEL, MODEL_NAME } from './verticals.js';
 import { escapePiece } from './escape-inputs.js';
 const unescapeMd = (t: string): string => t.replace(/\\([!-/:-@[-`{-~])/g, '$1');
+const spaced = (t: string): string => escapePiece(unescapeMd(t).replace(/_/g, ' '));
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 // Small helpers shared by the three tools
 // ---------------------------------------------------------------------------------------------------------------------------------
-const upper1 = (t: string): string => (t ? t.charAt(0).toUpperCase() + t.slice(1) : t);
-const stripEnd = (t: string): string => t.trim().replace(/[\s.;:,]+$/, '');
+const upper1 = (t: string): string => (t ? escapePiece(t.charAt(0).toUpperCase() + t.slice(1)) : t);
+const stripEnd = (t: string): string => escapePiece(t.trim().replace(/[\s.;:,]+$/, ''));
 /** A sentence: first letter capital, one full stop at the end. */
 const sentence = (t: string): string => { const x = stripEnd(t); return x ? `${upper1(x)}.` : ''; };
 const aAn = (word: string): string => (/^[aeiou]/i.test(word.trim()) ? 'an' : 'a');
 const plural = (n: number, one: string, many: string): string => (n === 1 ? one : many);
 const initials = (role: string): string => role.split(/\s+/).filter((w) => /^[A-Z]/.test(w)).map((w) => w[0]).join('');
-const cell = (t: string): string => t.replace(/\|/g, '/');
+const cell = (t: string): string => escapePiece(unescapeMd(t).replace(/\|/g, '/'));
 const escapeRe = (t: string): string => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 /** Typed text in quotes. The echo safeguard already wraps a text that tried to give an instruction in curly quotes: it is then shown as it is. */
@@ -1486,7 +1487,7 @@ ${audiences([['Client service owner', 'A call from the account owner', 'What hap
 
   const playbook = (crisis: string, wasTyped: boolean): string => {
     const lower = crisis.toLowerCase();
-    const name = crisis.replace(/_/g, ' ');
+    const name = spaced(crisis);
     const t = stems(crisis);
     // a crisis of the sector's own (by its key, or by its words when the text names no known kind of crisis), used once
     const knownKind = /vulnerab|data[ _]exposure|customer_data|\bsla\b|sla_|service[ _]level|regulat|fraud|ai_wrong|wrong[ _]action|ai[ _]error|hallucinat|breach|security|hack|exposure|outage|downtime|\bdown\b|(^|[^a-z])pr([^a-z]|$)|reputation|media|social|executive|departure|fired|resign|competitor|attack|market/.test(lower);
@@ -1496,7 +1497,7 @@ ${audiences([['Client service owner', 'A call from the account owner', 'What hap
     const own = found && !usedOwn.has(found.key) ? found : undefined;
     if (own) {
       usedOwn.add(own.key);
-      const also = (alsoCovers.get(own.key) ?? []).map((n) => n.replace(/_/g, ' '));
+      const also = (alsoCovers.get(own.key) ?? []).map((n) => spaced(n));
       const label = `${!wasTyped || own.title.toLowerCase() === name.toLowerCase() ? own.title : `${own.title}: ${name}`}${also.length ? ` (also covers: ${also.join(', ')})` : ''}`;
       return `### ${label}
 
@@ -1707,8 +1708,8 @@ ${audiences([[enterprise ? 'Technology or service owners at customers' : 'Custom
   brief.push(`${N === 'your company' ? 'This plan is for your company' : `This plan is for ${N}`}, ${aAn(industryName)} ${industryName} company with ${readableChoice(base)} customers, ${readableChoice(sensitivity)} data sensitivity and a ${readableChoice(companySize)} team${args.company_size ? '' : ' (assumed)'}.`);
   if (prod.desc) brief.push(`You describe the company as ${quoted(prod.desc)}.`);
   brief.push(typed.length
-    ? `It covers the ${crisesAsked.length} ${plural(crisesAsked.length, 'crisis', 'crises')} you named: ${andList(crisesAsked.map((c) => quoted(c.replace(/_/g, ' '))))}.`
-    : `You named no crises, so it covers a default set for ${industryName}, not ranked by likelihood: ${andList(crisesAsked.map((c) => c.replace(/_/g, ' ').replace(/\bsla\b/gi, 'SLA').replace(/\bpr\b/gi, 'PR').replace(/\bai\b/gi, 'AI')))}.`);
+    ? `It covers the ${crisesAsked.length} ${plural(crisesAsked.length, 'crisis', 'crises')} you named: ${andList(crisesAsked.map((c) => quoted(spaced(c))))}.`
+    : `You named no crises, so it covers a default set for ${industryName}, not ranked by likelihood: ${andList(crisesAsked.map((c) => spaced(c).replace(/\bsla\b/gi, 'SLA').replace(/\bpr\b/gi, 'PR').replace(/\bai\b/gi, 'AI')))}.`);
   if (compItems.length) brief.push(`The compliance items you listed (${comp}) are named in the steps that need them.`);
   brief.push('Every time in this plan (minutes, hours, days) is an example to replace with your own.');
   out.push(brief.join(' '));
