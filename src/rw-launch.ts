@@ -7,6 +7,8 @@ import { formatDate, addDays, calculateDaysUntil, readableChoice, pct, roundType
 import { readContext, q, andList, splitTopLevel, splitPhrases, lcFirst, cleanCompanyName, answerFor, type Context, type BusinessModel } from './context.js';
 import { playbookFor, MODEL_LANGUAGE, segmentNotes, segmentKinds, SUBTYPE_PLAYBOOKS, type PlaybookOverlay } from './sector-playbooks.js';
 import { SUBTYPES, SECTOR_MODEL, MODEL_NAME } from './verticals.js';
+import { escapePiece } from './escape-inputs.js';
+const unescapeMd = (t: string): string => t.replace(/\\([!-/:-@[-`{-~])/g, '$1');
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 // Small helpers shared by the three tools
@@ -78,11 +80,13 @@ export function typedList(text: unknown): string[] {
 }
 
 /** The product text read as a name and a description. A name is found only where the text names it ("Name: what it does", "Name, a description"); otherwise the product is "your solution". */
+// Run 42: the server writes a backslash before markup characters in typed text. The name and description rules read the words, so they
+// read the text without those backslashes; the pieces handed back are escaped again (escapePiece writes the same backslashes).
 export function productParts(text: string): { name: string | null; desc: string; wrapped: boolean } {
-  const t = text.trim().replace(/\s+/g, ' ');
-  if (/^\u201C[\s\S]*\u201D$/.test(t)) return { name: null, desc: t, wrapped: true };
+  const t = unescapeMd(text).trim().replace(/\s+/g, ' ');
+  if (/^\u201C[\s\S]*\u201D$/.test(t)) return { name: null, desc: escapePiece(t), wrapped: true };
   const r = productPartsPlain(t);
-  return { ...r, wrapped: false };
+  return { name: r.name === null ? null : escapePiece(r.name), desc: escapePiece(r.desc), wrapped: false };
 }
 // a verb or joining word that ends a name written as a clause ("Name connects branch offices ...")
 const VERB_JOINER = /\s+(?:connects?|helps?|lets?|gives?|makes?|builds?|runs?|designs?|turns?|unifies?|joins?|uses?|brings?|powers?|automates?|offers?|provides?|enables?|delivers?|is|are|that|which|who|where)\b/i;
@@ -118,7 +122,7 @@ function productPartsPlain(t: string): { name: string | null; desc: string } {
   }
   const words = t.split(' ');
   // a short text is a name on its own ("Lanehop", "Lanehop route planner", "branch44")
-  if (words.length === 1 && /^[A-Za-z][A-Za-z0-9.&+-]*$/.test(t)) return { name: t, desc: '' };
+  if (words.length === 1 && /^[A-Za-z][A-Za-z0-9.&+\\-]*$/.test(t)) return { name: t, desc: '' };
   if (words.length <= 4 && /^[A-Z0-9]/.test(t) && !/[.;:!?]$/.test(t)) return { name: t, desc: '' };
   if (words.length <= 5 && /^[A-Z0-9]/.test(t) && words.every((w) => /^[A-Z0-9][\w.&+-]*$/.test(w) || /^[a-z]+\d+\w*$/.test(w) || /^(?:of|and|for|by)$/.test(w))) return { name: t, desc: '' };
   return { name: null, desc: t };
@@ -1349,7 +1353,8 @@ export function writeCrisisPlan(args: {
   const comp = compItems.length ? andList(compItems) : '';
   const prod = productParts(args.company);
   const cname = args.company.trim();
-  const plainName = !/[,:;]/.test(cname) && !/^(?:a|an|the|our|my)\b/i.test(cname) && (/^[A-Z0-9]/.test(cname) ? cname.split(/\s+/).length <= 6 : cname.split(/\s+/).length === 1) ? cname : null;
+  const cnamePlain = unescapeMd(cname);
+  const plainName = !/[,:;]/.test(cnamePlain) && !/^(?:a|an|the|our|my)\b/i.test(cnamePlain) && (/^[A-Z0-9]/.test(cnamePlain) ? cnamePlain.split(/\s+/).length <= 6 : cnamePlain.split(/\s+/).length === 1) ? cname : null;
   const N = prod.name ?? plainName ?? 'your company';
   const ctx = readContext({ model: args.business_model, vertical: args.industry }, { seller: [cleanCompanyName(args.company)], context: [args.potential_crises, args.compliance_requirements] });
   const model = wordingModel(ctx, !!args.business_model);
