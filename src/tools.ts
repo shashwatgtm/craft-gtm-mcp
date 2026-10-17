@@ -8,6 +8,13 @@ const businessModelProp = {
   enum: MODEL_CHOICES
 };
 
+// Run 42B: the seller's own industry, named by the user. It decides the sector notes; no reading of the text can override it.
+const yourSectorProp = {
+  type: "string",
+  description: "Optional: your company's own industry (not your customers'). When given, it decides the sector notes; when left out, the tool reads it from your words and stays neutral if they are unclear.",
+  enum: [...Object.keys(SECTOR_CHOICES), "other"]
+};
+
 // Run 19 (D80, problem 8): the sector can be named, so the answer uses that sector's buyers, measures and objections.
 const industryProp = {
   type: "string",
@@ -41,7 +48,8 @@ export const tools: Tool[] = [
           type: "string",
           description: "Optional: Qualitative feedback themes, one per line or separated by semicolons (for example 'Customers like X; they struggle with Y'). Each theme is quoted and answered"
         },
-        business_model: businessModelProp
+        business_model: businessModelProp,
+        your_sector: yourSectorProp
       },
       required: ["product", "target_market", "current_metrics"]
     }
@@ -76,7 +84,8 @@ export const tools: Tool[] = [
           enum: ["bootstrap", "moderate", "well_funded"]
         },
         business_model: businessModelProp,
-        industry: industryProp
+        industry: industryProp,
+        your_sector: yourSectorProp
       },
       required: ["product_feature", "launch_type", "target_segments", "goals"]
     }
@@ -105,7 +114,8 @@ export const tools: Tool[] = [
         },
         target_persona: { type: "string", description: "Who you're interviewing (role/title)" },
         key_hypotheses: { type: "string", description: "Optional: Hypotheses to validate during interview, one per line or separated by semicolons" },
-        business_model: businessModelProp
+        business_model: businessModelProp,
+        your_sector: yourSectorProp
       },
       required: ["interview_type", "product_context", "target_persona"]
     }
@@ -138,7 +148,8 @@ export const tools: Tool[] = [
         },
         current_interventions: { type: "string", description: "Optional: What retention tactics you already do (listed and compared with the playbook)" },
         product: { type: "string", description: "Optional: Your product or company name, used in the title and the email drafts" },
-        industry: industryProp
+        industry: industryProp,
+        your_sector: yourSectorProp
       },
       required: ["customer_segment", "business_model", "current_churn_rate"]
     }
@@ -168,7 +179,8 @@ export const tools: Tool[] = [
         },
         existing_partners: { type: "string", description: "Optional: Current partner types/count, one per line or separated by semicolons (listed in the plan)" },
         business_model: businessModelProp,
-        industry: industryProp
+        industry: industryProp,
+        your_sector: yourSectorProp
       },
       required: ["company", "product", "partner_model", "partner_goals", "your_deal_size"]
     }
@@ -205,7 +217,8 @@ export const tools: Tool[] = [
           enum: ["startup_under_50", "scaleup_50_200", "midsize_200_1000", "enterprise_1000_plus"]
         },
         compliance_requirements: { type: "string", description: "Optional: Relevant compliance, comma-separated (for example ISO 27001, SOC 2, GDPR). Each item is named in the notification steps" },
-        business_model: businessModelProp
+        business_model: businessModelProp,
+        your_sector: yourSectorProp
       },
       required: ["company", "industry", "customer_base", "data_sensitivity"]
     }
@@ -240,7 +253,8 @@ export const tools: Tool[] = [
         recent_wins: { type: "string", description: "Why customers chose you over competitors: used as your strengths when none are given" },
         recent_losses: { type: "string", description: "Why you lost deals to competitors: used as your gaps when none are given" },
         business_model: businessModelProp,
-        industry: industryProp
+        industry: industryProp,
+        your_sector: yourSectorProp
       },
       required: ["your_product", "competitors"]
     }
@@ -262,7 +276,8 @@ export const tools: Tool[] = [
         },
         intended_audience: { type: "string", description: "Optional: Who will read/approve this document" },
         desired_outcome: { type: "string", description: "Optional: What action should this document drive" },
-        industry: industryProp
+        industry: industryProp,
+        your_sector: yourSectorProp
       },
       required: ["document_content", "document_type"]
     }

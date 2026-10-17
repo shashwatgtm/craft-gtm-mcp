@@ -4,6 +4,7 @@ import { writeCrisisPlan } from './rw-launch.js';
 export function generateCrisisPlanner(args: {
   company: string;
   industry: string;
+  your_sector?: string;
   customer_base: string;
   data_sensitivity: string;
   potential_crises?: string;

@@ -11,6 +11,7 @@ export function generateRetentionPlaybook(args: {
   current_interventions?: string;
   product?: string;
   industry?: string;
+  your_sector?: string;
 }): string {
   return writeRetentionPlaybook(args);
 }

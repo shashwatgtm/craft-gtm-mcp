@@ -472,7 +472,7 @@ const weeksLabel = (days: number): string => {
 
 export function writeLaunchPlan(args: {
   product_feature: string; launch_type: string; target_segments: string; goals: string; launch_date?: string; available_channels?: string;
-  team_size?: string; budget_level?: string; business_model?: string; industry?: string;
+  team_size?: string; budget_level?: string; business_model?: string; industry?: string; your_sector?: string;
 }): string {
   const launchType = PHASES[args.launch_type] ? args.launch_type : 'feature_launch';
   const teamSize = args.team_size || 'small_2_5';
@@ -482,7 +482,7 @@ export function writeLaunchPlan(args: {
   const segs = splitTopLevel(args.target_segments, false).map(upper1);
   const segList = listOf(segs);
   const goals = splitPhrases(args.goals).length ? splitPhrases(args.goals) : [args.goals.trim()];
-  const ctx = readContext({ model: args.business_model, vertical: args.industry }, { seller: [args.product_feature], context: [args.goals], buyer: [args.target_segments] });
+  const ctx = readContext({ model: args.business_model, vertical: args.industry, sector: args.your_sector }, { seller: [args.product_feature], context: [args.goals], buyer: [args.target_segments] });
   const pb = ctx.v ? playbookFor(ctx.v) : null;
   const buyer = (args.goals.match(/\bwith\s+(?:the\s+)?([A-Za-z][A-Za-z .&/-]{1,50}?)(?:\s*\([^)]*\))?\s+as\s+(?:the\s+)?(?:buyer|sponsor|champion|decision[- ]maker)\b/i) || [])[1]?.trim() ?? null;
   const committeeBuyer = (!!buyer && /\b(c[a-z]o|chief|head|vp|director|leader|manager)\b/i.test(buyer)) || segmentKinds(args.target_segments).some((k) => ['investment institutions', 'banks and financial services', 'government and public sector'].includes(k.kind));
@@ -967,7 +967,7 @@ function parseChurn(text: string): { n: number | null; period: 'month' | 'year' 
 
 export function writeRetentionPlaybook(args: {
   customer_segment: string; business_model: string; current_churn_rate: string; churn_reasons?: string; available_data_signals?: string;
-  cs_team_size?: string; current_interventions?: string; product?: string; industry?: string;
+  cs_team_size?: string; current_interventions?: string; product?: string; industry?: string; your_sector?: string;
 }): string {
   const choice = args.business_model;
   const csTeamSize = args.cs_team_size || 'small_1_3';
@@ -984,7 +984,7 @@ export function writeRetentionPlaybook(args: {
   const accountRef = productShort || 'your account';
   const sign = productShort ? `The ${productShort} team` : 'Your account team';
   const segment = args.customer_segment.trim();
-  const ctx = readContext({ model: MODEL_OF_CHOICE[choice], vertical: args.industry }, { seller: [args.product], context: [args.churn_reasons, args.available_data_signals], buyer: [args.customer_segment] });
+  const ctx = readContext({ model: MODEL_OF_CHOICE[choice], vertical: args.industry, sector: args.your_sector }, { seller: [args.product], context: [args.churn_reasons, args.available_data_signals], buyer: [args.customer_segment] });
   const model0 = wordingModel(ctx, choice !== 'enterprise_contract');
   // an enterprise contract the user chose is read as people-delivered services only for an IT services firm, and as connectivity only for a telecom company
   const model = choice === 'enterprise_contract' && ((model0 === 'services' && ctx.v?.id !== 'ites') || (model0 === 'connectivity' && ctx.v?.id !== 'telecom')) ? null : model0;
@@ -1348,7 +1348,7 @@ const STOP_STEMS = new Set(['incid', 'issue', 'probl', 'crisi', 'custo', 'servi'
 const stems = (t: string): string[] => (t.toLowerCase().match(/[a-z]{5,}/g) ?? []).map((w) => w.slice(0, 5)).filter((w) => !STOP_STEMS.has(w));
 
 export function writeCrisisPlan(args: {
-  company: string; industry: string; customer_base: string; data_sensitivity: string; potential_crises?: string; company_size?: string; compliance_requirements?: string; business_model?: string;
+  company: string; industry: string; your_sector?: string; customer_base: string; data_sensitivity: string; potential_crises?: string; company_size?: string; compliance_requirements?: string; business_model?: string;
 }): string {
   const companySize = args.company_size || 'scaleup_50_200';
   const base = args.customer_base;
@@ -1360,7 +1360,7 @@ export function writeCrisisPlan(args: {
   const cnamePlain = unescapeMd(cname);
   const plainName = !/[,:;]/.test(cnamePlain) && !/^(?:a|an|the|our|my)\b/i.test(cnamePlain) && (/^[A-Z0-9]/.test(cnamePlain) ? cnamePlain.split(/\s+/).length <= 6 : cnamePlain.split(/\s+/).length === 1) ? cname : null;
   const N = prod.name ?? plainName ?? 'your company';
-  const ctx = readContext({ model: args.business_model, vertical: args.industry }, { seller: [cleanCompanyName(args.company)], context: [args.potential_crises, args.compliance_requirements] });
+  const ctx = readContext({ model: args.business_model, vertical: args.industry, sector: args.your_sector }, { seller: [cleanCompanyName(args.company)], context: [args.potential_crises, args.compliance_requirements] });
   const model = wordingModel(ctx, !!args.business_model);
   const pb = ctx.v ? playbookFor(ctx.v) : null;
   const sectorWords = !!ctx.v && (ctx.v.id !== 'saas' || /billing/i.test(ctx.v.name));

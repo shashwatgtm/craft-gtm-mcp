@@ -153,14 +153,21 @@ function thinSellerRead(input: ReaderInput, r: ReturnType<typeof explainSector>)
     if (others.vertical && !GENERIC_TRADE.has(others.vertical.id) && others.vertical.id !== r.vertical.id && (others.source === 'context' || others.source === 'role')) return neutral;
     // customer industries never override a seller that names a trade itself, but one lone keyword against several words of one other trade is not a trade
     if (withBuyer.vertical && withBuyer.vertical.id !== r.vertical.id && withBuyer.source === 'buyer' && withBuyer.strong.length >= 2) return neutral;
+    // a lone keyword named as a feature ("... with a payments feature") is not the seller's category
+    const sellerText = (input.seller ?? []).filter((x): x is string => typeof x === 'string').join(' ');
+    const kw = r.strong[0].replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    if (new RegExp(`\\b(?:with|including|featuring|plus|adds?|offers?|has)\\s+(?:a|an|some|our|its)\\s+(?:\\w+\\s+){0,2}${kw}`, 'i').test(sellerText)) return neutral;
   }
   return r;
 }
 
-export function readContext(opts: { model?: unknown; hintModel?: BusinessModel | null; vertical?: string | null }, rawInput: ReaderInput): Context {
+export function readContext(opts: { model?: unknown; hintModel?: BusinessModel | null; vertical?: string | null; sector?: string | null }, rawInput: ReaderInput): Context {
   const input = cleanInput(rawInput);
-  let chosen = opts.vertical && SECTOR_CHOICES[opts.vertical] ? VERTICALS.find((x) => x.id === SECTOR_CHOICES[opts.vertical!]) ?? null : null;
-  const read = thinSellerRead(input, readSector(input));
+  // Run 42B: your_sector (the seller's own industry, an enum the server has validated) decides the sector; no reading of the text can override it. "other" is neutral.
+  const given = typeof opts.sector === 'string' && (opts.sector === 'other' || SECTOR_CHOICES[opts.sector]) ? opts.sector : null;
+  const neutralRead = { vertical: null, source: null, strong: [], weak: [] } as unknown as ReturnType<typeof explainSector>;
+  let chosen = given ? (given === 'other' ? null : VERTICALS.find((x) => x.id === SECTOR_CHOICES[given]) ?? null) : opts.vertical && SECTOR_CHOICES[opts.vertical] ? VERTICALS.find((x) => x.id === SECTOR_CHOICES[opts.vertical!]) ?? null : null;
+  const read = given ? neutralRead : thinSellerRead(input, readSector(input));
   // The shared reader cuts a seller text at "for ..." and counts the rest as the buyer's words, so "software for consumer brands: sales
   // force automation, distributor management ..." reads as a buyer. When the seller's own description, read whole, names one trade with
   // several of its words, that trade is the seller's sector.
@@ -168,13 +175,13 @@ export function readContext(opts: { model?: unknown; hintModel?: BusinessModel |
   const whole = sellerTexts.length ? explainSector({ role: [sellerTexts.join(' \n ')] }) : null;
   const wholeTrade = whole && whole.vertical && whole.strong.length >= 2 && whole.vertical.id !== 'saas' && whole.vertical.id !== 'software' ? whole.vertical : null;
   // A broad choice (saas, software) does not hide a trade the seller's own words name (a CNAPP tool is cybersecurity, not "saas").
-  if (chosen && (chosen.id === 'saas' || chosen.id === 'software')) {
+  if (!given && chosen && (chosen.id === 'saas' || chosen.id === 'software')) {
     if (read.vertical && read.source === 'seller' && read.vertical.id !== chosen.id && read.vertical.id !== 'saas' && read.vertical.id !== 'software') chosen = null;
     else if (wholeTrade && whole!.strong.length >= 3) chosen = null;
   }
   const fromBuyerOnly = !chosen && read.source === 'buyer' && !wholeTrade;
   const v0 = chosen ?? (fromBuyerOnly ? null : (read.source === 'buyer' ? wholeTrade : read.vertical));
-  const v = chosen ? v0 : supplementSector(v0, sellerTexts);
+  const v = chosen || given ? v0 : supplementSector(v0, sellerTexts);
   const buyerV = fromBuyerOnly ? read.vertical : null;
   let model: BusinessModel | null; let how: Context['how'];
   const explicit = typeof opts.model === 'string' && (BUSINESS_MODELS as string[]).includes(opts.model) ? (opts.model as BusinessModel) : null;

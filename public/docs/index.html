@@ -292,6 +292,7 @@
 <tr><td><code>current_metrics</code></td><td>string</td><td>yes</td><td></td><td>Your current metrics (will be PARSED). Include any of: MRR, ARR, churn rate, NPS, CAC, LTV, retention rate, activation rate, DAU/MAU, trial conversion, revenue growth. Example: &#x27;MRR: $50K, Churn: 3%, NPS: 45, CAC: $500, LTV: $3000, Retention: 92%&#x27;</td></tr>
 <tr><td><code>time_in_market</code></td><td>string</td><td>no</td><td>pre_launch, 0_6_months, 6_12_months, 1_2_years, 2_plus_years</td><td>How long the product has been in market (shown in the scorecard)</td></tr>
 <tr><td><code>customer_feedback</code></td><td>string</td><td>no</td><td></td><td>Optional: Qualitative feedback themes (e.g., &#x27;Users love X but struggle with Y&#x27;)</td></tr>
+<tr><td><code>your_sector</code></td><td>string</td><td>no</td><td>logistics_tech, fintech, saas, vertical_saas, ai_native, ites, telecom, software, cybersecurity, other</td><td>Optional: your company&#x27;s own industry (not your customers&#x27;). When given, it decides the sector notes; when left out, the tool reads it from your words and stays neutral if they are unclear.</td></tr>
   </tbody></table></div>
 </section>
 <section class="hx-section" id="launch-commander" aria-labelledby="d-launch-commander">
@@ -307,6 +308,7 @@
 <tr><td><code>available_channels</code></td><td>string</td><td>no</td><td></td><td>Optional: Marketing channels available (comma-separated). E.g., &#x27;email, linkedin, blog, webinar, PR, paid_ads, community&#x27;</td></tr>
 <tr><td><code>team_size</code></td><td>string</td><td>no</td><td>solo, small_2_5, medium_6_15, large_15_plus</td><td>Marketing/GTM team size affects task distribution</td></tr>
 <tr><td><code>budget_level</code></td><td>string</td><td>no</td><td>bootstrap, moderate, well_funded</td><td>Budget affects recommended tactics</td></tr>
+<tr><td><code>your_sector</code></td><td>string</td><td>no</td><td>logistics_tech, fintech, saas, vertical_saas, ai_native, ites, telecom, software, cybersecurity, other</td><td>Optional: your company&#x27;s own industry (not your customers&#x27;). When given, it decides the sector notes; when left out, the tool reads it from your words and stays neutral if they are unclear.</td></tr>
   </tbody></table></div>
 </section>
 <section class="hx-section" id="customer-interview-kit" aria-labelledby="d-customer-interview-kit">
@@ -320,6 +322,7 @@
 <tr><td><code>product_complexity</code></td><td>string</td><td>no</td><td>simple, moderate, complex, highly_technical</td><td>Affects technical depth of questions</td></tr>
 <tr><td><code>target_persona</code></td><td>string</td><td>yes</td><td></td><td>Who you&#x27;re interviewing (role/title)</td></tr>
 <tr><td><code>key_hypotheses</code></td><td>string</td><td>no</td><td></td><td>Optional: Hypotheses to validate during interview</td></tr>
+<tr><td><code>your_sector</code></td><td>string</td><td>no</td><td>logistics_tech, fintech, saas, vertical_saas, ai_native, ites, telecom, software, cybersecurity, other</td><td>Optional: your company&#x27;s own industry (not your customers&#x27;). When given, it decides the sector notes; when left out, the tool reads it from your words and stays neutral if they are unclear.</td></tr>
   </tbody></table></div>
 </section>
 <section class="hx-section" id="retention-playbook" aria-labelledby="d-retention-playbook">
@@ -334,6 +337,7 @@
 <tr><td><code>available_data_signals</code></td><td>string</td><td>no</td><td></td><td>What usage data you can track (comma-separated). E.g., &#x27;login frequency, feature usage, support tickets, NPS responses&#x27;</td></tr>
 <tr><td><code>cs_team_size</code></td><td>string</td><td>no</td><td>no_dedicated_cs, small_1_3, medium_4_10, large_10_plus</td><td>CS team capacity affects intervention strategy</td></tr>
 <tr><td><code>current_interventions</code></td><td>string</td><td>no</td><td></td><td>Optional: What retention tactics you already do</td></tr>
+<tr><td><code>your_sector</code></td><td>string</td><td>no</td><td>logistics_tech, fintech, saas, vertical_saas, ai_native, ites, telecom, software, cybersecurity, other</td><td>Optional: your company&#x27;s own industry (not your customers&#x27;). When given, it decides the sector notes; when left out, the tool reads it from your words and stays neutral if they are unclear.</td></tr>
   </tbody></table></div>
 </section>
 <section class="hx-section" id="partner-architect" aria-labelledby="d-partner-architect">
@@ -348,6 +352,7 @@
 <tr><td><code>your_deal_size</code></td><td>string</td><td>yes</td><td></td><td>Average deal size as one amount (e.g., &#x27;$5000 ACV&#x27;, &#x27;$5K&#x27; or &#x27;$500/month&#x27;; a range is refused). It scales the example commission amounts; the example rates are fixed</td></tr>
 <tr><td><code>partner_support_capacity</code></td><td>string</td><td>no</td><td>minimal_self_serve, moderate, high_touch</td><td>How much partner support can you provide?</td></tr>
 <tr><td><code>existing_partners</code></td><td>string</td><td>no</td><td></td><td>Optional: Current partner types/count</td></tr>
+<tr><td><code>your_sector</code></td><td>string</td><td>no</td><td>logistics_tech, fintech, saas, vertical_saas, ai_native, ites, telecom, software, cybersecurity, other</td><td>Optional: your company&#x27;s own industry (not your customers&#x27;). When given, it decides the sector notes; when left out, the tool reads it from your words and stays neutral if they are unclear.</td></tr>
   </tbody></table></div>
 </section>
 <section class="hx-section" id="crisis-planner" aria-labelledby="d-crisis-planner">
@@ -362,6 +367,7 @@
 <tr><td><code>potential_crises</code></td><td>string</td><td>no</td><td></td><td>OPTIONAL: Crisis types to plan for (comma-separated). If not provided, the tool uses a default set of common crises for your industry (not ranked by likelihood). Options: data_breach, service_outage, pr_incident, executive_departure, security_vulnerability, regulatory_action, product_safety, customer_data_exposure</td></tr>
 <tr><td><code>company_size</code></td><td>string</td><td>no</td><td>startup_under_50, scaleup_50_200, midsize_200_1000, enterprise_1000_plus</td><td>Affects response team structure</td></tr>
 <tr><td><code>compliance_requirements</code></td><td>string</td><td>no</td><td></td><td>Optional: Relevant compliance, comma-separated (for example ISO 27001, SOC 2, GDPR). Each item is named in the notification steps</td></tr>
+<tr><td><code>your_sector</code></td><td>string</td><td>no</td><td>logistics_tech, fintech, saas, vertical_saas, ai_native, ites, telecom, software, cybersecurity, other</td><td>Optional: your company&#x27;s own industry (not your customers&#x27;). When given, it decides the sector notes; when left out, the tool reads it from your words and stays neutral if they are unclear.</td></tr>
   </tbody></table></div>
 </section>
 <section class="hx-section" id="competitive-intel" aria-labelledby="d-competitive-intel">
@@ -377,6 +383,7 @@
 <tr><td><code>common_objections</code></td><td>string</td><td>no</td><td></td><td>Sales objections you hear (comma-separated). E.g., &#x27;too expensive, missing X feature, competitor has better Y&#x27;</td></tr>
 <tr><td><code>recent_wins</code></td><td>string</td><td>no</td><td></td><td>Why customers chose you over competitors: will be used to DERIVE strengths</td></tr>
 <tr><td><code>recent_losses</code></td><td>string</td><td>no</td><td></td><td>Why you lost deals to competitors: will be used to DERIVE weaknesses</td></tr>
+<tr><td><code>your_sector</code></td><td>string</td><td>no</td><td>logistics_tech, fintech, saas, vertical_saas, ai_native, ites, telecom, software, cybersecurity, other</td><td>Optional: your company&#x27;s own industry (not your customers&#x27;). When given, it decides the sector notes; when left out, the tool reads it from your words and stays neutral if they are unclear.</td></tr>
   </tbody></table></div>
 </section>
 <section class="hx-section" id="craft-gtm-analyzer" aria-labelledby="d-craft-gtm-analyzer">
@@ -388,6 +395,7 @@
 <tr><td><code>document_type</code></td><td>string</td><td>yes</td><td>gtm_strategy, launch_plan, campaign_brief, quarterly_plan, project_proposal, marketing_plan</td><td>Type of document (shown in the analysis)</td></tr>
 <tr><td><code>intended_audience</code></td><td>string</td><td>no</td><td></td><td>Optional: Who will read/approve this document</td></tr>
 <tr><td><code>desired_outcome</code></td><td>string</td><td>no</td><td></td><td>Optional: What action should this document drive</td></tr>
+<tr><td><code>your_sector</code></td><td>string</td><td>no</td><td>logistics_tech, fintech, saas, vertical_saas, ai_native, ites, telecom, software, cybersecurity, other</td><td>Optional: your company&#x27;s own industry (not your customers&#x27;). When given, it decides the sector notes; when left out, the tool reads it from your words and stays neutral if they are unclear.</td></tr>
   </tbody></table></div>
 </section>
 </div>

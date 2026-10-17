@@ -24,3 +24,34 @@ test("one alternative typed with its own comma list stays one card", () => {
   const out = generateCompetitiveIntel({ your_product: "Acme, a tracking platform", competitors: "the current way of handling growth, with fragmented teams, tools and data", your_strengths: "one view of shipments" });
   assert.doesNotMatch(out, /## Against (?:with|tools)/);
 });
+
+// Run 42B: your_sector
+import mcp0 from "../netlify/functions/mcp.mjs";
+const mcp = mcp0.default || mcp0;
+let rid = 100;
+async function call(name, args) {
+  const r = await mcp(new Request("https://x.gtmhelix.com/mcp", { method: "POST", headers: { "content-type": "application/json", accept: "application/json, text/event-stream" }, body: JSON.stringify({ jsonrpc: "2.0", id: rid++, method: "tools/call", params: { name, arguments: args } }) }), {});
+  const t = await r.text();
+  let j; try { j = JSON.parse(t); } catch { j = JSON.parse(t.split("\n").filter((l) => l.startsWith("data:")).pop().slice(5)); }
+  return { text: (j.result?.content ?? []).map((c) => c.text).join("\n") || JSON.stringify(j.error ?? j), isError: !!j.result?.isError || !!j.error };
+}
+const LAUNCH = { product_feature: "Acme: route planning for couriers with a payments feature", launch_type: "feature_launch", target_segments: "banks, insurers", goals: "ten deals" };
+test("your_sector decides the sector over contrary text", async () => {
+  const r = await call("launch_commander", { ...LAUNCH, your_sector: "logistics_tech" });
+  assert.match(r.text, /Sector: .*logistics tech/i);
+  const r2 = await call("launch_commander", { ...LAUNCH, your_sector: "cybersecurity" });
+  assert.match(r2.text, /Sector: .*cybersecurity/i);
+});
+test("your_sector other gives neutral wording", async () => {
+  const r = await call("launch_commander", { ...LAUNCH, your_sector: "other" });
+  assert.match(r.text, /Sector: not clear/i);
+});
+test("an unknown your_sector is refused with the allowed values and is not echoed raw", async () => {
+  const r = await call("launch_commander", { ...LAUNCH, your_sector: "<img src=x>" });
+  assert.match(r.text, /logistics_tech/);
+  assert.doesNotMatch(r.text, /<img/);
+});
+test("without your_sector, a lone feature word does not set the sector", async () => {
+  const r = await call("launch_commander", { product_feature: "Acme: a services firm with a payments platform", launch_type: "feature_launch", target_segments: "retailers", goals: "ten deals" });
+  assert.doesNotMatch(r.text, /Sector: read from your inputs as fintech/i);
+});

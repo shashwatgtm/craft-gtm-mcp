@@ -45,11 +45,12 @@ export function generatePartnerArchitect(args: {
   existing_partners?: string;
   business_model?: string;
   industry?: string;
+  your_sector?: string;
 }): string {
   const partnerModel = args.partner_model;
   const supportCapacity = args.partner_support_capacity || 'moderate';
   // Run 19 (D80): the sector and the business model are read from the inputs; the stated goal and the existing partners are used.
-  const ctx = readContext({ model: args.business_model, vertical: args.industry }, { seller: [cleanCompanyName(args.company), args.product], context: [args.existing_partners], buyer: [args.partner_goals] });
+  const ctx = readContext({ model: args.business_model, vertical: args.industry, sector: args.your_sector }, { seller: [cleanCompanyName(args.company), args.product], context: [args.existing_partners], buyer: [args.partner_goals] });
   const existingPartners = splitItems(args.existing_partners);
   
   // Parse deal size for commission calculations

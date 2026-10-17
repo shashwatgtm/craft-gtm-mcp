@@ -14,6 +14,7 @@ export function generateCRAFTAnalyzer(args: {
   intended_audience?: string;
   desired_outcome?: string;
   industry?: string;
+  your_sector?: string;
 }): string {
   // Run 18 (R18-26, P05-WS-01): leading and trailing whitespace is not part of the document, so it is not measured or shown
   // (the web form already trims it in netlify/functions/api.mjs). Interior whitespace is kept exactly.
@@ -31,7 +32,7 @@ export function generateCRAFTAnalyzer(args: {
   const readInput = sellerLines.length || planAudience
     ? { seller: [content.split('\n')[0], ...sellerLines], context: byLabel(/^buyer(?:s| roles?)?$|^personas?$/i), role: byLabel(/^buyer(?:s| roles?)?$|^personas?$/i), buyer: [args.intended_audience, planAudience?.text] }
     : { context: [content, args.desired_outcome], buyer: [args.intended_audience] };
-  const sectorCtx = readContext({ vertical: args.industry }, readInput);
+  const sectorCtx = readContext({ vertical: args.industry, sector: args.your_sector }, readInput);
   const sectorCtx0 = sectorCtx;
   // Perform CRAFT analysis
   const analysis = analyzeCRAFTDimensions(content);

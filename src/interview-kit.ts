@@ -68,6 +68,7 @@ export function generateCustomerInterviewKit(args: {
   interview_type: string;
   product_context: string;
   industry?: string;
+  your_sector?: string;
   product_complexity?: string;
   target_persona: string;
   key_hypotheses?: string;
@@ -91,7 +92,7 @@ export function generateCustomerInterviewKit(args: {
 
   // Run 19 (D80, problems 4 and 8): the sector is the one chosen, else read from what you typed; the questions come from the
   // sector data file (src/verticals.ts). With no sector the generic questions below are used and the answer says so.
-  const ctx = readContext({ model: args.business_model, vertical: args.industry }, { seller: [args.product_context], context: [args.key_hypotheses], role: [args.target_persona] });
+  const ctx = readContext({ model: args.business_model, vertical: args.industry, sector: args.your_sector }, { seller: [args.product_context], context: [args.key_hypotheses], role: [args.target_persona] });
   const v = ctx.v;
   const industryName = args.industry ? readableChoice(args.industry) : v ? `${v.name} (read from your inputs)` : 'not stated (generic questions are used: set industry or name the sector)';
   const product = shortName(args.product_context) ?? 'the product';

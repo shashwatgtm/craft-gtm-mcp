@@ -12,6 +12,7 @@ export function generateLaunchCommander(args: {
   budget_level?: string;
   business_model?: string;
   industry?: string;
+  your_sector?: string;
 }): string {
   return writeLaunchPlan(args);
 }

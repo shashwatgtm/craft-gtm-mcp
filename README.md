@@ -65,6 +65,7 @@ Generated on 27 September 2026 from the server's own tool list and checked again
 | `current_metrics` | Yes | string | Your current metrics (will be PARSED). Include any of: MRR, ARR, churn rate, NPS, CAC, LTV, retention rate, activation rate, DAU/MAU, trial conversion, revenue growth. Example: 'MRR: $50K, Churn: 3%, NPS: 45, CAC: $500, LTV: $3000, Retention: 92%' |
 | `time_in_market` | No | one of: `pre_launch`, `0_6_months`, `6_12_months`, `1_2_years`, `2_plus_years` | How long the product has been in market (shown in the scorecard) |
 | `customer_feedback` | No | string | Optional: Qualitative feedback themes (e.g., 'Users love X but struggle with Y') |
+| `your_sector` | No | one of: `logistics_tech`, `fintech`, `saas`, `vertical_saas`, `ai_native`, `ites`, `telecom`, `software`, `cybersecurity`, `other` | Optional: your company's own industry (not your customers'). When given, it decides the sector notes; when left out, the tool reads it from your words and stays neutral if they are unclear. |
 
 #### 2. Launch Commander (`launch_commander`)
 
@@ -78,6 +79,7 @@ Generated on 27 September 2026 from the server's own tool list and checked again
 | `available_channels` | No | string | Optional: Marketing channels available (comma-separated). E.g., 'email, linkedin, blog, webinar, PR, paid_ads, community' |
 | `team_size` | No | one of: `solo`, `small_2_5`, `medium_6_15`, `large_15_plus` | Marketing/GTM team size affects task distribution |
 | `budget_level` | No | one of: `bootstrap`, `moderate`, `well_funded` | Budget affects recommended tactics |
+| `your_sector` | No | one of: `logistics_tech`, `fintech`, `saas`, `vertical_saas`, `ai_native`, `ites`, `telecom`, `software`, `cybersecurity`, `other` | Optional: your company's own industry (not your customers'). When given, it decides the sector notes; when left out, the tool reads it from your words and stays neutral if they are unclear. |
 
 #### 3. Customer Interview Kit (`customer_interview_kit`)
 
@@ -89,6 +91,7 @@ Generated on 27 September 2026 from the server's own tool list and checked again
 | `industry` | No | one of: `saas`, `fintech`, `logistics_tech`, `vertical_saas`, `ai_native`, `ites`, `telecom`, `software`, `cybersecurity`, `ecommerce`, `marketplace`, `enterprise_software`, `consumer`, `other` | Industry affects terminology and context |
 | `product_complexity` | No | one of: `simple`, `moderate`, `complex`, `highly_technical` | Affects technical depth of questions |
 | `key_hypotheses` | No | string | Optional: Hypotheses to validate during interview |
+| `your_sector` | No | one of: `logistics_tech`, `fintech`, `saas`, `vertical_saas`, `ai_native`, `ites`, `telecom`, `software`, `cybersecurity`, `other` | Optional: your company's own industry (not your customers'). When given, it decides the sector notes; when left out, the tool reads it from your words and stays neutral if they are unclear. |
 
 #### 4. Retention Playbook (`retention_playbook`)
 
@@ -101,6 +104,7 @@ Generated on 27 September 2026 from the server's own tool list and checked again
 | `available_data_signals` | No | string | What usage data you can track (comma-separated). E.g., 'login frequency, feature usage, support tickets, NPS responses' |
 | `cs_team_size` | No | one of: `no_dedicated_cs`, `small_1_3`, `medium_4_10`, `large_10_plus` | CS team capacity affects intervention strategy |
 | `current_interventions` | No | string | Optional: What retention tactics you already do |
+| `your_sector` | No | one of: `logistics_tech`, `fintech`, `saas`, `vertical_saas`, `ai_native`, `ites`, `telecom`, `software`, `cybersecurity`, `other` | Optional: your company's own industry (not your customers'). When given, it decides the sector notes; when left out, the tool reads it from your words and stays neutral if they are unclear. |
 
 #### 5. Partner Architect (`partner_architect`)
 
@@ -113,6 +117,7 @@ Generated on 27 September 2026 from the server's own tool list and checked again
 | `your_deal_size` | Yes | string | Average deal size as one amount (e.g., '$5000 ACV', '$5K' or '$500/month'; a range is refused). It scales the example commission amounts; the example rates are fixed |
 | `partner_support_capacity` | No | one of: `minimal_self_serve`, `moderate`, `high_touch` | How much partner support can you provide? |
 | `existing_partners` | No | string | Optional: Current partner types/count |
+| `your_sector` | No | one of: `logistics_tech`, `fintech`, `saas`, `vertical_saas`, `ai_native`, `ites`, `telecom`, `software`, `cybersecurity`, `other` | Optional: your company's own industry (not your customers'). When given, it decides the sector notes; when left out, the tool reads it from your words and stays neutral if they are unclear. |
 
 #### 6. Crisis Planner (`crisis_planner`)
 
@@ -125,6 +130,7 @@ Generated on 27 September 2026 from the server's own tool list and checked again
 | `potential_crises` | No | string | OPTIONAL: Crisis types to plan for (comma-separated). If not provided, the tool uses a default set of common crises for your industry (not ranked by likelihood). Options: data_breach, service_outage, pr_incident, executive_departure, security_vulnerability, regulatory_action, product_safety, customer_data_exposure |
 | `company_size` | No | one of: `startup_under_50`, `scaleup_50_200`, `midsize_200_1000`, `enterprise_1000_plus` | Affects response team structure |
 | `compliance_requirements` | No | string | Optional: Relevant compliance, comma-separated (for example ISO 27001, SOC 2, GDPR). Each item is named in the notification steps |
+| `your_sector` | No | one of: `logistics_tech`, `fintech`, `saas`, `vertical_saas`, `ai_native`, `ites`, `telecom`, `software`, `cybersecurity`, `other` | Optional: your company's own industry (not your customers'). When given, it decides the sector notes; when left out, the tool reads it from your words and stays neutral if they are unclear. |
 
 #### 7. Competitive Intel (`competitive_intel`)
 
@@ -138,6 +144,7 @@ Generated on 27 September 2026 from the server's own tool list and checked again
 | `common_objections` | No | string | Sales objections you hear (comma-separated). E.g., 'too expensive, missing X feature, competitor has better Y' |
 | `recent_wins` | No | string | Why customers chose you over competitors: will be used to DERIVE strengths |
 | `recent_losses` | No | string | Why you lost deals to competitors: will be used to DERIVE weaknesses |
+| `your_sector` | No | one of: `logistics_tech`, `fintech`, `saas`, `vertical_saas`, `ai_native`, `ites`, `telecom`, `software`, `cybersecurity`, `other` | Optional: your company's own industry (not your customers'). When given, it decides the sector notes; when left out, the tool reads it from your words and stays neutral if they are unclear. |
 
 #### 8. CRAFT GTM Analyzer (`craft_gtm_analyzer`)
 
@@ -147,6 +154,7 @@ Generated on 27 September 2026 from the server's own tool list and checked again
 | `document_type` | Yes | one of: `gtm_strategy`, `launch_plan`, `campaign_brief`, `quarterly_plan`, `project_proposal`, `marketing_plan` | Type of document (shown in the analysis) |
 | `intended_audience` | No | string | Optional: Who will read/approve this document |
 | `desired_outcome` | No | string | Optional: What action should this document drive |
+| `your_sector` | No | one of: `logistics_tech`, `fintech`, `saas`, `vertical_saas`, `ai_native`, `ites`, `telecom`, `software`, `cybersecurity`, `other` | Optional: your company's own industry (not your customers'). When given, it decides the sector notes; when left out, the tool reads it from your words and stays neutral if they are unclear. |
 
 ## Design Principles (v2.0)
 

@@ -162,6 +162,7 @@ export function generateCompetitiveIntel(args: {
   recent_losses?: string;
   business_model?: string;
   industry?: string;
+  your_sector?: string;
 }): string {
   // an item that opens with a one or two word fragment and a semicolon or comma ("periodic; one-size-fits-all phishing simulations") continues the item before it
   const competitorsRaw = (() => {
@@ -179,7 +180,7 @@ export function generateCompetitiveIntel(args: {
   const wins = splitItems(args.recent_wins);
   const losses = splitItems(args.recent_losses);
   const objections = args.common_objections ? splitObjections(args.common_objections) : [];
-  const ctx = readContext({ model: args.business_model, vertical: args.industry }, { seller: [args.your_product, args.your_strengths], context: [args.competitors, args.competitor_details, args.common_objections, args.recent_wins, args.recent_losses] });
+  const ctx = readContext({ model: args.business_model, vertical: args.industry, sector: args.your_sector }, { seller: [args.your_product, args.your_strengths], context: [args.competitors, args.competitor_details, args.common_objections, args.recent_wins, args.recent_losses] });
   const v = ctx.v;
 
   // Strengths: the ones you gave, else your own words from your wins (Run 19, D80, problem 7: a win phrase is never turned into a claim you did not make).
