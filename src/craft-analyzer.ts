@@ -90,7 +90,9 @@ export function generateCRAFTAnalyzer(args: {
 
   // the buyer's industry, read from the plan's audience and goal lines (and the audience input), else from the whole plan without the broad technology and media words
   const buyerTexts = [args.intended_audience, planAudience?.text, planGoal?.text, args.desired_outcome];
-  const buyerCtx = buyerContextFor(...buyerTexts) ?? (() => { const t = content; for (const c of BUYER_CONTEXTS) if (c.id !== 'technology' && c.id !== 'telecom-media' && c.id !== 'gaming' && c.match.test(t)) return c; return null; })();
+  // Run 42B: "communications" as a team (PR and communications teams) and "media" as a channel (social media, media buyers) are not the telecom or media industry.
+  const teamWords = (t: unknown): unknown => (typeof t === 'string' ? t.replace(/\b(?:social|earned|paid|owned) media\b/gi, ' ').replace(/\b(?:pr|public relations|corporate|internal|marketing|brand|comms?)(?: and| &|,)? communications?\b/gi, ' ').replace(/\bcommunications?(?= (?:teams?|managers?|leads?|directors?|professionals?|departments?|functions?|and\b|,|$))/gi, ' ').replace(/\bmedia(?= (?:teams?|buyers?|planners?|planning|buying|channels?|marketers?|managers?|and\b|,|$))/gi, ' ') : t);
+  const buyerCtx = buyerContextFor(...buyerTexts.map(teamWords)) ?? (() => { const t = content; for (const c of BUYER_CONTEXTS) if (c.id !== 'technology' && c.id !== 'telecom-media' && c.id !== 'gaming' && c.match.test(t)) return c; return null; })();
 
   // the plan's own title, when its first line is a sentence and not a labelled line ("Brightdesk plan for Q1 2027.")
   const firstLine = content.split('\n')[0].trim();

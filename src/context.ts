@@ -2,7 +2,7 @@
 // that keep typed text out of broken sentences. The sector knowledge itself is in src/verticals.ts (rule B82).
 // splitItems, q, readContext, sectorNotes and answerFor follow the helpers of Revenue Enablement (the lead's version).
 import { escapePiece } from './escape-inputs.js';
-import { BILLING_NOTES } from './sector-playbooks.js';
+import { BILLING_NOTES, AI_GENERAL_NOTES, DECISION_AI_WORDS } from './sector-playbooks.js';
 import { detectVertical, detectModel, explainSector, profileFor, MODEL_NAME, BUSINESS_MODELS, SECTOR_MODEL, SUBTYPES, VERTICALS, type Vertical, type VerticalId, type BusinessModel, type ReaderInput } from './verticals.js';
 
 export { BUSINESS_MODELS, VERTICALS };
@@ -19,11 +19,22 @@ export const SECTOR_CHOICES: Record<string, VerticalId> = {
 // A list typed by the user: one item per line or per semicolon. Commas are kept inside an item, so a phrase such as
 // "regression suites take too long, but teams already own too many tools" is never cut into a fragment. A plain comma list of
 // short items (each 1 to 6 words, none opening with a joining word) is split too.
+/**
+ * Run 42B (addendum 9): a typed phrase that only looks like a comma list is one item. "design, review and handoff in one place" is one phrase: every piece
+ * starts in lower case and the last piece is "<word> and <word> <preposition> ...", so the pieces are not separate items.
+ */
+export function isOnePhrase(pieces: string[]): boolean {
+  if (pieces.length < 2) return false;
+  if (!pieces.every((x) => /^[a-z]/.test(x))) return false;
+  const last = pieces[pieces.length - 1].replace(/\s*\((?:page )?claims?\)\s*$/i, '');
+  return /^[\w-]+ (?:and|or) [\w-]+ (?:in|on|with|across|for|at|within|without|of|to|from|between) \S/.test(last) && pieces.slice(0, -1).every((x) => x.split(/\s+/).length <= 3);
+}
 export function splitItems(s: unknown): string[] {
   if (typeof s !== 'string') return [];
   const parts = s.split(/\n|;/).map((x) => x.trim().replace(/^[-*•]\s*/, '')).filter(Boolean);
   if (parts.length === 1 && /,/.test(parts[0])) {
     const c = parts[0].split(/,(?!\d{3}(?!\d))/).map((x) => x.trim()).filter(Boolean);
+    if (isOnePhrase(c)) return [escapePiece(parts[0])];
     if (c.length > 1 && c.every((x) => x.split(/\s+/).length <= 6) && !c.some((x) => /^(not|but|and|or|so|which|that)\b/i.test(x))) return c.map((x) => escapePiece(x));
   }
   return parts.map((x) => escapePiece(x));
@@ -218,7 +229,13 @@ export function readContext(opts: { model?: unknown; hintModel?: BusinessModel |
   // finance-function buyers for "fintech"): the committee, roles, measures and discovery questions are those of an investment decision.
   const vAdj0 = overlayBilling(profileFor(v, model, input), sellerTexts, (input.context ?? []).filter((x): x is string => typeof x === 'string'));
   // "Seats" is a software subscription word: a sector sentence that holds it is reworded for a model that is not a subscription.
-  const vAdj = vAdj0 && model && model !== 'saas' ? { ...vAdj0, committee: vAdj0.committee.replace(/\bseats\b/gi, 'licences') } : vAdj0;
+  const vSeats = vAdj0 && model && model !== 'saas' ? { ...vAdj0, committee: vAdj0.committee.replace(/\bseats\b/gi, 'licences') } : vAdj0;
+  // Run 42B (addendum 8): the AI native entry also holds lines for AI that decides cases (cost per case, regulators, investment committees). They are used only when the
+  // seller's own words name that kind of work; otherwise the notes that hold for every AI product are used. your_sector fixes the sector, not the kind.
+  const aiBase = VERTICALS.find((x) => x.id === 'ai-native');
+  const vAdj: Vertical | null = vSeats && aiBase && vSeats.id === 'ai-native' && !vSeats.subtype && vSeats.name === aiBase.name && vSeats.committee.replace(/\blicences\b/g, 'seats') === aiBase.committee && !DECISION_AI_WORDS.test(sellerTexts.join(' \n '))
+    ? ({ ...vSeats, ...AI_GENERAL_NOTES, generalOnly: true } as Vertical)
+    : vSeats;
   const sector = vAdj ? `${chosen ? `${vAdj!.name} (from your choice)` : `read from your inputs as ${vAdj!.name}`}` : `not clear from your inputs${buyerSide || ' (name the industry for sector notes)'}`;
   const mtxt = model
     ? `${MODEL_LABEL[model]} (${how === 'input' ? 'from business_model' : how === 'hint' ? 'from your market choice; set business_model to change it' : how === 'sector' ? 'the usual model in this sector, assumed; set business_model to change it' : 'read from your inputs; set business_model to change it'})`
@@ -324,6 +341,7 @@ export function splitPhrases(text: unknown): string[] {
   const out: string[] = [];
   for (const line of lines) {
     const pieces = splitTopLevel(line, false);
+    if (isOnePhrase(pieces)) { out.push(escapePiece(line)); continue; }
     const merged: string[] = [];
     let carry = '';
     for (let piece of pieces) {
@@ -331,7 +349,9 @@ export function splitPhrases(text: unknown): string[] {
       const words = piece.split(/\s+/);
       const prevLast = merged.length ? merged[merged.length - 1].replace(/\s*\(.*\)\s*$/, '').split(/\s+/).pop() ?? '' : '';
       const joins = /^(?:which|with|and|or|but|so|that|where|from|because|including|plus|while|then)\b/i.test(piece);
-      const nameOnly = words.length <= 4 && words.every((w) => /^(?:and|or|&)$/i.test(w) || /^[A-Z][A-Za-z0-9+&/.-]*$/.test(w));
+      // a trailing label such as "(page claim)" does not make a list of names into a phrase
+      const nameWords = piece.replace(/\s*\((?:page )?claims?\)\s*$/i, '').split(/\s+/);
+      const nameOnly = nameWords.length <= 4 && nameWords.every((w) => /^(?:and|or|&)$/i.test(w) || /^[A-Z][A-Za-z0-9+&/.-]*$/.test(w));
       const acronymRun = ACRONYM.test(words[0].replace(/[,;]$/, '')) && ACRONYM.test(prevLast.replace(/[,;]$/, '')) && words.length <= 8;
       // "and integration with an existing ERP" is a strength of its own, not a tail of the one before; a run of Title Case names ("Modern Trade, Rural GT, Van Sales and hybrid sales models") continues a list of names
       const titleRun = merged.length > 0 && !/[?!]$/.test(merged[merged.length - 1]) && !/[?!]$/.test(piece) && /^[A-Z][a-z]+$/.test(words[0]) && /^[A-Z]/.test(prevLast) && /\b[A-Z][a-z]+ [A-Z][a-z]+\b/.test(merged[merged.length - 1]);

@@ -266,8 +266,8 @@ const SEGMENT_NOTES: Array<{ re: RegExp; kind: string; review: string; partners:
   { re: /\b(3pl|cep|courier|logistics|transport\w*|freight|shipping|supply chain|distribution)\b/i, kind: 'logistics and distribution operators', partners: 'logistics consultants, ERP, WMS and TMS integrators, freight and carrier networks that advise shippers', review: 'operations leaders who own service levels to their own customers, multi-client operations, and thin margins that make the cost of change visible' },
   { re: /\b(fmcg|cpg|consumer goods|consumer brands?)\b/i, kind: 'consumer goods brands', partners: 'route-to-market consultants, DMS and ERP integrators, trade marketing and retail audit agencies', review: 'sales and distribution teams, distributor networks, trade schemes and a rollout region by region' },
   { re: /\b(retail\w*|e-?commerce|e-?grocery|d2c|stores?|pos)\b/i, kind: 'retail and e-commerce', partners: 'retail technology integrators, e-commerce platform agencies, point-of-sale and store technology vendors', review: 'seasonal peaks, many stores or outlets, and operations and technology teams that share the decision' },
-  { re: /\b(telecom\w*|communications?|isps?)\b/i, kind: 'telecom', partners: 'OSS and BSS integrators, network and platform consultancies', review: 'network and platform teams, very large estates, and a preference for fewer suppliers' },
-  { re: /\b(media|publishing|entertainment|broadcast\w*)\b/i, kind: 'media and publishing', partners: 'agency and ad-tech integrators, content platform vendors, billing and subscription consultancies', review: 'many titles or channels, subscription and advertising revenue to reconcile, and finance and product teams that share the decision' },
+  { re: /\b(telecom\w*|telcos?|isps?|communications? (?:providers?|service providers?|operators?|carriers?|networks?|compan(?:y|ies)))\b/i, kind: 'telecom', partners: 'OSS and BSS integrators, network and platform consultancies', review: 'network and platform teams, very large estates, and a preference for fewer suppliers' },
+  { re: /\b(?<!social )(?<!earned )(?<!paid )(?<!owned )(?:media(?! (?:teams?|buyers?|planners?|planning|buying|channels?|marketers?|managers?|and communications))|publish\w*|entertainment|broadcast\w*)\b/i, kind: 'media and publishing', partners: 'agency and ad-tech integrators, content platform vendors, billing and subscription consultancies', review: 'many titles or channels, subscription and advertising revenue to reconcile, and finance and product teams that share the decision' },
   { re: /\b(technology|software|saas|it services|ites|tech companies|ai companies|startups?|scale-?ups?)\b/i, kind: 'technology companies', partners: 'cloud marketplaces, technology consultancies, managed service providers', review: 'an engineering-led evaluation, technical due diligence, and a security review of anything that touches code or data' },
 ];
 export function segmentNotes(segment: string): { kind: string; review: string; partners: string; channels?: string[] } | null {
@@ -533,7 +533,51 @@ export const SUBTYPE_PLAYBOOKS: Record<string, PlaybookOverlay> = {
   ],
   },
 };
-export function playbookFor(v: { id: VerticalId; name: string; subtype?: string }): Playbook {
+// Run 42B (addendum 8): the notes of the AI native entry that hold for every AI product. The entry in src/verticals.ts also holds lines written for AI that decides
+// cases (cost per case, case review, explaining decisions to a regulator or an investment committee); those are used only when the seller's own words name
+// that kind of work (DECISION_AI_WORDS). your_sector fixes the sector, not the kind.
+export const DECISION_AI_WORDS = /\b(?:case (?:review|handling|management|files?)|claims?|underwrit\w*|adjudicat\w*|fraud|credit (?:decisions?|scoring|risk)|kyc|aml|know your customer|investigations?|regulators?|compliance (?:reviews?|checks?|decisions?)|triage|decision (?:ai|automation|engine|support)|decisioning|risk scoring|investment committees?|portfolio|due diligence)\b/i;
+export const AI_GENERAL_NOTES: SectorNotes = {
+  vocabulary: ['accuracy on your own data', 'human in the loop', 'guardrails', 'data privacy', 'pilot', 'inference cost', 'output quality', 'review before it goes out'],
+  buyerRoles: ['Business owner of the process the AI changes', 'Head of Data and AI', 'Chief Technology Officer', 'CISO', 'Legal Counsel'],
+  committee: 'The owner of the process the AI changes signs; the business lead who feels the problem champions it and the data or AI lead evaluates the model on the buyer\'s own data; security and legal review where data goes; the team that works with the AI output uses it.',
+  objections: [
+    { objection: 'AI gets answers wrong', response: 'Agree a pilot on the buyer\'s own data before go-live, score it against the way the work is judged today, and keep a person approving any action that moves money or changes a record.' },
+    { objection: 'Where does our data go?', response: 'State exactly where data is processed and stored, what is used for training (if anything), who can see it and how it can be deleted.' },
+    { objection: 'It will not fit our existing systems', response: 'Name the systems it must read from and write to, the few data fields needed, and who on the buyer side owns each connection.' },
+    { objection: 'We cannot see why it gave an output', response: 'Show, for each result, the inputs it used and the reason in plain words, and agree what is logged.' },
+    { objection: 'Is the vendor stable enough?', response: 'Say plainly who runs the product, how the buyer can export its data and settings, and what happens to a running pilot if the model or its provider changes.' },
+  ],
+  salesMotion: 'A pilot on the buyer\'s own data with the success measures agreed first, then a production rollout with a person reviewing what the AI is unsure about.',
+  metrics: ['accuracy on the buyer\'s own data', 'how often a person has to step in', 'time to a working pilot', 'time saved per task', 'adoption by the target team'],
+  proofShape: 'A pilot on the buyer\'s own data, scored against the way the work is judged today, with how often a person had to step in.',
+  discovery: [
+    'Which tasks would you trust the AI to handle first, and which never?',
+    'How do you judge that a result is right today: who reviews it, and against what?',
+    'Where does the data the AI needs live, and what may leave your environment?',
+    'What must a person approve before the AI output is used?',
+    'How long does this work take you today, and who does it?',
+  ],
+};
+const AI_GENERAL_PLAYBOOK_FIELDS: PlaybookOverlay = {
+  pains: ['routine work that people review or redo by hand', 'results that nobody can check against how the work is judged today', 'doubts about accuracy, data privacy and what happens when the AI is wrong'],
+  partners: { refer: ['consultancies that advise on data and AI strategy', 'domain advisers who sit with the team that owns the process'], resell: ['systems integrators with an AI practice', 'data platform resellers'], integrate: ['data platform and cloud vendors', 'model and infrastructure providers', 'workflow and content systems'], implement: ['AI and data engineering consultancies', 'systems integrators that run pilots on client data'] },
+  partnerWhy: 'The buyer wants a second pair of eyes on accuracy and data use, and the data lead often listens to an adviser or integrator before the vendor.',
+  deepQuestions: ['What evidence would let you trust a result: a history of results, an explanation, or both?', 'Which data may leave your environment, and which may never?', 'What does the review process look like when the AI and a person disagree?', 'Who owns the result if the AI is wrong?'],
+  crises: [
+    { key: 'model_error', title: 'A wrong or unexplained model output used by a customer', what: 'the AI produced an output that a customer used and it was wrong, biased or could not be explained', first: ['Pause the affected output type or send it to human review', 'Find every customer who received the affected output, from the audit trail', 'Reproduce the failing example and add it to the evaluation set', 'Prepare a plain explanation the customer can pass on to its own team or client'], tell: [{ who: 'Customers who used the output', how: 'Call from the account owner, then a written note', focus: 'What was wrong, what it affected, what has been corrected, how it will be prevented' }, { who: 'Security and legal contacts', how: 'Written note', focus: 'Facts, evaluation results, the fix' }] },
+  ],
+  outage: 'an outage stops the AI features customers rely on, so their people take the work back by hand until service returns',
+  churnReasons: [
+    { reason: 'The outputs were not good enough to use without rework', signal: 'Reviewers edit or discard most outputs, or ask for the reasoning behind them', action: 'Review a sample of outputs with the customer, add the failures to the evaluation set, and show the evaluation history' },
+    { reason: 'Data privacy review blocked production use', signal: 'Security or legal asks again where data is processed and what is used for training', action: 'Answer in writing where data is processed and stored, what is used for training and how it is deleted' },
+    { reason: 'The buyer decided to build on a model API themselves', signal: 'The buyer\'s engineers ask for access to raw model features or compare build cost', action: 'Compare the full cost of evaluation, guardrails and integrations that they would have to build and maintain' },
+    { reason: 'Cost grew with volume', signal: 'Usage and cost per unit of use rise faster than the value customers report', action: 'Show the cost against the value delivered, with their own volumes, and offer a price that follows the value' },
+  ],
+  renewal: 'Renewal decisions follow live results with human review switched on, not the first pilot: keep the evaluation evidence current.',
+};
+export function playbookFor(v: { id: VerticalId; name: string; subtype?: string; generalOnly?: boolean }): Playbook {
+  if (v.generalOnly && v.id === 'ai-native' && !v.subtype && v.name === 'AI native') return { ...PLAYBOOKS['ai-native'], ...AI_GENERAL_PLAYBOOK_FIELDS } as Playbook;
   const base = /billing/i.test(v.name) ? BILLING_PLAYBOOK : /investment management/i.test(v.name) ? INVESTMENT_PLAYBOOK : PLAYBOOKS[v.id];
   const own = v.subtype ? SUBTYPE_PLAYBOOKS[v.subtype] : undefined;
   return own && base === PLAYBOOKS[v.id] ? { ...base, ...own } : base;

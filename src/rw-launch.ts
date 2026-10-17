@@ -4,7 +4,7 @@
 // The business model decides the wording (a services firm has no free trial, a connectivity seller has no per seat price).
 // Sector knowledge comes only from the shared data files (src/verticals.ts and src/sector-playbooks.ts); this file adds none.
 import { formatDate, addDays, calculateDaysUntil, readableChoice, pct, roundTypedPercents, EXAMPLE_FIGURE, EXAMPLE_FIGURES } from './utils.js';
-import { readContext, q, andList, splitTopLevel, splitPhrases, lcFirst, cleanCompanyName, answerFor, type Context, type BusinessModel } from './context.js';
+import { readContext, q, andList, splitTopLevel, splitPhrases, isOnePhrase, lcFirst, cleanCompanyName, answerFor, type Context, type BusinessModel } from './context.js';
 import { playbookFor, MODEL_LANGUAGE, segmentNotes, segmentKinds, SUBTYPE_PLAYBOOKS, type PlaybookOverlay } from './sector-playbooks.js';
 import { SUBTYPES, SECTOR_MODEL, MODEL_NAME } from './verticals.js';
 import { escapePiece } from './escape-inputs.js';
@@ -77,6 +77,7 @@ export function typedList(text: unknown): string[] {
   const parts = text.split(/\n|;/).map((x) => x.trim().replace(/^[-*•]\s*/, '')).filter(Boolean);
   if (parts.length === 1 && /,/.test(parts[0])) {
     const c = splitTopLevel(parts[0], false);
+    if (isOnePhrase(c)) return [parts[0]];
     if (c.length > 1 && c.every((x) => x.split(/\s+/).length <= 10) && !c.some((x) => /^(?:not|but|and|or|so|which|that|because|with|where|while|then)\b/i.test(x))) return c;
   }
   return parts;

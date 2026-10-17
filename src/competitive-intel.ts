@@ -1,6 +1,6 @@
 import { escapePiece } from './escape-inputs.js';
 import { cap, lowerFirstIfCommon } from './utils.js';
-import { readContext, splitItems, splitPhrases, splitTopLevel, q, answerFor, type Vertical } from './context.js';
+import { readContext, isOnePhrase, splitItems, splitPhrases, splitTopLevel, q, answerFor, type Vertical } from './context.js';
 import { stripEnd, sentence, lc, listAnd, clauseCut, productLabel, closing, finalise, isClaim, POPULARITY, type ProductLabel } from './rw-gtm.js';
 
 // The name a competitor is mentioned by in running text: the name without a trailing description in brackets.
@@ -168,7 +168,12 @@ export function generateCompetitiveIntel(args: {
   const competitorsRaw = (() => {
     const out: string[] = [];
     let tail = false; // inside a description whose own comma list ("with fragmented teams, tools and data") is being joined back
-    for (const c of splitTopLevel(args.competitors, false)) {
+    const rawPieces = splitTopLevel(args.competitors, false);
+    // Run 42B (addendum 9): one typed phrase is one alternative. A single line (no semicolon or new line) whose first piece is a long description in lower case
+    // ("the current way of handling X is hard across product, design, engineering ...") or that reads "<word>, <word> and <word> in one place" is not a list of competitors.
+    const oneLine = !/[;\n]/.test(args.competitors ?? '');
+    if (oneLine && rawPieces.length > 1 && ((/^[a-z]/.test(rawPieces[0]) && rawPieces[0].split(/\s+/).length >= 6 && rawPieces.slice(1).every((x) => /^[a-z]/.test(x)) && rawPieces[1].split(/\s+/).length <= 2 && !/^(?:an?|the|our|their)\b/i.test(rawPieces[1])) || isOnePhrase(rawPieces))) return [rawPieces.join(', ')];
+    for (const c of rawPieces) {
       const joinsPrev = out.length > 0 && isDescription(out[out.length - 1]) && (/^(?:with|without|which|that|where|including|and|or|plus|but|because|while|then)\s/i.test(c) || (tail && c.split(/\s+/).length <= 4 && /^[a-z]/.test(c)));
       if (joinsPrev) { out[out.length - 1] += `, ${c}`; tail = true; continue; }
       tail = false;
