@@ -562,7 +562,7 @@ function scoreGroups(lines: string[], groups: Group[]): { found: string[]; evide
     }
     (hit ? groupsFound : g.optional ? [] : groupsMissing).push(g.label);
   }
-  return { found, evidence, groupsFound, groupsMissing };
+  return { found: found.map((x) => escapePiece(x)), evidence: evidence.map((x) => escapePiece(x)), groupsFound, groupsMissing };
 }
 
 // Run 20 (quality round 1): a line that describes the customers, the market or the product (not the seller's own plan) is not scored as
@@ -619,6 +619,7 @@ export function analyzeCRAFTDimensions(content: string): CRAFTAnalysis {
 
   // Structure words that are not dates are named, never scored.
   for (const line of ownLines) { const m = line.match(TIMELINE_WORDS); if (m) addDistinct(analysis.timelineWords, m); }
+  analysis.timelineWords = analysis.timelineWords.map((x) => escapePiece(x));
   if (analysis.timeline.found.length === 0) {
     analysis.timeline.gaps.push(analysis.timelineWords.length
       ? `No dates, durations or quarters found. Words such as "${analysis.timelineWords.slice(0, 3).join('", "')}" are in the plan, but they are not dates`
@@ -632,7 +633,7 @@ export function analyzeCRAFTDimensions(content: string): CRAFTAnalysis {
   sentences.forEach((sent, i) => {
     if (RISK_WORD.test(sent)) {
       const answered = RISK_ANSWER.test(sent.replace(/\brisks?\b/gi, '')) || RISK_ANSWER.test(sentences[i + 1] || '');
-      analysis.risks.push({ line: sent.replace(/\s+/g, ' ').slice(0, 400), answered });
+      analysis.risks.push({ line: escapePiece(sent.replace(/\s+/g, ' ').slice(0, 400)), answered });
     }
   });
   return analysis;

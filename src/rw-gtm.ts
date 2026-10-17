@@ -3,23 +3,24 @@
 // kinds of a customer segment. Sector knowledge itself stays in src/verticals.ts and src/sector-playbooks.ts (rule B82); the lines here are kinds
 // of company and ways of working, never a figure, a market size or a named company.
 import { shortName } from './context.js';
+import { escapePiece } from './escape-inputs.js';
 import { segmentKinds } from './sector-playbooks.js';
 import { BUYER_CONTEXTS } from './verticals.js';
 
 /** A typed phrase without its trailing full stop, comma, colon or semicolon and with single spaces. */
-export const stripEnd = (t: string): string => t.trim().replace(/\s+/g, ' ').replace(/[\s.;,:]+$/, '');
+export const stripEnd = (t: string): string => escapePiece(t.trim().replace(/\s+/g, ' ').replace(/[\s.;,:]+$/, ''));
 
 /** A typed phrase as a sentence: first letter in capitals, one full stop at the end (a question or exclamation mark stays). */
 export function sentence(t: string): string {
   const x = stripEnd(t);
   if (!x) return '';
-  const s = x.charAt(0).toUpperCase() + x.slice(1);
+  const s = escapePiece(x.charAt(0).toUpperCase() + x.slice(1));
   return /[?!]$/.test(s) ? s : `${s}.`;
 }
 
 /** The first letter in lower case, unless the text opens with an acronym or a name written with inner capitals ("SLA", "iOS", "SD-WAN"). */
 export function lc(t: string): string {
-  return /^[A-Z]{2,}\b/.test(t) || /^[A-Z][a-z]*[A-Z]/.test(t) || /^[A-Z][a-z]+[A-Z]/.test(t) ? t : t.charAt(0).toLowerCase() + t.slice(1);
+  return escapePiece(/^[A-Z]{2,}\b/.test(t) || /^[A-Z][a-z]*[A-Z]/.test(t) || /^[A-Z][a-z]+[A-Z]/.test(t) ? t : t.charAt(0).toLowerCase() + t.slice(1));
 }
 
 /** A list in one sentence: "a, b and c". */
@@ -37,7 +38,7 @@ export function clauseCut(text: string, max: number): string {
     // a comma inside a number (60,000) is not a break
     const lastBreak = (m: string): number => { let i = head.lastIndexOf(m); while (i > 0 && m === ',' && /\d/.test(head[i - 1] ?? '') && /\d/.test(t[i + 1] ?? '')) i = head.lastIndexOf(m, i - 1); return i; };
     const at = Math.max(...marks.map(lastBreak));
-    if (at >= max * 0.5) return head.slice(0, at).trim();
+    if (at >= max * 0.5) return escapePiece(head.slice(0, at).trim());
   }
   return t;
 }
@@ -46,6 +47,10 @@ export function clauseCut(text: string, max: number): string {
 export interface ProductLabel { name: string | null; rest: string; whole: string }
 const JOIN_WORD = /^(?:that|which|who|where|for|with|by|from|connects?|helps?|lets?|gives?|makes?|builds?|runs?|designs?|turns?|unifies?|joins?|uses?)$/i;
 export function productLabel(product: string, company?: string): ProductLabel {
+  const r = productLabelRaw(product, company);
+  return { name: r.name === null ? null : escapePiece(r.name), rest: escapePiece(r.rest), whole: r.whole };
+}
+function productLabelRaw(product: string, company?: string): ProductLabel {
   const whole = stripEnd(product);
   const co = company ? stripEnd(company) : '';
   // a text that opens with a bracket or a quote mark (the echo safeguard quotes odd text) has no name: it is shown as typed
