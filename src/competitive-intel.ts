@@ -155,7 +155,9 @@ function isOneSentence(pieces: string[]): boolean {
   const words = first.split(/\s+/).length;
   const lead = words >= 6 && (/^(?:the |our |their )?(?:current|existing|usual|status quo|today's|present)\b/i.test(first) || /^[^:]{20,}:\s*\S/.test(first));
   const fragment = pieces.slice(1).some((x) => /^[a-z][\w-]*(?: [\w-]+)? to [a-z]+\b/.test(x));
-  return lead && (fragment || pieces.slice(1).every((x) => /^[a-z]/.test(x)));
+  // a later piece that opens with a joining word ("so reconciliation", "which ...") or an acronym or product word kept in capitals ("ERPs") continues the sentence too
+  const continues = pieces.slice(1).some((x) => /^(?:so|which|that|because|while|where|then)\s/i.test(x)) || pieces.slice(1).every((x) => /^(?:[a-z]|[A-Z]{2,}s?\b)/.test(x));
+  return lead && (fragment || continues);
 }
 
 // One alternative the seller named: a name (optionally with a note in brackets) or a description of an approach.
@@ -212,6 +214,15 @@ export function generateCompetitiveIntel(args: {
   const nameText = label.name ?? 'your solution';
 
   const { byCompetitor, general } = args.competitor_details ? assignDetails(args.competitor_details, competitorsRaw) : { byCompetitor: {} as Record<string, string[]>, general: [] as string[] };
+  // Run 42B: a detail that states the user's own side ("one system is cheaper to pay for, learn and maintain", "we are faster") is the user's advantage, not a note on an alternative:
+  // it leaves the alternatives' notes and stands with the user's strengths.
+  const ownAdvantage = (d: string): boolean => /^(?:one|a single|a unified|a shared|our|we|your|using one)\b/i.test(d.trim()) && AHEAD.test(d);
+  for (const k of Object.keys(byCompetitor)) {
+    const own = byCompetitor[k].filter(ownAdvantage);
+    if (own.length) { byCompetitor[k] = byCompetitor[k].filter((d) => !ownAdvantage(d)); for (const o of own) if (!S.some((x) => x.toLowerCase() === cap(o).toLowerCase())) S.push(cap(o)); }
+  }
+  const generalOwn = general.filter(ownAdvantage);
+  if (generalOwn.length) { general.splice(0, general.length, ...general.filter((d) => !ownAdvantage(d))); for (const o of generalOwn) if (!S.some((x) => x.toLowerCase() === cap(o).toLowerCase())) S.push(cap(o)); }
   const generalLeft: string[] = [];
   // a general detail with two clauses ("..., and security teams have to build the campaigns") is read clause by clause
   const clauses = general.flatMap((g0) => g0.split(/,\s+(?:and|but)\s+(?=\S+\s+\S+\s+\S+\s+\S+)/).map((x) => x.trim()).filter(Boolean));
@@ -283,7 +294,16 @@ export function generateCompetitiveIntel(args: {
     for (const pr of pairs.sort((x, y) => y.n - x.n)) if (!clauseOfCard.has(pr.c) && ![...clauseOfCard.values()].includes(pr.cl)) clauseOfCard.set(pr.c, pr.cl);
   }
   const clauseFor = (c: Comp): string => { const cl = clauseOfCard.get(c); return cl ? clauseCut(cl, 160) : ''; };
+  // Run 42B: a page claim or a strength (a figure or a fact from the seller's pages) is said once: the first card that leads with it keeps it, later cards lead with their own parts or say nothing.
+  const leadSaid = new Map<Comp, string[]>(); const claimsUsed = new Set<string>();
   const leadFor = (c: Comp, i: number): string[] => {
+    const done = leadSaid.get(c); if (done) return done;
+    const ownWords = (x: string): boolean => isClaim(x) || POPULARITY.test(x) || S.some((st) => st.toLowerCase() === x.toLowerCase());
+    const out = leadFor0(c, i).filter((x) => !ownWords(x) || !claimsUsed.has(x.toLowerCase()));
+    for (const x of out) if (ownWords(x)) claimsUsed.add(x.toLowerCase());
+    leadSaid.set(c, out); return out;
+  };
+  const leadFor0 = (c: Comp, i: number): string[] => {
     const cl = clauseFor(c);
     // popularity and company-fact claims (users, awards, funding) answer no alternative: when they are all there is, no card leads with them
     const mine = [...(cl ? [cl] : []), ...partsFor(c.text, ...c.notes).filter((x) => !cl || !cl.toLowerCase().includes(x.toLowerCase()))].filter((x, k, a) => a.indexOf(x) === k);

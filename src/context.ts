@@ -173,6 +173,20 @@ function thinSellerRead(input: ReaderInput, r: ReturnType<typeof explainSector>)
   return r;
 }
 
+/** The business model the seller's own words state by how they charge (per seat, a subscription, per transaction, per site or link, per ticket, a commission, a management fee), or null. Nothing else counts. */
+const CHARGE_WORDS: Array<[BusinessModel, RegExp]> = [
+  ['transactions', /\b(?:per[- ]transaction|transaction fees?)\b/i],
+  ['connectivity', /\b(?:per[- ](?:site|link|circuit|sim)|priced by (?:the )?(?:site|link|bandwidth))\b/i],
+  ['services', /\b(?:per fte|per ticket|per hour|time and materials|retainers?|statements? of work)\b/i],
+  ['marketplace', /\b(?:take rate|(?:charges?|takes?) an? (?:commission|cut|percentage)|commission on (?:each|every) (?:sale|order|booking|trade))\b/i],
+  ['investment', /\b(?:performance fees?|assets under management|aum)\b/i],
+  ['saas', /\b(?:saas|subscriptions?|per[- ]seat|per[- ]user|per[- ]month|annual licen[cs]es?)\b/i],
+];
+export function statedCharge(text: string): BusinessModel | null {
+  for (const [m, re] of CHARGE_WORDS) if (re.test(text)) return m;
+  return null;
+}
+
 export function readContext(opts: { model?: unknown; hintModel?: BusinessModel | null; vertical?: string | null; sector?: string | null }, rawInput: ReaderInput): Context {
   const input = cleanInput(rawInput);
   // Run 42B: your_sector (the seller's own industry, an enum the server has validated) decides the sector; no reading of the text can override it. "other" is neutral.
@@ -198,7 +212,14 @@ export function readContext(opts: { model?: unknown; hintModel?: BusinessModel |
   let model: BusinessModel | null; let how: Context['how'];
   const explicit = typeof opts.model === 'string' && (BUSINESS_MODELS as string[]).includes(opts.model) ? (opts.model as BusinessModel) : null;
   if (explicit) { model = explicit; how = 'input'; }
-  else if (opts.hintModel) { model = opts.hintModel; how = 'hint'; }
+  else if (given) {
+    // Run 42B: with your_sector given, the business model comes ONLY from the seller's own words stating how they charge, else the sector's default model.
+    // Words such as "connect", "network" or "API" in the product text, a sub industry reading and the deal text never decide it.
+    const stated = statedCharge(sellerTexts.join(' | '));
+    if (stated) { model = stated; how = 'read'; }
+    else if (chosen) { model = SECTOR_MODEL[chosen.id]; how = 'sector'; }
+    else { model = null; how = 'unknown'; }
+  } else if (opts.hintModel) { model = opts.hintModel; how = 'hint'; }
   else {
     const m = detectModel(undefined, input);
     model = m.model; how = m.how === 'read' ? 'read' : m.how === 'sector' ? 'sector' : 'unknown';
