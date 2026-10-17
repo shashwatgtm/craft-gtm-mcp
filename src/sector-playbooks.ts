@@ -578,6 +578,7 @@ const AI_GENERAL_PLAYBOOK_FIELDS: PlaybookOverlay = {
 };
 export function playbookFor(v: { id: VerticalId; name: string; subtype?: string; generalOnly?: boolean }): Playbook {
   if (v.generalOnly && v.id === 'ai-native' && !v.subtype && v.name === 'AI native') return { ...PLAYBOOKS['ai-native'], ...AI_GENERAL_PLAYBOOK_FIELDS } as Playbook;
+  if (v.generalOnly && v.id === 'software' && !v.subtype && v.name === 'software') return { ...PLAYBOOKS.software, ...SOFTWARE_GENERAL_PLAYBOOK_FIELDS } as Playbook;
   const base = /billing/i.test(v.name) ? BILLING_PLAYBOOK : /investment management/i.test(v.name) ? INVESTMENT_PLAYBOOK : PLAYBOOKS[v.id];
   const own = v.subtype ? SUBTYPE_PLAYBOOKS[v.subtype] : undefined;
   return own && base === PLAYBOOKS[v.id] ? { ...base, ...own } : base;
@@ -623,4 +624,53 @@ export const SHIPPING_GENERAL_NOTES: SectorNotes = {
     'Which stores, marketplaces or systems must orders flow in from?',
     'Do you ship across borders, and who handles customs paperwork today?',
   ],
+};
+
+// Run 42B (addendum 8, the one sub industry rule in src/sub-industry.ts): the software entry in src/verticals.ts is written for developer tools (VP Engineering,
+// release frequency, pipelines, open source alternatives). It is used only when the seller's own words name developer tools; otherwise these notes, which hold for
+// any software company selling to a business, are used. No figures.
+export const SOFTWARE_GENERAL_NOTES: SectorNotes = {
+  vocabulary: ['integration', 'time to value', 'admin controls', 'security review', 'trial', 'onboarding', 'renewal', 'usage'],
+  buyerRoles: ['Business owner of the function that uses it', 'Head of IT', 'Chief Technology Officer', 'Security Lead', 'Head of Procurement'],
+  committee: 'The owner of the function that uses it signs; the team lead who feels the problem champions it; the people who work with it use it daily; IT and security review access, data and integrations; procurement handles the contract.',
+  objections: [
+    { objection: 'We already have a tool or a home built way for this', response: 'Compare the time spent keeping the current way running with what the product removes, on one real team.' },
+    { objection: 'The price at our scale', response: 'Tie the price to the teams that use it and the time saved, measured in a trial.' },
+    { objection: 'Moving what we already have', response: 'Show the import path and move one real project or data source during the trial.' },
+    { objection: 'Security and data review', response: 'State what the product reads and stores, and offer the security documentation up front.' },
+  ],
+  salesMotion: 'A trial or pilot with one team, then a team or company deal led by the function that uses it with IT and security in the review.',
+  metrics: ['time to value', 'adoption by the target team', 'time saved per user', 'incidents or errors handled', 'renewal rate'],
+  proofShape: 'One team before and after on a measure it already tracks, with the period and the owner named.',
+  discovery: [
+    'What does the team do today for this, and what slows it down?',
+    'Which tools or data sources are involved today, and which would this replace or join?',
+    'Who feels the problem most, and how do they work around it today?',
+    'How do you measure the result today, and who owns that number?',
+    'Who must approve a new tool (security, procurement, IT)?',
+  ],
+};
+const SOFTWARE_GENERAL_PLAYBOOK_FIELDS: PlaybookOverlay = {
+  pains: ['manual work and handoffs between tools that people repeat each week', 'home built or older tools that someone has to keep running', 'migration work that stops teams from trying a new tool'],
+  cta: 'Start a trial with one team on one real project or data source, and move one existing workflow during the trial',
+  launchTasks: ['Publish a quickstart and one worked example that a new user can finish in one sitting', 'Write the migration guide from the tools or home built ways customers use now', 'Prepare the security note: what the product reads and stores, and how access is controlled'],
+  channels: ['product documentation and quickstart', 'blog and webinars for the teams that use it', 'communities and partner listings', 'email to customers with existing team users'],
+  adoption: { measure: 'teams that finish the quickstart, move a real workflow and keep using it after the trial', source: 'your product analytics and trial records' },
+  partners: { refer: ['consultancies that advise the teams that use the product', 'platform and marketplace vendors that list tools'], resell: ['software resellers', 'systems integrators with a practice in your area'], integrate: ['the tools and data sources customers already use', 'cloud and identity vendors'], implement: ['implementation consultancies', 'training providers for customer teams'] },
+  partnerWhy: 'Users adopt first and their leaders follow the advice of the consultancies and marketplaces their teams already use.',
+  deepQuestions: ['Which tools or data sources are involved today, and which would this replace or join?', 'What would moving one workflow need, and who would do it?', 'What happens today when something fails, and who is told?', 'Who must approve a new tool: security, procurement or IT?'],
+  crises: [
+    { key: 'bad_release', title: 'A bad release or breaking change', what: 'a release breaks customers\' workflows or integrations', first: ['Stop the rollout and roll back to the last good version', 'Publish the affected versions and a workaround', 'Check which customers took the bad version', 'Add a test for the failing case before re-release'], tell: [{ who: 'Affected customer teams', how: 'Status page, changelog and direct note to named accounts', focus: 'Affected versions, the workaround, the fixed version' }] },
+    { key: 'leaked_keys', title: 'Leaked access keys or tokens', what: 'customer or internal access keys or tokens are exposed', first: ['Revoke and rotate the exposed keys', 'Review access logs for use of the keys', 'List customers whose keys were exposed', 'Tell customers how to rotate their own'], tell: [{ who: 'Affected customers', how: 'Direct email and account owner call for the largest', focus: 'What was exposed, what to rotate, what logs show' }] },
+  ],
+  outage: 'an outage of the hosted service stops the work customers run on it, and their own users notice quickly',
+  breach: 'exposure of customer data, access keys or tokens held by the product',
+  churnReasons: [
+    { reason: 'The team went back to the tools it used before', signal: 'Fewer projects or workflows run through the product, work moved back to the old way', action: 'Compare the time spent keeping the old way running with what the product removes, on one team' },
+    { reason: 'Moving existing work stalled', signal: 'Migration tickets stay open, only new work uses the product', action: 'Move one real workflow with the team and show the import path' },
+    { reason: 'Cost at larger scale', signal: 'Procurement asks for the price at the next stage of growth', action: 'Tie the price to the teams that use it and the time saved, measured on their own data' },
+    { reason: 'The champion left', signal: 'The sponsor on the team changes and usage drops in that team', action: 'Find the next champion on the team and show the usage and time saved so far' },
+  ],
+  renewal: 'Renewals follow usage by teams: show workflows moved and time saved for each team.',
+  checklist: ['Quickstart finished by someone outside the team', 'Migration guide tested on a real workflow', 'Security and privacy documentation ready before it is asked for', 'Claims about what the product does match what it does today'],
 };

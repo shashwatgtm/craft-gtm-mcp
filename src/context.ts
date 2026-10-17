@@ -2,7 +2,8 @@
 // that keep typed text out of broken sentences. The sector knowledge itself is in src/verticals.ts (rule B82).
 // splitItems, q, readContext, sectorNotes and answerFor follow the helpers of Revenue Enablement (the lead's version).
 import { escapePiece } from './escape-inputs.js';
-import { BILLING_NOTES, AI_GENERAL_NOTES, DECISION_AI_WORDS, REGIONAL_SHIPPING_WORDS, SHIPPING_GENERAL_NOTES } from './sector-playbooks.js';
+import { BILLING_NOTES } from './sector-playbooks.js';
+import { subIndustryFor, applySubIndustry } from './sub-industry.js';
 import { detectVertical, detectModel, explainSector, profileFor, MODEL_NAME, BUSINESS_MODELS, SECTOR_MODEL, SUBTYPES, VERTICALS, type Vertical, type VerticalId, type BusinessModel, type ReaderInput } from './verticals.js';
 
 export { BUSINESS_MODELS, VERTICALS };
@@ -202,7 +203,7 @@ export function readContext(opts: { model?: unknown; hintModel?: BusinessModel |
     const m = detectModel(undefined, input);
     model = m.model; how = m.how === 'read' ? 'read' : m.how === 'sector' ? 'sector' : 'unknown';
     // Run 21b: a sub-type with its own usual model (a messaging or payments API sold to a chosen telecom or fintech sector) keeps it; the chosen sector's usual model is the fallback.
-    if (how !== 'read' && chosen) { const st = profileFor(chosen, null, input)?.subtype; model = (st && SUBTYPES.find((x) => x.id === st)?.model) || SECTOR_MODEL[chosen.id]; how = 'sector'; }
+    if (how !== 'read' && chosen) { const st = subIndustryFor(chosen.id, (input.seller ?? []))?.id; model = (st && SUBTYPES.find((x) => x.id === st)?.model) || SECTOR_MODEL[chosen.id]; how = 'sector'; }
     // The word "software" in a company name or "platform" in a playbook name does not make a services firm a software subscription:
     // when the sector is ITeS and the seller's words name services work, the model is services.
     // A seller read as AI native whose words are about portfolios, securities and forecasts for investors manages or advises on money: the investment model.
@@ -227,18 +228,11 @@ export function readContext(opts: { model?: unknown; hintModel?: BusinessModel |
   const buyerSide = buyerV ? ` (name it with the industry input for sector notes)` : '';
   // A seller that manages money (the investment model) is not sold to like the sector the shared reader named (support-automation buyers for "AI native",
   // finance-function buyers for "fintech"): the committee, roles, measures and discovery questions are those of an investment decision.
-  const vAdj0 = overlayBilling(profileFor(v, model, input), sellerTexts, (input.context ?? []).filter((x): x is string => typeof x === 'string'));
+  const vAdj0 = applySubIndustry(overlayBilling(profileFor(v, model, input), sellerTexts, (input.context ?? []).filter((x): x is string => typeof x === 'string')), sellerTexts);
   // "Seats" is a software subscription word: a sector sentence that holds it is reworded for a model that is not a subscription.
   const vSeats = vAdj0 && model && model !== 'saas' ? { ...vAdj0, committee: vAdj0.committee.replace(/\bseats\b/gi, 'licences') } : vAdj0;
-  // Run 42B (addendum 8): the AI native entry also holds lines for AI that decides cases (cost per case, regulators, investment committees). They are used only when the
-  // seller's own words name that kind of work; otherwise the notes that hold for every AI product are used. your_sector fixes the sector, not the kind.
-  const aiBase = VERTICALS.find((x) => x.id === 'ai-native');
-  // Run 42B (addendum 8): the shipping notes written for an Indian courier market are used only when the seller's own words name that region or those practices.
-  const shipBase = SUBTYPES.find((x) => x.id === 'seller-shipping');
-  const vShip: Vertical | null = vSeats && shipBase && vSeats.subtype === 'seller-shipping' && !REGIONAL_SHIPPING_WORDS.test(sellerTexts.join('  ')) ? ({ ...vSeats, ...SHIPPING_GENERAL_NOTES } as Vertical) : vSeats;
-  const vAdj: Vertical | null = vSeats && aiBase && vSeats.id === 'ai-native' && !vSeats.subtype && vSeats.name === aiBase.name && vSeats.committee.replace(/\blicences\b/g, 'seats') === aiBase.committee && !DECISION_AI_WORDS.test(sellerTexts.join(' \n '))
-    ? ({ ...vSeats, ...AI_GENERAL_NOTES, generalOnly: true } as Vertical)
-    : vShip;
+  // Run 42B (addendum 8): ONE rule decides the sub industry (src/sub-industry.ts): its notes only when the seller's own words name it, else the sector's general notes. your_sector fixes the sector, not the kind.
+  const vAdj: Vertical | null = vSeats;
   const sector = vAdj ? `${chosen ? `${vAdj!.name} (from your choice)` : `read from your inputs as ${vAdj!.name}`}` : `not clear from your inputs${buyerSide || ' (name the industry for sector notes)'}`;
   const mtxt = model
     ? `${MODEL_LABEL[model]} (${how === 'input' ? 'from business_model' : how === 'hint' ? 'from your market choice; set business_model to change it' : how === 'sector' ? 'the usual model in this sector, assumed; set business_model to change it' : 'read from your inputs; set business_model to change it'})`

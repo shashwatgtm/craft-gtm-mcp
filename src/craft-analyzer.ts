@@ -1,5 +1,6 @@
 import { escapePiece } from './escape-inputs.js';
 import { analyzeCRAFTDimensions, isMarketLine, type CRAFTDimension } from './utils.js';
+import { subIndustryFor } from './sub-industry.js';
 import { VERTICALS, SUBTYPES, AI_SUPPORT_PROFILE, BUYER_CONTEXTS, profileFor, buyerContextFor, type Vertical } from './verticals.js';
 import { andList, readContext, q, splitPhrases } from './context.js';
 import { answerFor } from './context.js';
@@ -226,8 +227,8 @@ ${verdict} The scores come from a keyword check of the lines that describe your 
   if (checkV && checkV.committee === AI_SUPPORT_PROFILE.committee) {
     const own = [content.split('\n')[0], ...sellerLines].join(' \n ');
     const base = VERTICALS.find((x) => x.id === 'ai-native')!;
-    const st = SUBTYPES.find((x) => x.vertical === 'ai-native' && x.match.test(own));
-    if (st) checkV = { ...base, ...st.notes, name: `${base.name}, ${st.name}`, subtype: st.id };
+    const st = subIndustryFor('ai-native', [own], { direct: true });
+    if (st && SUBTYPES.some((x) => x.id === st.id)) checkV = { ...base, ...st.notes, name: `${base.name}, ${st.name}`, subtype: st.id };
     else if (!/\b(?:customer|technical|tech|it|client|user) support|support (?:tickets?|agents?|teams?|desks?|automation)|tickets?|help ?desks?|contact cent(?:re|er)s?|call cent(?:re|er)s?|service desks?|customer service|customer care\b/i.test(own)) checkV = base;
   }
   // "The plan names X" is only said when the plan's text holds X: a measure by its words (or its words without a tail such as "per site"), a role by its
