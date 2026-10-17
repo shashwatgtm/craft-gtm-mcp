@@ -98,7 +98,25 @@ export function generateCRAFTAnalyzer(args: {
   // developers or engineering teams themselves; the bare word "software" in "outgrown spreadsheets or smaller software" is not that.
   const softwareSeller = !!sectorCtx.v && (sectorCtx.v.id === 'software' || sectorCtx.v.id === 'cybersecurity');
   const buyerSaysDevs = buyerTexts.some((t) => typeof t === 'string' && /\b(?:developers?|engineers?|engineering (?:teams?|leaders?|managers?)|devops|sres?|ctos?|cisos?|security teams?|software (?:companies|teams|vendors|firms)|saas (?:companies|vendors)|tech(?:nology)? (?:companies|teams))\b/i.test(t));
-  const buyerCtx = buyerCtx0 && buyerCtx0.id === 'technology' && !softwareSeller && !buyerSaysDevs ? null : buyerCtx0;
+  const buyerCtx1 = buyerCtx0 && buyerCtx0.id === 'technology' && !softwareSeller && !buyerSaysDevs ? null : buyerCtx0;
+  // Run 42B: a buyer industry is written only when the buyer words of the plan clearly name it: two of its own words (or a two word name such as "financial services"). Words that also
+  // mean a team, a channel or a job ("operators", "communications", "media", "plants", "distribution", "digital") never name an industry alone, so "solo operators" is not telecom.
+  const WEAK_INDUSTRY_WORD = /^(?:operators?|communications?|media|digital|tech|internet|plants?|civil|builders?|contractors?|institutes?|admissions?|coaching|distribution|distributors?|packaged|foods?|merchants?|marketplaces?|games?|gaming|industrial|federal|insurance|payments?)$/i;
+  const industryClear = (ctx: { match: RegExp } | null): boolean => {
+    if (!ctx) return false;
+    const fromBuyerWords = buyerContextFor(...buyerTexts.map(teamWords)) !== null;
+    const text = fromBuyerWords ? buyerTexts.map(teamWords).filter((x): x is string => typeof x === 'string').join(' | ') : content;
+    const seen = new Set<string>();
+    let score = 0; let strong = 0;
+    for (const m of text.matchAll(new RegExp(ctx.match.source, 'gi'))) {
+      const w = m[0].toLowerCase().replace(/[_\s]+/g, ' ');
+      if (seen.has(w)) continue;
+      seen.add(w);
+      const weak = !/ /.test(w) && WEAK_INDUSTRY_WORD.test(w); score += / /.test(w) ? 2 : 1; if (!weak) strong++;
+    }
+    return score >= 2 && strong >= 1;
+  };
+  const buyerCtx = buyerCtx1 && industryClear(buyerCtx1) ? buyerCtx1 : null;
 
   // the plan's own title, when its first line is a sentence and not a labelled line ("Brightdesk plan for Q1 2027.")
   const firstLine = content.split('\n')[0].trim();
@@ -287,12 +305,16 @@ ${verdict} The scores come from a keyword check of the lines that describe your 
     const v = checkV;
     const rolesNamed = v.buyerRoles.filter((r) => roleNamed(r) || roleFunctionNamed(r));
     const rolesMissing = v.buyerRoles.filter((r) => !rolesNamed.includes(r));
+    // a Buyer or Audience line that names business owners, founders or general managers names the CUSTOMER's role (it is the buyer, not an owner of your plan)
+    const ownerBuyerText = [buyerLine?.text, planAudience?.text, typeof args.intended_audience === 'string' ? args.intended_audience : ''].find((t) => typeof t === 'string' && /\b(?:business )?owners?\b|\bfounders?\b|\bgeneral managers?\b|\bmanaging directors?\b/i.test(t)) ?? '';
+    const ownerAsBuyer = ownerBuyerText ? rolesMissing.filter((r) => /\bowner\b|general manager|founder|managing director/i.test(r)) : [];
+    const rolesLeft = rolesMissing.filter((r) => !ownerAsBuyer.includes(r));
     const metricsNamed = v.metrics.filter(metricWordsIn);
     const sameAsSector = (phrase: string): boolean => v.metrics.some((m) => m.toLowerCase().includes(phrase.toLowerCase()) || phrase.toLowerCase().includes(m.toLowerCase()) || SHORT_FORMS.some(([plan, metric]) => plan.test(phrase) && metric.test(m)));
     const ownMeasures = planMeasures().filter((m) => !sameAsSector(m));
     output += `*Sector: ${sectorCtx.v ? sectorCtx.sector : `read from the buyers your plan names as ${v.name}`}. This is not part of the score.*
 
-Deals in this sector are decided like this: ${lc(v.committee)} ${rolesNamed.length ? `The roles in your plan match ${andList(rolesNamed)}` : 'No role in your plan matches the usual deciders'}${rolesMissing.length ? `${rolesNamed.length ? ', and' : ':'} none matches ${andList(rolesMissing)}` : ''}.
+Deals in this sector are decided like this: ${lc(v.committee)} ${rolesNamed.length ? `The roles in your plan match ${andList(rolesNamed)}` : ownerAsBuyer.length ? `Your plan names ${q(ownerBuyerText)} as the buyer, which is the customer's own ${andList(ownerAsBuyer.map((r) => r.toLowerCase()))} role, not someone on your team` : 'No role in your plan matches the usual deciders'}${rolesLeft.length ? `${rolesNamed.length || ownerAsBuyer.length ? ', and' : ':'} none matches ${andList(rolesLeft)}` : ''}.
 
 The sector measures ${andList(v.metrics)}; your plan uses the words for ${metricsNamed.length ? andList(metricsNamed) : 'none of them'}. A proof point that lands: ${lc(v.proofShape)} Words this buyer uses: ${v.vocabulary.join(', ')}.${ownMeasures.length ? ` Your plan also states results in these measures of its own: ${andList(ownMeasures)}. Keep those words for your product; the list above is the sector's general set, and part of it may not fit what you sell.` : ''}
 `;
