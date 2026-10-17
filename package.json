@@ -1,6 +1,6 @@
 {
   "name": "@shashwatgtmalpha/craft-gtm-mcp",
-  "version": "2.2.20",
+  "version": "2.2.22",
   "mcpName": "io.github.shashwatgtm/craft-gtm-mcp",
   "description": "CRAFT GTM Framework MCP server: product-market fit, launch, interview, retention, partner, crisis and competitive planning tools. Runs locally over stdio (npm) or hosted over Streamable HTTP.",
   "main": "dist/index.js",
@@ -26,7 +26,8 @@
     "anthropic",
     "ai-tools"
   ],
-  "author": "Shashwat Ghosh <shashwat@gtmhelix.com>",
+  "author": "Shashwat Ghosh <shashwat@gtmhelix.com> (https://gtmhelix.com/about/)",
+  "homepage": "https://tools.gtmhelix.com/connectors/",
   "license": "MIT",
   "repository": {
     "type": "git",
