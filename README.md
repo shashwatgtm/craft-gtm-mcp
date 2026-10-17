@@ -61,7 +61,7 @@ Generated on 27 September 2026 from the server's own tool list and checked again
 | Input | Required | Type | Description |
 |---|---|---|---|
 | `product` | Yes | string | Product name and brief description |
-| `target_market` | Yes | one of: `enterprise_saas`, `smb_saas`, `consumer`, `marketplace`, `fintech`, `healthtech`, `other` | Target market segment (e.g., 'Enterprise SaaS', 'SMB', 'Consumer') |
+| `target_market` | Yes | one of: `enterprise_saas`, `smb_saas`, `consumer`, `marketplace`, `fintech`, `logistics_tech`, `vertical_saas`, `ai_native`, `ites`, `telecom`, `software`, `cybersecurity`, `other` | Target market segment (e.g., 'Enterprise SaaS', 'SMB', 'Consumer') |
 | `current_metrics` | Yes | string | Your current metrics (will be PARSED). Include any of: MRR, ARR, churn rate, NPS, CAC, LTV, retention rate, activation rate, DAU/MAU, trial conversion, revenue growth. Example: 'MRR: $50K, Churn: 3%, NPS: 45, CAC: $500, LTV: $3000, Retention: 92%' |
 | `time_in_market` | No | one of: `pre_launch`, `0_6_months`, `6_12_months`, `1_2_years`, `2_plus_years` | How long the product has been in market (shown in the scorecard) |
 | `customer_feedback` | No | string | Optional: Qualitative feedback themes (e.g., 'Users love X but struggle with Y') |
@@ -86,7 +86,7 @@ Generated on 27 September 2026 from the server's own tool list and checked again
 | `interview_type` | Yes | one of: `discovery`, `validation`, `feedback`, `churn`, `win_loss`, `persona_research` | Type of interview determines question focus |
 | `product_context` | Yes | string | Product/service being researched |
 | `target_persona` | Yes | string | Who you're interviewing (role/title) |
-| `industry` | No | one of: `saas`, `fintech`, `healthtech`, `ecommerce`, `marketplace`, `enterprise_software`, `consumer`, `other` | Industry affects terminology and context |
+| `industry` | No | one of: `saas`, `fintech`, `logistics_tech`, `vertical_saas`, `ai_native`, `ites`, `telecom`, `software`, `cybersecurity`, `ecommerce`, `marketplace`, `enterprise_software`, `consumer`, `other` | Industry affects terminology and context |
 | `product_complexity` | No | one of: `simple`, `moderate`, `complex`, `highly_technical` | Affects technical depth of questions |
 | `key_hypotheses` | No | string | Optional: Hypotheses to validate during interview |
 
@@ -119,12 +119,12 @@ Generated on 27 September 2026 from the server's own tool list and checked again
 | Input | Required | Type | Description |
 |---|---|---|---|
 | `company` | Yes | string | Company name |
-| `industry` | Yes | one of: `fintech`, `healthtech`, `saas`, `ecommerce`, `enterprise`, `consumer`, `other` | Industry affects which crises to prioritize |
+| `industry` | Yes | one of: `fintech`, `saas`, `logistics_tech`, `vertical_saas`, `ai_native`, `ites`, `telecom`, `software`, `cybersecurity`, `ecommerce`, `enterprise`, `consumer`, `other` | Industry affects which crises to prioritize |
 | `customer_base` | Yes | one of: `b2b_enterprise`, `b2b_smb`, `b2c_consumer`, `mixed` | Customer type affects communication approach |
 | `data_sensitivity` | Yes | one of: `high_pii_financial`, `medium_business_data`, `low_general` | Data sensitivity affects security protocols |
 | `potential_crises` | No | string | OPTIONAL: Crisis types to plan for (comma-separated). If not provided, the tool uses a default set of common crises for your industry (not ranked by likelihood). Options: data_breach, service_outage, pr_incident, executive_departure, security_vulnerability, regulatory_action, product_safety, customer_data_exposure |
 | `company_size` | No | one of: `startup_under_50`, `scaleup_50_200`, `midsize_200_1000`, `enterprise_1000_plus` | Affects response team structure |
-| `compliance_requirements` | No | string | Optional: Relevant compliance (GDPR, HIPAA, SOC2, etc.) |
+| `compliance_requirements` | No | string | Optional: Relevant compliance, comma-separated (for example ISO 27001, SOC 2, GDPR). Each item is named in the notification steps |
 
 #### 7. Competitive Intel (`competitive_intel`)
 

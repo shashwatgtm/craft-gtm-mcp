@@ -135,10 +135,32 @@ function overlayBilling(v: Vertical | null, sellerTexts: string[], contextTexts:
   return v;
 }
 
+// Run 42 (job B): the seller's own category and product description decide the sector. Two readings the shared reader gives from the seller's words are
+// too thin to decide it alone: AI as an adjective of how a product is built ("an AI-native platform for ..."), and one lone keyword that another
+// part of the inputs (deal text, job titles) reads as a different trade. In both cases the other inputs are read, and when they hold no trade the
+// sector stays open (neutral B2B wording), never a guess. Customer industries named in the buyer input are not a conflict: they never override the seller.
+// broad trades that job titles such as "developers" read as: they are no conflict with a trade the seller names
+const GENERIC_TRADE = new Set(['software', 'saas']);
+function thinSellerRead(input: ReaderInput, r: ReturnType<typeof explainSector>): ReturnType<typeof explainSector> {
+  if (r.source !== 'seller' || !r.vertical || (r.vertical.subtype && r.strong.length >= 2)) return r;
+  const neutral = { vertical: null, source: null, strong: [], weak: [] } as unknown as ReturnType<typeof explainSector>;
+  const others = explainSector({ context: input.context, role: input.role });
+  const withBuyer = explainSector({ context: input.context, role: input.role, buyer: input.buyer });
+  if (r.vertical.id === 'ai-native' && r.strong.length > 0 && r.strong.every((w) => /^(?:agentic )?ai(?:[- ](?:native|first|powered|driven|enabled))?$/i.test(w))) {
+    return others.vertical && !GENERIC_TRADE.has(others.vertical.id) && others.vertical.id !== 'ai-native' && others.source !== 'buyer' ? others : neutral;
+  }
+  if (r.strong.length === 1) {
+    if (others.vertical && !GENERIC_TRADE.has(others.vertical.id) && others.vertical.id !== r.vertical.id && (others.source === 'context' || others.source === 'role')) return neutral;
+    // customer industries never override a seller that names a trade itself, but one lone keyword against several words of one other trade is not a trade
+    if (withBuyer.vertical && withBuyer.vertical.id !== r.vertical.id && withBuyer.source === 'buyer' && withBuyer.strong.length >= 2) return neutral;
+  }
+  return r;
+}
+
 export function readContext(opts: { model?: unknown; hintModel?: BusinessModel | null; vertical?: string | null }, rawInput: ReaderInput): Context {
   const input = cleanInput(rawInput);
   let chosen = opts.vertical && SECTOR_CHOICES[opts.vertical] ? VERTICALS.find((x) => x.id === SECTOR_CHOICES[opts.vertical!]) ?? null : null;
-  const read = readSector(input);
+  const read = thinSellerRead(input, readSector(input));
   // The shared reader cuts a seller text at "for ..." and counts the rest as the buyer's words, so "software for consumer brands: sales
   // force automation, distributor management ..." reads as a buyer. When the seller's own description, read whole, names one trade with
   // several of its words, that trade is the seller's sector.
@@ -171,9 +193,11 @@ export function readContext(opts: { model?: unknown; hintModel?: BusinessModel |
       const tb = `${t} ${(input.buyer ?? []).filter((x): x is string => typeof x === 'string').join(' ')}`;
       if ((tb.match(/\b(?:portfolios?|securities|forecast ranges?|investment|asset allocators?|pensions?|endowments?|wealth managers?|alpha|factor exposures?)\b/gi) ?? []).length >= 2 && !/\b(?:platform|software|saas|subscription|api)\b/i.test(t)) { model = 'investment'; how = 'read'; }
     }
+    // ITeS is a services sector: a usual model taken from a sub-type's default (never from the seller's words) is the services model, not a subscription
+    if (v && v.id === 'ites' && model === 'saas' && how === 'sector') model = 'services';
     if (v && v.id === 'ites' && model === 'saas' && how === 'read') {
       const sellerText = (input.seller ?? []).filter((x): x is string => typeof x === 'string').join(' ');
-      if (/\b(?:managed services?|it services|engineering services|consulting|outsourc\w*|systems? integrat\w*|contact cent(?:re|er)s?|service desk|back[- ]office|business process|collections services|customer experience(?: and \w+)? services|designs?,? builds?,? and runs?)\b/i.test(sellerText) && !/\b(?:saas|subscriptions?|per seat|per user)\b/i.test(sellerText)) { model = 'services'; how = 'read'; }
+      if (/\b(?:managed services?|it services|engineering services|consulting|outsourc\w*|systems? integrat\w*|contact cent(?:re|er)s?|service desk|back[- ]office|business process|collections services|technology services|operations and transformation|transformation (?:company|partner)|customer experience(?: and \w+)? services|designs?,? builds?,? and runs?)\b/i.test(sellerText) && !/\b(?:saas|subscriptions?|per seat|per user)\b/i.test(sellerText)) { model = 'services'; how = 'read'; }
     }
     if (v && v.id === 'telecom' && model === 'saas' && how === 'read') {
       const sellerText = (input.seller ?? []).filter((x): x is string => typeof x === 'string').join(' ');
@@ -317,7 +341,7 @@ export function splitPhrases(text: unknown): string[] {
 
 /** A company name without trailing corporate words (Software, Technologies, Systems, Inc, Ltd ...): "Brightfield Software" is read as "Brightfield", so the word Software does not set a business model. */
 export function cleanCompanyName(name: string | undefined): string {
-  return (name ?? '').replace(/\s+(?:software|technologies|technology|systems|solutions|labs|group|inc\.?|ltd\.?|limited|llc|pvt\.?|private limited|corp\.?|corporation)\b\.?/gi, '').trim();
+  return (name ?? '').replace(/\s+(?:software|technologies|technology|services?|systems|solutions|labs|group|inc\.?|ltd\.?|limited|llc|pvt\.?|private limited|corp\.?|corporation)\b\.?/gi, '').trim();
 }
 
 /** A user text in double quotes, capped at a word boundary; a cut ends with "..." inside the quotes (q() would strip a final dot). */

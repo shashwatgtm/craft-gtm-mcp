@@ -29,7 +29,7 @@ export function generateCRAFTAnalyzer(args: {
   const byLabel = (re: RegExp): string[] => labelled.filter((x) => re.test(x.label)).map((x) => x.text);
   const sellerLines = byLabel(/^(?:message|messaging|positioning|how we differ|differentiat\w+|what we sell|offer|product)$/i);
   const readInput = sellerLines.length || planAudience
-    ? { seller: [content.split('\n')[0], ...sellerLines], role: byLabel(/^buyer(?:s| roles?)?$|^personas?$/i), buyer: [args.intended_audience, planAudience?.text] }
+    ? { seller: [content.split('\n')[0], ...sellerLines], context: byLabel(/^buyer(?:s| roles?)?$|^personas?$/i), role: byLabel(/^buyer(?:s| roles?)?$|^personas?$/i), buyer: [args.intended_audience, planAudience?.text] }
     : { context: [content, args.desired_outcome], buyer: [args.intended_audience] };
   const sectorCtx = readContext({ vertical: args.industry }, readInput);
   const sectorCtx0 = sectorCtx;

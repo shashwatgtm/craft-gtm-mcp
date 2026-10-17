@@ -766,7 +766,7 @@ export function writeLaunchPlan(args: {
   else if (!when.exact) missing.push(['an exact launch date (YYYY-MM-DD)', `the schedule, which now counts in weeks before launch because only ${when.label} was given`]);
   if (!args.industry && !ctx.v) missing.push(['the industry, in the industry input', 'the buyer roles, proof, objections and channels, which now come from your segments only']);
   else if (!args.industry && ctx.v) missing.push(['the industry, in the industry input, to confirm the sector read from your text', 'the buyer roles, proof, objections and channels if the read is wrong']);
-  if (!args.business_model) missing.push(['the business model, in the business_model input', `the launch tasks and words, which now follow ${model ? MODEL_WORDS[model] : 'a software subscription'} as read from your text`]);
+  if (!args.business_model) missing.push(['the business model, in the business_model input', `the launch tasks and words, which now ${model ? `follow ${MODEL_WORDS[model]} as read from your text` : 'use neutral B2B wording, because no business model could be read from your text'}`]);
   if (!buyer) missing.push(['who the buyer is, for example "with the CIO as the buyer" in the goals', `the committee briefing and the tone of the messages${ctx.v ? `, which now address ${andList(ctx.v.buyerRoles.slice(0, 3))}` : ''}`]);
   if (!channelsGiven.length) missing.push(['the channels you can use, in the available_channels input', 'which tasks stay in the plan and where the messages go']);
   if (!args.team_size) missing.push(['the team size, in the team_size input; the plan assumes small (2 to 5)', 'who owns each task']);

@@ -166,7 +166,11 @@ export function generateCompetitiveIntel(args: {
   // an item that opens with a one or two word fragment and a semicolon or comma ("periodic; one-size-fits-all phishing simulations") continues the item before it
   const competitorsRaw = (() => {
     const out: string[] = [];
+    let tail = false; // inside a description whose own comma list ("with fragmented teams, tools and data") is being joined back
     for (const c of splitTopLevel(args.competitors, false)) {
+      const joinsPrev = out.length > 0 && isDescription(out[out.length - 1]) && (/^(?:with|without|which|that|where|including|and|or|plus|but|because|while|then)\s/i.test(c) || (tail && c.split(/\s+/).length <= 4 && /^[a-z]/.test(c)));
+      if (joinsPrev) { out[out.length - 1] += `, ${c}`; tail = true; continue; }
+      tail = false;
       if (out.length && isDescription(c) && /^[a-z][\w-]*(?:\s[\w-]+)?;\s+\S/.test(c)) out[out.length - 1] += `, ${c.replace(/^([\w-]+(?:\s[\w-]+)?);\s+/, '$1, ')}`;
       else out.push(c);
     }

@@ -288,7 +288,7 @@
   <p class="hx-prose">Generate a Product-Market Fit scorecard. Parses the metrics you provide (MRR, churn, NPS, CAC, LTV, retention, activation and similar) and scores each dimension against built-in benchmark ranges. <a href="/tools/pmf-scorecard/">Open the form</a>.</p>
   <div class="hx-table"><table><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Allowed values</th><th>Meaning</th></tr></thead><tbody>
 <tr><td><code>product</code></td><td>string</td><td>yes</td><td></td><td>Product name and brief description</td></tr>
-<tr><td><code>target_market</code></td><td>string</td><td>yes</td><td>enterprise_saas, smb_saas, consumer, marketplace, fintech, healthtech, other</td><td>Target market segment (e.g., &#x27;Enterprise SaaS&#x27;, &#x27;SMB&#x27;, &#x27;Consumer&#x27;)</td></tr>
+<tr><td><code>target_market</code></td><td>string</td><td>yes</td><td>enterprise_saas, smb_saas, consumer, marketplace, fintech, logistics_tech, vertical_saas, ai_native, ites, telecom, software, cybersecurity, other</td><td>Target market segment (e.g., &#x27;Enterprise SaaS&#x27;, &#x27;SMB&#x27;, &#x27;Consumer&#x27;)</td></tr>
 <tr><td><code>current_metrics</code></td><td>string</td><td>yes</td><td></td><td>Your current metrics (will be PARSED). Include any of: MRR, ARR, churn rate, NPS, CAC, LTV, retention rate, activation rate, DAU/MAU, trial conversion, revenue growth. Example: &#x27;MRR: $50K, Churn: 3%, NPS: 45, CAC: $500, LTV: $3000, Retention: 92%&#x27;</td></tr>
 <tr><td><code>time_in_market</code></td><td>string</td><td>no</td><td>pre_launch, 0_6_months, 6_12_months, 1_2_years, 2_plus_years</td><td>How long the product has been in market (shown in the scorecard)</td></tr>
 <tr><td><code>customer_feedback</code></td><td>string</td><td>no</td><td></td><td>Optional: Qualitative feedback themes (e.g., &#x27;Users love X but struggle with Y&#x27;)</td></tr>
@@ -316,7 +316,7 @@
   <div class="hx-table"><table><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Allowed values</th><th>Meaning</th></tr></thead><tbody>
 <tr><td><code>interview_type</code></td><td>string</td><td>yes</td><td>discovery, validation, feedback, churn, win_loss, persona_research</td><td>Type of interview determines question focus</td></tr>
 <tr><td><code>product_context</code></td><td>string</td><td>yes</td><td></td><td>Product/service being researched</td></tr>
-<tr><td><code>industry</code></td><td>string</td><td>no</td><td>saas, fintech, healthtech, ecommerce, marketplace, enterprise_software, consumer, other</td><td>Industry affects terminology and context</td></tr>
+<tr><td><code>industry</code></td><td>string</td><td>no</td><td>saas, fintech, logistics_tech, vertical_saas, ai_native, ites, telecom, software, cybersecurity, ecommerce, marketplace, enterprise_software, consumer, other</td><td>Industry affects terminology and context</td></tr>
 <tr><td><code>product_complexity</code></td><td>string</td><td>no</td><td>simple, moderate, complex, highly_technical</td><td>Affects technical depth of questions</td></tr>
 <tr><td><code>target_persona</code></td><td>string</td><td>yes</td><td></td><td>Who you&#x27;re interviewing (role/title)</td></tr>
 <tr><td><code>key_hypotheses</code></td><td>string</td><td>no</td><td></td><td>Optional: Hypotheses to validate during interview</td></tr>
@@ -356,12 +356,12 @@
   <p class="hx-prose">Generate crisis playbooks. Know your risks? Get specific playbooks. Not sure what to plan for? The tool uses a default set of common crises for your industry (not ranked by likelihood). <a href="/tools/crisis-planner/">Open the form</a>.</p>
   <div class="hx-table"><table><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Allowed values</th><th>Meaning</th></tr></thead><tbody>
 <tr><td><code>company</code></td><td>string</td><td>yes</td><td></td><td>Company name</td></tr>
-<tr><td><code>industry</code></td><td>string</td><td>yes</td><td>fintech, healthtech, saas, ecommerce, enterprise, consumer, other</td><td>Industry affects which crises to prioritize</td></tr>
+<tr><td><code>industry</code></td><td>string</td><td>yes</td><td>fintech, saas, logistics_tech, vertical_saas, ai_native, ites, telecom, software, cybersecurity, ecommerce, enterprise, consumer, other</td><td>Industry affects which crises to prioritize</td></tr>
 <tr><td><code>customer_base</code></td><td>string</td><td>yes</td><td>b2b_enterprise, b2b_smb, b2c_consumer, mixed</td><td>Customer type affects communication approach</td></tr>
 <tr><td><code>data_sensitivity</code></td><td>string</td><td>yes</td><td>high_pii_financial, medium_business_data, low_general</td><td>Data sensitivity affects security protocols</td></tr>
 <tr><td><code>potential_crises</code></td><td>string</td><td>no</td><td></td><td>OPTIONAL: Crisis types to plan for (comma-separated). If not provided, the tool uses a default set of common crises for your industry (not ranked by likelihood). Options: data_breach, service_outage, pr_incident, executive_departure, security_vulnerability, regulatory_action, product_safety, customer_data_exposure</td></tr>
 <tr><td><code>company_size</code></td><td>string</td><td>no</td><td>startup_under_50, scaleup_50_200, midsize_200_1000, enterprise_1000_plus</td><td>Affects response team structure</td></tr>
-<tr><td><code>compliance_requirements</code></td><td>string</td><td>no</td><td></td><td>Optional: Relevant compliance (GDPR, HIPAA, SOC2, etc.)</td></tr>
+<tr><td><code>compliance_requirements</code></td><td>string</td><td>no</td><td></td><td>Optional: Relevant compliance, comma-separated (for example ISO 27001, SOC 2, GDPR). Each item is named in the notification steps</td></tr>
   </tbody></table></div>
 </section>
 <section class="hx-section" id="competitive-intel" aria-labelledby="d-competitive-intel">

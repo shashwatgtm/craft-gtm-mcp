@@ -376,7 +376,7 @@ ${(() => { let inObjections = false; return hypotheses.map((raw, i) => {
 
 | To Validate | Ask |
 |-------------|-----|
-| Confirm it is true | "Is this true for you: ${plain.length <= 260 ? `'${plain}'` : 'the statement above'}? When did you last see it?" |
+| Confirm it is true | "Is this true for you: ${plain.length <= 110 ? `'${plain}'` : 'the statement above'}? When did you last see it?" |
 | Understand severity | "What does it cost you (time, rework, money or risk), and who feels it first?" |
 | Test assumption | "Tell me about the last time it happened. What did you do, and who was involved?" |
 | Find counter-evidence | "What would make this NOT true for you, and where have you seen the opposite?" |
