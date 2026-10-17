@@ -151,7 +151,8 @@ function capabilityList(desc: string): string[] {
 }
 function capabilityPieces(desc: string): string[] {
   if (!desc) return [];
-  const sentences = desc.split(/(?<=[.!?])\s+(?=[A-Z])/).map((x) => stripEnd(x)).filter(Boolean);
+  // a ".", "!" or "?" ends a sentence only after a letter, a digit or a closing mark; after a bare symbol ("-!") it does not
+  const sentences = desc.split(/(?<=[\p{L}\p{N})\]"'”][.!?])\s+(?=[A-Z])/u).map((x) => stripEnd(x)).filter(Boolean);
   const pieces: string[] = [];
   for (const sent of sentences) {
     if (sent.split(/\s+/).length <= 16 && !/;/.test(sent)) { pieces.push(sent); continue; }
