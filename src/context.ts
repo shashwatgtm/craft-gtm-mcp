@@ -2,7 +2,7 @@
 // that keep typed text out of broken sentences. The sector knowledge itself is in src/verticals.ts (rule B82).
 // splitItems, q, readContext, sectorNotes and answerFor follow the helpers of Revenue Enablement (the lead's version).
 import { escapePiece } from './escape-inputs.js';
-import { BILLING_NOTES, AI_GENERAL_NOTES, DECISION_AI_WORDS } from './sector-playbooks.js';
+import { BILLING_NOTES, AI_GENERAL_NOTES, DECISION_AI_WORDS, REGIONAL_SHIPPING_WORDS, SHIPPING_GENERAL_NOTES } from './sector-playbooks.js';
 import { detectVertical, detectModel, explainSector, profileFor, MODEL_NAME, BUSINESS_MODELS, SECTOR_MODEL, SUBTYPES, VERTICALS, type Vertical, type VerticalId, type BusinessModel, type ReaderInput } from './verticals.js';
 
 export { BUSINESS_MODELS, VERTICALS };
@@ -233,9 +233,12 @@ export function readContext(opts: { model?: unknown; hintModel?: BusinessModel |
   // Run 42B (addendum 8): the AI native entry also holds lines for AI that decides cases (cost per case, regulators, investment committees). They are used only when the
   // seller's own words name that kind of work; otherwise the notes that hold for every AI product are used. your_sector fixes the sector, not the kind.
   const aiBase = VERTICALS.find((x) => x.id === 'ai-native');
+  // Run 42B (addendum 8): the shipping notes written for an Indian courier market are used only when the seller's own words name that region or those practices.
+  const shipBase = SUBTYPES.find((x) => x.id === 'seller-shipping');
+  const vShip: Vertical | null = vSeats && shipBase && vSeats.subtype === 'seller-shipping' && !REGIONAL_SHIPPING_WORDS.test(sellerTexts.join('  ')) ? ({ ...vSeats, ...SHIPPING_GENERAL_NOTES } as Vertical) : vSeats;
   const vAdj: Vertical | null = vSeats && aiBase && vSeats.id === 'ai-native' && !vSeats.subtype && vSeats.name === aiBase.name && vSeats.committee.replace(/\blicences\b/g, 'seats') === aiBase.committee && !DECISION_AI_WORDS.test(sellerTexts.join(' \n '))
     ? ({ ...vSeats, ...AI_GENERAL_NOTES, generalOnly: true } as Vertical)
-    : vSeats;
+    : vShip;
   const sector = vAdj ? `${chosen ? `${vAdj!.name} (from your choice)` : `read from your inputs as ${vAdj!.name}`}` : `not clear from your inputs${buyerSide || ' (name the industry for sector notes)'}`;
   const mtxt = model
     ? `${MODEL_LABEL[model]} (${how === 'input' ? 'from business_model' : how === 'hint' ? 'from your market choice; set business_model to change it' : how === 'sector' ? 'the usual model in this sector, assumed; set business_model to change it' : 'read from your inputs; set business_model to change it'})`

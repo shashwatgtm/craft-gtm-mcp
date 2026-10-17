@@ -598,3 +598,29 @@ export function kindsNote(v: { id: VerticalId; name: string; subtype?: string } 
   const list = kinds.join('; ');
   return `\n\n*For ${name}: the sector lines below fit any company in ${v.name}. Lines written for one kind of company exist for these kinds: ${list}. Say what it sells in the ${field} input to get them.*`;
 }
+
+// Run 42B (addendum 8, regional notes): the shipping for online sellers entry in src/verticals.ts is written for an Indian courier market (cash on delivery, pin codes,
+// return to origin). It is used only when the seller's own words name that region or those practices (REGIONAL_SHIPPING_WORDS); otherwise these notes, which hold for
+// multi carrier shipping software anywhere, are used. No figures.
+export const REGIONAL_SHIPPING_WORDS = /\b(?:india\w*|cash on delivery|cod|pin ?codes?|postal codes? serviceability|rto|ndr|return to origin|non[- ]delivery reports?|rupees?|kirana|bharat)\b|₹/i;
+export const SHIPPING_GENERAL_NOTES: SectorNotes = {
+  vocabulary: ['carrier rates', 'shipping label', 'address validation', 'tracking updates', 'returns label', 'parcel insurance', 'store and marketplace channels', 'service level', 'delivery exception', 'carrier invoice adjustment'],
+  buyerRoles: ['Founder or Owner', 'Operations or Fulfilment Manager', 'Head of E-commerce', 'Finance or Accounts Lead', 'Developer or Platform Engineer', 'Customer Support Lead'],
+  committee: 'In a small online business the founder or owner decides and the operations or e-commerce lead runs shipping day to day; finance checks carrier charges. A platform or marketplace that connects through the API is decided by its product or engineering lead. There is rarely a formal committee: a trial on live orders decides.',
+  objections: [
+    { objection: 'Our carrier already gives us a rate', response: 'Compare the delivered cost of the last few weeks of orders, including returns and surcharges, not the rate card alone.' },
+    { objection: 'Changing shipping tools in a busy season', response: 'Start with one channel or a few orders a day next to the current carrier, and move volume over as it proves itself.' },
+    { objection: 'Surprise surcharges and adjustments', response: 'Explain how weight and dimensions are declared and checked, and how a disputed carrier charge is raised.' },
+    { objection: 'Connecting our store or system takes work', response: 'Name the store platforms and systems it connects to, the fields needed, and who on the buyer side owns each connection.' },
+  ],
+  salesMotion: 'Self serve start with a trial on live orders, a short onboarding call for larger sellers, and an API route for platforms, then expansion through more channels, carriers and services.',
+  metrics: ['delivered cost per order', 'label and tracking error rate', 'on time delivery by carrier', 'return rate and returns cost', 'carrier adjustment charges', 'time to ship an order', 'orders shipped per hour of staff time'],
+  proofShape: 'A seller\'s own orders over a few weeks: delivered cost per order, on time delivery by carrier and time to ship an order, compared with its previous way of shipping.',
+  discovery: [
+    'Which carriers and channels do you ship with today, and how do you choose one for an order?',
+    'What share of orders come back or arrive late, and what do you do about them?',
+    'Where do address errors, weight or surcharge disputes come up, and who handles them?',
+    'Which stores, marketplaces or systems must orders flow in from?',
+    'Do you ship across borders, and who handles customs paperwork today?',
+  ],
+};

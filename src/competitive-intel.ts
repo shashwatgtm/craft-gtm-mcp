@@ -106,7 +106,7 @@ const SOURCE_LABEL = /\s*\(([^()]*(?:words|page|claims?|reviews?|quote)[^()]*)\)
 const withoutSource = (t: string): string => stripEnd(t.replace(SOURCE_LABEL, ''));
 // A description of an approach, named in running text by its leading noun phrase ("a managed streaming service" for "a managed streaming service built on
 // a vendor-specific Kafka distribution"), else by its first clause, else whole when short; "alternative N" only when nothing fits.
-function descRef(raw: string, i: number): string {
+function descRef(raw: string, i: number, total = 2): string {
   const t = withoutSource(raw).replace(/^(\w+(?:\s+\w+)?);\s+/, '$1, ');
   const m = t.match(/^(.+?)\s+(?:that|which|who|tied|built|moved|kept|bundled|sold|offered|provided|supplied|working|requests?|requesting|relying|without|through|across|with|using|based|where|run|written|made)\b/i);
   const head = m && !/(?:ed|ing|by|of|to|and|or|the|an?)$/i.test(m[1]) ? m[1] : t;
@@ -114,7 +114,7 @@ function descRef(raw: string, i: number): string {
   if (t.length <= 60) return lc(t);
   const clause = t.split(/[;,]/)[0].trim();
   if (clause.split(/\s+/).length >= 2 && clause.split(/\s+/).length <= 9 && clause.length <= 70) return lc(clause);
-  return t.length <= 90 ? lc(t) : `alternative ${i + 1}`;
+  return t.length <= 90 ? lc(t) : total === 1 ? 'the current approach you described' : `alternative ${i + 1}`;
 }
 // A note split into its words and its source: "courier rates were confusing (a seller's words)" is the core and "a seller's words".
 function noteParts(note: string): { core: string; who: string } {
@@ -148,6 +148,16 @@ function productParts(description: string): string[] {
   return splitTopLevel(t, false).map((x) => stripEnd(x)).filter((x) => { const n = x.split(/\s+/).length; return n >= 2 && n <= 7 && /^[A-Za-z0-9]/.test(x) && !/^(?:an?|the|to|so|that|which|for|across|on|in|of|by|from|every|each)\b/i.test(x) && !/\b(?:that|which|so|for|on|to|in|of|across|by|from)\b/i.test(x.replace(/\([^)]*\)/g, '')); }).filter((x, i, a) => a.indexOf(x) === i);
 }
 
+// A single typed line whose comma pieces are fragments of one sentence: it opens with a long description of the current way of working (or a long lead-in before a colon)
+// and a later piece is a noun with an infinitive ("rates to compare", "labels to print and tracking to send"). A clear list (short names, or items that each name a tool) is not.
+function isOneSentence(pieces: string[]): boolean {
+  const first = pieces[0].replace(/\s*\((?:page )?claims?\)\s*$/i, '');
+  const words = first.split(/\s+/).length;
+  const lead = words >= 6 && (/^(?:the |our |their )?(?:current|existing|usual|status quo|today's|present)\b/i.test(first) || /^[^:]{20,}:\s*\S/.test(first));
+  const fragment = pieces.slice(1).some((x) => /^[a-z][\w-]*(?: [\w-]+)? to [a-z]+\b/.test(x));
+  return lead && (fragment || pieces.slice(1).every((x) => /^[a-z]/.test(x)));
+}
+
 // One alternative the seller named: a name (optionally with a note in brackets) or a description of an approach.
 interface Comp { raw: string; text: string; name: string; desc: boolean; ref: string; heading: string; notes: string[]; weak: string[]; ahead: string[] }
 
@@ -173,6 +183,9 @@ export function generateCompetitiveIntel(args: {
     // ("the current way of handling X is hard across product, design, engineering ...") or that reads "<word>, <word> and <word> in one place" is not a list of competitors.
     const oneLine = !/[;\n]/.test(args.competitors ?? '');
     if (oneLine && rawPieces.length > 1 && ((/^[a-z]/.test(rawPieces[0]) && rawPieces[0].split(/\s+/).length >= 6 && rawPieces.slice(1).every((x) => /^[a-z]/.test(x)) && rawPieces[1].split(/\s+/).length <= 2 && !/^(?:an?|the|our|their)\b/i.test(rawPieces[1])) || isOnePhrase(rawPieces))) return [rawPieces.join(', ')];
+    // Run 42B (addendum 9b): a typed status quo that is one sentence ("the current way of handling X: many carriers, rates to compare, labels to print ...") is one
+    // alternative: its comma pieces are fragments of one sentence, not named alternatives.
+    if (oneLine && rawPieces.length > 1 && isOneSentence(rawPieces)) return [rawPieces.join(', ')];
     for (const c of rawPieces) {
       const joinsPrev = out.length > 0 && isDescription(out[out.length - 1]) && (/^(?:with|without|which|that|where|including|and|or|plus|but|because|while|then)\s/i.test(c) || (tail && c.split(/\s+/).length <= 4 && /^[a-z]/.test(c)));
       if (joinsPrev) { out[out.length - 1] += `, ${c}`; tail = true; continue; }
@@ -223,7 +236,7 @@ export function generateCompetitiveIntel(args: {
     const desc = isDescription(raw);
     const name = shortOf(raw);
     const paren = raw.match(/\(([^)]*)\)\s*$/);
-    const ref = desc ? descRef(raw, i) : name;
+    const ref = desc ? descRef(raw, i, competitorsRaw.length) : name;
     // a bracketed note counts whether the item reads as a name or as a description (the layout never depends on the words typed)
     const notes = [...(paren && stripEnd(paren[1]) ? [`You describe ${ref} as ${stripEnd(paren[1])}`] : []), ...(byCompetitor[raw] || [])];
     const text = withoutSource(raw);
@@ -397,7 +410,7 @@ ${ctx.line}
 
   out += `## Where you stand
 
-The alternatives you named: ${comps.map((c) => (c.desc ? c.ref : c.name)).join('; ')}.${claimLabel || S.some(isClaim) ? ' Figures marked (page claims) come from your own pages: present them as what your materials say, not as measured results.' : ''}
+${comps.length === 1 && comps[0].ref === 'the current approach you described' ? 'You described one alternative: the current way your buyer handles this.' : 'The alternatives you named: ' + comps.map((c) => (c.desc ? c.ref : c.name)).join('; ') + '.'}${claimLabel || S.some(isClaim) ? ' Figures marked (page claims) come from your own pages: present them as what your materials say, not as measured results.' : ''}
 
 `;
   if (S.length) out += `**${fromWins ? 'You win, from your recent wins in your own words:' : 'You win on:'}** ${sayList(S)}.\n\n`;
