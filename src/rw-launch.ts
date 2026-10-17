@@ -144,7 +144,7 @@ function capabilityList(desc: string): string[] {
   const parts = capabilityPieces(desc);
   // a list of fragments ("4G, LTE-M", "not voice") is not a list of parts: the description is then shown whole, as written
   const ragged = parts.filter((x) => /^(?:not|and|or|only)\b/i.test(x) || /^(?:recommends?|finds?|plans?|researches|delivers?|lets|gives|helps|connects|automates|tracks|prints|generates|detects|combines|enables|provides|offers|supports|covers|handles|manages|moves|sends|scans|scores|ranks)\b/.test(x) || (x.split(/\s+/).length <= 6 && /,\s*\S+(?:\s+\S+)?$/.test(x))).length;
-  return parts.length > 1 && ragged >= 1 ? [] : parts;
+  return parts.length > 1 && ragged >= 1 ? [] : parts.map((x) => escapePiece(x));
 }
 function capabilityPieces(desc: string): string[] {
   if (!desc) return [];

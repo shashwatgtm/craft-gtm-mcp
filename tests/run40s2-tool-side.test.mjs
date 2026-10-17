@@ -95,8 +95,8 @@ const shown = (res) => {
 // value and twin (the same layout, every marker character made "x"): from the 40S auditors' findings and generators
 const NL = S(10), CR = S(13);
 const CASES = [
-  ["alpha,-,+,#,##,1.,1),beta", "alpha,x,x,x,xx,1 q,1 q,beta"],                      // IMPACT F1: a marker before the split comma
-  ["alpha;-;+;#;12.;beta", "alpha;x;x;x;12 q;beta"],
+  ["alpha,-,+,#,##,1.,1),beta", "alpha,xa,xb,xc,xd,1 q,2 q,beta"],                      // IMPACT F1: a marker before the split comma
+  ["alpha;-;+;#;12.;beta", "alpha;xa;xb;xc;12 q;beta"],
   ["Acme Example cut churn 20%" + NL + "-.", "Acme Example cut churn 20%" + NL + "x."],     // IMPACT F4: a marker kept by a cut "."
   ["Acme Example cut churn 20%" + NL + "##.", "Acme Example cut churn 20%" + NL + "xx."],
   ["Acme Example cut churn 20%" + NL + "1).", "Acme Example cut churn 20%" + NL + "1 q."],
@@ -112,7 +112,7 @@ const CASES = [
   ["cut churn 20% at Acme Example" + NL + "-:", "cut churn 20% at Acme Example" + NL + "xx"],
   ["cut churn 20% at Acme Example" + NL + ":-", "cut churn 20% at Acme Example" + NL + "xx"],
   ["Routeco helps_ab_helps fleets", "Routeco helpsxabxhelps fleets"],                   // IMPACT F2 (b): a cut at a word
-  ["Teams ship faster now!" + NL + "-! Onboarding is done.", "Teams ship faster now!" + NL + "xx Onboarding is done."],
+  ["Teams ship faster now!" + NL + "-! Onboarding is done.", "Teams ship faster now!" + NL + "x! Onboarding is done."],
   ["ab" + S(92), "abx"],                                                                  // ICP F2: a value ending in a backslash
 ];
 
