@@ -962,8 +962,11 @@ function parseChurn(text: string): { n: number | null; period: 'month' | 'year' 
   const period = /\b(?:annual(?:ly)?|yearly|per year|a year|per annum|p\.?a\.?|each year)\b|\/\s?(?:yr|year)\b/i.test(text) ? 'year'
     : /\bquarter(?:ly)?\b|\/\s?q\b/i.test(text) ? 'quarter'
     : /\b(?:month(?:ly)?|per month|a month|each month|\/\s?mo)\b/i.test(text) ? 'month' : 'unstated';
-  const monthly = period === 'year' ? n / 12 : period === 'quarter' ? n / 3 : n;
-  return { n, period, monthly, annual: monthly * 12 };
+  // 28 Oct 2026 (owner): churn compounds. Each month's loss applies only to the customers still left, so a monthly rate m
+  // loses 1 - (1 - m)^12 of today's base in a year, and an annual or quarterly rate converts to the monthly rate that compounds to it.
+  const share = (r: number) => Math.min(Math.max(r, 0), 100) / 100;
+  const monthly = period === 'year' ? 100 * (1 - Math.pow(1 - share(n), 1 / 12)) : period === 'quarter' ? 100 * (1 - Math.pow(1 - share(n), 1 / 3)) : n;
+  return { n, period, monthly, annual: 100 * (1 - Math.pow(1 - share(monthly), 12)) };
 }
 
 export function writeRetentionPlaybook(args: {
@@ -1029,9 +1032,9 @@ export function writeRetentionPlaybook(args: {
   if (churn.n === null) stand.push(`You gave a churn rate of ${quoted(typedRate)}, which could not be read as a number, so no severity is shown.`);
   else {
     stand.push(`You report churn of ${typedRate}${churn.period === 'unstated' ? ', which is read as a monthly rate' : ''}.`);
-    if (churn.period === 'year') stand.push(`Spread evenly that is about ${pct(churn.monthly)}% a month (the annual rate divided by twelve).`);
-    else if (churn.period === 'quarter') stand.push(`That is about ${pct(churn.monthly)}% a month and about ${pct(churn.annual)}% a year (the quarterly rate divided by three, then times twelve, not compounded).`);
-    else stand.push(`If it holds, that is about ${pct(churn.annual)}% of ${volumeModel ? 'volume' : 'customers'} lost in a year (the monthly rate times twelve, not compounded).`);
+    if (churn.period === 'year') stand.push(`That is about ${pct(churn.monthly)}% a month, compounded (the monthly rate that, applied each month to the customers still left, adds up to your annual rate).`);
+    else if (churn.period === 'quarter') stand.push(`That is about ${pct(churn.monthly)}% a month and about ${pct(churn.annual)}% a year, compounded (each period's loss applies only to the customers still left).`);
+    else stand.push(`If it holds, that is about ${pct(churn.annual)}% of ${volumeModel ? 'volume' : 'customers'} lost in a year, compounded (each month's loss applies only to the ${volumeModel ? 'volume' : 'customers'} still left, so it is lower than the monthly rate times twelve, ${pct(churn.monthly * 12)}%).`);
     stand.push(`It reads ${severity} against the example thresholds of this tool (above 8% a month is critical, above 5% high, above 3% moderate). The thresholds are illustrations, so judge the rate against your own history.`);
   }
   out.push(stand.join(' '));

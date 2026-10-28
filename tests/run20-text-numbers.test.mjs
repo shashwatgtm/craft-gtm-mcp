@@ -75,18 +75,18 @@ const assertCleanPercents = (text, label) => {
 };
 const tenths = (i) => { const s = (i / 10).toFixed(1); return s.endsWith(".0") ? s.slice(0, -2) : s; };
 
-test("retention_playbook: churn 0.8 a month times twelve prints 9.6%, not 9.600000000000001% and not a rounded 10%", async () => {
+test("retention_playbook: churn 0.8 a month compounds to 9.2% a year, printed with one decimal and no float noise", async () => {
   const r = await call("retention_playbook", { customer_segment: "Lanehop carrier accounts", business_model: "enterprise_contract", current_churn_rate: "0.8% monthly", churn_reasons: "price, support", cs_team_size: "small_1_3" });
   assert.equal(r.isError, false);
-  assert.match(r.text, /about 9\.6% of customers lost in a year/);
-  assert.doesNotMatch(r.text, /9\.60+\d/);
+  assert.match(r.text, /about 9\.2% of customers lost in a year, compounded/);
+  assert.doesNotMatch(r.text, /9\.\d{2,}%/);
   assertCleanPercents(r.text, "0.8");
 });
 
-test("retention_playbook: monthly churn from 0.1 to 6.0 times twelve is clean, with and without churn reasons", async () => {
+test("retention_playbook: monthly churn from 0.1 to 6.0 compounded over a year is clean, with and without churn reasons", async () => {
   for (let i = 1; i <= 60; i++) {
     const monthly = tenths(i);
-    const expected = tenths(i * 12);
+    const expected = String(Number((100 * (1 - Math.pow(1 - i / 1000, 12))).toFixed(1)));
     for (const reasons of ["price, support", ""]) {
       const r = await call("retention_playbook", { customer_segment: "Branchwire shippers", business_model: "saas_subscription", current_churn_rate: monthly + "%", ...(reasons ? { churn_reasons: reasons } : {}) });
       assert.equal(r.isError, false, monthly);
@@ -100,7 +100,7 @@ test("retention_playbook: monthly churn from 0.1 to 6.0 times twelve is clean, w
 test("retention_playbook: a churn typed with many decimals is shown with one", async () => {
   const r = await call("retention_playbook", { customer_segment: "Lanehop carrier accounts", business_model: "saas_subscription", current_churn_rate: "2.3456% monthly", churn_reasons: "price" });
   assert.match(r.text, /You report churn of 2\.3% monthly/);
-  assert.match(r.text, /about 28\.1% of customers lost in a year/);
+  assert.match(r.text, /about 24\.8% of customers lost in a year/);
   assertCleanPercents(r.text, "2.3456");
 });
 

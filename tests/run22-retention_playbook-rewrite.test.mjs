@@ -22,9 +22,9 @@ test("subscription playbook: every input is used where it matters", async () => 
   const out = await call("retention_playbook", sub);
   clean(out, sub);
   for (const w of ["Lanehop", "mid-size logistics companies that use Lanehop for daily dispatch", "2.5%", "pricing went up at renewal", "the dispatch team stopped logging in after the first quarter", "a larger suite was bundled in by their ERP vendor", "login frequency", "support tickets", "routes planned per week", "a quarterly business review", "an onboarding checklist"]) assert.ok(out.includes(w), `missing: ${w}`);
-  // 2.5% a month is about 30% a year, and the sentence says how it was worked out
-  assert.match(out, /30%/);
-  assert.match(out, /monthly (?:rate|churn) times twelve/i);
+  // 2.5% a month compounds to about 26.2% a year, and the sentence says how it was worked out
+  assert.match(out, /26\.2%/);
+  assert.match(out, /compounded \(each month's loss applies only to the customers still left/i);
   // each reason is answered by its own kind of step
   assert.match(out, /value|ROI/i);
   assert.match(out, /re-?activat|onboarding|adoption|quick win/i);
@@ -70,7 +70,7 @@ test("discovery kit for a small seller on transactions is not written for an ent
   assert.ok(out.includes("3%"));
   assert.match(out, /36%/);
   // a rating on the tool's example thresholds is never the only word on a rate that loses about a third of the volume in a year
-  assert.match(out, /36% of volume lost in a year/);
+  assert.match(out, /30\.6% of volume lost in a year, compounded/);
   assert.match(out, /thresholds are illustrations/);
   assert.equal(count(out, /To sharpen this, give/g), 1);
   assert.match(sharpen(out), /churn reasons|why customers leave/i);
