@@ -28,8 +28,9 @@ test("scores, ratings and dimension scores are unchanged (D80)", async () => {
   assert.match(a, /16\/50 \(32%\)/); assert.match(a, /SIGNIFICANT GAPS/i);
   for (const row of [/C(?:\*\*)?haracter[^\n]*?\b0\/10/, /R(?:\*\*)?esult[^\n]*?\b10\/10/, /A(?:\*\*)?rtifact[^\n]*?\b0\/10/, /F(?:\*\*)?rame[^\n]*?\b6\/10/, /T(?:\*\*)?imeline[^\n]*?\b0\/10/]) assert.match(a, row);
   const b = await A(PLAN_B);
-  assert.match(b, /35\/50 \(70%\)/);
-  for (const row of [/C(?:\*\*)?haracter[^\n]*?\b6\/10/, /R(?:\*\*)?esult[^\n]*?\b8\/10/, /A(?:\*\*)?rtifact[^\n]*?\b6\/10/, /F(?:\*\*)?rame[^\n]*?\b5\/10/, /T(?:\*\*)?imeline[^\n]*?\b10\/10/]) assert.match(b, row);
+  // Host review 29 Oct 2026: "webinars" (plural) now counts as a channel asset, so Artifact is 7, not 6, and the total 36, not 35.
+  assert.match(b, /36\/50 \(72%\)/);
+  for (const row of [/C(?:\*\*)?haracter[^\n]*?\b6\/10/, /R(?:\*\*)?esult[^\n]*?\b8\/10/, /A(?:\*\*)?rtifact[^\n]*?\b7\/10/, /F(?:\*\*)?rame[^\n]*?\b5\/10/, /T(?:\*\*)?imeline[^\n]*?\b10\/10/]) assert.match(b, row);
 });
 
 test("a clean review: no pasted excerpt, no empty template, no repeated sentence, no cut text", async () => {

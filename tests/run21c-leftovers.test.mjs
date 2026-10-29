@@ -32,9 +32,10 @@ test("customer_interview_kit: an email security company is not asked which cloud
 
 test("customer_interview_kit: a statement about the seller marked as a page claim is not turned into a question for the buyer", async () => {
   const t = await call("customer_interview_kit", { interview_type: "discovery", product_context: "a shipment visibility platform for shippers", industry: "logistics_tech", target_persona: "Head of Supply Chain", key_hypotheses: "supply chains break in the gaps between systems; 1,000+ enterprise brands use the platform (page claim)" });
-  assert.doesNotMatch(t, /Is this true for you: '1,000\+/);
+  assert.doesNotMatch(t, /Some teams say: '1,000\+/);
   assert.match(t, /1,000\+ enterprise brands use the platform/);
-  assert.match(t, /Is this true for you: 'supply chains break in the gaps between systems'/);
+  // Host review 29 Oct 2026: the hypothesis is put as "Some teams say", after the interviewee has described the work.
+  assert.match(t, /Some teams say: 'supply chains break in the gaps between systems'/);
 });
 
 test("customer_interview_kit: the IT leader block does not ask a payments or software buyer about sites and links; a connectivity buyer still gets it", async () => {
