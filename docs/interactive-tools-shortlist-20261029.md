@@ -2,6 +2,10 @@
 
 Design review note for Helix GTM Consulting. 29 October 2026.
 
+## Overnight update, 29 October 2026
+
+The ranking is unchanged. GTM Planning 2.2.23 and Content Studio 2.2.23 have joined Sales and Positioning In review, per the owner. Their implementation plans are for a later owner-approved release and version decision. No new version is prepared. The PMF fallback and rate-label findings below are now fixed; historical receipts remain labelled. See the costed implementation plan at the end for B6. The separate host-rewording note is also in this draft PR.
+
 ## Recommendation
 
 Select these three existing tools, in this order:
@@ -170,7 +174,7 @@ Edit the existing input fields and recalculate. A metric row can focus the metri
 
 The updated assessment explicitly calls this a rule score, not proof of product-market fit. A strong but incomplete assessment asks for missing data before scaling. A complete one asks for history and customer evidence. Preserve those exact qualifications in the UI and fallback.
 
-A residual source limitation remains: with only NPS, LTV:CAC and activation supplied at excellent values, the result is based on 3 of 5 dimensions and has the missing-data warning, but Priority Actions falls back to All dimensions scoring well: focus on scaling. The focused check reproduced this. Keep the rule-score and completeness caveats adjacent to any action text. Do not present the fallback as an independent endorsement. This docs-only change does not fix the writer.
+Historical limitation, now fixed: the earlier 8dfee13 check reproduced a scaling fallback when churn and retention were missing. The owner fixed this at 3cfe331. Current source explicitly lists missing CHURN and RETENTION as unscored collection actions. The all-strong closing asks for the user's history and customer evidence before scaling. The rate-label parser fix also reads activation rate 70%. W6's later connected captures pass unchanged graders. Preserve these fixes; do not commission them again.
 
 The score arithmetic is computed. Benchmarks and action text are example content. The analysis date depends on the system clock. A later parity test must freeze or ignore that date rather than call the whole string timelessly deterministic.
 
@@ -309,7 +313,7 @@ node /workspace/work/interactive-shortlist/resume/changed-assumptions.test.mjs
 | --- | --- |
 | PMF incomplete strong score | 4 of 5, rule-score caveat, missing-data warning and no old Focus on scaling sentence for the missing-activation fixture |
 | PMF complete strong score | 5 of 5 and history/customer evidence check before scaling |
-| PMF residual fallback | 3 of 5 with churn and retention absent; assessment warns, but Priority Actions still contains the scaling fallback. Recorded as a limitation, not a fix. |
+| PMF residual fallback, historical | Reproduced on 8dfee13. Superseded by the owner's 3cfe331 fix and the later W6 passing connector replay. This old execution was not rerun for this document. |
 | Blog summary repetition | Synthetic title occurs once in the blog section; synthetic qualifier remains |
 | Fourth case study result | Rework fell by 40% remains in the story for four supplied synthetic outcomes |
 | PMF input schema | Exactly equal to the schema from the earlier inspected tool list |
@@ -342,3 +346,90 @@ Before remote writes, I inspected the current CRAFT GTM recursive Git tree and `
 The GitHub tree is based on current main and adds only this note. Earlier local documentation commits are preserved locally and excluded from the delivered commit ancestry. Existing source, tests, packages, authentication, endpoints, versions, tool names, challenge files, headers and hosted videos are preserved.
 
 No client or prospect is named. Inputs are synthetic. No secret, token or credential value was read, output or committed. No deployment, hosting command, workflow dispatch, DNS change, submission, publication, package upload, skill packaging, legal declaration or paid API call occurred. No main/master write, merge, force push, ready-for-review action or other workstream branch change is included. The official review page is evidence for this design, not authorization to submit, publish or package skills. This work ends at a draft PR.
+
+
+## B6: Costed implementation plan
+
+Design only, added during the overnight continuation. These estimates are coordinator judgments, not measured run durations or API charges. No implementation or new test execution is claimed here.
+
+### Source check and release status
+
+The coordinator read current source through GitHub at these heads:
+
+| Tool | Current source snapshot | Release status |
+| --- | --- | --- |
+| account_prioritization | ICP e9fa6587c03490c06a48510502d222d7cd2a7da1, src/index.ts | ICP is not submitted. Nine scanned tools have no findings. Host acceptance is still needed. |
+| pmf_scorecard | GTM aa09567e34a068831f3ccbda39db1b12a4ce5a01, src/server.ts and src/pmf-scorecard.ts | GTM 2.2.23 is In review. Future version/release work only after owner approval. |
+| content_repurposer | Content 6365c2b6a2459de48e8658c03d685706a8e67b64, src/server.ts and src/content-repurposer.ts | Content 2.2.23 is In review. Future version/release work only after owner approval. |
+
+The current main updates include privacy pages handled by the owner and Claude. Do not edit or recreate that work. The PMF source preserves explicit missing-data actions. The Content source preserves the repaired blog summary logic.
+
+The coordinator reread the [OpenAI UI guide](https://developers.openai.com/plugins/build/chatgpt-ui), [result reference](https://developers.openai.com/plugins/reference#tool-results) and [review guidance](https://developers.openai.com/plugins/deploy/app-review). Structured results can support both host and component. UI metadata is reviewed. Current guidance does not make every compatible tool or UI update require a new plugin version. The owner's hold still means GTM and Content wait for a later approved release and any required version work.
+
+### Shared work and acceptance gates
+
+Reuse the reviewed W3 and W4 bridge behavior, after reviewing their source. Do not merge those PRs as an implementation shortcut. Keep one local component source per tool and bundle it for the MCP resource and the existing site. A site mode may use the same deterministic model locally, with no external calls. A host mode calls only the same named tool through the bridge.
+
+Keep the existing content array byte identical. Do not regenerate legacy Markdown by parsing structured output. Compute a single result model, retain the existing formatter, and expose an additive structured adapter. Capture the current base before refactoring. Freeze time only in test fixtures where the current output uses a date.
+
+Use the result shapes above. Add a schemaVersion, tool identity, warning codes and explicit provenance. Validate at the boundary. Model-visible strings retain existing escaping. Editable literal strings need a reviewed component-only round-trip representation, as in W3, so escaping never accumulates over repeated calls. Do not send credentials or hidden customer data.
+
+Keep newer edits when delayed successes, errors or uncorrelated notifications arrive. Initialize inline display support. Send bounded, debounced size notifications that allow both growth and shrinkage. Keep a full text fallback and useful errors. Use inert rendering, the repository's Helix assets, empty external CSP allowlists and accessible controls. No extra render tool, schema argument, API agent, storage service or paid call is proposed.
+
+Common cloud acceptance: current-base differential fixtures; tools/list comparison limited to the selected tool's UI metadata; output-contract checks; resources/read MIME and CSP; repeated literal edits; stale success/error/notification races; empty and malformed results; keyboard operation; 320px and 390px layouts; zoom; no external requests; captured desktop/mobile screenshots. Actual ChatGPT acceptance remains a separate owner-authorized step.
+
+### Account Prioritization implementation
+
+Existing paths to change: src/index.ts for shared computation, the existing account tool result and resource registration. Read src/escape-inputs.ts without weakening it. Preserve the existing checkRequiredInputs behavior. No change to the account input schema.
+
+Proposed new paths: src/account-prioritization.ts for the pure calculation and result types; src/account-prioritization-ui.ts and ui/account-prioritization.html for the bundled resource; public/lab/account-prioritization/index.html for site output; scripts/build-account-prioritization-ui.mjs; tests/account-prioritization-ui.test.mjs; tests/fixtures/account-prioritization-baseline.json; scripts/check-account-prioritization-ui.mjs; docs/account-prioritization-ui-review.md. Regenerate only the tracked build outputs required by the repository. These filenames are proposals, not existing delivered files.
+
+Structured fields: mode, effective weights, default weight keys, maximum, exact cutoffs and all account rows. Each row needs inputIndex, stable ID, raw timing label, effective timing points, defaulted scores, factor contributions, rounded total, rank and tier. Carry the actual reason and nextAction only where the current writer produces them. Include interpretation warnings for invalid weight meaning. Do not infer missing intent or enrich accounts.
+
+Focused tests: 71 and 48 for the package review input; defaults versus explicit zero; four-zero-weight refusal; weights summing to 200; fractional thresholds; unknown and whitespace timing; equal-rank input order; duplicate account labels; missing fields; negative weight behavior; empty framework mode. Verify every structured total against independently calculated expectations and the unchanged text.
+
+Text risk: medium. Calculation currently sits inside the large tool definition. Extracting it can change rounding, defaults, order or the first-five action cutoff. Capture those cases before extraction and fail on any unexplained byte difference. Avoid a refactor of other ICP tools. Coordinate later with W3 because both touch src/index.ts.
+
+### PMF Scorecard implementation
+
+Existing paths to change: src/pmf-scorecard.ts to return a calculation record plus the existing formatted text; src/server.ts for the additive result and UI resource. Read src/tools.ts, src/utils.ts and src/sector-playbooks.ts as contract dependencies. Do not alter parser rules or benchmarks as part of UI work.
+
+Proposed new paths: src/pmf-result.ts for types and a pure adapter if separation helps; src/pmf-ui.ts; ui/pmf-scorecard.html; public/lab/pmf-scorecard/index.html; scripts/build-pmf-ui.mjs; tests/pmf-ui.test.mjs; tests/fixtures/pmf-ui-baseline.json; scripts/check-pmf-ui.mjs; docs/pmf-ui-review.md. Retain generatePMFScorecard as a compatible string-returning entry point for existing callers.
+
+Structured fields: original metrics text, parsedMetrics, actual rangeKey, businessModel, analysisDate, each dimension's value/status/applicability/inclusion/score, example benchmark values, overall score and scored/applicable counts. Keep missingData, unscoredFigures, feedback, recommendations and qualifications. Missing is different from zero. Do not create a probability or claim a metric is verified.
+
+Focused tests: all existing review fixtures; both PMF fixes from W6; rate labels; missing churn/retention actions; all-strong qualified closing; sparse inputs; activation exclusions; threshold boundaries; zero CAC and LTV; negative NPS; aliases; first repeated metric; unsupported figures; annual-versus-monthly wording. A user edits current_metrics, not an invented set of independent numeric server arguments. Show the parsing result before interpretation.
+
+Text risk: high. The current writer interleaves calculations, example ranges, sector labels and recommendation prose. Extracting state must preserve date formatting, recommendation order, warnings and the exact 29 October fixes. Differential acceptance is a gate, not a task to defer. The UI must show the evidence basis beside the stage label.
+
+### Content Repurposer implementation
+
+Existing paths to change: src/content-repurposer.ts for a single generated kit and final pieces; src/server.ts for structured results and the resource. Read src/tools.ts, src/draft.ts, src/sector.ts, src/echo-safe.ts and src/list-shape.ts as dependencies. Preserve all common finishing and escaping steps.
+
+Proposed new paths: src/content-repurposer-result.ts; src/content-repurposer-ui.ts; ui/content-repurposer.html; public/lab/content-repurposer/index.html; scripts/build-content-repurposer-ui.mjs; tests/content-repurposer-ui.test.mjs; tests/fixtures/content-repurposer-ui-baseline.json; scripts/check-content-repurposer-ui.mjs; docs/content-repurposer-ui-review.md.
+
+Structured fields: requested and unknown formats; source notes; key points; labelled proof with IDs and use flags; claimsToSource; caveats; missingInputs; final pieces with stable ID, format, text and warnings; sector notes. Use the same final safe piece text that appears in the legacy response. Keep local draftText and dirty flags only in component state. They are not new tool arguments or authoritative server results.
+
+Focused tests: all supported formats; unknown-only formats; empty proof; partner versus customer statements; unmeasured and synthetic caveats; removed superlatives; the repaired blog opening; duplicate source sentences; fourth-result regression in its actual case-study writer; long thread warning; source ordering; user edits that remove caveats; dirty draft confirmation; reset and regeneration. The separate case-study regression guards shared dependencies but does not expand UI scope to that tool.
+
+Text risk: high. The current writer selects and shortens source sentences, chooses proof and applies shared finishing operations. A structured adapter must not become a second generation pipeline. Check full legacy bytes and piece boundaries. Never label local edits as returned server content or make a publishing claim.
+
+### Effort and sequence
+
+Cloud hours mean estimated active implementation and verification time for one worker. They exclude queue delays, permission outages, owner review, portal work, deployment and actual host recording. They are not money or API credit estimates.
+
+| Work | Shared setup | Tool implementation | Cloud verification and receipts | Total active cloud hours |
+| --- | --- | --- | --- | --- |
+| Shared bridge, bundle and fixture harness | 3 to 5 | Included | Included | 3 to 5 once |
+| Account Prioritization | Reuse shared work | 3 to 5 | 2 to 3 | 5 to 8 |
+| PMF Scorecard | Reuse shared work | 4 to 6 | 3 to 5 | 7 to 11 |
+| Content Repurposer | Reuse shared work | 4 to 6 | 3 to 5 | 7 to 11 |
+| All three | 3 to 5 once | 11 to 17 | 8 to 13 | 22 to 35 |
+
+Reserve the upper end for legacy-text parity and host race debugging. Start Account Prioritization first because its arithmetic is explicit and ICP is not in review. Use that result to validate the shared harness. PMF and Content can later run in parallel in separate repositories after the owner approves their implementation scope. Parallelism can shorten elapsed time; it does not reduce the active-hour estimate.
+
+Stop an implementation if it requires a tool rename, input change, version bump, new external service or protected-file edit. Report the constraint. All work ends at reviewable branches and draft PRs. No implementation is started by this plan.
+
+### B6 validation performed
+
+The coordinator read the current source entry points and existing shortlist, checked proposed fields against the current calculation paths, corrected the superseded PMF paragraph and checked this document for prohibited punctuation. No build, runtime suite, browser test or host test ran for B6. Existing earlier receipts above remain historical. The delivered change is this Markdown document only.
