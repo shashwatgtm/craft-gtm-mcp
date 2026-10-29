@@ -41,7 +41,7 @@ No. Each tool applies fixed rules in the CRAFT GTM code to the inputs you give i
 
 ### What happens to what I type?
 
-It is sent to this site's server, used once to build the answer, and dropped when the answer is sent back. Nothing is stored and nothing you type is logged. The privacy page has the details.
+It is sent to this site's server, used once to build the answer, and dropped when the answer is sent back. What you type and the answer are not stored, and nothing you type is logged. Only an anonymous count of tool calls is kept. The privacy page has the details.
 
 ### How do I use CRAFT GTM in Claude?
 
@@ -65,7 +65,7 @@ Yes, at https://github.com/shashwatgtm/craft-gtm-mcp under the MIT licence. The 
 
 ### Who is CRAFT GTM not ideal for?
 
-Teams that want finished, publish-ready plans: each tool returns a structured draft, with placeholders where your inputs gave no fact. Anyone who needs live market or competitor data: the tools look nothing up; they work from what you type, and anything they add themselves is marked as an example, a suggestion or a placeholder. Teams that need saved history or shared workspaces: nothing is stored, so keep each result where you keep your work.
+Teams that want finished, publish-ready plans: each tool returns a structured draft, with placeholders where your inputs gave no fact. Anyone who needs live market or competitor data: the tools look nothing up; they work from what you type, and anything they add themselves is marked as an example, a suggestion or a placeholder. Teams that need saved history or shared workspaces: answers are not stored, so keep each result where you keep your work.
 
 ### How do I report a problem?
 
