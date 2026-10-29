@@ -182,12 +182,13 @@ export function generateCustomerInterviewKit(args: {
       opening: [
         `Tell me about your role (${args.target_persona}). What does a typical week look like?`,
         `What are your top 3 priorities this quarter?`,
-        `How long has this problem been on your team's list, and who noticed it first?`
+        `What part of this work takes the most effort today, if any?`
       ],
+      // Host review 29 Oct 2026: discovery questions do not assume the problem exists; the interviewee names it first.
       core: [
-        `Walk me through the last time you hit this problem. What happened?`,
-        `What solutions have you tried? What worked and didn't work?`,
-        `How are you solving this problem today?`,
+        `Walk me through the last time you did this work, start to finish. What happened?`,
+        `What, if anything, slowed it down or went wrong?`,
+        `If something did go wrong, what have you tried? What worked and what didn't?`,
         `What would "perfect" look like for you?`,
         `Who else is affected or involved: ${andList(otherRoles)}?`
       ],
@@ -377,9 +378,10 @@ ${(() => { let inObjections = false; return hypotheses.map((raw, i) => {
 
 | To Validate | Ask |
 |-------------|-----|
-| Confirm it is true | "Is this true for you: ${plain.length <= 110 ? `'${plain}'` : 'the statement above'}? When did you last see it?" |
-| Understand severity | "What does it cost you (time, rework, money or risk), and who feels it first?" |
-| Test assumption | "Tell me about the last time it happened. What did you do, and who was involved?" |
+| Open without the hypothesis | "Walk me through how this works for you today. What, if anything, slows it down?" |
+| Test it, after they have described the work | "Some teams say: ${plain.length <= 110 ? `'${plain}'` : 'the statement above'}. How close is that to your experience, if at all?" |
+| Understand severity, only if they confirm it | "What does it cost you (time, rework, money or risk), and who feels it first?" |
+| Find a real case, only if they confirm it | "Tell me about the last time it happened. What did you do, and who was involved?" |
 | Find counter-evidence | "What would make this NOT true for you, and where have you seen the opposite?" |
 `;
 }); })().join('')}

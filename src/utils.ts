@@ -489,23 +489,25 @@ const CHARACTER_GROUPS: Group[] = [
   { label: 'a RACI', optional: true, patterns: [/\braci\b/gi] },
 ];
 const RESULT_GROUPS: Group[] = [
-  { label: 'a KPI, metric or goal', patterns: [/\b(kpi|metric|goal|target|objective|okr|success\s*criteria)\b/gi] },
+  { label: 'a KPI, metric or goal', patterns: [/\b(kpi|metric|goal|target|objective|outcome|okr|success\s*criteria)\b/gi] },
   { label: 'a target with a number', patterns: [
     /\b(increase|decrease|improve|reduce|achieve|reach|hit)\s+\d+/gi,
     /\d+%?\s*(increase|decrease|improvement|reduction|growth)\b/gi,
     /\b(roi|conversion|retention|churn|nps|csat)\b\s*[:\s]*\d+/gi,
     // Run 20: a goal line that holds a figure ("Goal: a pipeline of $1,500,000, ten deals ...") states a target with a number.
-    /(?<=\b(?:goal|target|objective|kpi|okr|metric)s?\b[^\n]{0,80}?)\$\d+(?:,\d{3})*(?:\.\d+)?[kmb]?\b/gi] },
+    /(?<=\b(?:goal|target|objective|kpi|okr|metric)s?\b[^\n]{0,80}?)\$\d+(?:,\d{3})*(?:\.\d+)?[kmb]?\b/gi,
+    // Host review 29 Oct 2026: a labelled goal or outcome that starts with a count ("Outcome: 20 discovery meetings") is a target with a number.
+    /(?<=^\s*(?:goal|target|objective|outcome|kpi|okr)s?\s*:\s*)\d[\d,]*(?:\.\d+)?%?(?:\s+[A-Za-z-]+){1,2}/gim] },
   { label: 'a money target', optional: true, patterns: [/\$[\d,]+\s*(revenue|arr|mrr|pipeline|savings)\b/gi, /\bpipeline of \$\d+(?:,\d{3})*(?:\.\d+)?[kmb]?\b/gi] },
 ];
 const ARTIFACT_GROUPS: Group[] = [
   { label: 'a deliverable or output', patterns: [/\b(deliverable|output|create|produce|build(?!\s+(?:an?\s+)?(?:hypothetical\s+)?pipeline)|develop|launch|publish|ship)\b/gi] },
   { label: 'a named document or tool', patterns: [/\b(document|report|dashboard|playbook|template|guide|framework|tool)\b/gi] },
   { label: 'a campaign or content asset', patterns: [/\b(campaign|content|(?:marketing|sales|brand|creative|digital|content) assets?|material|collateral|deck|presentation)\b/gi] },
-  { label: 'a channel asset', patterns: [/\b(website|landing\s*page|email|blog|video|webinar|event)\b/gi] },
+  { label: 'a channel asset', patterns: [/\b(websites?|landing\s*pages?|emails?|blogs?|videos?|webinars?|events?)\b/gi] },
 ];
 const FRAME_GROUPS: Group[] = [
-  { label: 'an audience, persona or segment', patterns: [/\b(audience|persona|icp|segment|target\s*market|buyer)\b/gi] },
+  { label: 'an audience, persona or segment', patterns: [/\b(audience|persona|icp|segment|target\s*market|buyer)\b/gi, /^\s*targets?\s*:\s*(?:[A-Za-z&-]+\s+){0,3}(?:directors?|managers?|leaders?|heads?|buyers?|teams?|firms|companies|businesses|organi[sz]ations|accounts|vps?|cmos?|ctos?|cfos?|cios?|ceos?|owners?|administrators?|admins?|users|customers|personas?|founders?|executives?|officers?|engineers?|marketers?)\b/gim] },
   { label: 'constraints or assumptions', patterns: [/\b(constraint|limitation|scope|boundary|requirement|assumption)\b/gi, /\b(?:figures|numbers)\b[^.\n]{0,40}\b(?:hypothetical|assumed|estimates?)\b/gi] },
   { label: 'a budget or resources', patterns: [/\b(budget|resource|headcount|bandwidth|capacity)\b/gi] },
   { label: 'context or current state', patterns: [/\b(context|background|situation|current\s*state|status quo|what (?:buyers|customers) use today)\b/gi] },
@@ -570,9 +572,20 @@ function scoreGroups(lines: string[], groups: Group[]): { found: string[]; evide
 // in under six months" is a customer's words, and "Proof: ... Gartner ... 7 Consecutive Years" is an award. Such lines still count for
 // Frame (audience, context). A line is of this kind when its label (the words before the first colon) says so.
 const MARKET_LABEL = /^(?:buyer|buyers|buyer roles?|persona|personas|audience|target audience|customers?|prospects?|competitors?|alternatives?|what (?:buyers|customers) use today|proof|references?|testimonials?|quotes?|case stud(?:y|ies)|message|messaging|positioning|how we differ|differentiat\w+|stakeholders?|segments?|icp)\b/i;
+// Host review 29 Oct 2026: "Target: revenue operations directors at firms with 200 to 1000 employees" names the audience, not a goal.
+const AUDIENCE_HEAD = /^\s*(?:[A-Za-z&-]+\s+){0,3}(?:directors?|managers?|leaders?|heads?|buyers?|teams?|firms|companies|businesses|organi[sz]ations|accounts|vps?|cmos?|ctos?|cfos?|cios?|ceos?|owners?|administrators?|admins?|users|customers|personas?|founders?|executives?|officers?|engineers?|marketers?)\b/i;
+export function isAudienceTarget(label: string, text: string): boolean {
+  return /^targets?$/i.test(label.trim()) && AUDIENCE_HEAD.test(text);
+}
 export function isMarketLine(line: string): boolean {
-  const m = line.match(/^\s*([^:\n]{1,60}):/);
-  return !!m && MARKET_LABEL.test(m[1].trim());
+  const m = line.match(/^\s*([^:\n]{1,60}):(.*)/);
+  return !!m && (MARKET_LABEL.test(m[1].trim()) || isAudienceTarget(m[1], m[2]));
+}
+
+// Host review 29 Oct 2026: a plan pasted as one paragraph ("... exercise. Target: ... Outcome: ... Owner: ...") is read in its labelled parts,
+// as if each label started a line. Text with no label after a sentence end is unchanged.
+export function planSegments(content: string): string[] {
+  return content.split('\n').flatMap((l) => l.split(/(?<=[.;!?])\s+(?=[A-Z][A-Za-z /&'-]{0,39}:\s)/));
 }
 
 export function analyzeCRAFTDimensions(content: string): CRAFTAnalysis {

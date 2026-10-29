@@ -95,9 +95,13 @@ export function generatePMFScorecard(args: {
   // Determine PMF stage
   let pmfStage = 'Pre-PMF';
   let pmfAnalysis = '';
+  // Host review 29 Oct 2026: a high score says the supplied figures meet the example benchmarks, never that fit is proven,
+  // and it does not advise scaling while a dimension is missing.
   if (overallScore >= 8) {
     pmfStage = 'Strong PMF';
-    pmfAnalysis = 'Metrics indicate solid product-market fit. Focus on scaling.';
+    pmfAnalysis = scoredDimensions.length < dimensionCount
+      ? 'The figures you gave score strongly against the example benchmarks. Fill the missing data below before treating this as a reason to scale.'
+      : 'The figures you gave score strongly against the example benchmarks. Check them against your own history and customer evidence before you scale.';
   } else if (overallScore >= 6) {
     pmfStage = 'Emerging PMF';
     pmfAnalysis = 'Good foundation but gaps to address before aggressive scaling.';
@@ -221,6 +225,7 @@ ${ctx.line}
 ${basis}
 ${pmfAnalysis}
 The score is the average of the dimensions scored below (missing data is left out), each judged against an example benchmark.
+It is a rule score from the figures you supplied, not proof of product-market fit.
 
 ---
 

@@ -1,5 +1,5 @@
 import { escapePiece } from './escape-inputs.js';
-import { analyzeCRAFTDimensions, isMarketLine, type CRAFTDimension } from './utils.js';
+import { analyzeCRAFTDimensions, isMarketLine, isAudienceTarget, planSegments, type CRAFTDimension } from './utils.js';
 import { subIndustryFor } from './sub-industry.js';
 import { VERTICALS, SUBTYPES, AI_SUPPORT_PROFILE, BUYER_CONTEXTS, profileFor, buyerContextFor, type Vertical } from './verticals.js';
 import { andList, readContext, q, splitPhrases } from './context.js';
@@ -23,9 +23,10 @@ export function generateCRAFTAnalyzer(args: {
   const docType = args.document_type;
   // Run 20: when audience or outcome is not given as an input, the plan's own Audience and Goal lines are read and shown (before, the answer said
   // "Not specified" for a plan that states both).
-  const labelled = content.split('\n').map((l) => { const m = l.match(/^\s*([A-Za-z][A-Za-z /&'-]{1,40}):\s*(.+)$/); return m ? { label: m[1].trim(), text: m[2].trim() } : null; }).filter((x): x is { label: string; text: string } => !!x);
-  const planAudience = labelled.find((x) => /^(?:target )?audience$|^icp$|^segments?$/i.test(x.label));
-  const planGoal = labelled.find((x) => /^(?:goals?|objectives?|targets?|outcomes?|success(?: criteria| metrics?)?)$/i.test(x.label));
+  const parts = planSegments(content);
+  const labelled = parts.map((l) => { const m = l.match(/^\s*([A-Za-z][A-Za-z /&'-]{1,40}):\s*(.+)$/); return m ? { label: m[1].trim(), text: m[2].trim() } : null; }).filter((x): x is { label: string; text: string } => !!x);
+  const planAudience = labelled.find((x) => /^(?:target )?audience$|^icp$|^segments?$/i.test(x.label) || isAudienceTarget(x.label, x.text));
+  const planGoal = labelled.find((x) => /^(?:goals?|objectives?|targets?|outcomes?|success(?: criteria| metrics?)?)$/i.test(x.label) && !isAudienceTarget(x.label, x.text));
   // The plan is read in its parts when it is labelled (Message and How we differ are the seller's words; Buyer roles are job titles; Audience is the buyer);
   // a plan with no such lines is read whole, as deal text. Its Goal line is not read: it often lists the segments, which are the buyer's sector, not yours.
   const byLabel = (re: RegExp): string[] => labelled.filter((x) => re.test(x.label)).map((x) => x.text);
@@ -36,7 +37,7 @@ export function generateCRAFTAnalyzer(args: {
   const sectorCtx = readContext({ vertical: args.industry, sector: args.your_sector }, readInput);
   const sectorCtx0 = sectorCtx;
   // Perform CRAFT analysis
-  const analysis = analyzeCRAFTDimensions(content);
+  const analysis = analyzeCRAFTDimensions(parts.join('\n'));
   
   // Calculate overall score
   const totalScore = analysis.character.score + analysis.result.score + analysis.artifact.score + analysis.frame.score + analysis.timeline.score;
@@ -61,13 +62,13 @@ export function generateCRAFTAnalyzer(args: {
     return 'Read for all five areas';
   };
   const stated = labelled.slice(0, 10).map((x) => ({ ...x, counts: countsFor(x.label, x.text) }));
-  const ownText = content.split('\n').filter((l) => !isMarketLine(l)).join('\n');
+  const ownText = parts.filter((l) => !isMarketLine(l)).join('\n');
   const buyerLine = labelled.find((x) => /^buyer(?:s| roles?)?$/i.test(x.label));
   const matters: Array<{ title: string; detail: string }> = [];
   if (analysis.character.found.length === 0) matters.push({ title: 'Nobody on your side is named to run the plan', detail: `${buyerLine ? `The line ${qc(`${buyerLine.label}: ${buyerLine.text}`, 140)} names the customer's roles, which are not owners. ` : ''}Name who owns ${planGoal ? qc(planGoal.text, 110) : 'the goal'} and who does each piece of the work.` });
   if (!/\b(email|e-mail|linkedin|outbound|inbound|webinars?|events?|conferences?|roundtables?|partners?|referrals?|paid|ads|seo|abm|account-based|sdrs?|cold|calls?|social|community|press|field|direct|content|newsletter)\b/i.test(ownText)) matters.push({ title: 'No channel is named', detail: 'Say where the first conversations come from (outbound, events, partners, referrals, paid, content), and who is reached first.' });
   const hasNumberGoal = planGoal && /\d/.test(planGoal.text);
-  if (hasNumberGoal && !/\b(win rate|close rate|conversion|meetings?|opportunit\w*|funnel|demos?|mqls?|sqls?|stage)\b/i.test(ownText.replace(planGoal!.text, ''))) matters.push({ title: 'The goal is not traced to activity', detail: `${qc(planGoal!.text, 150)} is a result, but no win rate, meeting count or stage conversion is stated, so it cannot be traced back to the work that would produce it. Work backwards from the goal: deals needed, opportunities needed, meetings needed.` });
+  if (hasNumberGoal && !/\b(meetings?|demos?|opportunit\w*|mqls?|sqls?)\b/i.test(planGoal!.text) && !/\b(win rate|close rate|conversion|meetings?|opportunit\w*|funnel|demos?|mqls?|sqls?|stage)\b/i.test(ownText.replace(planGoal!.text, ''))) matters.push({ title: 'The goal is not traced to activity', detail: `${qc(planGoal!.text, 150)} is a result, but no win rate, meeting count or stage conversion is stated, so it cannot be traced back to the work that would produce it. Work backwards from the goal: deals needed, opportunities needed, meetings needed.` });
   if (analysis.timeline.found.length === 0) matters.push({ title: 'No dates', detail: `${/\bnext quarter\b/i.test(ownText) ? 'The plan says "next quarter" but gives no date or duration' : analysis.timelineWords.length ? `Only the words ${andList(analysis.timelineWords.slice(0, 3).map((w) => q(w)))} appear` : 'No period or date appears'}.${planGoal ? ` The goal ${qc(planGoal.text, 110)} has no end date: say by when it must be won, and put a date on the first meeting, the pilot or first delivery, and the review.` : ' Put a date on the first meeting, the pilot or first delivery, and the review.'}` });
   if (!analysis.frame.groupsFound.includes('a budget or resources')) matters.push({ title: 'No budget or headcount', detail: 'State what money and people the plan has, so the goal can be checked against what it costs.' });
   if (!/\b(weekly|monthly|fortnightly|review|check-?in|cadence|stand-?up|steering)\b/i.test(ownText)) matters.push({ title: 'No review rhythm', detail: 'Say when the plan is reviewed and by whom, and which number is looked at first.' });
