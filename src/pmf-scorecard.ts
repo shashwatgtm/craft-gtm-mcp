@@ -125,7 +125,10 @@ export function generatePMFScorecard(args: {
   let suggestsCounts = false; // true when a recommendation suggests a count (needs the suggestion footer)
   const contract = ctx.model === 'services' || ctx.model === 'connectivity' || ctx.model === 'investment';
   const owns = (m: BusinessModel | null): string => (m === 'investment' ? 'an investment mandate' : m === 'connectivity' ? 'a connectivity contract' : 'a services contract');
-  if (churnScore.label === 'CRITICAL' || churnScore.label === 'DEVELOPING') {
+  // Host review 29 Oct 2026 (W6 eval): a missing churn or retention figure is a priority action, so the list never says "focus on scaling" without them.
+  if (churnScore.label === 'MISSING') {
+    recommendations.push(`CHURN: not given, so it is not scored. ${contract ? 'Count the contracts not renewed in the period, divided by the contracts up for renewal' : 'Read it from your billing records: customers lost in a month divided by customers at the start of that month'}.`);
+  } else if (churnScore.label === 'CRITICAL' || churnScore.label === 'DEVELOPING') {
     recommendations.push(contract
       ? 'CHURN: Interview the buyers of recent non-renewals, check service-level misses before each renewal, and name the owner of every at-risk contract'
       : 'CHURN: Interview the customers who left in the period, group their reasons, and fix the biggest reason first before building anything predictive');
@@ -134,6 +137,9 @@ export function generatePMFScorecard(args: {
     recommendations.push(`NPS: not given, so it is not scored. ${contract ? 'Ask the sponsor and the day-to-day contact of each account the same two questions (how likely to recommend, and why) after each service review' : 'Survey the people who use the product with the same two questions (how likely to recommend, and why)'}.`);
   } else if (npsScore.score < 6) {
     recommendations.push('NPS: Read the detractors\' comments, group them, and fix the biggest reason first; then ask the same people again');
+  }
+  if (retentionScore.label === 'MISSING') {
+    recommendations.push(`RETENTION: not given, so it is not scored. ${contract ? 'Give the share of contract value renewed over the last twelve months' : 'Give the share of customers (or of revenue) still with you after twelve months, and say which one it is'}.`);
   }
   const acvNote = metrics.acv !== undefined ? ` You gave an annual contract value of $${metrics.acv.toLocaleString('en-US')}: LTV is that value times your gross margin times the years a contract lasts, and CAC is your sales and marketing cost divided by the contracts won in the same period.` : '';
   if (ltvCacScore.label === 'MISSING') {
@@ -290,7 +296,7 @@ ${feedbackAnalysis ? `---\n\n## Customer Feedback You Gave\n\n${feedbackAnalysis
 
 ## Priority Actions
 
-${recommendations.length > 0 ? recommendations.map((r, i) => `${i + 1}. ${r}`).join('\n\n') : 'All dimensions scoring well: focus on scaling.'}
+${recommendations.length > 0 ? recommendations.map((r, i) => `${i + 1}. ${r}`).join('\n\n') : 'Every dimension scores well against the example benchmarks. Check the figures against your own history and customer evidence before you scale.'}
 
 ---
 

@@ -289,7 +289,9 @@ export function parseMetrics(metricsText: string): ParsedMetrics {
   }
   
   // Churn rate
-  const churnMatch = text.match(/churn[:\s]*([\d.]+)\s*%?/i);
+  // Host review 29 Oct 2026 (W6 eval): "churn rate 3%", "retention rate 92%", "activation rate 70%" and "referral rate 5%" are read too,
+  // not only "churn 3%" or "churn: 3%".
+  const churnMatch = text.match(/churn(?:\s+rates?)?[:\s]*([\d.]+)\s*%?/i);
   if (churnMatch) {
     metrics.churn = parseFloat(churnMatch[1]);
   }
@@ -318,7 +320,7 @@ export function parseMetrics(metricsText: string): ParsedMetrics {
   }
   
   // Retention rate
-  const retentionMatch = text.match(/retention[:\s]*([\d.]+)\s*%?/i);
+  const retentionMatch = text.match(/retention(?:\s+rates?)?[:\s]*([\d.]+)\s*%?/i);
   if (retentionMatch) {
     metrics.retentionRate = parseFloat(retentionMatch[1]);
     metrics.retentionIsNet = /\b(?:net revenue retention|nrr|net retention)\b/i.test(text);
@@ -334,13 +336,13 @@ export function parseMetrics(metricsText: string): ParsedMetrics {
   }
   
   // Activation rate
-  const activationMatch = text.match(/activation[:\s]*([\d.]+)\s*%?/i);
+  const activationMatch = text.match(/activation(?:\s+rates?)?[:\s]*([\d.]+)\s*%?/i);
   if (activationMatch) {
     metrics.activationRate = parseFloat(activationMatch[1]);
   }
   
   // Referral rate
-  const referralMatch = text.match(/referral[:\s]*([\d.]+)\s*%?/i);
+  const referralMatch = text.match(/referral(?:\s+rates?)?[:\s]*([\d.]+)\s*%?/i);
   if (referralMatch) {
     metrics.referralRate = parseFloat(referralMatch[1]);
   }

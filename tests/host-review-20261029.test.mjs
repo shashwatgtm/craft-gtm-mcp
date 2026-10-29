@@ -29,6 +29,29 @@ test("pmf_scorecard: with every dimension scored, a strong score still asks for 
   assert.match(t, /Check them against your own history and customer evidence before you scale\./);
 });
 
+test("pmf_scorecard: 'activation rate 70%', 'churn rate 3%' and 'retention rate 92%' are read as figures (W6 eval finding 1)", async () => {
+  const t = await pmf("Synthetic figures only: monthly churn rate 3%; NPS 45; CAC $500; LTV $3000; retention rate 92%; activation rate 70%");
+  assert.match(t, /\| Activation Rate \| 70% \|/);
+  assert.match(t, /\| Monthly Churn \| 3% \|/);
+  assert.match(t, /\| Retention Rate \| 92% \|/);
+  assert.match(t, /Based on 5 of 5 dimensions\./);
+  assert.doesNotMatch(t, /NOT PROVIDED/);
+});
+
+test("pmf_scorecard: with churn and retention missing, Priority Actions asks for them and does not say focus on scaling (W6 eval finding 2)", async () => {
+  const t = await pmf("Synthetic figures only: NPS 65; CAC $500; LTV $3000; Activation: 75%");
+  const actions = t.split("## Priority Actions")[1].split("\n---")[0];
+  assert.match(actions, /CHURN: not given, so it is not scored\./);
+  assert.match(actions, /RETENTION: not given, so it is not scored\./);
+  assert.doesNotMatch(t, /focus on scaling/i);
+});
+
+test("pmf_scorecard: with every dimension strong, the closing action asks for a check before scaling", async () => {
+  const t = await pmf("Synthetic figures only: monthly churn 2%; NPS 65; CAC $500; LTV $3000; retention 95%; activation 75%");
+  assert.match(t, /Every dimension scores well against the example benchmarks\. Check the figures against your own history and customer evidence before you scale\./);
+  assert.doesNotMatch(t, /focus on scaling/i);
+});
+
 test("customer_interview_kit: discovery questions and the hypothesis table do not assume the problem", async () => {
   const t = await call("customer_interview_kit", { interview_type: "discovery", product_context: "Synthetic research exercise about Northwind CRM administration", target_persona: "Revenue operations director", key_hypotheses: "Manual data entry delays pipeline reporting." });
   assert.doesNotMatch(t, /last time you hit this problem|Confirm it is true|How are you solving this problem today|on your team's list/);
