@@ -1,6 +1,6 @@
 # Draft PR merge readiness
 
-29 October 2026. GitHub snapshot taken during the 22:30 to 22:45 IST continuation. All 13 PRs are open drafts. Nothing here authorizes merging or deployment.
+29 October 2026. GitHub snapshot taken during the 22:30 to 22:50 IST continuation. All 13 PRs are open drafts. Nothing here authorizes merging or deployment.
 
 The coordinator inspected GitHub PR metadata, changed paths, synthetic merge commit parents, current main heads, intervening main diffs and the saved cloud receipts. No build, test or actual merge ran for this document. Existing tests below are historical executions, not new overnight runs.
 
@@ -43,7 +43,7 @@ The owner's stricter hold controls this run. Sales 1.2.31, Positioning 2.2.27, C
 | [impact-mcp #7](https://github.com/shashwatgtm/impact-mcp/pull/7): Positioning UI | `45054124f51886eca208c28d5d1911d94dc9a407` | Inspection clean; fresh merge result unverified | Adds structured results and UI metadata. Existing text and inputs preserved. | UI metadata requires review. New plugin version is not automatic under current docs. Positioning hold; future owner-approved release only. |
 | [craft-gtm-mcp #2](https://github.com/shashwatgtm/craft-gtm-mcp/pull/2): Submission and merge readiness | `c01f5f889a73616c15889ee36b0f321119f512df` | Inspection clean; fresh merge result unverified | No runtime or tool metadata change. Docs only. | Docs/tests only; no plugin version needed for this diff. GTM review hold. |
 | [craft-gtm-mcp #3](https://github.com/shashwatgtm/craft-gtm-mcp/pull/3): GTM timing | `345c98597dab8578c1665d8890d8850bfd9e1264` | Inspection clean; fresh merge result unverified | No runtime or tool metadata change. Tests and helper only. | Docs/tests only; no plugin version needed for this diff. GTM review hold. |
-| [craft-gtm-mcp #4](https://github.com/shashwatgtm/craft-gtm-mcp/pull/4): Interactive designs | `d2feae1785361b1161afe88386d0a830ae6559be` | Inspection clean; fresh merge result unverified | No runtime or tool metadata change. Docs only. | Docs/tests only; no plugin version needed for this diff. GTM review hold. |
+| [craft-gtm-mcp #4](https://github.com/shashwatgtm/craft-gtm-mcp/pull/4): Interactive designs | `66cb328b12c2a24060aa7a4dd9fca0638f3cd496` | Inspection clean; fresh merge result unverified | No runtime or tool metadata change. Docs only. | Docs/tests only; no plugin version needed for this diff. GTM review hold. |
 | [craft-content-mcp #3](https://github.com/shashwatgtm/craft-content-mcp/pull/3): Content timing | `9339efda922dadd72793269c0d51e9da3d5ea0da` | Inspection clean; fresh merge result unverified | No runtime or tool metadata change. Tests and helper only. | Docs/tests only; no plugin version needed for this diff. Content review hold. |
 | [revenue-enablement-mcp #3](https://github.com/shashwatgtm/revenue-enablement-mcp/pull/3): Holiday date design | `82ddf558d2a8748f5fc8728cbf266bc86584b9f9` | Inspection clean; fresh merge result unverified | No runtime or tool metadata change. Proposed tests are prose only. | Docs/tests only; no plugin version needed for this diff. Sales review hold. |
 | [revenue-enablement-mcp #4](https://github.com/shashwatgtm/revenue-enablement-mcp/pull/4): Revenue timing design | `4566d55a8a8db6992961a06acfc1380cccfcc592` | Inspection clean; fresh merge result unverified | No runtime or tool metadata change. Proposed patch is prose only. | Docs/tests only; no plugin version needed for this diff. Sales review hold. |
@@ -63,7 +63,7 @@ Counts in a row can overlap. Skips and base-only evidence remain explicit. Links
 | impact-mcp #7 | [docs/positioning-ui-review-20261029.md](https://github.com/shashwatgtm/impact-mcp/blob/45054124f51886eca208c28d5d1911d94dc9a407/docs/positioning-ui-review-20261029.md) | Build pass; 11 focused passes; 5 review cases pass; 57 suite files pass; 57 browser checks pass. Counts overlap. Actual ChatGPT UI unverified. |
 | craft-gtm-mcp #2 | [docs/plugin-readiness-20261029.md](https://github.com/shashwatgtm/craft-gtm-mcp/blob/c01f5f889a73616c15889ee36b0f321119f512df/docs/plugin-readiness-20261029.md) | 26 source/package checks and 10 document checks pass. ICP live inventory 1 skip, live fixtures 5 skips, host negatives 3 skips. The later portal rescan cleared findings but did not run these tests. |
 | craft-gtm-mcp #3 | [docs/timing-tests-pmf-base-20261029.md](https://github.com/shashwatgtm/craft-gtm-mcp/blob/345c98597dab8578c1665d8890d8850bfd9e1264/docs/timing-tests-pmf-base-20261029.md) | Cloud overlay on 3cfe331: build pass; 1127 pass, 0 fail, 67 existing skips. Busy timing 12 pass; busy host review 8 pass. No test claim on the later privacy pages. |
-| craft-gtm-mcp #4 | [docs/interactive-tools-shortlist-20261029.md](https://github.com/shashwatgtm/craft-gtm-mcp/blob/d2feae1785361b1161afe88386d0a830ae6559be/docs/interactive-tools-shortlist-20261029.md) | Historical source refresh: 2 scratch compilations pass; 7 source checks and 8 note checks pass. PMF residual-scaling finding is superseded by 3cfe331 and the later W6 replay. |
+| craft-gtm-mcp #4 | [docs/interactive-tools-shortlist-20261029.md](https://github.com/shashwatgtm/craft-gtm-mcp/blob/66cb328b12c2a24060aa7a4dd9fca0638f3cd496/docs/interactive-tools-shortlist-20261029.md) | Historical source refresh: 2 scratch compilations pass; 7 source checks and 8 note checks pass. PMF residual-scaling finding is superseded by 3cfe331 and the later W6 replay. |
 | craft-content-mcp #3 | [docs/timing-tests-current-base-20261029.md](https://github.com/shashwatgtm/craft-content-mcp/blob/9339efda922dadd72793269c0d51e9da3d5ea0da/docs/timing-tests-current-base-20261029.md) | Latest overlay on 3438434: 1060 pass, 0 fail, 3 existing skips; busy targeted 14 pass; busy review 9 pass. PR body still lists the older 1054 count. |
 | revenue-enablement-mcp #3 | [docs/map-holidays-design-20261029.md](https://github.com/shashwatgtm/revenue-enablement-mcp/blob/82ddf558d2a8748f5fc8728cbf266bc86584b9f9/docs/map-holidays-design-20261029.md) | 11 unchanged-base tests pass. Five proposed tests were not applied or run. No build or browser check. |
 | revenue-enablement-mcp #4 | [docs/timing-tests-design-20261029.md](https://github.com/shashwatgtm/revenue-enablement-mcp/blob/4566d55a8a8db6992961a06acfc1380cccfcc592/docs/timing-tests-design-20261029.md) | 1189 unchanged-base tests pass, 0 fail, 30 existing skips. No new Revenue timing test or mutant was applied. |
@@ -79,7 +79,7 @@ This is a future sequence after explicit owner approval. No merge is scheduled.
 4. Review Positioning #5 proof guidance after the hold is resolved. Review Positioning #7 UI afterward. Both touch src/index.ts and generated index output. Reconcile them in a future authorized integration branch and run differential, guidance and UI tests. Do not merge their generated output blindly.
 5. Review ICP #3 Market Sizing UI after the eval and timing work, plus actual ChatGPT UI acceptance. Preserve the current package's five positive cases and three negatives.
 
-The two UI prototypes have cloud harness screenshots and receipts. Neither has an actual ChatGPT UI acceptance result. PMF and Content live defects fixed by the owner are not reopened. W5b stays stopped. GTM #4's old PMF limitation paragraph is historical and is scheduled for correction in B6.
+The two UI prototypes have cloud harness screenshots and receipts. Neither has an actual ChatGPT UI acceptance result. PMF and Content live defects fixed by the owner are not reopened. W5b stays stopped. B5 and B6 are delivered in GTM #4. The old PMF limitation paragraph is explicitly superseded. Its two current documents were read back against GitHub. No new build or test ran for those documentation additions.
 
 ## Synthetic merge evidence
 
@@ -93,7 +93,7 @@ The two UI prototypes have cloud harness screenshots and receipts. Neither has a
 | impact-mcp #7 | `25d03887ec76e551d0dd110293d64418920d1fcc` | `5267d1bd94316281e84941179be9a565e6a1a9aa` | `45054124f51886eca208c28d5d1911d94dc9a407` |
 | craft-gtm-mcp #2 | `84c5fac711df5f5f1758f5c9080deb259eeb04c0` | `8dfee13d07bcf0deb336e5517e5b0189b21e294a` | `c01f5f889a73616c15889ee36b0f321119f512df` |
 | craft-gtm-mcp #3 | `62e255f3e8d8173ea5510b0bc4898fb67bcb3a08` | `db9582491725d1765768c4c0d6566761305ebca7` | `345c98597dab8578c1665d8890d8850bfd9e1264` |
-| craft-gtm-mcp #4 | `a21beae30ea856379efd75921b653aa22a1bc61c` | `8dfee13d07bcf0deb336e5517e5b0189b21e294a` | `d2feae1785361b1161afe88386d0a830ae6559be` |
+| craft-gtm-mcp #4 | `20a6aa7bae1282ac5d57419c149d0cf28f61a8ff` | `8dfee13d07bcf0deb336e5517e5b0189b21e294a` | `66cb328b12c2a24060aa7a4dd9fca0638f3cd496` |
 | craft-content-mcp #3 | `fb1a314b9da5ffc7069adee60cd4a95b05b79237` | `34384340f3a8dfe218b31b9a9d8a3aaa78b4b9f1` | `9339efda922dadd72793269c0d51e9da3d5ea0da` |
 | revenue-enablement-mcp #3 | `ff7fe33c8c6ec1c63552cca427dc10c3b0af626e` | `740897982e3807aa43aa5420336eaf6804eeda5d` | `82ddf558d2a8748f5fc8728cbf266bc86584b9f9` |
 | revenue-enablement-mcp #4 | `c2dcd2cb2844297c0e4011606695d12a01bbc44d` | `740897982e3807aa43aa5420336eaf6804eeda5d` | `4566d55a8a8db6992961a06acfc1380cccfcc592` |
@@ -298,9 +298,10 @@ This is the complete GitHub changed-path list at the assessed heads. The commit 
 - `tests/helpers/cpu-budget.mjs` (added)
 - `tests/run40s-escape.test.mjs` (modified)
 
-### craft-gtm-mcp #4 (1 paths)
+### craft-gtm-mcp #4 (2 paths)
 
 - `docs/interactive-tools-shortlist-20261029.md` (added)
+- `docs/host-rewording-note-20261029.md` (added)
 
 ### craft-content-mcp #3 (5 paths)
 
