@@ -1,0 +1,171 @@
+[
+  {
+    "input": {
+      "name": "Type 0",
+      "events": 0,
+      "contacts_per_event": 12,
+      "relevant_share": 100,
+      "first_stage_rate": 40,
+      "accepted_rate": 50,
+      "cost_per_event": 1000,
+      "format": "roundtable"
+    },
+    "expected": {
+      "name": "Type 0",
+      "total_contacts": 0.0,
+      "relevant_contacts": 0.0,
+      "first_stage": 0.0,
+      "accepted": 0.0,
+      "total_cost": 0.0,
+      "cost_per_accepted": null,
+      "note": "no accepted leads on these figures, so cost per accepted lead cannot be computed"
+    }
+  },
+  {
+    "input": {
+      "name": "Type 1",
+      "events": 1,
+      "contacts_per_event": 13,
+      "relevant_share": 90,
+      "first_stage_rate": 41,
+      "accepted_rate": 50,
+      "cost_per_event": 1010,
+      "format": "roundtable"
+    },
+    "expected": {
+      "name": "Type 1",
+      "total_contacts": 13.0,
+      "relevant_contacts": 11.7,
+      "first_stage": 4.797,
+      "accepted": 2.3985,
+      "total_cost": 1010.0,
+      "cost_per_accepted": 421.0965186574943
+    }
+  },
+  {
+    "input": {
+      "name": "Type 2",
+      "events": 2,
+      "contacts_per_event": 14,
+      "relevant_share": 80,
+      "first_stage_rate": 42,
+      "accepted_rate": 50,
+      "cost_per_event": 1020,
+      "format": "roundtable"
+    },
+    "expected": {
+      "name": "Type 2",
+      "total_contacts": 28.0,
+      "relevant_contacts": 22.4,
+      "first_stage": 9.408,
+      "accepted": 4.704,
+      "total_cost": 2040.0,
+      "cost_per_accepted": 433.6734693877551
+    }
+  },
+  {
+    "input": {
+      "name": "Type 3",
+      "events": 3,
+      "contacts_per_event": 15,
+      "relevant_share": 70,
+      "first_stage_rate": 43,
+      "accepted_rate": 50,
+      "cost_per_event": 1030,
+      "format": "roundtable"
+    },
+    "expected": {
+      "name": "Type 3",
+      "total_contacts": 45.0,
+      "relevant_contacts": 31.5,
+      "first_stage": 13.545,
+      "accepted": 6.7725,
+      "total_cost": 3090.0,
+      "cost_per_accepted": 456.25692137320044
+    }
+  },
+  {
+    "input": {
+      "name": "Type 4",
+      "events": 4,
+      "contacts_per_event": 16,
+      "relevant_share": 60,
+      "first_stage_rate": 44,
+      "accepted_rate": 50,
+      "cost_per_event": 1040,
+      "format": "roundtable"
+    },
+    "expected": {
+      "name": "Type 4",
+      "total_contacts": 64.0,
+      "relevant_contacts": 38.4,
+      "first_stage": 16.896,
+      "accepted": 8.448,
+      "total_cost": 4160.0,
+      "cost_per_accepted": 492.4242424242424
+    }
+  },
+  {
+    "input": {
+      "name": "Type 5",
+      "events": 5,
+      "contacts_per_event": 17,
+      "relevant_share": 50,
+      "first_stage_rate": 45,
+      "accepted_rate": 50,
+      "cost_per_event": 1050,
+      "format": "roundtable"
+    },
+    "expected": {
+      "name": "Type 5",
+      "total_contacts": 85.0,
+      "relevant_contacts": 42.5,
+      "first_stage": 19.125,
+      "accepted": 9.5625,
+      "total_cost": 5250.0,
+      "cost_per_accepted": 549.0196078431372
+    }
+  },
+  {
+    "input": {
+      "name": "Type 6",
+      "events": 6,
+      "contacts_per_event": 18,
+      "relevant_share": 40,
+      "first_stage_rate": 46,
+      "cost_per_event": 1060,
+      "format": "roundtable"
+    },
+    "expected": {
+      "name": "Type 6",
+      "total_contacts": 108.0,
+      "relevant_contacts": 43.2,
+      "first_stage": 19.872,
+      "accepted": null,
+      "total_cost": 6360.0,
+      "cost_per_accepted": null
+    }
+  },
+  {
+    "input": {
+      "name": "Type 7",
+      "events": 7,
+      "contacts_per_event": 19,
+      "relevant_share": 30,
+      "first_stage_rate": 47,
+      "accepted_rate": 0,
+      "cost_per_event": 1070,
+      "format": "roundtable"
+    },
+    "expected": {
+      "name": "Type 7",
+      "total_contacts": 133.0,
+      "relevant_contacts": 39.9,
+      "first_stage": 18.753,
+      "accepted": 0.0,
+      "total_cost": 7490.0,
+      "cost_per_accepted": null,
+      "note": "no accepted leads on these figures, so cost per accepted lead cannot be computed"
+    }
+  }
+]

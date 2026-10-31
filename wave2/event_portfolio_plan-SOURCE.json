@@ -1,0 +1,46 @@
+{
+  "repo": "b2b-events-pr-and-launches",
+  "path": "plugins/b2b-events-pr-and-launches/skills/event-planner/SKILL.md",
+  "commit": "ea375e3d617e656a526e12f67b4976f6dd629205",
+  "source_sha256": "2cd5a9ff434d0c1863c4cf39ba759ccaf8c12d43298732db66eb8f91955e3fe6",
+  "sha": "f10bb8e0a70b06c60e78f7e2afd3b20dc2531fc7",
+  "name": "event-planner",
+  "references": [
+    {
+      "path": "plugins/b2b-events-pr-and-launches/skills/event-planner/references/analyst-and-programmes.md",
+      "sha256": "8a0ed5e6d924a08aa5d40902eb088a14eff474a2c0de99137cca223b45100439"
+    },
+    {
+      "path": "plugins/b2b-events-pr-and-launches/skills/event-planner/references/choice-method.md",
+      "sha256": "3b5730fe981d818d08ff65a4619102735883a2119bb0608f90603b4e209249c6"
+    },
+    {
+      "path": "plugins/b2b-events-pr-and-launches/skills/event-planner/references/hosted-formats.md",
+      "sha256": "cdb62ff7c1ee3d615811c2492138d59589ea06d94aa200fa03414f0b05908a29"
+    },
+    {
+      "path": "plugins/b2b-events-pr-and-launches/skills/event-planner/references/online-formats.md",
+      "sha256": "c9a0c829382c15a13d4c58b4e276f62a92853947b488d8b87313616941ef4697"
+    },
+    {
+      "path": "plugins/b2b-events-pr-and-launches/skills/event-planner/references/shared-process.md",
+      "sha256": "dac57e247b3c820ccc5f159276639b5f7997db44874c7cb41fa80eeb170f0205"
+    },
+    {
+      "path": "plugins/b2b-events-pr-and-launches/skills/event-planner/references/third-party-formats.md",
+      "sha256": "56659448d0a85a23991684742860df61c3797cb4db88a747a163981dd210dd50"
+    },
+    {
+      "path": "plugins/b2b-events-pr-and-launches/skills/event-planner/references/writing-rules.md",
+      "sha256": "c2b5084ab8cf586e40d7894ee4385a03398b2b5128d170daedc7db518a91e267"
+    },
+    {
+      "path": "plugins/b2b-events-pr-and-launches/skills/event-planner/scripts/plan_math.py",
+      "sha256": "80efd2c47ee0bc54bdb61254cd900cdd5856ec8bf4f0ce9e2d85cf3c2976f9b7"
+    },
+    {
+      "path": "plugins/b2b-events-pr-and-launches/skills/event-planner/scripts/text_check.py",
+      "sha256": "c091ece7b53bd1d463c709ae36d1e0f30ec3e39bbc44cf23c3f420b4b1e26446"
+    }
+  ]
+}

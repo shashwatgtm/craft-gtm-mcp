@@ -79,5 +79,49 @@
       "stage": "seed",
       "industry": "other"
     }
+  },
+  "event_portfolio_plan": {
+    "normal": {
+      "as_of": "2026-10-31",
+      "accepted_stage": "Sales accepted leads",
+      "currency": "USD",
+      "period": "next quarter",
+      "target": 40,
+      "event_share": 25,
+      "types": [
+        {
+          "name": "Roundtable plan",
+          "format": "roundtable",
+          "events": 1,
+          "contacts_per_event": 12,
+          "relevant_share": 100,
+          "first_stage_rate": 50,
+          "accepted_rate": 50,
+          "cost_per_event": 15000,
+          "date": "2026-11-20",
+          "weekday": "Friday",
+          "timezone": "UTC"
+        }
+      ],
+      "backward": {
+        "accepted": 10,
+        "first_stage_rate": 50,
+        "accepted_rate": 50,
+        "relevant_share": 100,
+        "contacts_per_event": 12
+      }
+    },
+    "weak": {
+      "as_of": "2026-10-31",
+      "accepted_stage": "User-defined accepted stage",
+      "currency": "USD",
+      "period": "user-defined period",
+      "types": [
+        {
+          "name": "Own event",
+          "format": "own_event"
+        }
+      ]
+    }
   }
 }
