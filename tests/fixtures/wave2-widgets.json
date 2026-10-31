@@ -1,0 +1,52 @@
+{
+  "launch_commander": {
+    "normal": {
+      "product_feature": "Approval owner dashboard",
+      "launch_date": "2026-12-01",
+      "launch_type": "feature_launch",
+      "target_segments": "Existing operations users",
+      "goals": "Have users complete an approval handoff",
+      "available_channels": "Product notification, existing customer email",
+      "team_size": "small_2_5",
+      "budget_level": "bootstrap",
+      "business_model": "saas"
+    },
+    "weak": {
+      "product_feature": "Not supplied",
+      "launch_type": "major_release",
+      "target_segments": "Not supplied",
+      "goals": "Not supplied"
+    }
+  },
+  "partner_architect": {
+    "normal": {
+      "company": "Our team",
+      "product": "Operations workflow software",
+      "partner_model": "referral",
+      "partner_goals": "Introduce teams with approval handoff problems",
+      "your_deal_size": "12000 annual",
+      "partner_support_capacity": "moderate",
+      "existing_partners": "No existing partner evidence supplied",
+      "business_model": "saas"
+    },
+    "weak": {
+      "company": "Not supplied",
+      "product": "Not supplied",
+      "partner_model": "reseller",
+      "partner_goals": "Not supplied",
+      "your_deal_size": "Not supplied"
+    }
+  },
+  "craft_gtm_analyzer": {
+    "normal": {
+      "document_content": "Character: Operations team leads. Result: reduce missed handoffs using an owner dashboard. Artifact: a rollout plan with named owners and evidence. Frame: use existing customer interviews and the current budget. Timeline: review the plan each week through December. Owner: product lead. Success: customer-confirmed handoff completion.",
+      "document_type": "launch_plan",
+      "intended_audience": "Operations and product leads",
+      "desired_outcome": "A reviewable rollout plan"
+    },
+    "weak": {
+      "document_content": "Not supplied",
+      "document_type": "gtm_strategy"
+    }
+  }
+}

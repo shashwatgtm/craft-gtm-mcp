@@ -1,0 +1,8 @@
+{
+  "repo": "craft-gtm-mcp",
+  "name": "launch_commander",
+  "path": "src/tools.ts",
+  "commit": "dc32735a239d90066bcaf9b69de1f783f847d913",
+  "skip_reason": "",
+  "source_sha256": "9bf1bcc8476119df14ce68d30495af53a14e8a26b5acf1e085aa87e6de0071ce"
+}
