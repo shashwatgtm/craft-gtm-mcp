@@ -1,0 +1,9 @@
+{
+  "repo": "gtm-claude-skills",
+  "path": "plugins/gtm-skills/skills/gtm-motion-picker/SKILL.md",
+  "commit": "9fea3be414e21879df969ba5f5a5e760266f6e54",
+  "source_sha256": "c9e1083482dce026900957ff0b835d357833550d62b0b2180da414e735718829",
+  "sha": "de5a429cb99deea8cb2aff4d30ac3af988d33bdf",
+  "name": "gtm-motion-picker",
+  "references": []
+}

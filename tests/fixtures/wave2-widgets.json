@@ -48,5 +48,36 @@
       "document_content": "Not supplied",
       "document_type": "gtm_strategy"
     }
+  },
+  "gtm_motion_diagnostic": {
+    "normal": {
+      "stage": "series_a",
+      "industry": "other",
+      "acv_usd": 42000,
+      "cycle_days": 120,
+      "nrr_percent": 108,
+      "addressable_accounts": 400,
+      "self_serve": false,
+      "deal_sources": [
+        {
+          "source": "outbound",
+          "percent": 70
+        },
+        {
+          "source": "referrals",
+          "percent": 30
+        }
+      ],
+      "geography": "us",
+      "challenge_type": "acquisition",
+      "enterprise_focus": true,
+      "current_motions": [
+        "I"
+      ]
+    },
+    "weak": {
+      "stage": "seed",
+      "industry": "other"
+    }
   }
 }
