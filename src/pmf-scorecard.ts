@@ -2,7 +2,7 @@ import { parseMetrics, pct, scoreMetric, describeChoice, readableChoice, cap, un
 import { readContext, sectorNotes, answerFor, splitItems, q, andList, capEcho, lcFirst, type BusinessModel } from './context.js';
 import { MODEL_MEASURES } from './sector-playbooks.js';
 
-export function generatePMFScorecard(args: {
+export type PMFScorecardInput = {
   product: string;
   target_market: string;
   current_metrics: string;
@@ -10,7 +10,10 @@ export function generatePMFScorecard(args: {
   customer_feedback?: string;
   business_model?: string;
   your_sector?: string;
-}): string {
+};
+
+/** One computation supplies the unchanged text and the additive UI result. */
+export function buildPMFScorecard(args: PMFScorecardInput) {
   const metrics = parseMetrics(args.current_metrics);
   const marketType = args.target_market || 'other';
   const maturity = args.time_in_market || '1_2_years';
@@ -174,6 +177,7 @@ export function generatePMFScorecard(args: {
     if (/\d/.test(item) && /\b(grew|grow\w*|growth|doubled|tripled|customers?|users?|revenue|market)\b/i.test(item)) return 'claim';
     return null;
   };
+  const feedbackDetails: Array<{ text: string; classification: string; nextStep: string }> = [];
   const feedbackRows = feedbackItems.map((item) => {
     const pos = POSITIVE.test(item); const neg = NEGATIVE.test(item);
     const pk = neg ? null : kindOfProof(item);
@@ -196,6 +200,7 @@ export function generatePMFScorecard(args: {
       : signal === 'Positive'
       ? `Turn it into proof: ask for a number or a reference.${proofLine}`
       : answerFor(item, ctx.v);
+    feedbackDetails.push({ text: item, classification: signal, nextStep: next });
     return `| ${q(item)} | ${signal} | ${next} |`;
   });
   const feedbackAnalysis = feedbackRows.length
@@ -211,12 +216,21 @@ export function generatePMFScorecard(args: {
   // Every benchmark below is an example figure: the column header carries the block label.
   const dimensionHeader = `| Metric | Your Value | Score | Benchmark (${EXAMPLE_FIGURES.replace(/\.$/, '')}) | Status |`;
 
-  return `# Product-Market Fit Scorecard
+  const missingData = [
+  metrics.churn === undefined ? '- [ ] Churn rate (monthly or annual)' : null,
+  metrics.nps === undefined ? '- [ ] NPS score (survey customers)' : null,
+  metrics.ltv === undefined ? '- [ ] Customer LTV calculation' : null,
+  metrics.cac === undefined ? '- [ ] Customer Acquisition Cost' : null,
+  metrics.retentionRate === undefined ? '- [ ] Retention/renewal rate' : null,
+  activationApplies && metrics.activationRate === undefined ? '- [ ] Activation rate (the first action that shows a customer got value)' : null
+].filter((value): value is string => Boolean(value));
+  const analysisDate = new Date().toISOString().split('T')[0];
+  const text = `# Product-Market Fit Scorecard
 ## ${productHead.short}
 
 ${productHead.capped ? `**Product (as you wrote it):** ${args.product.trim()}\n\n` : ''}**Market Segment:** ${cap(readableChoice(marketType))}
 **Time in Market:** ${describeChoice(args.time_in_market, maturity)}
-**Analysis Date:** ${new Date().toISOString().split('T')[0]}
+**Analysis Date:** ${analysisDate}
 
 ${ctx.line}
 
@@ -302,17 +316,45 @@ ${recommendations.length > 0 ? recommendations.map((r, i) => `${i + 1}. ${r}`).j
 
 ${ctx.v ? `## Sector Reading\n\n${sectorNotes(ctx.v, 'metrics')}\n\n---\n\n` : ''}## Data Gaps to Fill
 
-${[
-  metrics.churn === undefined ? '- [ ] Churn rate (monthly or annual)' : null,
-  metrics.nps === undefined ? '- [ ] NPS score (survey customers)' : null,
-  metrics.ltv === undefined ? '- [ ] Customer LTV calculation' : null,
-  metrics.cac === undefined ? '- [ ] Customer Acquisition Cost' : null,
-  metrics.retentionRate === undefined ? '- [ ] Retention/renewal rate' : null,
-  activationApplies && metrics.activationRate === undefined ? '- [ ] Activation rate (the first action that shows a customer got value)' : null
-].filter(Boolean).join('\n') || 'All critical metrics provided!'}
+${missingData.join('\n') || 'All critical metrics provided!'}
 
 ---
 
 *Scorecard generated using the CRAFT GTM framework*
 *${rangeNote} Time in market${args.time_in_market ? ` (${readableChoice(args.time_in_market)})` : ''} does not change the benchmarks or scores.*${suggestsCounts ? `\n\n${SUGGESTION_FOOTER}` : ''}`;
+  const dimension = (id: string, value: number | undefined, score: ReturnType<typeof scoreMetric>, benchmark: { low: number; medium: number; high: number }, applicable = true) => ({
+    id, value: value ?? null, applicable,
+    includedInAverage: applicable && score.label !== 'MISSING',
+    score: score.score, status: applicable ? score.label : 'NOT APPLICABLE',
+    benchmark: { ...benchmark, example: true as const }, analysis: score.analysis
+  });
+  return {
+    text,
+    result: {
+      market: marketType, rangeKey, rangeNote, businessModel: ctx.model,
+      analysisDate, context: ctx.line,
+      overall: { score: overallScore, stage: pmfStage, scoredCount: scoredDimensions.length, applicableCount: dimensionCount, caveat: pmfAnalysis, basis },
+      qualification: 'It is a rule score from the figures you supplied, not proof of product-market fit.',
+      dimensions: [
+        dimension('churn', metrics.churn, churnScore, b.churn),
+        dimension('nps', metrics.nps, npsScore, b.nps),
+        dimension('ltvCac', metrics.ltvCacRatio, ltvCacScore, b.ltvCac),
+        dimension('retention', metrics.retentionRate, retentionScore, b.retention),
+        dimension('activation', metrics.activationRate, activationScore, b.activation, activationApplies)
+      ],
+      parsedMetrics: metrics, unscoredFigures: unscored, feedback: feedbackDetails,
+      recommendations, missingData: missingData.map(line => line.replace(/^- \[ \] /, '')),
+      sectorNotes: ctx.v ? sectorNotes(ctx.v, 'metrics') : '',
+      limitations: [
+        'Benchmark ranges are examples, not verified targets. Time in market does not change scores.',
+        'The parser reads the first match for each recognized metric. Other figures may remain unscored.',
+        'Churn is labelled monthly by the existing tool. Annual churn is not converted to monthly churn.',
+        'Feedback uses fixed text rules and does not change the score. It is not independently verified.'
+      ]
+    }
+  };
+}
+
+export function generatePMFScorecard(args: PMFScorecardInput): string {
+  return buildPMFScorecard(args).text;
 }

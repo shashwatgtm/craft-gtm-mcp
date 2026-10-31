@@ -1,0 +1,202 @@
+{
+  "runtime": "Windows Chrome with existing playwright-core 1.55.0 and MCP SDK 1.32.2",
+  "scope": "local MCP Apps host simulation backed by real in-memory SDK tools/call; not actual ChatGPT",
+  "checks": [
+    {
+      "name": "empty own-business start, no automatic tool call",
+      "status": "PASS"
+    },
+    {
+      "name": "inline initialization handshake",
+      "status": "PASS"
+    },
+    {
+      "name": "empty layout 320",
+      "status": "PASS"
+    },
+    {
+      "name": "empty layout 768",
+      "status": "PASS"
+    },
+    {
+      "name": "empty layout 1280",
+      "status": "PASS"
+    },
+    {
+      "name": "complete shared-writer score and basis",
+      "status": "PASS"
+    },
+    {
+      "name": "populated layout 320",
+      "status": "PASS"
+    },
+    {
+      "name": "populated layout 768",
+      "status": "PASS"
+    },
+    {
+      "name": "populated layout 1280",
+      "status": "PASS"
+    },
+    {
+      "name": "mobile dimension table scrolls with readable statuses",
+      "status": "PASS"
+    },
+    {
+      "name": "weak retention has neutral UI fallback while legacy response stays unchanged",
+      "status": "PASS"
+    },
+    {
+      "name": "parsed metrics use readable labels",
+      "status": "PASS"
+    },
+    {
+      "name": "sparse high score keeps insufficiency and gaps",
+      "status": "PASS"
+    },
+    {
+      "name": "services excludes activation without losing supplied value",
+      "status": "PASS"
+    },
+    {
+      "name": "annual churn parser limit disclosed",
+      "status": "PASS"
+    },
+    {
+      "name": "explicit zero remains a supplied figure",
+      "status": "PASS"
+    },
+    {
+      "name": "three literal input round trips remain inert",
+      "status": "PASS"
+    },
+    {
+      "name": "delayed success preserves newer edit",
+      "status": "PASS"
+    },
+    {
+      "name": "delayed error preserves newer edit",
+      "status": "PASS"
+    },
+    {
+      "name": "uncorrelated notification does not replace edits",
+      "status": "PASS"
+    },
+    {
+      "name": "host error retains previous valid result",
+      "status": "PASS"
+    },
+    {
+      "name": "malformed result rejected before replacing output",
+      "status": "PASS"
+    },
+    {
+      "name": "reset invalidates pending reply",
+      "status": "PASS"
+    },
+    {
+      "name": "missing required fields stop calls",
+      "status": "PASS"
+    },
+    {
+      "name": "keyboard recalculation without form sandbox permission",
+      "status": "PASS"
+    },
+    {
+      "name": "no external network requests",
+      "status": "PASS"
+    },
+    {
+      "name": "no uncaught browser errors",
+      "status": "PASS"
+    },
+    {
+      "name": "natural size notifications change with content",
+      "status": "PASS"
+    }
+  ],
+  "sizes": [
+    {
+      "width": 1264,
+      "height": 1393
+    },
+    {
+      "width": 304,
+      "height": 1848
+    },
+    {
+      "width": 752,
+      "height": 1388
+    },
+    {
+      "width": 1264,
+      "height": 1393
+    },
+    {
+      "width": 304,
+      "height": 4482
+    },
+    {
+      "width": 752,
+      "height": 3234
+    },
+    {
+      "width": 1264,
+      "height": 3148
+    },
+    {
+      "width": 304,
+      "height": 4482
+    },
+    {
+      "width": 304,
+      "height": 1848
+    },
+    {
+      "width": 304,
+      "height": 4334
+    },
+    {
+      "width": 304,
+      "height": 4438
+    },
+    {
+      "width": 304,
+      "height": 1848
+    },
+    {
+      "width": 304,
+      "height": 1824
+    },
+    {
+      "width": 304,
+      "height": 4463
+    },
+    {
+      "width": 304,
+      "height": 1848
+    },
+    {
+      "width": 304,
+      "height": 4611
+    },
+    {
+      "width": 304,
+      "height": 4587
+    },
+    {
+      "width": 304,
+      "height": 4611
+    },
+    {
+      "width": 304,
+      "height": 4562
+    },
+    {
+      "width": 304,
+      "height": 1848
+    }
+  ],
+  "external": [],
+  "errors": []
+}
