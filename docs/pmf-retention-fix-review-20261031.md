@@ -22,6 +22,8 @@ Windows Node 24.19.0, TypeScript 5.9.3, MCP SDK 1.32.2. All 145 cached dependenc
 
 Commands: `npm run build`; `node --test --test-isolation=none tests/pmf-retention-regression.test.mjs`; `node --test --test-isolation=none`. Local HTTP verification uses the existing handler directly without a network request. The coordinator also independently reproduced the original defect through the existing GTM Planning test connection, which is evidence about the current server, not this candidate.
 
+The 67 skips comprise 63 external private-pool cases and four tests of tools absent from GTM (content_repurposer twice, proposal_section_writer and impact_full_audit). The required run20/run21/run22 private modules/data are not in the repository, and a workspace filename search found none. Raw logs remain in the local audit folder; pmf-retention-validation-20261031.json records counts and hashes.
+
 The first focused run was 7 PASS and 3 FAIL because newly written expectations assumed unrounded display values and standalone NRR recognition. Existing pct() rounds 84.99 to 85 and 89.99 to 90 for display while preserving exact values for scoring. The corrected tests explicitly assert those displayed values and their weak statuses. The net-retention fixture now uses the supported full phrase. A separate test records that standalone NRR remains unparsed. No parser, rounding or scoring code was changed to make these tests pass. Original failure logs were retained locally.
 
 ## Owner decision and later acceptance
