@@ -1,0 +1,11 @@
+[
+  {
+    "name": "prompt-improver",
+    "repo": "gtm-claude-skills",
+    "path": "plugins/gtm-skills/skills/prompt-improver/SKILL.md",
+    "commit": "9fea3be414e21879df969ba5f5a5e760266f6e54",
+    "sha": "02fae5a4d14805194c8cad66c74869d7941af87b",
+    "source_sha256": "8d92f3ec3afd2d338a9b0f663755683071e7c074a208f6287af65198c2c5346c",
+    "source_url": "https://github.com/shashwatgtm/gtm-claude-skills/blob/9fea3be414e21879df969ba5f5a5e760266f6e54/plugins/gtm-skills/skills/prompt-improver/SKILL.md"
+  }
+]
