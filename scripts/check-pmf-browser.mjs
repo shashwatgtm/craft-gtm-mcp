@@ -1,0 +1,67 @@
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+import {fileURLToPath} from 'node:url';
+const {chromium}=await import(process.env.HELIX_PLAYWRIGHT_MODULE||'playwright-core');
+import {Client} from '@modelcontextprotocol/sdk/client/index.js';
+import {InMemoryTransport} from '@modelcontextprotocol/sdk/inMemory.js';
+import {createServer} from '../dist/server.js';
+const server=createServer(),client=new Client({name:'pmf-browser-test',version:'1.0.0'});
+const [serverTransport,clientTransport]=InMemoryTransport.createLinkedPair();
+await server.connect(serverTransport);await client.connect(clientTransport);
+const dir=new URL('../docs/review-assets/pmf-scorecard-20261031/',import.meta.url);fs.mkdirSync(dir,{recursive:true});
+const checks=[],external=[],errors=[];const record=name=>checks.push({name,status:'PASS'});
+const browser=await chromium.launch({executablePath:process.env.HELIX_CHROME_EXECUTABLE,headless:true});
+try{
+ const page=await browser.newPage({viewport:{width:1280,height:1000}});
+ page.on('pageerror',error=>errors.push(error.message));await page.route('**/*',route=>{external.push(route.request().url());route.abort();});
+ await page.exposeFunction('compute',input=>client.callTool({name:'pmf_scorecard',arguments:input}));
+ await page.setContent('<iframe id="widget" sandbox="allow-scripts allow-same-origin" style="width:100%;border:0;height:950px"></iframe>');
+ await page.evaluate(html=>{
+  window.messages=[];window.calls=0;window.delay=0;window.rejectNext=false;window.malformedNext=false;
+  addEventListener('message',async event=>{
+   const message=event.data;if(event.source!==document.querySelector('iframe').contentWindow)return;
+   window.messages.push(message);
+   if(message.method==='ui/initialize')event.source.postMessage({jsonrpc:'2.0',id:message.id,result:{}},'*');
+   else if(message.method==='tools/call'){
+    window.calls++;const delay=window.delay,reject=window.rejectNext,malformed=window.malformedNext;window.delay=0;window.rejectNext=false;window.malformedNext=false;
+    const result=await window.compute(message.params.arguments);
+    setTimeout(()=>event.source.postMessage(reject?{jsonrpc:'2.0',id:message.id,error:{code:-32603,message:'test failure'}}:{jsonrpc:'2.0',id:message.id,result:malformed?{structuredContent:{}}:result},'*'),delay);
+   }else if(message.method==='ui/notifications/size-changed')document.querySelector('iframe').style.height=message.params.height+'px';
+  });
+  document.querySelector('iframe').srcdoc=html;
+ },fs.readFileSync(new URL('../ui/pmf-scorecard.html',import.meta.url),'utf8'));
+ const frame=page.locator('iframe').contentFrame();await frame.locator('#mode').filter({hasText:'Connected.'}).waitFor();
+ assert.equal(await frame.locator('input,textarea,select').count(),7);for(const control of await frame.locator('input,textarea,select').all())assert.equal(await control.inputValue(),'');
+ assert.equal(await frame.locator('#results').isVisible(),false);assert.equal(await page.evaluate(()=>window.calls),0);record('empty own-business start, no automatic tool call');
+ const init=await page.evaluate(()=>window.messages.find(m=>m.method==='ui/initialize'));assert.deepEqual(init.params.appCapabilities.availableDisplayModes,['inline']);record('inline initialization handshake');
+ const capture=async(name)=>{for(const width of [320,768,1280]){await page.setViewportSize({width,height:1000});await page.waitForTimeout(150);const dims=await frame.locator('body').evaluate(()=>({width:document.documentElement.clientWidth,scroll:document.documentElement.scrollWidth}));assert.ok(dims.scroll<=dims.width+1,JSON.stringify(dims));record(name+' layout '+width);await page.screenshot({path:fileURLToPath(new URL(name+'-'+width+'.png',dir)),fullPage:true});}};
+ await capture('empty');
+ const metrics='Churn: 1%, NPS: 70, LTV: 5000, CAC: 1000, Retention: 95%, Activation: 80%';
+ await frame.locator('#input-product').fill('User supplied product');
+ await frame.locator('#input-target_market').selectOption('enterprise_saas');
+ await frame.locator('#input-current_metrics').fill(metrics);
+ const recalc=async()=>{await frame.locator('#calculate').click();await frame.locator('#status').filter({hasText:'Scorecard updated.'}).waitFor();};
+ await recalc();assert.match(await frame.locator('#score').innerText(),/^9\/10/);assert.match(await frame.locator('#basis').innerText(),/5 of 5/);assert.equal(await frame.locator('#dimensions tr').count(),5);record('complete shared-writer score and basis');
+ await capture('populated');
+ await page.setViewportSize({width:320,height:1000});await page.waitForTimeout(150);assert.ok(await frame.locator('#dimension-table').evaluate(el=>el.clientWidth>=700));assert.ok(await frame.locator('[aria-label="Dimension scores"]').evaluate(el=>el.scrollWidth>el.clientWidth));assert.equal(await frame.locator('#dimension-table td:nth-child(4)').first().evaluate(el=>getComputedStyle(el).whiteSpace),'nowrap');record('mobile dimension table scrolls with readable statuses');
+ await frame.locator('#input-current_metrics').fill('monthly churn 1%, NPS 60, LTV 90000, CAC 10000, retention 40%, activation 70%');await recalc();assert.match(await frame.locator('#dimensions').innerText(),/CRITICAL/);assert.doesNotMatch(await frame.locator('#recommendations').innerText(),/Every dimension scores well/);assert.match(await frame.locator('#recommendations').innerText(),/No priority actions were generated/);assert.match(await frame.locator('#legacy').textContent(),/Every dimension scores well/);record('weak retention has neutral UI fallback while legacy response stays unchanged');
+ assert.match(await frame.locator('#parsed').innerText(),/Retention (%)/);assert.doesNotMatch(await frame.locator('#parsed').innerText(),/retentionRate|ltvCacRatio/);record('parsed metrics use readable labels');
+ await frame.locator('#input-current_metrics').fill('NPS: 80');assert.equal(await frame.locator('#results').isVisible(),false);await recalc();assert.match(await frame.locator('#caveat').innerText(),/Too few metrics/);assert.match(await frame.locator('#basis').innerText(),/1 of 5/);assert.ok(await frame.locator('#missing li').count()>=4);record('sparse high score keeps insufficiency and gaps');
+ await frame.locator('#input-current_metrics').fill(metrics);await frame.locator('#input-business_model').selectOption('services');await recalc();assert.match(await frame.locator('#basis').innerText(),/4 of 4/);assert.match(await frame.locator('#dimensions tr').last().innerText(),/Not applicable/);record('services excludes activation without losing supplied value');
+ await frame.locator('#input-business_model').selectOption('');await frame.locator('#input-current_metrics').fill('Annual churn: 12%');await recalc();assert.match(await frame.locator('#dimensions tr').first().innerText(),/12/);assert.match(await frame.locator('#limitations').textContent(),/not converted/);record('annual churn parser limit disclosed');
+ await frame.locator('#input-current_metrics').fill('Churn: 0%');await recalc();assert.equal((await frame.locator('#dimensions tr').first().locator('td').allTextContents())[1],'0');record('explicit zero remains a supplied figure');
+ const literal='<img src=x onerror=alert(1)> & �';await frame.locator('#input-product').fill(literal);for(let i=0;i<3;i++){await recalc();assert.equal(await frame.locator('#input-product').inputValue(),literal);}assert.equal(await frame.locator('img').count(),0);record('three literal input round trips remain inert');
+ await page.evaluate(()=>window.delay=180);await frame.locator('#calculate').click();await frame.locator('#input-current_metrics').fill('NPS: 30');await page.waitForTimeout(250);assert.equal(await frame.locator('#input-current_metrics').inputValue(),'NPS: 30');assert.equal(await frame.locator('#results').isVisible(),false);record('delayed success preserves newer edit');
+ await page.evaluate(()=>{window.delay=180;window.rejectNext=true;});await frame.locator('#calculate').click();await frame.locator('#input-current_metrics').fill('NPS: 40');await page.waitForTimeout(250);assert.doesNotMatch(await frame.locator('#status').innerText(),/Host request failed/);record('delayed error preserves newer edit');
+ await page.evaluate(()=>document.querySelector('iframe').contentWindow.postMessage({jsonrpc:'2.0',method:'ui/notifications/tool-input',params:{arguments:{product:'unrelated'}}},'*'));await page.waitForTimeout(60);assert.equal(await frame.locator('#input-product').inputValue(),literal);record('uncorrelated notification does not replace edits');
+ await recalc();const priorScore=await frame.locator('#score').innerText();await page.evaluate(()=>window.rejectNext=true);await frame.locator('#calculate').click();await frame.locator('#status').filter({hasText:'Host request failed'}).waitFor();assert.equal(await frame.locator('#results').isVisible(),true);assert.equal(await frame.locator('#score').innerText(),priorScore);record('host error retains previous valid result');
+ await page.evaluate(()=>window.malformedNext=true);await frame.locator('#calculate').click();await frame.locator('#status').filter({hasText:'No supported structured scorecard'}).waitFor();assert.equal(await frame.locator('#score').innerText(),priorScore);record('malformed result rejected before replacing output');
+ await page.evaluate(()=>window.delay=180);await frame.locator('#calculate').click();await frame.locator('#reset').click();await page.waitForTimeout(250);assert.equal(await frame.locator('#input-product').inputValue(),'');assert.equal(await frame.locator('#results').isVisible(),false);record('reset invalidates pending reply');
+ const count=await page.evaluate(()=>window.calls);await frame.locator('#calculate').click();assert.match(await frame.locator('#status').innerText(),/Provide/);assert.equal(await page.evaluate(()=>window.calls),count);record('missing required fields stop calls');
+ await frame.locator('#input-product').fill('User supplied product');await frame.locator('#input-target_market').selectOption('enterprise_saas');await frame.locator('#input-current_metrics').fill(metrics);
+ await frame.locator('#calculate').focus();await page.keyboard.press('Enter');await frame.locator('#status').filter({hasText:'Scorecard updated.'}).waitFor();record('keyboard recalculation without form sandbox permission');
+ assert.deepEqual(external,[]);record('no external network requests');assert.deepEqual(errors,[]);record('no uncaught browser errors');
+ const sizes=await page.evaluate(()=>window.messages.filter(m=>m.method==='ui/notifications/size-changed').map(m=>m.params));assert.ok(new Set(sizes.map(x=>x.height)).size>1);record('natural size notifications change with content');
+ fs.writeFileSync(new URL('browser-receipt.json',dir),JSON.stringify({runtime:'Windows Chrome with existing playwright-core 1.55.0 and MCP SDK 1.32.2',scope:'local MCP Apps host simulation backed by real in-memory SDK tools/call; not actual ChatGPT',checks,sizes,external,errors},null,2)+'\n');
+ console.log(JSON.stringify({pass:checks.length,fail:0,checks}));
+}finally{await browser.close();await client.close();await server.close();}
