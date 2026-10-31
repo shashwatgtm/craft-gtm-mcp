@@ -1,0 +1,10 @@
+{
+  "src/widget-model.ts": "85020544d6e539687a7e5b5b7951077ddaf17a7831cf2753642b3ac04209e3a2",
+  "src/widget-document.ts": "92f39c58fb4386c41e765b457e426449e17de5b538fdb34d3f5b6c8c8616ba17",
+  "src/widget-registry.ts": "ebf128e320c9b073c2133f1fbb63bdcf7ff39d46d15dc26a08186b1dc9976b8e",
+  "src/widget-layer.ts": "d2434e85efede620938a1ffd9d0d134a307ac3753d9e6476f878bdc02d5242fa",
+  "package.json": "c96c99cafb7441d850a3767b57a0a7f322a60da12716206864839330bc1c4377",
+  "package-lock.json": "d3035414a9b6d29f306c186dd13e99cd7fc6abe5c10177eb6fa16710f705f275",
+  "tests/wave2-render.test.mjs": "c073c2a6bb19e71846e3b70c4f64cb2fde6718539c48de440d438844950c10d4",
+  "wave2/ui/widget-runtime.js": "2979af072aad37e18bfcce0abd9b8c18ba16fac9a6a615be2aec0412a19c6a9f"
+}
