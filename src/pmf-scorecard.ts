@@ -141,6 +141,11 @@ export function generatePMFScorecard(args: {
   if (retentionScore.label === 'MISSING') {
     recommendations.push(`RETENTION: not given, so it is not scored. ${contract ? 'Give the share of contract value renewed over the last twelve months' : 'Give the share of customers (or of revenue) still with you after twelve months, and say which one it is'}.`);
   }
+  if (retentionScore.label === 'CRITICAL' || retentionScore.label === 'DEVELOPING') {
+    recommendations.push(contract
+      ? 'RETENTION: Review the contract value not renewed in the period, group the reasons for losses or reductions, and agree an owner and action for each at-risk renewal. Confirm the period and whether the figure measures customers or revenue.'
+      : 'RETENTION: Review the customers or revenue lost from the same starting cohort, group the reasons, and address the largest source of loss. Confirm the period and whether the figure measures customers, gross revenue or net revenue.');
+  }
   const acvNote = metrics.acv !== undefined ? ` You gave an annual contract value of $${metrics.acv.toLocaleString('en-US')}: LTV is that value times your gross margin times the years a contract lasts, and CAC is your sales and marketing cost divided by the contracts won in the same period.` : '';
   if (ltvCacScore.label === 'MISSING') {
     recommendations.push(`LTV:CAC: not scored, because ${metrics.ltv === undefined && metrics.cac === undefined ? 'neither LTV nor CAC was given' : metrics.ltv === undefined ? 'LTV was not given' : 'CAC was not given'}.${acvNote || ' Work out both from your own sales and renewal records.'}`);
