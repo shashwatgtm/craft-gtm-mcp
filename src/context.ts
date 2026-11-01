@@ -1,3 +1,4 @@
+import { hasSignal, signal } from './text-signals.js';
 // Run 19 (owner decision D80): shared helpers that read the sector and the business model from what the user typed, and
 // that keep typed text out of broken sentences. The sector knowledge itself is in src/verticals.ts (rule B82).
 // splitItems, q, readContext, sectorNotes and answerFor follow the helpers of Revenue Enablement (the lead's version).
@@ -276,20 +277,21 @@ export function sectorNotes(v: Vertical | null, what: 'committee' | 'metrics' | 
 /** The answer pattern for one objection or blocker typed by the user: the sector's pattern when it matches, else a pattern by kind. */
 export function answerFor(text: string, v: Vertical | null): string {
   const t = text.toLowerCase();
+  if (!['price','security','adoption','incumbent'].some(k => signal(text,k).state === 'affirmed') && ['price','security','adoption','incumbent'].some(k => ['negated','unclear'].includes(signal(text,k).state))) return 'No objection is confirmed by this wording. The fact was not clear; confirm whether a concern remains before defending the product.';
   if (v) {
     for (const o of v.objections) {
       const keys = o.objection.toLowerCase().split(/\W+/).filter((w) => w.length > 2 && !['our', 'the', 'and', 'are', 'not', 'too', 'for', 'already', 'have', 'has', 'does', 'this', 'will', 'than', 'with', 'from', 'your', 'ourselves', 'we', 'can', 'use', 'new', 'own'].includes(w));
-      if (keys.filter((k) => t.includes(k)).length >= Math.min(2, keys.length)) return o.response;
+      if (keys.filter((k) => hasSignal(t,new RegExp('\\b'+k+'\\w*','i'))).length >= Math.min(2, keys.length)) return o.response;
     }
   }
-  if (/\b(price|prices|cost|costs|budget|expensive|cheaper|cheap|discount|margins?)\b/.test(t)) return 'Agree the cost of the problem in the buyer\'s own numbers first, then compare the price with it; trade any concession for something of equal value.';
-  if (/\b(already (?:have|has|does|use|uses|own)|existing|incumbent|current (?:vendor|tool|system|provider|operator)|in-house|built)\b/.test(t)) return 'Ask what the current setup does not do today and what that costs; position alongside it where you can, and replace only where the buyer sees the gap.';
-  if (/\b(adopt|adoption|use a new|use another|will not use|won't use|resist|change|training)\b/.test(t)) return 'Agree a small pilot with the people who will use it, and decide up front how adoption is measured.';
-  if (/\b(integrat\w*|migrat\w*|cut-?over|disrupt\w*|setup|set-up|implementation|rollout|roll out|install\w*)\b/.test(t)) return 'Name the systems and people involved, and offer a staged plan with a rollback point for each stage.';
-  if (/\b(security|privacy|compliance|audit|regulat\w*|legal|risk)\b/.test(t)) return 'Bring the security and compliance answers before they are asked, and map each requirement to the control that meets it.';
-  if (/\b(bundle|bundled|bundles|bundling|one vendor|single vendor|suite|consolidat\w*)\b/.test(t)) return 'Compare the outcome the buyer needs from each option, not the size of the bundle; show what the bundled tool leaves to manual work.';
-  if (/\b(timing|not now|next year|later|priority)\b/.test(t)) return 'Find the event that makes this urgent (a renewal, an audit, a season, a target) and plan back from it.';
-  if (/\b(black box|explain\w*|trust|wrong|accuracy|track record)\b/.test(t)) return 'Offer evidence the buyer can check: an evaluation on their own data, and references they can call.';
+  if (hasSignal(t, /\b(price|prices|cost|costs|budget|expensive|cheaper|cheap|discount|margins?)\b/, 'price')) return 'Agree the cost of the problem in the buyer\'s own numbers first, then compare the price with it; trade any concession for something of equal value.';
+  if (hasSignal(t, /\b(already (?:have|has|does|use|uses|own)|existing|incumbent|current (?:vendor|tool|system|provider|operator)|in-house|built)\b/, 'incumbent')) return 'Ask what the current setup does not do today and what that costs; position alongside it where you can, and replace only where the buyer sees the gap.';
+  if (hasSignal(t, /\b(adopt|adoption|use a new|use another|will not use|won't use|resist|change|training)\b/, 'adoption')) return 'Agree a small pilot with the people who will use it, and decide up front how adoption is measured.';
+  if (hasSignal(t, /\b(integrat\w*|migrat\w*|cut-?over|disrupt\w*|setup|set-up|implementation|rollout|roll out|install\w*)\b/, 'migration')) return 'Name the systems and people involved, and offer a staged plan with a rollback point for each stage.';
+  if (hasSignal(t, /\b(security|privacy|compliance|audit|regulat\w*|legal|risk)\b/, 'security')) return 'Bring the security and compliance answers before they are asked, and map each requirement to the control that meets it.';
+  if (hasSignal(t, /\b(bundle|bundled|bundles|bundling|one vendor|single vendor|suite|consolidat\w*)\b/, 'bundle')) return 'Compare the outcome the buyer needs from each option, not the size of the bundle; show what the bundled tool leaves to manual work.';
+  if (hasSignal(t, /\b(timing|not now|next year|later|priority)\b/, 'timing')) return 'Find the event that makes this urgent (a renewal, an audit, a season, a target) and plan back from it.';
+  if (hasSignal(t, /\b(black box|explain\w*|trust|wrong|accuracy|track record)\b/)) return 'Offer evidence the buyer can check: an evaluation on their own data, and references they can call.';
   return 'Ask what lies behind it and what would change their mind, then answer with evidence from a similar customer only if you have it.';
 }
 

@@ -1,3 +1,4 @@
+import { hasSignal, readSignal, SIGNALS } from './text-signals.js';
 // Run 22 (writer cg-w2): the rewritten launch_commander, retention_playbook and crisis_planner.
 // Each tool writes a finished draft from the user's own inputs: every input is used where it matters, in clean sentences, nothing is invented
 // (no figure, customer, date or promise that was not given), and what was not given is named once at the end ("To sharpen this, give: ...").
@@ -942,7 +943,7 @@ const REASON_KINDS: Array<[ReasonKind, RegExp]> = [
   ['competitor', /\b(competitors?|switch\w*|alternatives?|rivals?|incumbents?)\b/],
   ['adoption', /\b(adopt\w*|usage|engagement|unused|not using|low use|(?:do|does|did|will|would) not use|won't use|logging in|log in|logins?|stopped using)\b/],
 ];
-const kindOfReason = (text: string): ReasonKind => (REASON_KINDS.find(([, re]) => re.test(text.toLowerCase())) ?? ['other'])[0];
+const kindOfReason = (text: string): ReasonKind => (REASON_KINDS.find(([kind, re]) => hasSignal(text, re, kind === 'person' ? 'departed' : kind === 'competitor' ? 'incumbent' : kind)) ?? ['other'])[0];
 
 /** What each current intervention can help with, by what it is called. */
 const INTERVENTION_HELPS: Array<[RegExp, ReasonKind[]]> = [
@@ -956,12 +957,19 @@ const INTERVENTION_HELPS: Array<[RegExp, ReasonKind[]]> = [
 ];
 
 function parseChurn(text: string): { n: number | null; period: 'month' | 'year' | 'quarter' | 'unstated'; monthly: number; annual: number } {
-  const m = text.match(/(\d+(?:\.\d+)?)/);
-  if (!m) return { n: null, period: 'unstated', monthly: 0, annual: 0 };
+  const empty = { n: null, period: 'unstated' as const, monthly: 0, annual: 0 };
+  const m = text.match(/(-?\d+(?:\.\d+)?)/);
+  if (!m) return empty;
   const n = parseFloat(m[1]);
-  const period = /\b(?:annual(?:ly)?|yearly|per year|a year|per annum|p\.?a\.?|each year)\b|\/\s?(?:yr|year)\b/i.test(text) ? 'year'
-    : /\bquarter(?:ly)?\b|\/\s?q\b/i.test(text) ? 'quarter'
-    : /\b(?:month(?:ly)?|per month|a month|each month|\/\s?mo)\b/i.test(text) ? 'month' : 'unstated';
+  if (n < 0 || n > 100) return empty;
+  const periods = [
+    ['year', readSignal(text, /\b(?:annual(?:ly)?|yearly|per year|a year|per annum|p\.?a\.?|each year)\b|\/\s?(?:yr|year)\b/i, SIGNALS.annual_period)],
+    ['quarter', readSignal(text, /\bquarter(?:ly)?\b|\/\s?q\b/i, SIGNALS.quarterly_period)],
+    ['month', readSignal(text, /\b(?:month(?:ly)?|per month|a month|each month|\/\s?mo)\b/i, SIGNALS.monthly_period)],
+  ] as const;
+  const affirmed = periods.filter(([,r]) => r.state === 'affirmed');
+  if (affirmed.length > 1 || periods.some(([,r]) => r.state === 'unclear')) return empty;
+  const period = affirmed[0]?.[0] || 'unstated';
   // 28 Oct 2026 (owner): churn compounds. Each month's loss applies only to the customers still left, so a monthly rate m
   // loses 1 - (1 - m)^12 of today's base in a year, and an annual or quarterly rate converts to the monthly rate that compounds to it.
   const share = (r: number) => Math.min(Math.max(r, 0), 100) / 100;
@@ -1029,7 +1037,7 @@ export function writeRetentionPlaybook(args: {
   const stand: string[] = [];
   stand.push(`This is written for ${headSeg ? segment : 'the segment you described'}${product && !segment.toLowerCase().includes(product.toLowerCase()) && !/customers of/i.test(segment) ? ` (customers of ${product})` : ''}, on ${aAn(modelName)} ${modelName} model, with ${readableChoice(csTeamSize)} customer success capacity${args.cs_team_size ? '' : ' (assumed)'}.`);
   if (headSeg === null) stand.push(`The segment, as you described it: ${quoted(segment)}.`);
-  if (churn.n === null) stand.push(`You gave a churn rate of ${quoted(typedRate)}, which could not be read as a number, so no severity is shown.`);
+  if (churn.n === null) stand.push(`You gave a churn rate of ${quoted(typedRate)}, which could not be read as one valid rate and period (0 to 100 percent, with no conflicting periods), so no severity is shown.`);
   else {
     stand.push(`You report churn of ${typedRate}${churn.period === 'unstated' ? ', which is read as a monthly rate' : ''}.`);
     if (churn.period === 'year') stand.push(`That is about ${pct(churn.monthly)}% a month, compounded (the monthly rate that, applied each month to the customers still left, adds up to your annual rate).`);
