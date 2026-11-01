@@ -465,6 +465,8 @@ const FRAME_GROUPS = [
 // Timeline: only concrete time references count: a date, a quarter or half-year code, a financial-year code, or a duration with a number.
 // Words such as by, plan, quarter, month, day, deadline or milestone are not dates and are not scored; "may" is not a month unless a day or year goes with it.
 const TIMELINE_GROUPS = [
+    { label: 'a review cadence', patterns: [/\b(?:each|every)\s+week\b|\bweekly\b/gi] },
+    { label: 'a month horizon', patterns: [new RegExp(`\\b(?:through|until|by|during)\\s+${MONTH}\\b`, 'gi')] },
     { label: 'a date', patterns: [
             new RegExp(`\\b\\d{1,2}(?:st|nd|rd|th)?\\s+(?:of\\s+)?${MONTH}\\b(?:\\s*,?\\s*\\d{4})?`, 'gi'),
             new RegExp(`\\b${MONTH}\\s+\\d{1,2}(?:st|nd|rd|th)?\\b(?:\\s*,?\\s*\\d{4})?`, 'gi'),
@@ -544,7 +546,7 @@ export function planSegments(content) {
     return content.split('\n').flatMap((l) => l.split(/(?<=[.;!?])\s+(?=[A-Z][A-Za-z /&'-]{0,39}:\s)/));
 }
 export function analyzeCRAFTDimensions(content) {
-    const lines = content.split('\n');
+    const lines = planSegments(content);
     const ownLines = lines.filter((l) => !isMarketLine(l));
     const make = (groups, unit, base, onlyOwn = true) => {
         const r = scoreGroups(onlyOwn ? ownLines : lines, groups);
@@ -589,6 +591,8 @@ export function analyzeCRAFTDimensions(content) {
             addDistinct(analysis.timelineWords, m);
     }
     analysis.timelineWords = analysis.timelineWords.map((x) => escapePiece(x));
+    if (analysis.timeline.groupsFound.some(g => ['a review cadence', 'a month horizon'].includes(g)) && !analysis.timeline.groupsFound.includes('a date'))
+        analysis.timeline.gaps.push('A cadence or month horizon is recognised; agree a dated milestone and its owner before committing delivery.');
     if (analysis.timeline.found.length === 0) {
         analysis.timeline.gaps.push(analysis.timelineWords.length
             ? `No dates, durations or quarters found. Words such as "${analysis.timelineWords.slice(0, 3).join('", "')}" are in the plan, but they are not dates`
