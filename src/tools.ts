@@ -18,7 +18,7 @@ const yourSectorProp = {
 // Run 19 (D80, problem 8): the sector can be named, so the answer uses that sector's buyers, measures and objections.
 const industryProp = {
   type: "string",
-  description: "Optional: the sector you sell into, so the answer uses that sector's buyers, measures and objections. Leave it out and the tool reads the sector from your other inputs and names what it read",
+  description: "Optional: your own company's sector, so the answer uses the usual buyers, measures and objections for what you sell. Leave it out and the tool reads the sector from your other inputs and names what it read",
   enum: [...Object.keys(SECTOR_CHOICES), "other"]
 };
 

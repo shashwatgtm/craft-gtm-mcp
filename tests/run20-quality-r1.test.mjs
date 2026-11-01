@@ -148,9 +148,10 @@ test("a sector read only from the buyer's industry is not used as the seller's s
   assert.match(r.text, /Sector: not clear from your inputs/);
   assert.doesNotMatch(r.text, /Sector notes: fintech/);
 });
-test("a product text that lists its features after 'for consumer brands:' is read as the seller's own description", async () => {
+test("R11 typed sector wins visibly when seller features name another trade", async () => {
   const r = await call("customer_interview_kit", { interview_type: "discovery", product_context: "Shelfwalk, AI led sales and distribution software for consumer brands: sales force automation, distributor management system (DMS), van sales, retail merchandising and trade promotion management", target_persona: "National Sales Head", industry: "saas" });
-  assert.match(r.text, /Sector: read from your inputs as vertical SaaS/);
+  assert.match(r.text, /Sector conflict[\s\S]*description reads as Vertical SaaS[\s\S]*selected SaaS is used/);
+  assert.match(r.text, /Sector: SaaS \(from your choice\)/);
 });
 test("per security and SOC 1 are not security-vendor words", async () => {
   const r = await call("launch_commander", { product_feature: "Quantara: models assess hundreds of signals per security across 50,000 securities and add forecast ranges", launch_type: "feature_launch", target_segments: "Asset managers", goals: "ten hypothetical meetings" });

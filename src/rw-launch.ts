@@ -1400,7 +1400,7 @@ export function writeCrisisPlan(args: {
   let crises: string[];
   if (typed.length) crises = typed;
   else {
-    crises = [...(DEFAULT_CRISES[args.industry] || DEFAULT_CRISES.other)];
+    crises = [...(DEFAULT_CRISES[(ctx.v?.id || args.industry).replace(/-/g, '_')] || DEFAULT_CRISES.other)];
     if (pb) for (const c of pb.crises.slice(0, 2)) if (!crises.includes(c.key)) crises.unshift(c.key);
     crises = crises.slice(0, 5);
     if (sensitivity === 'high_pii_financial' && !crises.includes('data_breach')) crises.unshift('data_breach');
@@ -1718,7 +1718,7 @@ ${audiences([[enterprise ? 'Technology or service owners at customers' : 'Custom
   out.push(readLine(ctx, model, true));
   out.push('');
   out.push('## The plan in brief');
-  const industryName = readableChoice(args.industry);
+  const industryName = ctx.v?.name || readableChoice(args.industry);
   const brief: string[] = [];
   brief.push(`${N === 'your company' ? 'This plan is for your company' : `This plan is for ${N}`}, ${aAn(industryName)} ${industryName} company with ${readableChoice(base)} customers, ${readableChoice(sensitivity)} data sensitivity and a ${readableChoice(companySize)} team${args.company_size ? '' : ' (assumed)'}.`);
   if (prod.desc) brief.push(`You describe the company as ${quoted(prod.desc)}.`);

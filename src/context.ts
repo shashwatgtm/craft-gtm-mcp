@@ -1,3 +1,4 @@
+import { sellerSectorLabel } from './text-signals.js';
 import { hasSignal, signal } from './text-signals.js';
 // Run 19 (owner decision D80): shared helpers that read the sector and the business model from what the user typed, and
 // that keep typed text out of broken sentences. The sector knowledge itself is in src/verticals.ts (rule B82).
@@ -97,6 +98,7 @@ function billingPlatform(input: ReaderInput, r: ReturnType<typeof explainSector>
 function readSector(input: ReaderInput): ReturnType<typeof explainSector> {
   // Run 21b: when the product category noun named a sub-type (customer service software, a messaging platform, construction management software ...) no local layer below overrides it.
   const first = explainSector(input);
+  if ((input.seller||[]).some(x=>typeof x==='string'&&sellerSectorLabel(x).id)) return first;
   if (first.vertical && first.vertical.subtype && first.vertical.id !== 'ai-native' && (first.source === 'seller' || first.source === 'context')) return first;   // AI words stay with the local AI rules below
   const r = billingPlatform(input, headTrade(input, first));
   if (!(r.vertical && r.vertical.id === 'ai-native' && r.source === 'seller')) return r;
@@ -155,6 +157,7 @@ function overlayBilling(v: Vertical | null, sellerTexts: string[], contextTexts:
 // broad trades that job titles such as "developers" read as: they are no conflict with a trade the seller names
 const GENERIC_TRADE = new Set(['software', 'saas']);
 function thinSellerRead(input: ReaderInput, r: ReturnType<typeof explainSector>): ReturnType<typeof explainSector> {
+  if (sellerSectorLabel((input.seller||[]).filter(x=>typeof x==='string').join(' . ')).id) return r;
   if (r.source !== 'seller' || !r.vertical || (r.vertical.subtype && r.strong.length >= 2)) return r;
   const neutral = { vertical: null, source: null, strong: [], weak: [] } as unknown as ReturnType<typeof explainSector>;
   const others = explainSector({ context: input.context, role: input.role });
@@ -201,11 +204,6 @@ export function readContext(opts: { model?: unknown; hintModel?: BusinessModel |
   const sellerTexts = (input.seller ?? []).filter((x): x is string => typeof x === 'string' && x.trim().length > 0);
   const whole = sellerTexts.length ? explainSector({ role: [sellerTexts.join(' \n ')] }) : null;
   const wholeTrade = whole && whole.vertical && whole.strong.length >= 2 && whole.vertical.id !== 'saas' && whole.vertical.id !== 'software' ? whole.vertical : null;
-  // A broad choice (saas, software) does not hide a trade the seller's own words name (a CNAPP tool is cybersecurity, not "saas").
-  if (!given && chosen && (chosen.id === 'saas' || chosen.id === 'software')) {
-    if (read.vertical && read.source === 'seller' && read.vertical.id !== chosen.id && read.vertical.id !== 'saas' && read.vertical.id !== 'software') chosen = null;
-    else if (wholeTrade && whole!.strong.length >= 3) chosen = null;
-  }
   const fromBuyerOnly = !chosen && read.source === 'buyer' && !wholeTrade;
   const v0 = chosen ?? (fromBuyerOnly ? null : (read.source === 'buyer' ? wholeTrade : read.vertical));
   const v = chosen || given ? v0 : supplementSector(v0, sellerTexts);

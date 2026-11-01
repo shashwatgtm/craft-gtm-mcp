@@ -4,7 +4,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-const mod = await import(new URL("../src/verticals.ts", import.meta.url));
+const mod = await import(new URL("../dist/verticals.js", import.meta.url));
 const { detectVertical, isBillingSeller } = mod;
 
 const PLAN = `Gridbeam go-to-market plan for next quarter. Goal: a hypothetical pipeline from civil and infrastructure contractors.

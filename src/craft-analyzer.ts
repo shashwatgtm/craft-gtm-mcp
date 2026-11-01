@@ -1,3 +1,4 @@
+import { sellerSectorLabel } from './text-signals.js';
 import { escapePiece } from './escape-inputs.js';
 import { analyzeCRAFTDimensions, isMarketLine, isAudienceTarget, planSegments, type CRAFTDimension } from './utils.js';
 import { subIndustryFor } from './sub-industry.js';
@@ -31,7 +32,7 @@ export function generateCRAFTAnalyzer(args: {
   // a plan with no such lines is read whole, as deal text. Its Goal line is not read: it often lists the segments, which are the buyer's sector, not yours.
   const byLabel = (re: RegExp): string[] => labelled.filter((x) => re.test(x.label)).map((x) => x.text);
   const sellerLines = byLabel(/^(?:message|messaging|positioning|how we differ|differentiat\w+|what we sell|offer|product)$/i);
-  const readInput = sellerLines.length || planAudience
+  const readInput = sellerSectorLabel(content).id ? {seller:[content]} : sellerLines.length || planAudience
     ? { seller: [content.split('\n')[0], ...sellerLines], context: byLabel(/^buyer(?:s| roles?)?$|^personas?$/i), role: byLabel(/^buyer(?:s| roles?)?$|^personas?$/i), buyer: [args.intended_audience, planAudience?.text] }
     : { context: [content, args.desired_outcome], buyer: [args.intended_audience] };
   const sectorCtx = readContext({ vertical: args.industry, sector: args.your_sector }, readInput);
