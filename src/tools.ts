@@ -32,7 +32,7 @@ export const tools: Tool[] = [
         product: { type: "string", description: "Product name and brief description" },
         target_market: {
           type: "string",
-          description: "Target market segment (for example enterprise SaaS, telecom or logistics tech)",
+          description: "Benchmark segment for scoring (for example enterprise SaaS, telecom or logistics tech). Ask the user to confirm it when it differs from the product description. The selected benchmark and its stated fallback ranges are used; the output explains conflicts. The separate sector choice controls sector notes.",
           enum: ["enterprise_saas", "smb_saas", "consumer", "marketplace", "fintech", "logistics_tech", "vertical_saas", "ai_native", "ites", "telecom", "software", "cybersecurity", "other"]
         },
         current_metrics: {

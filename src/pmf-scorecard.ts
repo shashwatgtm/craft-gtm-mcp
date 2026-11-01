@@ -1,4 +1,5 @@
-import { frictionReading, readSignal } from './text-signals.js';
+import { explainSector } from './verticals.js';
+import { pmfBenchmarkNotice, frictionReading, readSignal } from './text-signals.js';
 import { readPMFMetrics } from './pmf-metrics.js';
 import { parseMetrics, pct, scoreMetric, describeChoice, readableChoice, cap, unscoredFigures, EXAMPLE_FIGURES, SUGGESTION_FOOTER } from './utils.js';
 import { readContext, sectorNotes, answerFor, splitItems, q, andList, capEcho, lcFirst, type BusinessModel } from './context.js';
@@ -13,9 +14,10 @@ export function generatePMFScorecard(args: {
   business_model?: string;
   your_sector?: string;
 }): string {
+  const benchmarkNotice = pmfBenchmarkNotice(args, text => { const r = explainSector({seller:[text]}); return {id:r.vertical?.id,name:r.vertical?.name,source:r.source}; });
   const metrics = parseMetrics(args.current_metrics);
   const reading = readPMFMetrics(args.current_metrics);
-  if (reading.issues.length) return '# Cannot score these metrics\n\n' + reading.issues.map(x => '- ' + x).join('\n') + '\n\nConfirm the observed figures and their periods before a fit decision.';
+  if (reading.issues.length) return benchmarkNotice + '# Cannot score these metrics\n\n' + reading.issues.map(x => '- ' + x).join('\n') + '\n\nConfirm the observed figures and their periods before a fit decision.';
   for (const key of ['churn','nps','ltv','cac','retentionRate','activationRate','ltvCacRatio'] as const) delete metrics[key];
   Object.assign(metrics, reading.values);
   metrics.retentionIsNet = reading.retentionIsNet;
@@ -230,7 +232,7 @@ export function generatePMFScorecard(args: {
   // Every benchmark below is an example figure: the column header carries the block label.
   const dimensionHeader = `| Metric | Your Value | Score | Benchmark (${EXAMPLE_FIGURES.replace(/\.$/, '')}) | Status |`;
 
-  return `# Product-Market Fit Scorecard
+  return benchmarkNotice + `# Product-Market Fit Scorecard
 ## ${productHead.short}
 
 ${productHead.capped ? `**Product (as you wrote it):** ${args.product.trim()}\n\n` : ''}**Market Segment:** ${cap(readableChoice(marketType))}
