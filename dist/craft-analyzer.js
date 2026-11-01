@@ -1,0 +1,422 @@
+import { escapePiece } from './escape-inputs.js';
+import { analyzeCRAFTDimensions, isMarketLine, isAudienceTarget, planSegments } from './utils.js';
+import { subIndustryFor } from './sub-industry.js';
+import { VERTICALS, SUBTYPES, AI_SUPPORT_PROFILE, BUYER_CONTEXTS, profileFor, buyerContextFor } from './verticals.js';
+import { andList, readContext, q, splitPhrases } from './context.js';
+import { answerFor } from './context.js';
+import { lc, closing, finalise, clauseCut, POPULARITY } from './rw-gtm.js';
+// A plan line in quotes, in full when it fits and otherwise ended at a clause break (never with three dots).
+const qc = (t, max = 220) => q(clauseCut(t, max));
+export function generateCRAFTAnalyzer(args) {
+    // Run 18 (R18-26, P05-WS-01): leading and trailing whitespace is not part of the document, so it is not measured or shown
+    // (the web form already trims it in netlify/functions/api.mjs). Interior whitespace is kept exactly.
+    const content = args.document_content.trim();
+    const docType = args.document_type;
+    // Run 20: when audience or outcome is not given as an input, the plan's own Audience and Goal lines are read and shown (before, the answer said
+    // "Not specified" for a plan that states both).
+    const parts = planSegments(content);
+    const labelled = parts.map((l) => { const m = l.match(/^\s*([A-Za-z][A-Za-z /&'-]{1,40}):\s*(.+)$/); return m ? { label: m[1].trim(), text: m[2].trim() } : null; }).filter((x) => !!x);
+    const planAudience = labelled.find((x) => /^(?:target )?audience$|^icp$|^segments?$/i.test(x.label) || isAudienceTarget(x.label, x.text));
+    const planGoal = labelled.find((x) => /^(?:goals?|objectives?|targets?|outcomes?|success(?: criteria| metrics?)?)$/i.test(x.label) && !isAudienceTarget(x.label, x.text));
+    // The plan is read in its parts when it is labelled (Message and How we differ are the seller's words; Buyer roles are job titles; Audience is the buyer);
+    // a plan with no such lines is read whole, as deal text. Its Goal line is not read: it often lists the segments, which are the buyer's sector, not yours.
+    const byLabel = (re) => labelled.filter((x) => re.test(x.label)).map((x) => x.text);
+    const sellerLines = byLabel(/^(?:message|messaging|positioning|how we differ|differentiat\w+|what we sell|offer|product)$/i);
+    const readInput = sellerLines.length || planAudience
+        ? { seller: [content.split('\n')[0], ...sellerLines], context: byLabel(/^buyer(?:s| roles?)?$|^personas?$/i), role: byLabel(/^buyer(?:s| roles?)?$|^personas?$/i), buyer: [args.intended_audience, planAudience?.text] }
+        : { context: [content, args.desired_outcome], buyer: [args.intended_audience] };
+    const sectorCtx = readContext({ vertical: args.industry, sector: args.your_sector }, readInput);
+    const sectorCtx0 = sectorCtx;
+    // Perform CRAFT analysis
+    const analysis = analyzeCRAFTDimensions(parts.join('\n'));
+    // Calculate overall score
+    const totalScore = analysis.character.score + analysis.result.score + analysis.artifact.score + analysis.frame.score + analysis.timeline.score;
+    const maxScore = 50;
+    const percentage = Math.round((totalScore / maxScore) * 100);
+    // Determine rating
+    let rating = '';
+    if (percentage >= 80) {
+        rating = 'EXCELLENT';
+    }
+    else if (percentage >= 60) {
+        rating = 'GOOD';
+    }
+    else if (percentage >= 40) {
+        rating = 'NEEDS WORK';
+    }
+    else {
+        rating = 'SIGNIFICANT GAPS';
+    }
+    // Run 20: what the plan states, line by line, and the gaps that matter for a go-to-market plan (read from the plan's own lines).
+    const countsFor = (label, text) => {
+        if (isMarketLine(`${label}: ${text}`))
+            return /^(?:message|messaging|positioning|how we differ|differentiat\w+|proof|references?|testimonials?|quotes?|case stud)/i.test(label) ? 'Not scored (describes your product or your customers)' : 'Frame only (describes your customers and market, not who runs the plan)';
+        if (/^(?:goals?|objectives?|targets?|outcomes?|success|kpis?|okrs?)/i.test(label))
+            return 'Result';
+        if (/^(?:owner|owners|responsible|accountable|lead|team|raci)/i.test(label))
+            return 'Character';
+        if (/^(?:budget|resources?|headcount|constraints?|assumptions?)/i.test(label))
+            return 'Frame';
+        if (/^(?:timeline|dates?|schedule|milestones?|deadline)/i.test(label))
+            return 'Timeline';
+        if (/^risks?/i.test(label))
+            return 'Risks section';
+        return 'Read for all five areas';
+    };
+    const stated = labelled.slice(0, 10).map((x) => ({ ...x, counts: countsFor(x.label, x.text) }));
+    const ownText = parts.filter((l) => !isMarketLine(l)).join('\n');
+    const buyerLine = labelled.find((x) => /^buyer(?:s| roles?)?$/i.test(x.label));
+    const matters = [];
+    if (analysis.character.found.length === 0)
+        matters.push({ title: 'Nobody on your side is named to run the plan', detail: `${buyerLine ? `The line ${qc(`${buyerLine.label}: ${buyerLine.text}`, 140)} names the customer's roles, which are not owners. ` : ''}Name who owns ${planGoal ? qc(planGoal.text, 110) : 'the goal'} and who does each piece of the work.` });
+    if (!/\b(email|e-mail|linkedin|outbound|inbound|webinars?|events?|conferences?|roundtables?|partners?|referrals?|paid|ads|seo|abm|account-based|sdrs?|cold|calls?|social|community|press|field|direct|content|newsletter)\b/i.test(ownText))
+        matters.push({ title: 'No channel is named', detail: 'Say where the first conversations come from (outbound, events, partners, referrals, paid, content), and who is reached first.' });
+    const hasNumberGoal = planGoal && /\d/.test(planGoal.text);
+    if (hasNumberGoal && !/\b(meetings?|demos?|opportunit\w*|mqls?|sqls?)\b/i.test(planGoal.text) && !/\b(win rate|close rate|conversion|meetings?|opportunit\w*|funnel|demos?|mqls?|sqls?|stage)\b/i.test(ownText.replace(planGoal.text, '')))
+        matters.push({ title: 'The goal is not traced to activity', detail: `${qc(planGoal.text, 150)} is a result, but no win rate, meeting count or stage conversion is stated, so it cannot be traced back to the work that would produce it. Work backwards from the goal: deals needed, opportunities needed, meetings needed.` });
+    if (analysis.timeline.found.length === 0)
+        matters.push({ title: 'No dates', detail: `${/\bnext quarter\b/i.test(ownText) ? 'The plan says "next quarter" but gives no date or duration' : analysis.timelineWords.length ? `Only the words ${andList(analysis.timelineWords.slice(0, 3).map((w) => q(w)))} appear` : 'No period or date appears'}.${planGoal ? ` The goal ${qc(planGoal.text, 110)} has no end date: say by when it must be won, and put a date on the first meeting, the pilot or first delivery, and the review.` : ' Put a date on the first meeting, the pilot or first delivery, and the review.'}` });
+    if (!analysis.frame.groupsFound.includes('a budget or resources'))
+        matters.push({ title: 'No budget or headcount', detail: 'State what money and people the plan has, so the goal can be checked against what it costs.' });
+    if (!/\b(weekly|monthly|fortnightly|review|check-?in|cadence|stand-?up|steering)\b/i.test(ownText))
+        matters.push({ title: 'No review rhythm', detail: 'Say when the plan is reviewed and by whom, and which number is looked at first.' });
+    if (analysis.artifact.found.length === 0)
+        matters.push({ title: 'No deliverables', detail: 'List what gets made (deck, one-pager, email sequence, event, case study) and who makes it.' });
+    // A "Risks:" line holds several risks: each one is judged and answered on its own.
+    const riskItems = [];
+    for (const r of analysis.risks) {
+        const m = r.line.match(/^\s*risks?\s*:\s*(.+)$/i);
+        if (m)
+            for (const item of splitPhrases(m[1]))
+                riskItems.push({ line: item, answered: false, pattern: answerFor(item, sectorCtx0.v) });
+        else
+            riskItems.push({ ...r, pattern: r.answered ? '' : answerFor(r.line, sectorCtx0.v) });
+    }
+    // ---- the review ----
+    const DIM_NAME = { character: 'Character', result: 'Result', artifact: 'Artifact', frame: 'Frame', timeline: 'Timeline' };
+    const DIM_WHO = { character: 'who runs it', result: 'what success looks like', artifact: 'what gets produced', frame: 'the context and limits', timeline: 'when it happens' };
+    const dims = ['character', 'result', 'artifact', 'frame', 'timeline'].map((key) => ({ key, name: DIM_NAME[key], d: analysis[key] }));
+    const strong = dims.filter((x) => x.d.score >= 7);
+    const empty = dims.filter((x) => x.d.score < 4);
+    const status = (n) => (n >= 7 ? 'Yes' : n >= 4 ? 'Note' : 'No');
+    const verdict = `${strong.length ? `The plan is clear on ${andList(strong.map((x) => `${x.name} (${DIM_WHO[x.key]})`))}.` : 'No dimension of the plan is clear yet.'} ${empty.length ? `It has little or nothing yet on ${andList(empty.map((x) => `${x.name} (${DIM_WHO[x.key]})`))}.` : 'Nothing is missing entirely, but some parts are thin.'}`;
+    // the buyer's industry, read from the plan's audience and goal lines (and the audience input), else from the whole plan without the broad technology and media words
+    const buyerTexts = [args.intended_audience, planAudience?.text, planGoal?.text, args.desired_outcome];
+    // Run 42B: "communications" as a team (PR and communications teams) and "media" as a channel (social media, media buyers) are not the telecom or media industry.
+    const teamWords = (t) => (typeof t === 'string' ? t.replace(/\b(?:social|earned|paid|owned) media\b/gi, ' ').replace(/\b(?:pr|public relations|corporate|internal|marketing|brand|comms?)(?: and| &|,)? communications?\b/gi, ' ').replace(/\bcommunications?(?= (?:teams?|managers?|leads?|directors?|professionals?|departments?|functions?|and\b|,|$))/gi, ' ').replace(/\bmedia(?= (?:teams?|buyers?|planners?|planning|buying|channels?|marketers?|managers?|and\b|,|$))/gi, ' ') : t);
+    const buyerCtx0 = buyerContextFor(...buyerTexts.map(teamWords)) ?? (() => { const t = content; for (const c of BUYER_CONTEXTS)
+        if (c.id !== 'technology' && c.id !== 'telecom-media' && c.id !== 'gaming' && c.match.test(t))
+            return c; return null; })();
+    // Run 42B: buyer habits of software teams (developers trial first, security signs off) are written only for a software or cybersecurity seller, or when the buyer words of the plan name
+    // developers or engineering teams themselves; the bare word "software" in "outgrown spreadsheets or smaller software" is not that.
+    const softwareSeller = !!sectorCtx.v && (sectorCtx.v.id === 'software' || sectorCtx.v.id === 'cybersecurity');
+    const buyerSaysDevs = buyerTexts.some((t) => typeof t === 'string' && /\b(?:developers?|engineers?|engineering (?:teams?|leaders?|managers?)|devops|sres?|ctos?|cisos?|security teams?|software (?:companies|teams|vendors|firms)|saas (?:companies|vendors)|tech(?:nology)? (?:companies|teams))\b/i.test(t));
+    const buyerCtx1 = buyerCtx0 && buyerCtx0.id === 'technology' && !softwareSeller && !buyerSaysDevs ? null : buyerCtx0;
+    // Run 42B: a buyer industry is written only when the buyer words of the plan clearly name it: two of its own words (or a two word name such as "financial services"). Words that also
+    // mean a team, a channel or a job ("operators", "communications", "media", "plants", "distribution", "digital") never name an industry alone, so "solo operators" is not telecom.
+    const WEAK_INDUSTRY_WORD = /^(?:operators?|communications?|media|digital|tech|internet|plants?|civil|builders?|contractors?|institutes?|admissions?|coaching|distribution|distributors?|packaged|foods?|merchants?|marketplaces?|games?|gaming|industrial|federal|insurance|payments?)$/i;
+    const industryClear = (ctx) => {
+        if (!ctx)
+            return false;
+        const fromBuyerWords = buyerContextFor(...buyerTexts.map(teamWords)) !== null;
+        const text = fromBuyerWords ? buyerTexts.map(teamWords).filter((x) => typeof x === 'string').join(' | ') : content;
+        const seen = new Set();
+        let score = 0;
+        let strong = 0;
+        for (const m of text.matchAll(new RegExp(ctx.match.source, 'gi'))) {
+            const w = m[0].toLowerCase().replace(/[_\s]+/g, ' ');
+            if (seen.has(w))
+                continue;
+            seen.add(w);
+            const weak = !/ /.test(w) && WEAK_INDUSTRY_WORD.test(w);
+            score += / /.test(w) ? 2 : 1;
+            if (!weak)
+                strong++;
+        }
+        return score >= 2 && strong >= 1;
+    };
+    const buyerCtx = buyerCtx1 && industryClear(buyerCtx1) ? buyerCtx1 : null;
+    // the plan's own title, when its first line is a sentence and not a labelled line ("Brightdesk plan for Q1 2027.")
+    const firstLine = content.split('\n')[0].trim();
+    const planTitle = firstLine && !/^[A-Za-z][A-Za-z /&'-]{1,40}:\s/.test(firstLine) ? clauseCut(firstLine.split(/(?<=[.!?])\s+/)[0], 140) : '';
+    let output = `# CRAFT review: ${docType.replace(/_/g, ' ')}
+
+${planTitle ? `**Plan:** ${planTitle}\n\n` : ''}**Document Length:** ${content.length} characters
+**Words (estimate):** ~${Math.round(content.length / 5)}, from the character count
+
+${args.intended_audience ? `**Written for:** ${args.intended_audience}.` : planAudience ? `**Written for:** ${qc(planAudience.text, 320)} (the plan's own Audience line).` : ''}${args.desired_outcome ? `\n\n**Meant to drive:** ${args.desired_outcome}.` : planGoal ? `\n\n**Meant to drive:** ${qc(planGoal.text, 320)} (the plan's own ${planGoal.label} line).` : ''}
+
+## Overall Score: ${totalScore}/${maxScore} (${percentage}%), rated ${rating}
+
+${verdict} The scores come from a keyword check of the lines that describe your own plan, not a reading of the whole plan, so check each gap against your document. Lines that describe your customers, market or product (Audience, Buyer roles, Message, Proof, How we differ) are not scored as your owner, goal, deliverables or dates; they count only toward Frame.
+
+| Dimension | Score | Status | Assessment |
+|-----------|-------|--------|------------|
+| **C**haracter (who) | ${analysis.character.score}/10 | ${status(analysis.character.score)} | ${analysis.character.score >= 7 ? 'Clear ownership' : analysis.character.score >= 4 ? 'Partial ownership' : 'Missing ownership'} |
+| **R**esult (what success is) | ${analysis.result.score}/10 | ${status(analysis.result.score)} | ${analysis.result.score >= 7 ? 'Clear goals' : analysis.result.score >= 4 ? 'Vague goals' : 'No measurable goals'} |
+| **A**rtifact (what is produced) | ${analysis.artifact.score}/10 | ${status(analysis.artifact.score)} | ${analysis.artifact.score >= 7 ? 'Clear deliverables' : analysis.artifact.score >= 4 ? 'Some deliverables' : 'Unclear outputs'} |
+| **F**rame (context) | ${analysis.frame.score}/10 | ${status(analysis.frame.score)} | ${analysis.frame.score >= 7 ? 'Clear context' : analysis.frame.score >= 4 ? 'Partial context' : 'Missing context'} |
+| **T**imeline (when) | ${analysis.timeline.score}/10 | ${status(analysis.timeline.score)} | ${analysis.timeline.score >= 7 ? 'Clear timeline' : analysis.timeline.score >= 4 ? 'Vague timeline' : 'No timeline'} |
+
+`;
+    // the shared check cuts a long plan line at 157 characters and adds three dots; the plan's own sentence is restored here, ended at a clause break
+    const flat = content.replace(/\s+/g, ' ');
+    const fullEvidence = (e) => {
+        if (!e.endsWith('...'))
+            return e;
+        const at = flat.indexOf(e.slice(0, -3));
+        if (at < 0)
+            return e.slice(0, -3).replace(/[,;:\s]+\S*$/, '');
+        let end = at + e.length - 3;
+        while (end < flat.length && !/[.;!?]/.test(flat[end]))
+            end++;
+        return clauseCut(flat.slice(at, end + 1), 320);
+    };
+    const countGroups = [
+        ['Counted toward the dimension they name', (c) => /^(?:Result|Character|Frame|Timeline)$/.test(c)],
+        ['Counted toward Frame only, because they describe your customers and market', (c) => /^Frame only/.test(c)],
+        ['Not scored, because they describe your product or your customers', (c) => /^Not scored/.test(c)],
+        ['Read as risks', (c) => /^Risks section/.test(c)],
+        ['Read for all five areas', (c) => /^Read for all five/.test(c)],
+    ];
+    const countLines = countGroups.map(([title, test]) => { const xs = stated.filter((x) => test(x.counts)); return xs.length ? `${title}: ${andList(xs.map((x) => q(x.label)))}.` : ''; }).filter(Boolean);
+    // ---- what to fix first: the gaps that matter, each once, ordered by the lowest dimension score ----
+    const dimOfMatter = { 'Nobody on your side is named to run the plan': 'character', 'No channel is named': 'frame', 'The goal is not traced to activity': 'result', 'No dates': 'timeline', 'No budget or headcount': 'frame', 'No review rhythm': 'timeline', 'No deliverables': 'artifact' };
+    const fixes = matters.map((m) => ({ title: m.title, detail: m.detail, score: analysis[dimOfMatter[m.title] ?? 'frame'].score, dim: DIM_NAME[dimOfMatter[m.title] ?? 'frame'] }));
+    if (analysis.result.found.length === 0)
+        fixes.push({ title: 'No measurable result', detail: 'State one goal with a number and a date, such as a count of meetings, a pipeline value or a number of deals.', score: analysis.result.score, dim: 'Result' });
+    if (analysis.frame.found.length === 0)
+        fixes.push({ title: 'No audience or limits', detail: 'Say who the plan is for, what budget and people it has, and what it assumes.', score: analysis.frame.score, dim: 'Frame' });
+    for (const x of dims) {
+        if (x.d.score < 7 && x.d.found.length > 0 && x.d.groupsMissing.length && !fixes.some((f) => dimOfMatter[f.title] === x.key)) {
+            fixes.push({ title: `${x.name} is partly covered`, detail: `The plan has ${andList(x.d.groupsFound.length ? x.d.groupsFound : ['little'])}; it does not have ${andList(x.d.groupsMissing)}.`, score: x.d.score, dim: x.name });
+        }
+    }
+    // the Frame score counts the Audience and Buyer lines: said next to the first fix that asks for what those lines do not hold
+    if (analysis.frame.score >= 4) {
+        const f = fixes.find((x) => x.title === 'No channel is named') ?? fixes.find((x) => x.title === 'No budget or headcount');
+        if (f)
+            f.detail += ` (Frame ${analysis.frame.score}/10 counts your Audience and Buyer lines, not a channel or a budget.)`;
+    }
+    // The proof line is read item by item (items are separated by semicolons outside brackets). A customer result is an item with an outcome verb and a
+    // number (a customer named or not), or a customer story or case that is named; users, funding, awards and analyst rankings are company facts. The line is
+    // called company facts only when no result is on it; when a result is there, the fix says what is missing around it (its source, a second customer).
+    const proofItems = labelled.filter((x) => /^(?:proof|references?|testimonials?|case stud\w*)$/i.test(x.label)).flatMap((x) => {
+        const parts = [];
+        let depth = 0;
+        let cur = '';
+        let quote = '';
+        const chars = Array.from(x.text);
+        chars.forEach((ch, i) => {
+            const prev = chars[i - 1] ?? '';
+            const next = chars[i + 1] ?? '';
+            // a semicolon inside a quotation or a bracket does not end the item
+            if (!quote && (ch === '"' || ch === '\u201C' || (ch === "'" && (i === 0 || /[\s:(]/.test(prev)) && /\w/.test(next))))
+                quote = ch === '\u201C' ? '\u201D' : ch;
+            else if (quote && ch === quote && (ch !== "'" || (/[\w.!?,)]/.test(prev) && (!next || /[\s;,.)]/.test(next)))))
+                quote = '';
+            if (!quote && ch === '(')
+                depth++;
+            if (!quote && ch === ')')
+                depth = Math.max(0, depth - 1);
+            if (ch === ';' && depth === 0 && !quote) {
+                parts.push(cur);
+                cur = '';
+            }
+            else
+                cur += ch;
+        });
+        parts.push(cur);
+        return parts.map((t) => t.trim().replace(/[.\s]+$/, '')).filter(Boolean).map((t) => ({ label: x.label, text: t }));
+    });
+    // an outcome is a verb of change or a word of direction, with a figure that is not a year; what a customer says ("says", "reports", a quote) counts when it holds a figure
+    const OUTCOME_VERB = /\b(?:achiev\w*|reduc\w*|cuts?|cutting|sav(?:e|ed|es|ing|ings)|increas\w*|improv\w*|unlock\w*|grew|grow\w*|boost\w*|doubl\w*|tripl\w*|lower\w*|avoid\w*|shorten\w*|accelerat\w*|speed\w*|decreas\w*|eliminat\w*|gain\w*|generat(?:ed|es|ing)|recover\w*|resolv\w*|jump\w*|drop\w*|rose|rise[sn]?|fell|fall\w*|scal(?:ed|es|ing)|expand(?:ed|s|ing)|roi|growth|payback|uplift|savings?|reduction|improvement|increase|decrease|faster|slower|higher|shorter|instead of|(?:up|down) from|from [^;()]{1,40} to|win rate|deploys? [^;()]{0,30} faster)\b/i;
+    const figureIn = (t) => /\d/.test(t.replace(/\b(?:19|20)\d{2}\b/g, ''));
+    const OWN_COMPANY_FACT = /\b(?:series [a-e]|valuation|ipo|funding round|headcount)\b|\braised \$|\braised\b[^;]*\b(?:million|billion|m|bn)\b/i;
+    const NAMED_CASE = /\b(?:case stud(?:y|ies)|customer stor(?:y|ies)|client stor(?:y|ies)|success stor(?:y|ies)|client spotlight|customer spotlight|testimonial|customer quote|customer words|says)\b/i;
+    const SOURCE_NAMED = /\(|\b(?:page|story|study|spotlight|source|audited|published|report|review|survey|interview|quote|quoted|headline|press release|filing|customer words)\b/i;
+    const resultItems = proofItems.filter((x) => OUTCOME_VERB.test(x.text) && figureIn(x.text) && !OWN_COMPANY_FACT.test(x.text));
+    const namedNoFigure = proofItems.filter((x) => !resultItems.includes(x) && NAMED_CASE.test(x.text) && !figureIn(x.text));
+    const factItems = proofItems.filter((x) => !resultItems.includes(x) && !namedNoFigure.includes(x) && (POPULARITY.test(x.text) || /\b(?:series [a-e]|raised|funding|leader|gartner|g2)\b/i.test(x.text)));
+    if (resultItems.length === 0 && namedNoFigure.length === 0 && factItems.length) {
+        fixes.push({ title: 'The proof is a company fact, not a result', detail: `The line ${qc(`${factItems[0].label}: ${proofItems.filter((x) => x.label === factItems[0].label).map((x) => x.text).join('; ')}`, 170)} gives facts about the company. A buyer weighs a customer's result with a number and where it came from: add one before the plan goes out.`, score: analysis.frame.score, dim: 'Frame' });
+    }
+    else if (resultItems.length || namedNoFigure.length) {
+        // a source is flagged missing only when no result on the line carries one (a source may stand at the end of a run of items)
+        const unsourced = resultItems.every((x) => !SOURCE_NAMED.test(x.text)) ? resultItems : [];
+        const customers = resultItems.length + namedNoFigure.length;
+        const lines = [];
+        if (unsourced.length)
+            lines.push(`${qc(unsourced[0].text, 150)} has no source named: say where the result comes from (the case study, the page or the person who confirmed it).`);
+        if (namedNoFigure.length)
+            lines.push(`${qc(namedNoFigure[0].text, 150)} names a customer but gives no number: add the result in figures.`);
+        if (customers === 1)
+            lines.push(`Only one customer result is given${unsourced.length || namedNoFigure.length ? '' : `, ${qc((resultItems[0] ?? namedNoFigure[0]).text, 150)}`}: add the result of a second customer, so the proof does not rest on one case.`);
+        if (lines.length)
+            fixes.push({ title: customers === 1 ? 'The proof rests on one customer result' : 'A customer result needs more around it', detail: lines.join(' '), score: analysis.frame.score, dim: 'Frame' });
+    }
+    // an audience of many groups against a goal that names one
+    const audienceItems = planAudience ? planAudience.text.split(/,|\band\b/).map((x) => x.trim()).filter(Boolean) : [];
+    const goalFrom = planGoal ? (planGoal.text.match(/\bfrom ([^,.;]+)/i) || [])[1] : '';
+    if (goalFrom && audienceItems.length >= 5)
+        fixes.push({ title: 'The audience is wider than the goal', detail: `The Audience line lists ${audienceItems.length} groups, but the goal comes from ${q(goalFrom.trim())}: say which group is first and why, so the plan is not read as aimed at everyone.`, score: analysis.frame.score, dim: 'Frame' });
+    fixes.sort((a, b) => a.score - b.score);
+    output += `## What to fix first\n\n${fixes.length ? fixes.map((f, i) => `${i + 1}. **${f.title}.** (${f.dim} ${f.score}/10) ${f.detail}`).join('\n') : 'This check finds no structural gap. Read the plan once for sense before you send it.'}\n\n`;
+    // ---- the sector check ----
+    const planLower = content.toLowerCase();
+    const roleNamed = (role) => {
+        const acronym = /^Chief .* Officer$/.test(role) ? role.split(' ').filter((w) => /^[A-Z]/.test(w) && w !== 'Officer').map((w) => w[0]).join('') + 'O' : '';
+        // the same words in another order count ("IT Infrastructure Head" names the "Head of IT Infrastructure"), all in one line of the plan
+        const roleWords = role.toLowerCase().split(/\s+/).filter((w) => !['of', 'and', 'the'].includes(w));
+        const sameWords = content.split('\n').some((line) => { const l = line.toLowerCase(); return roleWords.every((w) => new RegExp(`\\b${w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`).test(l)); });
+        // plain titles that name the same decider (GM-IT and the IT head are the CIO's side; a platform leader is the platform engineering lead; IT / Security is the security lead)
+        const ALIASES = [
+            [/information officer|head of it|network manager|cio\b|cto\b|chief technology/i, /\b(gm[- ]it|it head|head of it|cio|cto|it manager|it director|it infrastructure|it \/ security|it and security)\b/i],
+            [/platform engineering lead|engineering manager|vp engineering/i, /\b(platform (?:leader|lead|engineer\w*|team)|engineering (?:lead|head|manager))\b/i],
+            [/security|ciso/i, /\b(ciso|security (?:lead|head|team)|it \/ security|it and security)\b/i],
+            [/procurement/i, /\b(procurement|purchasing|sourcing)\b/i],
+            [/sales head|sales operations|distribution|managing director/i, /\b(sales (?:head|automation|operations)|national sales|head of sales|md\b)\b/i],
+        ];
+        const aliasHit = ALIASES.some(([r, plan]) => r.test(role) && plan.test(content));
+        return planLower.includes(role.toLowerCase()) || sameWords || aliasHit || (acronym.length >= 3 && new RegExp(`\\b${acronym}\\b`, 'i').test(content));
+    };
+    // A plan whose buyers are asset allocators, a CIO and portfolio managers is an investment sale even when the product words name no sector.
+    const investPlan = !sectorCtx.v && ((content.match(/\b(asset allocators?|portfolio managers?|investment committees?|investment managers?|wealth managers?|pensions?|endowments?)\b/gi) ?? []).length >= 2);
+    let checkV = sectorCtx.v ?? (investPlan ? profileFor(VERTICALS.find((x) => x.id === 'ai-native'), 'investment') : null);
+    // The shared reader takes an AI seller whose plan mentions contact centres or tickets for a customer service automation seller. When the
+    // seller's OWN lines (the plan title, Message, positioning) name a kind of AI product (voice and language models ...) that kind is used; when they
+    // name no kind and no support words, only the checks of the whole vertical are printed (its roles and measures), not the support profile's.
+    if (checkV && checkV.committee === AI_SUPPORT_PROFILE.committee) {
+        const own = [content.split('\n')[0], ...sellerLines].join(' \n ');
+        const base = VERTICALS.find((x) => x.id === 'ai-native');
+        const st = subIndustryFor('ai-native', [own], { direct: true });
+        if (st && SUBTYPES.some((x) => x.id === st.id))
+            checkV = { ...base, ...st.notes, name: `${base.name}, ${st.name}`, subtype: st.id };
+        else if (!/\b(?:customer|technical|tech|it|client|user) support|support (?:tickets?|agents?|teams?|desks?|automation)|tickets?|help ?desks?|contact cent(?:re|er)s?|call cent(?:re|er)s?|service desks?|customer service|customer care\b/i.test(own))
+            checkV = base;
+    }
+    // "The plan names X" is only said when the plan's text holds X: a measure by its words (or its words without a tail such as "per site"), a role by its
+    // function word on a line that lists roles (buyer roles, owners, champions) or holds a title.
+    const roleLines = (() => { const labelled = content.split('\n').filter((l) => /^\s*(?:buyers?|buyer roles?|personas?|roles?|stakeholders?|champions?|decision makers?|economic buyer|owners?|team)\b[^:]*:/i.test(l)); return labelled.length ? labelled : content.split('\n').filter((l) => /\b(?:head of|chief|vp|svp|evp|director|manager|officer|lead|cto|cfo|ciso|cio|coo|cmo|teams?)\b/i.test(l)); })();
+    const FUNCTION_SKIP = new Set(['chief', 'head', 'of', 'officer', 'vp', 'svp', 'evp', 'director', 'manager', 'lead', 'senior', 'sr', 'the', 'and', 'or', 'group', 'general', 'global', 'vice', 'president', 'owner', 'business', 'unit', 'operations']);
+    const roleFunctionNamed = (role) => {
+        const keys = role.toLowerCase().split(/[^a-z]+/).filter((w) => w.length >= 3 && !FUNCTION_SKIP.has(w));
+        if (!keys.length)
+            return false;
+        return roleLines.some((line) => keys.every((k) => new RegExp(`\\b${k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}s?\\b`, 'i').test(line)));
+    };
+    // A measure counts as used when the plan holds its words (or the words without a tail such as "per site"), its distinctive last word (latency, satisfaction,
+    // settlement) or a short form of it (CSAT, FCR, SLA): the check stays a look into the plan's own text.
+    const GENERIC_METRIC = new Set(['number', 'average', 'percent', 'request', 'requests', 'resolved', 'handled', 'minute', 'second', 'audio', 'buyer']);
+    const SHORT_FORMS = [[/\bcsat\b/i, /customer satisfaction/i], [/\bfcr\b/i, /first contact resolution/i], [/\baht\b/i, /handle time/i], [/\bnps\b/i, /satisfaction|promoter/i], [/\bwer\b/i, /word error/i], [/\bsla\b/i, /service level/i], [/\bmttr\b/i, /time to (?:repair|recover|resolve)/i], [/\bmttd\b/i, /time to detect/i]];
+    const metricWordsIn = (m) => {
+        if ([m, m.replace(/\s+(?:per|of|on|for|by|at|to)\s+.*$/i, '')].filter((x) => x.length >= 6).some((x) => planLower.includes(x.toLowerCase())))
+            return true;
+        if (SHORT_FORMS.some(([plan, metric]) => plan.test(content) && metric.test(m)))
+            return true;
+        const last = m.toLowerCase().split(/[^a-z]+/).filter((w) => w.length >= 6 && !GENERIC_METRIC.has(w)).pop();
+        return !!last && new RegExp(`\\b${last}\\b`).test(planLower);
+    };
+    // The measures the plan states itself, in its own words ("25% higher onboarding conversion", "40% on processing fees", "cutting CX costs by 45%"): read from
+    // the seller's lines and the proof, never made up, and no figure is repeated or added. They are named next to the sector's general measures.
+    const MEASURE_STOP = new Set(['the', 'a', 'an', 'and', 'or', 'of', 'in', 'on', 'at', 'to', 'for', 'with', 'by', 'from', 'as', 'is', 'are', 'than', 'more', 'less', 'higher', 'lower', 'faster', 'better', 'fewer', 'up', 'down', 'over', 'average', 'around', 'about', 'per', 'across', 'while', 'when', 'that', 'which', 'without', 'after', 'within', 'using', 'via', 'into']);
+    const MEASURE_VERB = /^(?:achiev\w+|reduc\w+|cut(?:ting)?|sav(?:e|ed|es|ing)|increas\w+|improv\w+|unlock\w+|boost\w+|doubl\w+|tripl\w+|lower\w*|avoid\w*|shorten\w*|accelerat\w+|decreas\w+|eliminat\w+|gain\w*|generat\w+|recover\w+|rais\w+|grew|get|got|win|won|help\w*)$/i;
+    const planMeasures = () => {
+        const lines = content.split('\n').filter((l) => /^\s*(?:message|messaging|positioning|how we differ|differentiat\w+|proof|references?|case stud\w*|testimonials?)\s*:/i.test(l)).map((l) => l.replace(/^[^:]*:/, ''));
+        const found = [];
+        const take = (raw) => {
+            let words = raw.trim().split(/\s+/).filter(Boolean);
+            // what follows the last outcome verb is the measure ("a UK telecom cutting CX costs" gives "CX costs")
+            let lastVerb = -1;
+            words.forEach((w, i) => { if (MEASURE_VERB.test(w))
+                lastVerb = i; });
+            words = words.slice(lastVerb + 1);
+            while (words.length && MEASURE_STOP.has(words[0].toLowerCase()))
+                words.shift();
+            const stopAt = words.findIndex((w) => MEASURE_STOP.has(w.toLowerCase()));
+            if (stopAt >= 0)
+                words = words.slice(0, stopAt);
+            if (!words.length || words.length > 3 || words.some((w) => /\d/.test(w)))
+                return;
+            const phrase = words.join(' ');
+            if (phrase.replace(/[^a-z]/gi, '').length < 5 || found.some((f) => f.toLowerCase() === phrase.toLowerCase()))
+                return;
+            found.push(phrase);
+        };
+        for (const l of lines) {
+            const t = l.replace(/\([^)]*\)/g, ' ');
+            for (const m of t.matchAll(/\d[\d.,]*\s?(?:%|x\b|X\b|points?\b)\s+(?:(?:higher|lower|more|less|better|faster|fewer|improved|increased|reduced)\s+)?(?:on\s+)?([A-Za-z][\w-]*(?:\s+[A-Za-z][\w-]*){0,3})/g))
+                take(m[1]);
+            for (const m of t.matchAll(/([A-Za-z][\w-]*(?:\s+[A-Za-z][\w-]*){0,3})\s+by\s+(?:\d[\d.,]*\s?%|\d[\d.,]*\s?x\b)/gi))
+                take(m[1]);
+        }
+        return found.slice(0, 4);
+    };
+    output += `## Sector Check\n\n`;
+    if (checkV) {
+        const v = checkV;
+        const rolesNamed = v.buyerRoles.filter((r) => roleNamed(r) || roleFunctionNamed(r));
+        const rolesMissing = v.buyerRoles.filter((r) => !rolesNamed.includes(r));
+        // a Buyer or Audience line that names business owners, founders or general managers names the CUSTOMER's role (it is the buyer, not an owner of your plan)
+        const ownerBuyerText = [buyerLine?.text, planAudience?.text, typeof args.intended_audience === 'string' ? args.intended_audience : ''].find((t) => typeof t === 'string' && /\b(?:business )?owners?\b|\bfounders?\b|\bgeneral managers?\b|\bmanaging directors?\b/i.test(t)) ?? '';
+        const ownerAsBuyer = ownerBuyerText ? rolesMissing.filter((r) => /\bowner\b|general manager|founder|managing director/i.test(r)) : [];
+        const rolesLeft = rolesMissing.filter((r) => !ownerAsBuyer.includes(r));
+        const metricsNamed = v.metrics.filter(metricWordsIn);
+        const sameAsSector = (phrase) => v.metrics.some((m) => m.toLowerCase().includes(phrase.toLowerCase()) || phrase.toLowerCase().includes(m.toLowerCase()) || SHORT_FORMS.some(([plan, metric]) => plan.test(phrase) && metric.test(m)));
+        const ownMeasures = planMeasures().filter((m) => !sameAsSector(m));
+        output += `*Sector: ${sectorCtx.v ? sectorCtx.sector : `read from the buyers your plan names as ${v.name}`}. This is not part of the score.*
+
+Deals in this sector are decided like this: ${lc(v.committee)} ${rolesNamed.length ? `The roles in your plan match ${andList(rolesNamed)}` : ownerAsBuyer.length ? `Your plan names ${q(ownerBuyerText)} as the buyer, which is the customer's own ${andList(ownerAsBuyer.map((r) => r.toLowerCase()))} role, not someone on your team` : 'No role in your plan matches the usual deciders'}${rolesLeft.length ? `${rolesNamed.length || ownerAsBuyer.length ? ', and' : ':'} none matches ${andList(rolesLeft)}` : ''}.
+
+The sector measures ${andList(v.metrics)}; your plan uses the words for ${metricsNamed.length ? andList(metricsNamed) : 'none of them'}. A proof point that lands: ${lc(v.proofShape)} Words this buyer uses: ${v.vocabulary.join(', ')}.${ownMeasures.length ? ` Your plan also states results in these measures of its own: ${andList(ownMeasures)}. Keep those words for your product; the list above is the sector's general set, and part of it may not fit what you sell.` : ''}
+`;
+        if (buyerCtx)
+            output += `\nThe buyers your plan aims at are in ${buyerCtx.name}. ${buyerCtx.reviews} ${buyerCtx.buying}\n`;
+    }
+    else if (buyerCtx) {
+        output += `*Sector: the plan sells into ${buyerCtx.name}; no sector of your own is named in it. This is not part of the score.*
+
+${buyerCtx.reviews} ${buyerCtx.buying} A plan for this buyer should show when the review steps start, who owns each, and what the buyer risks if the purchase goes wrong: ${buyerCtx.risks}.
+`;
+    }
+    else {
+        output += `Neither your product lines nor your buyers name an industry this tool knows. Name the buyer's industry in the plan, or pass the industry input, to get a check against that sector's deciders and measures.\n`;
+    }
+    // ---- risks: a risk to the plan is told apart from a question a customer asks ----
+    const isCustomerQuestion = (t) => /\?\s*$/.test(t.trim()) || /^\s*(?:do|does|did|is|are|can|could|will|would|how|what|which|why|when|where)\b/i.test(t.trim());
+    // a piece of an abbreviation ("i.e", "e.g") left by the sentence split is not a risk
+    const items = riskItems.filter((r) => !/^\s*(?:i\.?e|e\.?g|etc|vs|approx|incl)\.?\s*$/i.test(r.line));
+    const questions = items.filter((r) => isCustomerQuestion(r.line));
+    const realRisks = items.filter((r) => !isCustomerQuestion(r.line));
+    output += `\n## Risks in your plan\n\n`;
+    if (items.length === 0)
+        output += 'No risk is named in the plan. Name the top two and how you would respond to each.\n';
+    const open = realRisks.filter((r) => !r.answered);
+    for (const r of realRisks) {
+        const text = r.line.replace(/[.]$/, '');
+        output += r.answered ? `- A risk with a response: ${q(text)}.\n` : `- A risk without a response: ${q(text)}.${r.pattern && !/^Ask what lies behind it/.test(r.pattern) ? ` A usual response: ${lc(r.pattern)}` : ''}\n`;
+    }
+    if (open.length)
+        output += `\nFor ${open.length === 1 ? 'that risk' : `each of the ${open.length} risks without a response`}, add a response, an owner and the signal that triggers it.\n`;
+    if (questions.length) {
+        output += `${realRisks.length ? '\n' : ''}${questions.length === 1 ? 'One item on your Risks line reads' : `${questions.length} items on your Risks line read`} as ${questions.length === 1 ? 'a question' : 'questions'} a customer would ask, not as ${questions.length === 1 ? 'a risk' : 'risks'} to the plan: ${andList(questions.map((r) => q(r.line.replace(/[.]$/, ''))))}. If you meant them as buyer objections, move them to your objection list and answer them there. For the plan itself, name what could stop the goal being met, with a response, an owner and a trigger for each${buyerCtx ? `; for ${buyerCtx.name} buyers the first candidate is how the buyer reviews and approves a purchase, as described above` : ''}.\n`;
+    }
+    // ---- how the score was reached: each dimension with its score, the words matched and the plan's own lines ----
+    const DIM_HEAD = { character: 'C: CHARACTER (who runs it)', result: 'R: RESULT (what success looks like)', artifact: 'A: ARTIFACT (what gets produced)', frame: 'F: FRAME (context and limits)', timeline: 'T: TIMELINE (when it happens)' };
+    output += `\n## Dimension by dimension\n\n${dims.map((x) => `### ${DIM_HEAD[x.key]}\n**Score: ${x.d.score}/10**\n\n**Words matched:**\n${x.d.found.length ? x.d.found.slice(0, 5).map((f) => `- "${escapePiece(f)}"`).join('\n') : '- None'}${x.d.evidence.length ? `\n\n**Your plan's own line${x.d.evidence.length > 1 ? 's' : ''}:**\n${x.d.evidence.map((e) => `> ${escapePiece(fullEvidence(e))}`).join('\n')}` : ''}${x.d.groupsMissing.length ? `\n\n**Not found:** ${x.d.groupsMissing.join('; ')}.` : ''}`).join('\n\n')}
+
+Timeline counts dates, quarters (such as Q1) and durations with a number (such as 30 days). Words such as by, plan, quarter, month or milestone are not dates and are not scored.${analysis.timeline.found.length === 0 && analysis.timelineWords.length ? ` Your plan has the words ${andList(analysis.timelineWords.slice(0, 3).map((w) => q(w)))}, which are not dates.` : ''}
+
+${stated.length ? `How the labelled lines of the plan count. ${countLines.join(' ')}` : 'The plan has no labelled lines such as "Goal:" or "Owner:", so it was read as running text.'}
+`;
+    const asks = [];
+    if (!args.intended_audience && !planAudience)
+        asks.push(['intended_audience: who reads and approves the plan', 'which objections and questions the review checks the plan against']);
+    if (!args.desired_outcome && !planGoal)
+        asks.push(['desired_outcome: what the plan should make happen', 'whether the review can check the plan against its purpose']);
+    if (!checkV && !buyerCtx)
+        asks.push(['the industry input, or the buyer\'s industry in the plan', 'the sector check of deciders and measures']);
+    output += `\n${closing(asks)}`;
+    return finalise(output);
+}
+//# sourceMappingURL=craft-analyzer.js.map
