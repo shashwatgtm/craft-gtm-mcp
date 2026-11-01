@@ -194,7 +194,7 @@ export function generateCompetitiveIntel(args) {
     const competitorsRaw = (() => {
         const out = [];
         let tail = false; // inside a description whose own comma list ("with fragmented teams, tools and data") is being joined back
-        const rawPieces = splitTopLevel(args.competitors, false);
+        const rawPieces = args.competitors.split(/;|\n/).flatMap(part => splitTopLevel(part, false));
         // Run 42B (addendum 9): one typed phrase is one alternative. A single line (no semicolon or new line) whose first piece is a long description in lower case
         // ("the current way of handling X is hard across product, design, engineering ...") or that reads "<word>, <word> and <word> in one place" is not a list of competitors.
         const oneLine = !/[;\n]/.test(args.competitors ?? '');
@@ -224,6 +224,7 @@ export function generateCompetitiveIntel(args) {
     const objections = args.common_objections ? splitObjections(args.common_objections) : [];
     const ctx = readContext({ model: args.business_model, vertical: args.industry, sector: args.your_sector }, { seller: [args.your_product, args.your_strengths], context: [args.competitors, args.competitor_details, args.common_objections, args.recent_wins, args.recent_losses] });
     const v = ctx.v;
+    const contextLine = args.business_model ? ctx.line : ctx.line.replace(/Business model:.*(?=\*$)/, "Business model: unknown; confirm how you charge.");
     // Strengths: the ones you gave, else your own words from your wins (Run 19, D80, problem 7: a win phrase is never turned into a claim you did not make).
     // A claim label typed at the end of the strengths ("(page claims)") stays on every strength.
     const claimLabel = args.your_strengths && isClaim(args.your_strengths) ? ' (page claims)' : '';
@@ -369,7 +370,7 @@ export function generateCompetitiveIntel(args) {
     };
     // ---- discovery mode: only a product and competitors (and perhaps notes about them) were given ----
     if (!args.your_strengths && !args.your_weaknesses && wins.length === 0 && losses.length === 0 && objections.length === 0) {
-        return discoveryDraft(args, comps, generalLeft, ctx.line, v, label, ctx.how);
+        return discoveryDraft(args, comps, generalLeft, contextLine, v, label, ctx.how);
     }
     // ---- the objection handlers ----
     const kindOf = (objection, named) => objectionKind(objection, !!named);
@@ -468,7 +469,7 @@ export function generateCompetitiveIntel(args) {
     // ---- the answer ----
     let out = `# Battle cards: ${nameText}
 
-${ctx.line}
+${contextLine}
 
 `;
     if (label.name && label.rest && label.rest.toLowerCase() !== label.name.toLowerCase())
@@ -481,7 +482,9 @@ ${comps.length === 1 && comps[0].ref === 'the current approach you described' ? 
 
 `;
     if (S.length)
-        out += `**${fromWins ? 'You win, from your recent wins in your own words:' : 'You win on:'}** ${sayList(S)}.\n\n`;
+        out += `**${fromWins ? 'Reported wins to investigate:' : 'Seller claims to test:'}** ${sayList(S)}.\n\n`;
+    const cell = (x) => x.replace(/\|/g, '/').replace(/\s+/g, ' ').trim();
+    out += `## Comparison evidence to confirm\n\n| Named alternative | Buyer criterion | Your supplied evidence | Alternative supplied evidence | Conclusion |\n| --- | --- | --- | --- | --- |\n${comps.map(c => `| ${cell(c.name)} | Unknown; agree the buyer's criterion | ${S.length ? 'Seller claim, unverified: ' + cell(sayList(S)) : 'Unknown'} | ${c.notes.length ? 'Supplied notes, unverified: ' + cell(c.notes.join('; ')) : 'Unknown'} | Not established; compare both options on the same buyer task and retain the source |`).join('\n')}\n\n`;
     if (args.your_strengths && wins.length)
         out += `**Recent wins:** ${sayList(wins)}.\n\n`;
     if (W.length)
@@ -552,7 +555,7 @@ ${comps.length === 1 && comps[0].ref === 'the current approach you described' ? 
         out += `**Questions to ask the buyer about ${c.ref}:**\n${qs.slice(0, 3).map((x, n) => `${n + 1}. ${x}`).join('\n')}\n\n`;
         if (lead.length || c.weak.length) {
             const claims = claimOnly(lead);
-            out += `**${c.desc ? 'Why not stay with the current approach?' : `Why not ${c.name}?`} What to say:**\n\n> "Comparing us with ${c.ref} is fair, and I would rather answer it than dodge it.${lead.length ? ` Against ${c.ref}, ${claims ? 'our own materials say' : 'here is what I can point to'}: ${sayList(lead.slice(0, 2))}.` : ''}${c.weak.length && !PAGE_NOTE.test(noteParts(c.weak[0]).core) ? (() => { const np = noteParts(c.weak[0]); return np.who ? ` And on ${c.ref}, in ${np.who}: ${np.core}.` : ` And on ${c.ref}, what we have seen is: ${np.core}.`; })() : ''} Which of that would you want to check first against ${c.ref}?"\n\n`;
+            out += `**${c.desc ? 'Why not stay with the current approach?' : `Why not ${c.name}?`} What to say:**\n\n> "Comparing us with ${c.ref} is fair, and I would rather answer it than dodge it.${lead.length ? ` Against ${c.ref}, ${'our unverified seller claim is'}: ${sayList(lead.slice(0, 2))}.` : ''}${c.weak.length && !PAGE_NOTE.test(noteParts(c.weak[0]).core) ? (() => { const np = noteParts(c.weak[0]); return np.who ? ` And on ${c.ref}, in ${np.who}: ${np.core}.` : ` And on ${c.ref}, the supplied, unverified note says: ${np.core}.`; })() : ''} Which of that would you want to check first against ${c.ref}?"\n\n`;
         }
     });
     out += `## Objection handlers\n\n`;
@@ -564,8 +567,8 @@ ${comps.length === 1 && comps[0].ref === 'the current approach you described' ? 
             const w = c.weak[0] ? noteParts(c.weak[0]) : null;
             if (!lead.length && !w)
                 return;
-            const weakSay = w ? (w.who ? `Against ${c.ref}, in ${w.who}: ${w.core}.` : `Against ${c.ref} we have seen ${isClause(w.core) ? 'that ' : ''}${lowerFirstIfCommon(w.core)}.`) : '';
-            out += `### If the buyer says "We already use ${c.ref}"\n\n**What to say:**\n\n> "${[pick(['Many teams start there, and it is worth comparing properly.', 'That is a common place to start from.']), weakSay, lead.length ? `What answers it is: ${sayList(lead.slice(0, 2))}.` : '', pick(['What would make you change what you use today?', 'What would you need to see to change what you use today?'])].filter(Boolean).join(' ')}"\n\n`;
+            const weakSay = w ? (w.who ? `Against ${c.ref}, in ${w.who}: ${w.core}.` : `The unverified note about ${c.ref} says: ${lowerFirstIfCommon(w.core)}.`) : '';
+            out += `### If the buyer says "We already use ${c.ref}"\n\n**What to say:**\n\n> "${[pick(['Many teams start there, and it is worth comparing properly.', 'That is a common place to start from.']), weakSay, lead.length ? `Our claim to test against your criterion is: ${sayList(lead.slice(0, 2))}.` : '', pick(['What would make you change what you use today?', 'What would you need to see to change what you use today?'])].filter(Boolean).join(' ')}"\n\n`;
         });
     }
     objections.forEach((obj) => {
@@ -599,8 +602,8 @@ ${comps.length === 1 && comps[0].ref === 'the current approach you described' ? 
         asks.push(['common objections: the ones you hear most', 'a written answer for each, in place of the sector list']);
     asks.push(...needs);
     asks.push(['the deals you met and won against each alternative', 'a win rate for each alternative']);
-    if (ctx.how === 'sector' || ctx.how === 'unknown')
-        asks.push(['how you charge, which these cards read from your sector or text', 'the wording on price, trials and contracts']);
+    if (!args.business_model)
+        asks.push(['how you charge; the charging model is unknown until you confirm it', 'the wording on price, trials and contracts']);
     out += closing(asks);
     return finalise(out);
 }
