@@ -1,3 +1,4 @@
+import { readPMFMetrics } from './pmf-metrics.js';
 import { parseMetrics, pct, scoreMetric, describeChoice, readableChoice, cap, unscoredFigures, EXAMPLE_FIGURES, SUGGESTION_FOOTER } from './utils.js';
 import { readContext, sectorNotes, answerFor, splitItems, q, andList, capEcho, lcFirst, type BusinessModel } from './context.js';
 import { MODEL_MEASURES } from './sector-playbooks.js';
@@ -12,6 +13,12 @@ export function generatePMFScorecard(args: {
   your_sector?: string;
 }): string {
   const metrics = parseMetrics(args.current_metrics);
+  const reading = readPMFMetrics(args.current_metrics);
+  if (reading.issues.length) return '# Cannot score these metrics\n\n' + reading.issues.map(x => '- ' + x).join('\n') + '\n\nConfirm the observed figures and their periods before a fit decision.';
+  for (const key of ['churn','nps','ltv','cac','retentionRate','activationRate','ltvCacRatio'] as const) delete metrics[key];
+  Object.assign(metrics, reading.values);
+  metrics.retentionIsNet = reading.retentionIsNet;
+  if (metrics.ltv !== undefined && metrics.cac !== undefined && metrics.cac > 0) metrics.ltvCacRatio = metrics.ltv / metrics.cac;
   const marketType = args.target_market || 'other';
   const maturity = args.time_in_market || '1_2_years';
   
@@ -111,6 +118,11 @@ export function generatePMFScorecard(args: {
   } else {
     pmfAnalysis = 'Early stage: more data is needed, or a pivot if the numbers you have are weak.';
   }
+  const criticalRows = [churnScore, npsScore, ltvCacScore, retentionScore, ...(activationApplies ? [activationScore] : [])].filter(s => s.label === 'CRITICAL');
+  if (criticalRows.length) {
+    pmfStage = 'Searching for PMF';
+    pmfAnalysis = 'A CRITICAL dimension blocks a fit verdict. Resolve the priority actions before treating the average as evidence to scale.';
+  }
   // Run 12 (R12-21): say how many dimensions the score rests on; with fewer than 3, the stage sentence becomes a caveat.
   // The stage name, the score and the thresholds above are unchanged.
   const basis = `Based on ${scoredDimensions.length} of ${dimensionCount} dimensions${activationApplies ? '' : ' (Activation is not applicable to this business model and is left out)'}.`;
@@ -140,6 +152,9 @@ export function generatePMFScorecard(args: {
   }
   if (retentionScore.label === 'MISSING') {
     recommendations.push(`RETENTION: not given, so it is not scored. ${contract ? 'Give the share of contract value renewed over the last twelve months' : 'Give the share of customers (or of revenue) still with you after twelve months, and say which one it is'}.`);
+  }
+  if (retentionScore.label === 'CRITICAL' || retentionScore.label === 'DEVELOPING') {
+    recommendations.push('RETENTION: Check the cohort and period, investigate lost customers or revenue, and assign an owner to the recovery plan. Confirm renewal evidence before scaling.');
   }
   const acvNote = metrics.acv !== undefined ? ` You gave an annual contract value of $${metrics.acv.toLocaleString('en-US')}: LTV is that value times your gross margin times the years a contract lasts, and CAC is your sales and marketing cost divided by the contracts won in the same period.` : '';
   if (ltvCacScore.label === 'MISSING') {
@@ -226,12 +241,14 @@ ${ctx.line}
 
 | Stage | Score | Status |
 |-------|-------|--------|
-| **${pmfStage}** | **${overallScore}/10** | ${overallScore >= 7 ? 'Yes' : overallScore >= 5 ? 'Note' : 'No'} |
+| **${pmfStage}** | **${overallScore}/10** | ${criticalRows.length ? 'No' : overallScore >= 7 ? 'Yes' : overallScore >= 5 ? 'Note' : 'No'} |
 
 ${basis}
 ${pmfAnalysis}
 The score is the average of the dimensions scored below (missing data is left out), each judged against an example benchmark.
 It is a rule score from the figures you supplied, not proof of product-market fit.
+
+**Figures read for the scores:** ${reading.evidence.join('; ')}.
 
 ---
 
@@ -296,7 +313,7 @@ ${feedbackAnalysis ? `---\n\n## Customer Feedback You Gave\n\n${feedbackAnalysis
 
 ## Priority Actions
 
-${recommendations.length > 0 ? recommendations.map((r, i) => `${i + 1}. ${r}`).join('\n\n') : 'Every dimension scores well against the example benchmarks. Check the figures against your own history and customer evidence before you scale.'}
+${recommendations.length > 0 ? recommendations.map((r, i) => `${i + 1}. ${r}`).join('\n\n') : 'No priority action was triggered by the supplied figures. Check each dimension, its period and customer evidence before deciding whether to scale.'}
 
 ---
 
@@ -309,7 +326,7 @@ ${[
   metrics.cac === undefined ? '- [ ] Customer Acquisition Cost' : null,
   metrics.retentionRate === undefined ? '- [ ] Retention/renewal rate' : null,
   activationApplies && metrics.activationRate === undefined ? '- [ ] Activation rate (the first action that shows a customer got value)' : null
-].filter(Boolean).join('\n') || 'All critical metrics provided!'}
+].filter(Boolean).join('\n') || 'All scored metrics were provided. Their source and periods still need confirmation.'}
 
 ---
 

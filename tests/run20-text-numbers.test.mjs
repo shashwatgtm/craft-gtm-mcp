@@ -117,7 +117,9 @@ test("pmf_scorecard: typed metric percentages are shown with at most one decimal
     current_metrics: "MRR: $50K, Churn: 0.8%, NPS: 45, CAC: $500, LTV: $3000, Retention: 92.34%, Activation: 61.456%, Trial conversion: 12.34%, Revenue growth: 7.777%, DAU: 333, MAU: 1000",
   });
   assert.equal(r.isError, false);
-  assertCleanPercents(r.text, "pmf");
+  // Wave 4 requires the exact evidence quote; display rounding applies to calculated tables.
+  assertCleanPercents(r.text.replace(/^\*\*Figures read for the scores:\*\*.*$/m, ""), "pmf");
+  assert.match(r.text, /Figures read for the scores:[^\n]*92\.34%/);
   assert.match(r.text, /92\.3%/);
   assert.match(r.text, /61\.5%/);
   assert.match(r.text, /12\.3%/);
