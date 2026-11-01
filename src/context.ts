@@ -1,3 +1,4 @@
+import { clearanceAdvice } from './text-signals.js';
 import { sellerSectorLabel } from './text-signals.js';
 import { hasSignal, signal } from './text-signals.js';
 // Run 19 (owner decision D80): shared helpers that read the sector and the business model from what the user typed, and
@@ -274,6 +275,7 @@ export function sectorNotes(v: Vertical | null, what: 'committee' | 'metrics' | 
 
 /** The answer pattern for one objection or blocker typed by the user: the sector's pattern when it matches, else a pattern by kind. */
 export function answerFor(text: string, v: Vertical | null): string {
+  const clearance = clearanceAdvice(text); if (clearance) return clearance;
   const t = text.toLowerCase();
   if (!['price','security','adoption','incumbent'].some(k => signal(text,k).state === 'affirmed') && ['price','security','adoption','incumbent'].some(k => ['negated','unclear'].includes(signal(text,k).state))) return 'No objection is confirmed by this wording. The fact was not clear; confirm whether a concern remains before defending the product.';
   if (v) {
