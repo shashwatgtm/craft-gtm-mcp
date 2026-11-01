@@ -57,7 +57,7 @@ test("a stated charge in the seller's words decides the model; the product's con
 
 test("an explicit business_model still wins over the sector default", async () => {
   const out = await call("competitive_intel", { ...argsFor("competitive_intel", "fintech"), business_model: "services" });
-  assert.match(out, /Business model: services[^\n]*\(from business_model\)/);
+  assert.match(out, /Business model: services[^\n]*\(from your answer\)/);
 });
 
 test("competitive_intel: one sentence is one card, a page claim is said once, the user's own advantage is not the alternative's", async () => {

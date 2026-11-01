@@ -63,5 +63,5 @@ test("craft_gtm_analyzer: interior double spaces and interior newlines are kept 
 test("craft_gtm_analyzer: a document that is only whitespace is still refused as missing", async () => {
   const r = await analyze(" \n\t ");
   assert.equal(r.isError, true);
-  assert.match(r.text, /Missing required input for craft_gtm_analyzer: document_content/);
+  assert.match(r.text, /Missing required input for CRAFT GTM Analyzer: document content/);
 });

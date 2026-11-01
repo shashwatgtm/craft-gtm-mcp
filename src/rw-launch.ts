@@ -59,8 +59,8 @@ function wordingModel(ctx: Context, given: boolean): BusinessModel | null {
 
 /** The line that says how the sector and the model were read; when the wording model differs from the one read, the line says which one the plan follows. */
 function readLine(ctx: Context, model: BusinessModel | null, neutralConnectivity = false): string {
-  if (neutralConnectivity && ctx.how === 'sector' && model === 'connectivity') return `*Sector: ${ctx.sector}. Business model: not given, so the plan uses wording that fits any company in the sector (set business_model to change it).*`;
-  return model !== ctx.model && model ? `*Sector: ${ctx.sector}. Business model: ${MODEL_NAME[model]} (the usual model in this sector, assumed; set business_model to change it).*` : ctx.line;
+  if (neutralConnectivity && ctx.how === 'sector' && model === 'connectivity') return `*Sector: ${ctx.sector}. Business model: not given, so the plan uses wording that fits any company in the sector (confirm how you charge).*`;
+  return model !== ctx.model && model ? `*Sector: ${ctx.sector}. Business model: ${MODEL_NAME[model]} (the usual model in this sector, assumed; confirm how you charge).*` : ctx.line;
 }
 
 /** The kinds of company in the sector that have lines of their own in the given fields, when the sector was read without a kind. */
@@ -768,14 +768,14 @@ export function writeLaunchPlan(args: {
   else if (!when.exact) missing.push(['an exact launch date (YYYY-MM-DD)', `the schedule, which now counts in weeks before launch because only ${when.label} was given`]);
   if (!args.industry && !ctx.v) missing.push(['the industry, in the industry input', 'the buyer roles, proof, objections and channels, which now come from your segments only']);
   else if (!args.industry && ctx.v) missing.push(['the industry, in the industry input, to confirm the sector read from your text', 'the buyer roles, proof, objections and channels if the read is wrong']);
-  if (!args.business_model) missing.push(['the business model, in the business_model input', `the launch tasks and words, which now ${model ? `follow ${MODEL_WORDS[model]} as read from your text` : 'use neutral B2B wording, because no business model could be read from your text'}`]);
+  if (!args.business_model) missing.push(['the business model, in the how you charge input', `the launch tasks and words, which now ${model ? `follow ${MODEL_WORDS[model]} as read from your text` : 'use neutral B2B wording, because no business model could be read from your text'}`]);
   if (!buyer) missing.push(['who the buyer is, for example "with the CIO as the buyer" in the goals', `the committee briefing and the tone of the messages${ctx.v ? `, which now address ${andList(ctx.v.buyerRoles.slice(0, 3))}` : ''}`]);
-  if (!channelsGiven.length) missing.push(['the channels you can use, in the available_channels input', 'which tasks stay in the plan and where the messages go']);
-  if (!args.team_size) missing.push(['the team size, in the team_size input; the plan assumes small (2 to 5)', 'who owns each task']);
-  if (!args.budget_level) missing.push(['the budget level, in the budget_level input; the plan assumes moderate', 'the tactics in Channels and budget']);
+  if (!channelsGiven.length) missing.push(['the channels you can use, in the available channels input', 'which tasks stay in the plan and where the messages go']);
+  if (!args.team_size) missing.push(['the team size, in the team size input; the plan assumes small (2 to 5)', 'who owns each task']);
+  if (!args.budget_level) missing.push(['the budget level, in the budget level input; the plan assumes moderate', 'the tactics in Channels and budget']);
   // a product described in some detail is not asked for again; a bare name or a short phrase is
   const kinds = kindsWithLines(ctx, ['pains', 'cta', 'launchTasks', 'channels', 'adoption', 'checklist']);
-  if (kinds.length && prod.desc.split(/\s+/).filter(Boolean).length < 8) missing.push([`what ${prod.name ?? 'the solution'} sells, in the product_feature input`, 'the pilot, integration and adoption tasks, which now fit any company in the sector']);
+  if (kinds.length && prod.desc.split(/\s+/).filter(Boolean).length < 8) missing.push([`what ${prod.name ?? 'the solution'} sells, in the product feature input`, 'the pilot, integration and adoption tasks, which now fit any company in the sector']);
   if (needs.deals) missing.push(['your win rate from buying conversation to signed deal', 'the number of conversations to book, which is now the number of deals as a minimum']);
   const kindsOfGoals = new Set(goals.map(kindOf));
   if (!kindsOfGoals.has('Adoption') && !kindsOfGoals.has('Revenue')) missing.push(['a target for pipeline or adoption in the goals', 'the Follow-up phase, which has no adoption target to track']);
@@ -1226,11 +1226,11 @@ export function writeRetentionPlaybook(args: {
 
   // ---- what was not given ----
   const missing: Array<[string, string]> = [];
-  if (!reasons.length) missing.push(['the churn reasons (why customers leave), in the churn_reasons input', 'this kit, which would become a playbook with a signal, a step, an owner and a draft message for each reason']);
-  if (!dataSignals.length) missing.push(['the data signals you can track, in the available_data_signals input', 'the health score table, where every signal is now marked "to add"']);
-  if (!current.length) missing.push(['what you already do to keep customers, in the current_interventions input', 'the comparison with each reason, which shows what is covered and what is not']);
+  if (!reasons.length) missing.push(['the churn reasons (why customers leave), in the churn reasons input', 'this kit, which would become a playbook with a signal, a step, an owner and a draft message for each reason']);
+  if (!dataSignals.length) missing.push(['the data signals you can track, in the available data signals input', 'the health score table, where every signal is now marked "to add"']);
+  if (!current.length) missing.push(['what you already do to keep customers, in the current interventions input', 'the comparison with each reason, which shows what is covered and what is not']);
   if (!product) missing.push(['the product or company name, in the product input', 'the title and the drafts, which now say "our service"']);
-  if (!args.cs_team_size) missing.push(['the customer success team size, in the cs_team_size input; the plan assumes small (1 to 3)', 'the split between personal, one-to-many and automated contact']);
+  if (!args.cs_team_size) missing.push(['the customer success team size, in the cs team size input; the plan assumes small (1 to 3)', 'the split between personal, one-to-many and automated contact']);
   if (churn.n === null) missing.push(['the churn rate as a number with its period, such as 5% a month', 'the severity, the annual figure and the sizing of the plan']);
   else if (churn.period === 'unstated') missing.push(['whether the churn rate is monthly, quarterly or yearly', `the annual figure, which now reads ${typedRate} as monthly`]);
   if (!args.industry && !ctx.v) missing.push(['the industry, in the industry input', 'the sector measures, objections and renewal habits, which are now left out']);
@@ -1312,7 +1312,7 @@ export function writeRetentionPlaybook(args: {
     list.forEach((r, i) => { k.push(`### ${i + 1}. ${r}`); k.push(''); k.push(`**Signal:** ${stripEnd(signalOf(r))}.`); k.push(`**First step if true:** ${stripEnd(stepOf(r))}.`); k.push(''); });
     k.push('## After the first answers');
     k.push('');
-    k.push('Come back with the three to five reasons you hear most, in the churn_reasons input (one per line or separated by semicolons), and this becomes a playbook with a signal, an owner, a timing and a draft message for each one.');
+    k.push('Come back with the three to five reasons you hear most, in the churn reasons input (one per line or separated by semicolons), and this becomes a playbook with a signal, an owner, a timing and a draft message for each one.');
     k.push('');
     return k;
   }
@@ -1744,11 +1744,11 @@ ${audiences([[enterprise ? 'Technology or service owners at customers' : 'Custom
   out.push('Be fast with the first facts and honest about what you do not yet know. Acknowledge the impact before you explain it. Be specific, because vague statements erode trust. Use one spokesperson and one set of facts.');
 
   const missing: Array<[string, string]> = [];
-  if (!typed.length) missing.push(['the crises you have seen or fear, in the potential_crises input', 'the playbooks, which are now a default set for the sector']);
-  if (!compItems.length) missing.push(['the compliance items that apply to you, in the compliance_requirements input', 'the notification steps, which now say "each requirement you have"']);
+  if (!typed.length) missing.push(['the crises you have seen or fear, in the potential crises input', 'the playbooks, which are now a default set for the sector']);
+  if (!compItems.length) missing.push(['the compliance items that apply to you, in the compliance requirements input', 'the notification steps, which now say "each requirement you have"']);
   if (!prod.desc) missing.push(['what the company sells, in the company input, as the name followed by a short description', `which crises and which words are used, and who is on the team`]);
-  if (!args.company_size) missing.push(['the company size, in the company_size input; the plan assumes scale-up (50 to 200)', 'the response team']);
-  if (!args.business_model) missing.push(['the business model, in the business_model input', 'the severity levels and the words used for credits and service levels']);
+  if (!args.company_size) missing.push(['the company size, in the company size input; the plan assumes scale-up (50 to 200)', 'the response team']);
+  if (!args.business_model) missing.push(['the business model, in the how you charge input', 'the severity levels and the words used for credits and service levels']);
   out.push(sharpenBlock(missing));
   return dropRepeatedLines(out.join('\n')).replace(/\n{3,}/g, '\n\n').trimEnd() + '\n';
 }

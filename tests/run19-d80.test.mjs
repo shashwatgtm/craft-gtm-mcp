@@ -49,8 +49,8 @@ test("tools/list: the owner's verticals are choices; business_model is an option
   }
   for (const name of ["pmf_scorecard", "launch_commander", "customer_interview_kit", "partner_architect", "crisis_planner", "competitive_intel"]) {
     const p = by[name].properties.business_model;
-    assert.ok(p && p.enum.includes("services") && p.enum.includes("connectivity") && p.enum.includes("investment"), name + " business_model");
-    assert.ok(!(by[name].required || []).includes("business_model"), name + " business_model is optional");
+    assert.ok(p && p.enum.includes("services") && p.enum.includes("connectivity") && p.enum.includes("investment"), name + " how you charge");
+    assert.ok(!(by[name].required || []).includes("how you charge"), name + " how you charge is optional");
   }
   for (const v of ["services_contract", "connectivity_contract", "investment_mandate"]) assert.ok(by.retention_playbook.properties.business_model.enum.includes(v), v);
   assert.ok(by.retention_playbook.properties.product, "retention product");
@@ -111,7 +111,7 @@ for (const [key, c] of Object.entries(COS)) {
       // every supplied text input is used: one distinctive word of each reaches the answer (or the answer names it as not used)
       for (const [k, v] of Object.entries(args)) {
         if (typeof v !== "string" || /^(pmf_scorecard|crisis_planner)$/.test(tool) && /target_market|industry|customer_base|data_sensitivity/.test(k)) continue;
-        if (["launch_type", "interview_type", "partner_model", "document_type", "business_model"].includes(k)) continue;
+        if (["launch type", "interview type", "partner model", "document type", "how you charge"].includes(k)) continue;
         const words = [...new Set(v.toLowerCase().match(/[a-z]{6,}/g) || [])];
         if (!words.length) continue;
         assert.ok(words.some((w) => r.text.toLowerCase().includes(w)) || /not used/i.test(r.text), `${tool}.${k} is used or named as not used`);

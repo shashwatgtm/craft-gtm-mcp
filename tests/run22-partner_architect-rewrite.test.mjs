@@ -67,7 +67,7 @@ test("missing inputs are named once, at the end, each with what it would change;
   assertClean(out, "partial");
   const end = closingOf(out);
   assert.ok(end && out.trim().endsWith(end.trim()), "closing is last");
-  for (const k of ["partner_support_capacity", "existing_partners"]) assert.match(end, new RegExp(k));
+  for (const k of ["partner_support_capacity", "existing_partners"]) assert.match(end, new RegExp(k.replace(/_/g, " ")));
   assert.match(end, /numeric target|target/i);
   for (const line of end.split("\n").filter((l) => l.startsWith("- "))) assert.match(line, /\(it would change [^)]+\)/, line);
   assert.doesNotMatch(out.slice(0, out.indexOf("To sharpen this")), /assumed, not supplied|\(Example figure: replace with your own\)/);

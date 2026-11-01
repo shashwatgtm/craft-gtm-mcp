@@ -508,16 +508,16 @@ ${comps.length === 1 && comps[0].ref === 'the current approach you described' ? 
 
   // ---- what was not given ----
   const asks: Array<[string, string]> = [];
-  if (!S.length) asks.push(['your_strengths or recent_wins', 'what each card leads with']);
-  if (S.length && !testable.length) asks.push(['your_strengths that a buyer can test, such as a speed, a result or a feature, because the claims you gave cannot be tested', 'what each card leads with']);
-  if (!W.length) asks.push(['your_weaknesses or recent_losses', 'the lines on where each alternative may be ahead']);
+  if (!S.length) asks.push(['your strengths or recent wins', 'what each card leads with']);
+  if (S.length && !testable.length) asks.push(['your strengths that a buyer can test, such as a speed, a result or a feature, because the claims you gave cannot be tested', 'what each card leads with']);
+  if (!W.length) asks.push(['your weaknesses or recent losses', 'the lines on where each alternative may be ahead']);
   const bare = comps.filter((c) => !c.notes.length);
-  if (!args.competitor_details) asks.push(['competitor_details: a price, a segment or a known weak point for each alternative', 'the weak points, the questions and the "why not" line on each card']);
-  else if (bare.length && !generalLeft.length) asks.push([`competitor_details about ${listAnd(bare.map((c) => c.ref))}`, `the weak points and the questions on ${bare.length === 1 ? 'that card' : 'those cards'}`]);
-  if (!objections.length) asks.push(['common_objections: the ones you hear most', 'a written answer for each, in place of the sector list']);
+  if (!args.competitor_details) asks.push(['competitor details: a price, a segment or a known weak point for each alternative', 'the weak points, the questions and the "why not" line on each card']);
+  else if (bare.length && !generalLeft.length) asks.push([`competitor details about ${listAnd(bare.map((c) => c.ref))}`, `the weak points and the questions on ${bare.length === 1 ? 'that card' : 'those cards'}`]);
+  if (!objections.length) asks.push(['common objections: the ones you hear most', 'a written answer for each, in place of the sector list']);
   asks.push(...needs);
   asks.push(['the deals you met and won against each alternative', 'a win rate for each alternative']);
-  if (ctx.how === 'sector' || ctx.how === 'unknown') asks.push(['business_model, which these cards read from your sector or text', 'the wording on price, trials and contracts']);
+  if (ctx.how === 'sector' || ctx.how === 'unknown') asks.push(['how you charge, which these cards read from your sector or text', 'the wording on price, trials and contracts']);
   out += closing(asks);
   return finalise(out);
 }
@@ -561,10 +561,10 @@ ${comps.map((c) => (c.desc
 
 `;
   if (v) out += `## Objections ${v.name} buyers often raise\n\n${v.objections.slice(0, 4).map((o) => `- **${o.objection}:** ${o.response}`).join('\n')}\n\n## A proof point that lands\n\n${sentence(v.proofShape)}\n\n`;
-  const asks: Array<[string, string]> = [['your_strengths, your_weaknesses and common_objections, or recent_wins and recent_losses', 'this draft into one battle card for each alternative, with a written answer to each objection']];
-  if (!args.competitor_details) asks.push(['competitor_details: what you know of each alternative', 'the weak points and questions on each card']);
+  const asks: Array<[string, string]> = [['your strengths, your weaknesses and common objections, or recent wins and recent losses', 'this draft into one battle card for each alternative, with a written answer to each objection']];
+  if (!args.competitor_details) asks.push(['competitor details: what you know of each alternative', 'the weak points and questions on each card']);
   asks.push(['the deals you met and won against each alternative', 'a win rate for each alternative']);
-  if (how === 'sector' || how === 'unknown') asks.push(['business_model, which this draft reads from your sector or text', 'the wording on price, trials and contracts']);
+  if (how === 'sector' || how === 'unknown') asks.push(['how you charge, which this draft reads from your sector or text', 'the wording on price, trials and contracts']);
   out += closing(asks);
   return finalise(out);
 }

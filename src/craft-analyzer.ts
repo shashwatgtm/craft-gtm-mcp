@@ -358,8 +358,8 @@ ${stated.length ? `How the labelled lines of the plan count. ${countLines.join('
 `;
 
   const asks: Array<[string, string]> = [];
-  if (!args.intended_audience && !planAudience) asks.push(['intended_audience: who reads and approves the plan', 'which objections and questions the review checks the plan against']);
-  if (!args.desired_outcome && !planGoal) asks.push(['desired_outcome: what the plan should make happen', 'whether the review can check the plan against its purpose']);
+  if (!args.intended_audience && !planAudience) asks.push(['intended audience: who reads and approves the plan', 'which objections and questions the review checks the plan against']);
+  if (!args.desired_outcome && !planGoal) asks.push(['desired outcome: what the plan should make happen', 'whether the review can check the plan against its purpose']);
   if (!checkV && !buyerCtx) asks.push(['the industry input, or the buyer\'s industry in the plan', 'the sector check of deciders and measures']);
   output += `\n${closing(asks)}`;
   return finalise(output);
