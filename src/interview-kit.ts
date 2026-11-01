@@ -1,3 +1,4 @@
+import { readSignal } from './text-signals.js';
 import { escapePiece } from './escape-inputs.js';
 import { describeChoice, readableChoice, EXAMPLE_FIGURES, SUGGESTION_FOOTER } from './utils.js';
 import { readContext, splitItems, q, andList, shortName, capEcho } from './context.js';
@@ -417,7 +418,26 @@ ${(() => { let inObjections = false; return hypotheses.map((raw, i) => {
     : focus ? focus.questions : [];
   const roleList = focus ? fresh(roleQs) : [];
 
+  const incident = /\boutages?\b/i.test(args.key_hypotheses || '') && readSignal(args.key_hypotheses || '', /\boutages?\b/i).state !== 'negated' ? 'outage' : 'incident or task';
+  const hypothesisFocus = args.key_hypotheses?.trim() || 'No hypothesis supplied; first agree what decision this interview should inform';
   return `# Customer Interview Kit
+
+## Five questions to test the supplied hypothesis
+Hypothesis to test, not a fact: ${q(hypothesisFocus)}.
+1. Walk me through the last ${incident}, if any, from the first signal until it ended. What happened, and what record could we look at?
+2. At each handoff, who sent what to whom, and what happened next?
+3. How did people decide who owned the next action? Describe what you observed, including where ownership was clear.
+4. How did you handle a similar situation before this process or product? What was different, if anything?
+5. Tell me about a case that does not fit this hypothesis. What happened differently, and what would make you reject the hypothesis?
+
+| Evidence record | Exact quote | Source and date | What it changes |
+| --- | --- | --- | --- |
+| Supports the hypothesis | Not collected | Unknown | Keep the observation separate from the interpretation |
+| Contradicts the hypothesis | Not collected | Unknown | Revise or reject the hypothesis when warranted |
+| Unresolved | Not collected | Unknown | Name the next observation needed |
+
+## Optional full interview guide
+Select follow ups only after the five neutral questions. Do not treat the hypothesis as established.
 ## ${typeName.toUpperCase()} Interview
 
 **Target Persona:** ${P || 'not named (name the role to get questions for it)'}
