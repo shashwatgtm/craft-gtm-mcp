@@ -1,0 +1,127 @@
+{
+  "launch_commander": {
+    "normal": {
+      "product_feature": "Approval owner dashboard",
+      "launch_date": "2026-12-01",
+      "launch_type": "feature_launch",
+      "target_segments": "Existing operations users",
+      "goals": "Have users complete an approval handoff",
+      "available_channels": "Product notification, existing customer email",
+      "team_size": "small_2_5",
+      "budget_level": "bootstrap",
+      "business_model": "saas"
+    },
+    "weak": {
+      "product_feature": "Not supplied",
+      "launch_type": "major_release",
+      "target_segments": "Not supplied",
+      "goals": "Not supplied"
+    }
+  },
+  "partner_architect": {
+    "normal": {
+      "company": "Our team",
+      "product": "Operations workflow software",
+      "partner_model": "referral",
+      "partner_goals": "Introduce teams with approval handoff problems",
+      "your_deal_size": "12000 annual",
+      "partner_support_capacity": "moderate",
+      "existing_partners": "No existing partner evidence supplied",
+      "business_model": "saas"
+    },
+    "weak": {
+      "company": "Not supplied",
+      "product": "Not supplied",
+      "partner_model": "reseller",
+      "partner_goals": "Not supplied",
+      "your_deal_size": "Not supplied"
+    }
+  },
+  "craft_gtm_analyzer": {
+    "normal": {
+      "document_content": "Character: Operations team leads. Result: reduce missed handoffs using an owner dashboard. Artifact: a rollout plan with named owners and evidence. Frame: use existing customer interviews and the current budget. Timeline: review the plan each week through December. Owner: product lead. Success: customer-confirmed handoff completion.",
+      "document_type": "launch_plan",
+      "intended_audience": "Operations and product leads",
+      "desired_outcome": "A reviewable rollout plan"
+    },
+    "weak": {
+      "document_content": "Not supplied",
+      "document_type": "gtm_strategy"
+    }
+  },
+  "gtm_motion_diagnostic": {
+    "normal": {
+      "stage": "series_a",
+      "industry": "other",
+      "acv_usd": 42000,
+      "cycle_days": 120,
+      "nrr_percent": 108,
+      "addressable_accounts": 400,
+      "self_serve": false,
+      "deal_sources": [
+        {
+          "source": "outbound",
+          "percent": 70
+        },
+        {
+          "source": "referrals",
+          "percent": 30
+        }
+      ],
+      "geography": "us",
+      "challenge_type": "acquisition",
+      "enterprise_focus": true,
+      "current_motions": [
+        "I"
+      ]
+    },
+    "weak": {
+      "stage": "seed",
+      "industry": "other"
+    }
+  },
+  "event_portfolio_plan": {
+    "normal": {
+      "as_of": "2026-10-31",
+      "accepted_stage": "Sales accepted leads",
+      "currency": "USD",
+      "period": "next quarter",
+      "target": 40,
+      "event_share": 25,
+      "types": [
+        {
+          "name": "Roundtable plan",
+          "format": "roundtable",
+          "events": 1,
+          "contacts_per_event": 12,
+          "relevant_share": 100,
+          "first_stage_rate": 50,
+          "accepted_rate": 50,
+          "cost_per_event": 15000,
+          "date": "2026-11-20",
+          "weekday": "Friday",
+          "timezone": "UTC"
+        }
+      ],
+      "backward": {
+        "accepted": 10,
+        "first_stage_rate": 50,
+        "accepted_rate": 50,
+        "relevant_share": 100,
+        "contacts_per_event": 12
+      }
+    },
+    "weak": {
+      "as_of": "2026-10-31",
+      "accepted_stage": "User-defined accepted stage",
+      "currency": "USD",
+      "period": "user-defined period",
+      "types": [
+        {
+          "name": "Own event",
+          "format": "own_event"
+        }
+      ]
+    }
+  }
+}

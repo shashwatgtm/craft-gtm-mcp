@@ -21,7 +21,7 @@ const call = async (name, args) => {
 // ---------------------------------------------------------------------------------------------------------------------
 // Part 1: tool text in plain sentence case
 // Real acronyms stay in capitals. Anything else of three or more capital letters is an ALL-CAPS word and fails.
-const ACRONYMS = new Set(["MRR", "ARR", "ACV", "NPS", "CAC", "LTV", "DAU", "MAU", "GTM", "SLA", "QBR", "TBD", "ISO", "SOC", "GDPR", "CRAFT", "PMF", "ICP", "PII", "CRM", "KPI", "ROI", "YYYY"]);
+const ACRONYMS = new Set(["MRR", "ARR", "ACV", "NPS", "CAC", "LTV", "DAU", "MAU", "GTM", "SLA", "QBR", "TBD", "ISO", "SOC", "GDPR", "CRAFT", "PMF", "ICP", "PII", "CRM", "KPI", "ROI", "USD", "YYYY"]);
 const textsOf = (tools) => {
   const out = [];
   for (const t of tools) {
