@@ -534,7 +534,12 @@ export function writeLaunchPlan(args) {
     // the segments are comma separated, as the input says: a semicolon stays inside a segment
     const segs = splitTopLevel(args.target_segments, false).map(upper1);
     const segList = listOf(segs);
-    const goals = splitPhrases(args.goals).length ? splitPhrases(args.goals) : [args.goals.trim()];
+    const goalText = args.goals.split('\n').filter(l => !/^(?:Confirmed capacity|Delivery capacity):/i.test(l.trim())).join('\n');
+    const goals = splitPhrases(goalText).length ? splitPhrases(goalText) : [goalText.trim()];
+    const capacityClause = args.goals.split(/[;\n]/).find(l => /^(?:Confirmed capacity|Delivery capacity):\s*\d+\s*tasks?\s*(?:per day|\/day)\s*$/i.test(l.trim()));
+    const taskCapacity = capacityClause ? Number(capacityClause.match(/:\s*(\d+)/)?.[1]) : 0;
+    const assessed = new Date(new Date().toISOString().slice(0, 10) + 'T00:00:00Z');
+    let remainingIndex = 0;
     const ctx = readContext({ model: args.business_model, vertical: args.industry, sector: args.your_sector }, { seller: [args.product_feature], context: [args.goals], buyer: [args.target_segments] });
     const pb = ctx.v ? playbookFor(ctx.v) : null;
     const buyer = (args.goals.match(/\bwith\s+(?:the\s+)?([A-Za-z][A-Za-z .&/-]{1,50}?)(?:\s*\([^)]*\))?\s+as\s+(?:the\s+)?(?:buyer|sponsor|champion|decision[- ]maker)\b/i) || [])[1]?.trim() ?? null;
@@ -588,6 +593,12 @@ export function writeLaunchPlan(args) {
     };
     const keepTask = (task) => {
         const t = task.toLowerCase();
+        if (channelsGiven.length) {
+            const allowed = channelsGiven.join(' ').toLowerCase();
+            const families = [/\b(?:email|newsletter)\b/, /\b(?:social|linkedin|twitter|facebook|instagram)\b/, /\b(?:webinar|event|roundtable)\b/, /\b(?:pr|press|journalist)\b/, /\b(?:paid|ads|retargeting)\b/, /\b(?:blog|article|content syndication)\b/, /\b(?:partner|co-marketing)\b/, /\b(?:notification|in-app)\b/];
+            if (families.some(re => re.test(t) && !re.test(allowed)))
+                return false;
+        }
         if (filterWords.some((ch) => t.includes(ch)))
             return true;
         if (['position', 'messaging', 'strategy', 'feedback', 'metric', 'monitor', 'plan', 'brief'].some((w) => t.includes(w)))
@@ -806,10 +817,13 @@ export function writeLaunchPlan(args) {
         moderate: ['targeted paid ads', 'a small event or webinar', 'retargeting', 'content syndication'],
         well_funded: ['multi-channel paid campaigns', 'large events', 'a PR agency', 'account-based programmes'],
     };
-    const tacticList = (tactics[budgetLevel] || tactics.moderate);
+    const tacticList = channelsGiven.length ? channelsGiven.map(ch => `prepare and verify the message for ${ch}`) : (tactics[budgetLevel] || tactics.moderate);
     out.push(`${channelsGiven.length ? `You can use ${andList(channelsGiven)}.` : `The channels are the usual ones for ${ctx.v ? `${ctx.v.name} buyers` : 'this kind of buyer'}: ${andList(shownChannels)}.`} At a ${readableChoice(budgetLevel)} budget the plan spends on ${andList(tacticList)}.`);
     out.push('');
     // ---- timeline ----
+    out.push('## Confirm remaining delivery capacity');
+    out.push(`Assessment date: ${assessed.toISOString().slice(0, 10)}. Launch date stays ${when.label || 'unconfirmed'} unless you explicitly change it.`);
+    out.push(taskCapacity > 0 ? `Confirmed delivery capacity: ${taskCapacity} tasks per day. The remaining dates below are conditional on confirming which tasks are still open; confirm estimates and dependencies before committing.` : 'Delivery capacity is unknown. First confirm which elapsed tasks are complete, then name each owner and their available tasks per day. The original dates below are a reference, not a feasible remaining schedule.');
     out.push('## Timeline');
     out.push('');
     out.push(dated ? '*Task dates are suggestions spread across each phase: move them to fit your launch day.*' : '*Tasks are placed in weeks before and after launch; with a launch date they would carry calendar dates.*');
@@ -820,14 +834,19 @@ export function writeLaunchPlan(args) {
         const current = dated && new Date() >= start && new Date() <= end;
         const base = phase.tasks.map(adaptTask).filter(keepTask).map((title) => ({ title, detail: (DETAIL[title.toLowerCase()] ?? (() => GENERIC_DETAIL(phase.focus)))(c), owner: ownerKind(title) }));
         const extra = sectorTasks.filter((t) => Math.min(t.phase, phases.length - 1) === pi).map((t) => ({ title: t.task, detail: t.detail, owner: t.owner }));
-        const rows = [...base, ...extra];
+        const rows = [...base, ...extra].filter(row => keepTask(row.title + ' ' + row.detail));
         out.push(`### ${phase.name}${current ? ' (current phase)' : ''}`);
         out.push(`**${dated ? `${formatDate(start)} to ${formatDate(end)}` : phase.weekRange}** | Focus: ${phase.focus.toLowerCase()}`);
         out.push('');
         rows.forEach((row, i) => {
             const offset = phase.startOffset + Math.floor((i / rows.length) * (phase.endOffset - phase.startOffset));
-            const due = dated ? formatDate(addDays(reference, offset)) : weeksLabel(offset);
-            out.push(`- **${stripEnd(row.title)}** (${ownerOf(row.owner)}, ${dated ? 'due ' : ''}${due})${row.detail ? `: ${stripEnd(row.detail)}.` : '.'}`);
+            const dueDate = addDays(reference, offset);
+            const due = dated ? formatDate(dueDate) : weeksLabel(offset);
+            const elapsed = dated && dueDate < assessed;
+            const proposed = taskCapacity > 0 ? addDays(assessed, Math.floor(remainingIndex++ / taskCapacity)) : null;
+            const capacityStatus = proposed ? ` If still open, proposed remaining date: ${formatDate(proposed)}.${dated && offset <= 0 && proposed > reference ? ' Capacity conflict: this falls after the fixed launch date; reduce scope or confirm more capacity.' : ''}` : '';
+            const status = elapsed ? ' Overdue if unfinished; completion unknown. Confirm whether complete and retain evidence.' : ' Completion unknown; confirm owner and capacity.';
+            out.push(`- **${stripEnd(row.title)}** (${ownerOf(row.owner)}, ${dated ? 'due ' : ''}${due})${row.detail ? `: ${stripEnd(row.detail)}.` : '.'}${status}${capacityStatus}`);
         });
         out.push('');
     }
