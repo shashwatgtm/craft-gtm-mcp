@@ -1,3 +1,4 @@
+import { sellerSectorLabel } from './text-signals.js';
 import { escapePiece } from './escape-inputs.js';
 import { analyzeCRAFTDimensions, isMarketLine, isAudienceTarget, planSegments } from './utils.js';
 import { subIndustryFor } from './sub-industry.js';
@@ -22,7 +23,7 @@ export function generateCRAFTAnalyzer(args) {
     // a plan with no such lines is read whole, as deal text. Its Goal line is not read: it often lists the segments, which are the buyer's sector, not yours.
     const byLabel = (re) => labelled.filter((x) => re.test(x.label)).map((x) => x.text);
     const sellerLines = byLabel(/^(?:message|messaging|positioning|how we differ|differentiat\w+|what we sell|offer|product)$/i);
-    const readInput = sellerLines.length || planAudience
+    const readInput = sellerSectorLabel(content).id ? { seller: [content] } : sellerLines.length || planAudience
         ? { seller: [content.split('\n')[0], ...sellerLines], context: byLabel(/^buyer(?:s| roles?)?$|^personas?$/i), role: byLabel(/^buyer(?:s| roles?)?$|^personas?$/i), buyer: [args.intended_audience, planAudience?.text] }
         : { context: [content, args.desired_outcome], buyer: [args.intended_audience] };
     const sectorCtx = readContext({ vertical: args.industry, sector: args.your_sector }, readInput);
@@ -411,9 +412,9 @@ ${stated.length ? `How the labelled lines of the plan count. ${countLines.join('
 `;
     const asks = [];
     if (!args.intended_audience && !planAudience)
-        asks.push(['intended_audience: who reads and approves the plan', 'which objections and questions the review checks the plan against']);
+        asks.push(['intended audience: who reads and approves the plan', 'which objections and questions the review checks the plan against']);
     if (!args.desired_outcome && !planGoal)
-        asks.push(['desired_outcome: what the plan should make happen', 'whether the review can check the plan against its purpose']);
+        asks.push(['desired outcome: what the plan should make happen', 'whether the review can check the plan against its purpose']);
     if (!checkV && !buyerCtx)
         asks.push(['the industry input, or the buyer\'s industry in the plan', 'the sector check of deciders and measures']);
     output += `\n${closing(asks)}`;

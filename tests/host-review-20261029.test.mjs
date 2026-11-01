@@ -46,9 +46,9 @@ test("pmf_scorecard: with churn and retention missing, Priority Actions asks for
   assert.doesNotMatch(t, /focus on scaling/i);
 });
 
-test("pmf_scorecard: with every dimension strong, the closing action asks for a check before scaling", async () => {
+test("pmf_scorecard: F1 healthy control: no critical row and no unsupported blanket verdict", async () => {
   const t = await pmf("Synthetic figures only: monthly churn 2%; NPS 65; CAC $500; LTV $3000; retention 95%; activation 75%");
-  assert.match(t, /Every dimension scores well against the example benchmarks\. Check the figures against your own history and customer evidence before you scale\./);
+  assert.match(t, /No priority action was triggered by the supplied figures\. Check each dimension, its period and customer evidence before deciding whether to scale\./);
   assert.doesNotMatch(t, /focus on scaling/i);
 });
 

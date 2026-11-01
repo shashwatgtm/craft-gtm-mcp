@@ -87,12 +87,14 @@ export function generateCustomerInterviewKit(args: {
     if (notClaim) hypotheses[hypotheses.length - 1] += `; ${piece}`; else hypotheses.push(piece);
   }
   // Readable names for display ("enterprise_software" -> "enterprise software")
+  // Run 42C: a persona typed as a placeholder ("(not given)", "n/a", "unknown") is no persona: no line repeats it back as if it were a role
+  const P = /^\W*(?:not given|not specified|not stated|not named|not known|n\/a|none|unknown|tbd|to be decided)\W*$/i.test((args.target_persona ?? '').trim()) ? '' : (args.target_persona ?? '');
   const typeName = readableChoice(interviewType);
   const complexityName = readableChoice(complexity);
 
   // Run 19 (D80, problems 4 and 8): the sector is the one chosen, else read from what you typed; the questions come from the
   // sector data file (src/verticals.ts). With no sector the generic questions below are used and the answer says so.
-  const ctx = readContext({ model: args.business_model, vertical: args.industry, sector: args.your_sector }, { seller: [args.product_context], context: [args.key_hypotheses], role: [args.target_persona] });
+  const ctx = readContext({ model: args.business_model, vertical: args.industry, sector: args.your_sector }, { seller: [args.product_context], context: [args.key_hypotheses], role: [P] });
   const v = ctx.v;
   const industryName = args.industry ? readableChoice(args.industry) : v ? `${v.name} (read from your inputs)` : 'not stated (generic questions are used: set industry or name the sector)';
   const product = shortName(args.product_context) ?? 'the product';
@@ -100,7 +102,7 @@ export function generateCustomerInterviewKit(args: {
   const lang = MODEL_LANGUAGE[ctx.model ?? 'saas'];
   const leave = lang.leave;
   const pb = v ? playbookFor(v) : null;
-  const focus = roleFocus(args.target_persona, !!v && /billing/i.test(v.name));
+  const focus = roleFocus(P, !!v && /billing/i.test(v.name));
 
   // Generic context for the choices that are not one of the owner's verticals (ecommerce, marketplace, enterprise software, consumer, other)
   const genericContext: Record<string, { terms: string[]; painPoints: string[]; stakeholders: string[] }> = {
@@ -131,7 +133,7 @@ export function generateCustomerInterviewKit(args: {
     }
   };
   const generic = genericContext[args.industry && genericContext[args.industry] ? args.industry : 'other'];
-  const personaLower = args.target_persona.trim().toLowerCase();
+  const personaLower = P.trim().toLowerCase();
   // Investment decision makers (a portfolio manager, a chief investment officer) are not customer-experience buyers even when the
   // seller is read as AI native: their measures, peers and questions come from the role, not from the support-automation sector notes.
   const investing = ctx.model === 'investment' || focus?.label === 'investment decision maker';
@@ -180,7 +182,7 @@ export function generateCustomerInterviewKit(args: {
   const questionSets: Record<string, { opening: string[]; core: string[]; probing: string[]; closing: string[] }> = {
     discovery: {
       opening: [
-        `Tell me about your role (${args.target_persona}). What does a typical week look like?`,
+        `Tell me about your role${P ? ` (${P})` : ''}. What does a typical week look like?`,
         `What are your top 3 priorities this quarter?`,
         `What part of this work takes the most effort today, if any?`
       ],
@@ -309,7 +311,7 @@ export function generateCustomerInterviewKit(args: {
     },
     persona_research: {
       opening: [
-        `I'm trying to deeply understand the ${args.target_persona} role. Tell me about your day-to-day.`,
+        `I'm trying to deeply understand ${P ? `the ${P} role` : 'your role'}. Tell me about your day-to-day.`,
         `How did you end up in this role?`,
         `What does success look like in your position?`
       ],
@@ -322,7 +324,7 @@ export function generateCustomerInterviewKit(args: {
       ],
       probing: [
         `Walk me through a recent project you're proud of.`,
-        `What skills separate great ${escapePiece(/s$/i.test(args.target_persona.trim()) ? args.target_persona.trim() : `${args.target_persona}s`)} from good ones?`,
+        `What skills separate great ${P ? escapePiece(/s$/i.test(P.trim()) ? P.trim() : `${P}s`) : 'people in your role'} from good ones?`,
         `What do you wish you had known when you started?`,
         `What trends are you watching in your field?`,
         `What frustrates you most about your role?`
@@ -418,7 +420,7 @@ ${(() => { let inObjections = false; return hypotheses.map((raw, i) => {
   return `# Customer Interview Kit
 ## ${typeName.toUpperCase()} Interview
 
-**Target Persona:** ${args.target_persona}
+**Target Persona:** ${P || 'not named (name the role to get questions for it)'}
 **Product Context:** ${args.product_context}
 **Industry:** ${industryName}
 **Complexity Level:** ${describeChoice(args.product_complexity, complexity)}
@@ -440,7 +442,7 @@ ${ctx.line}${kindsNote(v, product, 'product_context')}
 
 ## Interview Objectives
 
-1. Understand the current reality and challenges of: ${args.target_persona}
+1. Understand the current reality and challenges of: ${P || 'the person you interview'}
 2. ${interviewType === 'discovery' ? 'Identify unmet needs and pain points' :
      interviewType === 'validation' ? 'Test solution assumptions and get honest reaction' :
      interviewType === 'feedback' ? 'Gather improvement ideas and satisfaction signals' :
@@ -475,7 +477,7 @@ ${techList.map((q, i) => `${i + 1}. ${q}`).join('\n')}
 ### Industry-Specific Questions (${investing ? `${v ? `${v.name}, ` : ''}investment decision makers` : v ? v.name : industryName})
 
 ${sectorList.map((x, i) => `${i + 1}. ${x}`).join('\n')}
-${focus && roleList.length ? `\n### Questions for ${/^[aeiou]/i.test(focus.label) ? 'an' : 'a'} ${focus.label} (${args.target_persona})\n\n${roleList.map((x, i) => `${i + 1}. ${x}`).join('\n')}\n` : ''}
+${focus && roleList.length ? `\n### Questions for ${/^[aeiou]/i.test(focus.label) ? 'an' : 'a'} ${focus.label} (${P})\n\n${roleList.map((x, i) => `${i + 1}. ${x}`).join('\n')}\n` : ''}
 ${v && !investing ? `\n*Who usually decides in this sector: ${v.committee}*\n\n*Words this buyer uses: ${v.vocabulary.join(', ')}. Use them where they are true for the person you interview.*\n` : ''}
 ---
 
@@ -502,7 +504,7 @@ ${hypothesisSection}
 ## Note-Taking Template
 
 \`\`\`
-INTERVIEW: ${typeName.toUpperCase()} | ${args.target_persona}
+INTERVIEW: ${typeName.toUpperCase()} | ${P || 'role not named'}
 DATE: _______________
 DURATION: _______________
 

@@ -62,7 +62,7 @@ test("competitive_intel: with one strength, the cards do not repeat it; a card w
   assert.equal(r.text.split(/\n(?=## Against )/).length - 1, 3, "three cards");
   assert.ok((cards.match(/used by 500,000 companies/gi) || []).length <= 1, "the popularity claim is not repeated on every card");
   assert.doesNotMatch(cards, /test for "used by/i);
-  assert.match(r.text, /your_strengths that a buyer can test/);
+  assert.match(r.text, /your strengths that a buyer can test/);
 });
 test("competitive_intel: a note that names no alternative is labelled so, not attached to one card as its own", async () => {
   const r = await call("competitive_intel", { your_product: "Branchwire SD-WAN", competitors: "legacy WAN built on hardware, traditional VPNs", your_strengths: "managed SD-WAN with 24x7 support", competitor_details: "a single congested highway prone to jams" });

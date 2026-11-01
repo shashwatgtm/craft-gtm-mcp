@@ -1,3 +1,6 @@
+import { clearanceAdvice } from './text-signals.js';
+import { sellerSectorLabel } from './text-signals.js';
+import { hasSignal, signal } from './text-signals.js';
 // Run 19 (owner decision D80): shared helpers that read the sector and the business model from what the user typed, and
 // that keep typed text out of broken sentences. The sector knowledge itself is in src/verticals.ts (rule B82).
 // splitItems, q, readContext, sectorNotes and answerFor follow the helpers of Revenue Enablement (the lead's version).
@@ -103,6 +106,8 @@ function billingPlatform(input, r) {
 function readSector(input) {
     // Run 21b: when the product category noun named a sub-type (customer service software, a messaging platform, construction management software ...) no local layer below overrides it.
     const first = explainSector(input);
+    if ((input.seller || []).some(x => typeof x === 'string' && sellerSectorLabel(x).id))
+        return first;
     if (first.vertical && first.vertical.subtype && first.vertical.id !== 'ai-native' && (first.source === 'seller' || first.source === 'context'))
         return first; // AI words stay with the local AI rules below
     const r = billingPlatform(input, headTrade(input, first));
@@ -171,6 +176,8 @@ function overlayBilling(v, sellerTexts, contextTexts) {
 // broad trades that job titles such as "developers" read as: they are no conflict with a trade the seller names
 const GENERIC_TRADE = new Set(['software', 'saas']);
 function thinSellerRead(input, r) {
+    if (sellerSectorLabel((input.seller || []).filter(x => typeof x === 'string').join(' . ')).id)
+        return r;
     if (r.source !== 'seller' || !r.vertical || (r.vertical.subtype && r.strong.length >= 2))
         return r;
     const neutral = { vertical: null, source: null, strong: [], weak: [] };
@@ -221,13 +228,6 @@ export function readContext(opts, rawInput) {
     const sellerTexts = (input.seller ?? []).filter((x) => typeof x === 'string' && x.trim().length > 0);
     const whole = sellerTexts.length ? explainSector({ role: [sellerTexts.join(' \n ')] }) : null;
     const wholeTrade = whole && whole.vertical && whole.strong.length >= 2 && whole.vertical.id !== 'saas' && whole.vertical.id !== 'software' ? whole.vertical : null;
-    // A broad choice (saas, software) does not hide a trade the seller's own words name (a CNAPP tool is cybersecurity, not "saas").
-    if (!given && chosen && (chosen.id === 'saas' || chosen.id === 'software')) {
-        if (read.vertical && read.source === 'seller' && read.vertical.id !== chosen.id && read.vertical.id !== 'saas' && read.vertical.id !== 'software')
-            chosen = null;
-        else if (wholeTrade && whole.strong.length >= 3)
-            chosen = null;
-    }
     const fromBuyerOnly = !chosen && read.source === 'buyer' && !wholeTrade;
     const v0 = chosen ?? (fromBuyerOnly ? null : (read.source === 'buyer' ? wholeTrade : read.vertical));
     const v = chosen || given ? v0 : supplementSector(v0, sellerTexts);
@@ -314,8 +314,8 @@ export function readContext(opts, rawInput) {
     const vAdj = vSeats;
     const sector = vAdj ? `${chosen ? `${vAdj.name} (from your choice)` : `read from your inputs as ${vAdj.name}`}` : `not clear from your inputs${buyerSide || ' (name the industry for sector notes)'}`;
     const mtxt = model
-        ? `${MODEL_LABEL[model]} (${how === 'input' ? 'from business_model' : how === 'hint' ? 'from your market choice; set business_model to change it' : how === 'sector' ? 'the usual model in this sector, assumed; set business_model to change it' : 'read from your inputs; set business_model to change it'})`
-        : 'not clear from your inputs; set business_model (saas, services, connectivity, transactions, marketplace, hardware_software or investment) for advice that fits it';
+        ? `${MODEL_LABEL[model]} (${how === 'input' ? 'from your answer' : how === 'hint' ? 'from your market choice; confirm how you charge' : how === 'sector' ? 'the usual model in this sector, assumed; confirm how you charge' : 'read from your inputs; confirm how you charge'})`
+        : 'not clear from your inputs; describe how you charge for advice that fits it';
     return { v: vAdj, model, how, sector, line: `*Sector: ${sector}. Business model: ${mtxt}.*`, buyerV };
 }
 /** Sector notes: the buying committee, what the sector measures and its usual objections (no figures, rule B82). */
@@ -335,29 +335,34 @@ export function sectorNotes(v, what = 'all') {
 }
 /** The answer pattern for one objection or blocker typed by the user: the sector's pattern when it matches, else a pattern by kind. */
 export function answerFor(text, v) {
+    const clearance = clearanceAdvice(text);
+    if (clearance)
+        return clearance;
     const t = text.toLowerCase();
+    if (!['price', 'security', 'adoption', 'incumbent'].some(k => signal(text, k).state === 'affirmed') && ['price', 'security', 'adoption', 'incumbent'].some(k => ['negated', 'unclear'].includes(signal(text, k).state)))
+        return 'No objection is confirmed by this wording. The fact was not clear; confirm whether a concern remains before defending the product.';
     if (v) {
         for (const o of v.objections) {
             const keys = o.objection.toLowerCase().split(/\W+/).filter((w) => w.length > 2 && !['our', 'the', 'and', 'are', 'not', 'too', 'for', 'already', 'have', 'has', 'does', 'this', 'will', 'than', 'with', 'from', 'your', 'ourselves', 'we', 'can', 'use', 'new', 'own'].includes(w));
-            if (keys.filter((k) => t.includes(k)).length >= Math.min(2, keys.length))
+            if (keys.filter((k) => hasSignal(t, new RegExp('\\b' + k + '\\w*', 'i'))).length >= Math.min(2, keys.length))
                 return o.response;
         }
     }
-    if (/\b(price|prices|cost|costs|budget|expensive|cheaper|cheap|discount|margins?)\b/.test(t))
+    if (hasSignal(t, /\b(price|prices|cost|costs|budget|expensive|cheaper|cheap|discount|margins?)\b/, 'price'))
         return 'Agree the cost of the problem in the buyer\'s own numbers first, then compare the price with it; trade any concession for something of equal value.';
-    if (/\b(already (?:have|has|does|use|uses|own)|existing|incumbent|current (?:vendor|tool|system|provider|operator)|in-house|built)\b/.test(t))
+    if (hasSignal(t, /\b(already (?:have|has|does|use|uses|own)|existing|incumbent|current (?:vendor|tool|system|provider|operator)|in-house|built)\b/, 'incumbent'))
         return 'Ask what the current setup does not do today and what that costs; position alongside it where you can, and replace only where the buyer sees the gap.';
-    if (/\b(adopt|adoption|use a new|use another|will not use|won't use|resist|change|training)\b/.test(t))
+    if (hasSignal(t, /\b(adopt|adoption|use a new|use another|will not use|won't use|resist|change|training)\b/, 'adoption'))
         return 'Agree a small pilot with the people who will use it, and decide up front how adoption is measured.';
-    if (/\b(integrat\w*|migrat\w*|cut-?over|disrupt\w*|setup|set-up|implementation|rollout|roll out|install\w*)\b/.test(t))
+    if (hasSignal(t, /\b(integrat\w*|migrat\w*|cut-?over|disrupt\w*|setup|set-up|implementation|rollout|roll out|install\w*)\b/, 'migration'))
         return 'Name the systems and people involved, and offer a staged plan with a rollback point for each stage.';
-    if (/\b(security|privacy|compliance|audit|regulat\w*|legal|risk)\b/.test(t))
+    if (hasSignal(t, /\b(security|privacy|compliance|audit|regulat\w*|legal|risk)\b/, 'security'))
         return 'Bring the security and compliance answers before they are asked, and map each requirement to the control that meets it.';
-    if (/\b(bundle|bundled|bundles|bundling|one vendor|single vendor|suite|consolidat\w*)\b/.test(t))
+    if (hasSignal(t, /\b(bundle|bundled|bundles|bundling|one vendor|single vendor|suite|consolidat\w*)\b/, 'bundle'))
         return 'Compare the outcome the buyer needs from each option, not the size of the bundle; show what the bundled tool leaves to manual work.';
-    if (/\b(timing|not now|next year|later|priority)\b/.test(t))
+    if (hasSignal(t, /\b(timing|not now|next year|later|priority)\b/, 'timing'))
         return 'Find the event that makes this urgent (a renewal, an audit, a season, a target) and plan back from it.';
-    if (/\b(black box|explain\w*|trust|wrong|accuracy|track record)\b/.test(t))
+    if (hasSignal(t, /\b(black box|explain\w*|trust|wrong|accuracy|track record)\b/))
         return 'Offer evidence the buyer can check: an evaluation on their own data, and references they can call.';
     return 'Ask what lies behind it and what would change their mind, then answer with evidence from a similar customer only if you have it.';
 }

@@ -1,8 +1,21 @@
+import { explainSector } from './verticals.js';
+import { pmfBenchmarkNotice, frictionReading, readSignal } from './text-signals.js';
+import { readPMFMetrics } from './pmf-metrics.js';
 import { parseMetrics, pct, scoreMetric, describeChoice, readableChoice, cap, unscoredFigures, EXAMPLE_FIGURES, SUGGESTION_FOOTER } from './utils.js';
 import { readContext, sectorNotes, answerFor, splitItems, q, andList, capEcho, lcFirst } from './context.js';
 import { MODEL_MEASURES } from './sector-playbooks.js';
 export function generatePMFScorecard(args) {
+    const benchmarkNotice = pmfBenchmarkNotice(args, text => { const r = explainSector({ seller: [text] }); return { id: r.vertical?.id, name: r.vertical?.name, source: r.source }; });
     const metrics = parseMetrics(args.current_metrics);
+    const reading = readPMFMetrics(args.current_metrics);
+    if (reading.issues.length)
+        return benchmarkNotice + '# Cannot score these metrics\n\n' + reading.issues.map(x => '- ' + x).join('\n') + '\n\nConfirm the observed figures and their periods before a fit decision.';
+    for (const key of ['churn', 'nps', 'ltv', 'cac', 'retentionRate', 'activationRate', 'ltvCacRatio'])
+        delete metrics[key];
+    Object.assign(metrics, reading.values);
+    metrics.retentionIsNet = reading.retentionIsNet;
+    if (metrics.ltv !== undefined && metrics.cac !== undefined && metrics.cac > 0)
+        metrics.ltvCacRatio = metrics.ltv / metrics.cac;
     const marketType = args.target_market || 'other';
     const maturity = args.time_in_market || '1_2_years';
     // Define benchmarks by market type
@@ -99,6 +112,11 @@ export function generatePMFScorecard(args) {
     else {
         pmfAnalysis = 'Early stage: more data is needed, or a pivot if the numbers you have are weak.';
     }
+    const criticalRows = [churnScore, npsScore, ltvCacScore, retentionScore, ...(activationApplies ? [activationScore] : [])].filter(s => s.label === 'CRITICAL');
+    if (criticalRows.length) {
+        pmfStage = 'Searching for PMF';
+        pmfAnalysis = 'A CRITICAL dimension blocks a fit verdict. Resolve the priority actions before treating the average as evidence to scale.';
+    }
     // Run 12 (R12-21): say how many dimensions the score rests on; with fewer than 3, the stage sentence becomes a caveat.
     // The stage name, the score and the thresholds above are unchanged.
     const basis = `Based on ${scoredDimensions.length} of ${dimensionCount} dimensions${activationApplies ? '' : ' (Activation is not applicable to this business model and is left out)'}.`;
@@ -131,6 +149,9 @@ export function generatePMFScorecard(args) {
     if (retentionScore.label === 'MISSING') {
         recommendations.push(`RETENTION: not given, so it is not scored. ${contract ? 'Give the share of contract value renewed over the last twelve months' : 'Give the share of customers (or of revenue) still with you after twelve months, and say which one it is'}.`);
     }
+    if (retentionScore.label === 'CRITICAL' || retentionScore.label === 'DEVELOPING') {
+        recommendations.push('RETENTION: Check the cohort and period, investigate lost customers or revenue, and assign an owner to the recovery plan. Confirm renewal evidence before scaling.');
+    }
     const acvNote = metrics.acv !== undefined ? ` You gave an annual contract value of $${metrics.acv.toLocaleString('en-US')}: LTV is that value times your gross margin times the years a contract lasts, and CAC is your sales and marketing cost divided by the contracts won in the same period.` : '';
     if (ltvCacScore.label === 'MISSING') {
         recommendations.push(`LTV:CAC: not scored, because ${metrics.ltv === undefined && metrics.cac === undefined ? 'neither LTV nor CAC was given' : metrics.ltv === undefined ? 'LTV was not given' : 'CAC was not given'}.${acvNote || ' Work out both from your own sales and renewal records.'}`);
@@ -153,7 +174,6 @@ export function generatePMFScorecard(args) {
     // Run 19 (D80, problem 3): every feedback theme you give is quoted and answered; none is only scanned for keywords.
     const feedbackItems = splitItems(args.customer_feedback);
     const POSITIVE = /\b(love|loves|loved|like|likes|liked|great|essential|happy|praise|trust|reliable|fast)\b/i;
-    const NEGATIVE = /\b(but|however|wish|struggle|struggles|struggled|late|slow|confus\w*|difficult|complex|missing|lack|lacks|problem|problems|issue|issues|frustrat\w*|longer|not synced|will not|won't|cannot|can't|hard)\b/i;
     // A customer result or an award (a figure with a saving, a rise, a volume, or a recognition) is a proof claim, not a theme to answer.
     const RESULT = /(?:\d[\d,.]*\s*(?:%|x\b|billion|million|[kmb]\b)|\$\s*\d|\b(?:cuts?|cut|saved?|savings?|reduc\w+|increas\w+|faster|fewer|deployed|powered|named|recogni[sz]ed|award\w*|leader|contender|innovator|thanks?)\b)/i;
     // What kind of proof an item is, so the next step fits it (a story is turned into a case study, a listing is cited, a count is checked).
@@ -173,8 +193,9 @@ export function generatePMFScorecard(args) {
         return null;
     };
     const feedbackRows = feedbackItems.map((item) => {
-        const pos = POSITIVE.test(item);
-        const neg = NEGATIVE.test(item);
+        const fr = frictionReading(item);
+        const pos = readSignal(item, POSITIVE).state === 'affirmed';
+        const neg = fr.state === 'affirmed';
         const pk = neg ? null : kindOfProof(item);
         const proof = pk === 'result';
         const quote = !pk && !neg && /\bquote\b|\bsays?\b|\bthanks?\b|\btold us\b/i.test(item);
@@ -192,16 +213,20 @@ export function generatePMFScorecard(args) {
                             ? 'Use it as a reference quote: confirm the person agrees to be quoted, and keep their role and the date with it.'
                             : proof
                                 ? `Use it as proof: keep the wording, name the source and date, and check that it is yours to quote.${proofLine}`
-                                : signal === 'Positive'
-                                    ? `Turn it into proof: ask for a number or a reference.${proofLine}`
-                                    : answerFor(item, ctx.v);
+                                : fr.state === 'negated'
+                                    ? 'No current friction is stated in this feedback. Keep the wording and confirm whether any separate difficulty remains.'
+                                    : fr.state === 'unclear'
+                                        ? 'The feedback does not establish a current difficulty. Ask which part is difficult now before proposing a remedy.'
+                                        : signal === 'Positive'
+                                            ? `Turn it into proof: ask for a number or a reference.${proofLine}`
+                                            : answerFor(item, ctx.v);
         return `| ${q(item)} | ${signal} | ${next} |`;
     });
     const feedbackAnalysis = feedbackRows.length
         ? `| Feedback (as you wrote it) | Signal | Next step |\n|---|---|---|\n${feedbackRows.join('\n')}`
         : '';
-    const frictionItems = feedbackItems.filter((it) => NEGATIVE.test(it) && !POSITIVE.test(it));
-    const proofItems = feedbackItems.filter((it) => !NEGATIVE.test(it) && kindOfProof(it) !== null);
+    const frictionItems = feedbackItems.filter((it) => frictionReading(it).state === 'affirmed' && readSignal(it, POSITIVE).state !== 'affirmed');
+    const proofItems = feedbackItems.filter((it) => frictionReading(it).state !== 'affirmed' && kindOfProof(it) !== null);
     if (frictionItems.length)
         recommendations.push(`FEEDBACK: fix the friction you named first: ${q(capEcho(frictionItems[0], 140).short)}`);
     if (proofItems.length)
@@ -210,7 +235,7 @@ export function generatePMFScorecard(args) {
     const productHead = capEcho(args.product, 120);
     // Every benchmark below is an example figure: the column header carries the block label.
     const dimensionHeader = `| Metric | Your Value | Score | Benchmark (${EXAMPLE_FIGURES.replace(/\.$/, '')}) | Status |`;
-    return `# Product-Market Fit Scorecard
+    return benchmarkNotice + `# Product-Market Fit Scorecard
 ## ${productHead.short}
 
 ${productHead.capped ? `**Product (as you wrote it):** ${args.product.trim()}\n\n` : ''}**Market Segment:** ${cap(readableChoice(marketType))}
@@ -225,12 +250,14 @@ ${ctx.line}
 
 | Stage | Score | Status |
 |-------|-------|--------|
-| **${pmfStage}** | **${overallScore}/10** | ${overallScore >= 7 ? 'Yes' : overallScore >= 5 ? 'Note' : 'No'} |
+| **${pmfStage}** | **${overallScore}/10** | ${criticalRows.length ? 'No' : overallScore >= 7 ? 'Yes' : overallScore >= 5 ? 'Note' : 'No'} |
 
 ${basis}
 ${pmfAnalysis}
 The score is the average of the dimensions scored below (missing data is left out), each judged against an example benchmark.
 It is a rule score from the figures you supplied, not proof of product-market fit.
+
+**Figures read for the scores:** ${reading.evidence.join('; ')}.
 
 ---
 
@@ -295,7 +322,7 @@ ${feedbackAnalysis ? `---\n\n## Customer Feedback You Gave\n\n${feedbackAnalysis
 
 ## Priority Actions
 
-${recommendations.length > 0 ? recommendations.map((r, i) => `${i + 1}. ${r}`).join('\n\n') : 'Every dimension scores well against the example benchmarks. Check the figures against your own history and customer evidence before you scale.'}
+${recommendations.length > 0 ? recommendations.map((r, i) => `${i + 1}. ${r}`).join('\n\n') : 'No priority action was triggered by the supplied figures. Check each dimension, its period and customer evidence before deciding whether to scale.'}
 
 ---
 
@@ -308,7 +335,7 @@ ${[
         metrics.cac === undefined ? '- [ ] Customer Acquisition Cost' : null,
         metrics.retentionRate === undefined ? '- [ ] Retention/renewal rate' : null,
         activationApplies && metrics.activationRate === undefined ? '- [ ] Activation rate (the first action that shows a customer got value)' : null
-    ].filter(Boolean).join('\n') || 'All critical metrics provided!'}
+    ].filter(Boolean).join('\n') || 'All scored metrics were provided. Their source and periods still need confirmation.'}
 
 ---
 

@@ -18,7 +18,7 @@ const yourSectorProp = {
 // Run 19 (D80, problem 8): the sector can be named, so the answer uses that sector's buyers, measures and objections.
 const industryProp = {
   type: "string",
-  description: "Optional: the sector you sell into, so the answer uses that sector's buyers, measures and objections. Leave it out and the tool reads the sector from your other inputs and names what it read",
+  description: "Optional: your own company's sector, so the answer uses the usual buyers, measures and objections for what you sell. Leave it out and the tool reads the sector from your other inputs and names what it read",
   enum: [...Object.keys(SECTOR_CHOICES), "other"]
 };
 
@@ -32,7 +32,7 @@ export const tools: Tool[] = [
         product: { type: "string", description: "Product name and brief description" },
         target_market: {
           type: "string",
-          description: "Target market segment (for example enterprise SaaS, telecom or logistics tech)",
+          description: "Benchmark segment for scoring (for example enterprise SaaS, telecom or logistics tech). Ask the user to confirm it when it differs from the product description. The selected benchmark and its stated fallback ranges are used; the output explains conflicts. The separate sector choice controls sector notes.",
           enum: ["enterprise_saas", "smb_saas", "consumer", "marketplace", "fintech", "logistics_tech", "vertical_saas", "ai_native", "ites", "telecom", "software", "cybersecurity", "other"]
         },
         current_metrics: {

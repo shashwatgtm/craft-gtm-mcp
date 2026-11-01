@@ -1,3 +1,4 @@
+import { sizeReading, hasSignal, readSignal, SIGNALS, launchGoalReading, securityIncident, statedGoalCount, launchFollowup } from './text-signals.js';
 // Run 22 (writer cg-w2): the rewritten launch_commander, retention_playbook and crisis_planner.
 // Each tool writes a finished draft from the user's own inputs: every input is used where it matters, in clean sentences, nothing is invented
 // (no figure, customer, date or promise that was not given), and what was not given is named once at the end ("To sharpen this, give: ...").
@@ -58,8 +59,8 @@ function wordingModel(ctx: Context, given: boolean): BusinessModel | null {
 
 /** The line that says how the sector and the model were read; when the wording model differs from the one read, the line says which one the plan follows. */
 function readLine(ctx: Context, model: BusinessModel | null, neutralConnectivity = false): string {
-  if (neutralConnectivity && ctx.how === 'sector' && model === 'connectivity') return `*Sector: ${ctx.sector}. Business model: not given, so the plan uses wording that fits any company in the sector (set business_model to change it).*`;
-  return model !== ctx.model && model ? `*Sector: ${ctx.sector}. Business model: ${MODEL_NAME[model]} (the usual model in this sector, assumed; set business_model to change it).*` : ctx.line;
+  if (neutralConnectivity && ctx.how === 'sector' && model === 'connectivity') return `*Sector: ${ctx.sector}. Business model: not given, so the plan uses wording that fits any company in the sector (confirm how you charge).*`;
+  return model !== ctx.model && model ? `*Sector: ${ctx.sector}. Business model: ${MODEL_NAME[model]} (the usual model in this sector, assumed; confirm how you charge).*` : ctx.line;
 }
 
 /** The kinds of company in the sector that have lines of their own in the given fields, when the sector was read without a kind. */
@@ -327,7 +328,7 @@ const DETAIL: Record<string, (c: LaunchCtx) => string> = {
   'feedback system': () => 'One place where feedback is collected, one owner and a weekly review',
   'review meeting schedule with the pilot accounts': () => 'Fixed review meetings with each pilot account, with a named owner on both sides',
   'communication plan': (c) => `What testers hear, when and from whom, from invitation to the end of the beta of ${c.N}`,
-  'success metrics': (c) => `The measures that decide whether the beta worked${c.goals.length ? `, taken from the goals above` : ''}`,
+  'success metrics': (c) => launchFollowup(c.goals, 'Name the measure that decides whether the beta worked'),
   'beta invitations': (c) => `Invite testers from ${c.segRef} with a short note on what ${c.N} does and what you need from them`,
   'invitations to selected accounts for a pilot': (c) => `Invite selected accounts in ${c.segRef} to a pilot, with scope, duration and the success measures stated`,
   'onboarding flow': (c) => `The steps a tester follows to start using ${c.N}, and who helps at each one`,
@@ -362,12 +363,12 @@ const DETAIL: Record<string, (c: LaunchCtx) => string> = {
   'support brief': () => 'A one-page brief for support with the questions to expect',
   'account-team and support briefing': () => 'A one-page brief for account teams and support with the questions to expect',
   // follow-up
-  'monitor metrics': (c) => `Watch ${c.adoption} and the goals above each week`,
+  'monitor metrics': (c) => launchFollowup(c.goals, `Watch ${c.adoption} each week`),
   'gather feedback': () => 'Collect what customers and sales say, in one place, with the name of who said it',
   'address issues': () => 'Fix what blocks adoption first, and tell the people who reported it',
   'amplify wins': () => 'Share results customers have agreed to share, with the source and the date',
   'iterate messaging': (c) => `Change the messages for ${c.segRef} where the replies show they miss`,
-  'adoption tracking': (c) => `Track ${c.adoption} every week for the first two weeks`,
+  'adoption tracking': (c) => launchFollowup(c.goals, `Track ${c.adoption} every week for the first two weeks`),
   'feature tips': (c) => `Short how-to messages that show customers the parts of ${c.N} they have not tried`,
   'service review at the first live customers': (c) => `A service review at the first live customers, covering ${c.adoption}`,
   'success stories': () => 'Ask the first customers for a result you can show, with its source and date, before it is used anywhere',
@@ -427,22 +428,18 @@ function fitScore(segText: string, review: string, part: string): number {
 }
 
 // ---- what a goal needs, from the user's figure only ----
-const NUMBER_WORDS: Record<string, number> = { one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10, eleven: 11, twelve: 12, fifteen: 15, twenty: 20, thirty: 30, forty: 40, fifty: 50 };
-const COUNT_UNIT = /(deals?|meetings?|pilots?|pilot sites?|sites?|customers?|clients?|demos?|workshops?|surveys?|accounts?|opportunities|sign-?ups?|calls?|trials?|partners?|references?)\b/i;
 function goalNeeds(goals: string[], segs: string[], ctxBuyer: string | null): { lines: string[]; deals: boolean } {
   const lines: string[] = []; let deals = false;
   const k = segs.length;
   for (const g of goals) {
-    const m = g.match(new RegExp(`(?:^|[^\\w$.,])(\\d[\\d,]*|${Object.keys(NUMBER_WORDS).join('|')})\\s+((?:[a-z-]+\\s+){0,3}?)${COUNT_UNIT.source}`, 'i'));
-    if (!m) continue;
-    const typed = m[1]; const n = /^\d/.test(typed) ? parseInt(typed.replace(/,/g, ''), 10) : NUMBER_WORDS[typed.toLowerCase()];
-    if (!n || n < 2) continue;
-    const phrase = `${typed} ${m[2]}${m[3]}`.replace(/\s+/g, ' ').trim();
+    const reading = statedGoalCount(g);
+    if (!reading || reading.count < 2) continue;
+    const n=reading.count, phrase=reading.phrase;
     const share = Math.ceil(n / Math.max(k, 1));
     const where = k > 1 ? `about ${share} in each of ${k} segments if you share them evenly (${n} divided by ${k}, rounded up)` : `all in ${segs[0]}`;
-    if (/^deals?$/i.test(m[3])) {
+    if (/^deals?$/i.test(reading.unit)) {
       deals = true;
-      lines.push(`${upper1(phrase)} need at least ${typed} buying conversations in all, ${where}. Your win rate decides how many more are needed: it was not given.`);
+      lines.push(`${upper1(phrase)} need at least ${/dozen/i.test(phrase) ? n : phrase.split(/\s+/)[0]} buying conversations in all, ${where}. Your win rate decides how many more are needed: it was not given.`);
     } else lines.push(`${upper1(phrase)} is ${where}.`);
   }
   void ctxBuyer;
@@ -607,13 +604,10 @@ export function writeLaunchPlan(args: {
   out.push('');
 
   // ---- goals ----
-  const kindOf = (g: string): string => /pipeline|revenue|\$|closed|\barr\b|\bmrr\b|bookings?|deal value/i.test(g) ? 'Revenue'
-    : /meeting|demo|sign-?up|trial|\bleads?\b|registr|attend|click|\bctr\b|opportunit|\bcalls?\b|inquir|enquir|workshop|survey|assessment/i.test(g) ? 'Engagement'
-    : /view|impression|visit|traffic|reach|download|follower|aware/i.test(g) ? 'Awareness'
-    : /activat|usage|active user|adopt|conversion|retention|rollout|renew|reference|go-?live|live sites?|pilot/i.test(g) ? 'Adoption' : 'Other';
+  const kindOf = (g: string): string => launchGoalReading(g).kind;
   const trackedBy: Record<string, string> = {
-    Revenue: 'CRM, from signed deals', Engagement: contractSale ? 'CRM, meetings with named contacts' : 'CRM and analytics',
-    Awareness: contractSale ? 'CRM, named accounts reached' : 'Analytics', Adoption: pb ? `${pb.adoption.source}, counting ${pb.adoption.measure}` : 'Product or service usage data', Other: 'The source you name for this goal',
+    Pipeline: 'CRM; inspect qualified opportunities, exclude closed revenue', Revenue: 'CRM; check signed deals', Engagement: 'CRM; assign meeting follow-up',
+    Awareness: 'CRM or analytics; inspect audience reach', Adoption: pb ? `${pb.adoption.source}, counting ${pb.adoption.measure}` : 'Product or service usage data', Other: 'The source you name for this goal',
   };
   out.push('## Goals and how each is measured');
   out.push('');
@@ -767,14 +761,14 @@ export function writeLaunchPlan(args: {
   else if (!when.exact) missing.push(['an exact launch date (YYYY-MM-DD)', `the schedule, which now counts in weeks before launch because only ${when.label} was given`]);
   if (!args.industry && !ctx.v) missing.push(['the industry, in the industry input', 'the buyer roles, proof, objections and channels, which now come from your segments only']);
   else if (!args.industry && ctx.v) missing.push(['the industry, in the industry input, to confirm the sector read from your text', 'the buyer roles, proof, objections and channels if the read is wrong']);
-  if (!args.business_model) missing.push(['the business model, in the business_model input', `the launch tasks and words, which now ${model ? `follow ${MODEL_WORDS[model]} as read from your text` : 'use neutral B2B wording, because no business model could be read from your text'}`]);
+  if (!args.business_model) missing.push(['the business model, in the how you charge input', `the launch tasks and words, which now ${model ? `follow ${MODEL_WORDS[model]} as read from your text` : 'use neutral B2B wording, because no business model could be read from your text'}`]);
   if (!buyer) missing.push(['who the buyer is, for example "with the CIO as the buyer" in the goals', `the committee briefing and the tone of the messages${ctx.v ? `, which now address ${andList(ctx.v.buyerRoles.slice(0, 3))}` : ''}`]);
-  if (!channelsGiven.length) missing.push(['the channels you can use, in the available_channels input', 'which tasks stay in the plan and where the messages go']);
-  if (!args.team_size) missing.push(['the team size, in the team_size input; the plan assumes small (2 to 5)', 'who owns each task']);
-  if (!args.budget_level) missing.push(['the budget level, in the budget_level input; the plan assumes moderate', 'the tactics in Channels and budget']);
+  if (!channelsGiven.length) missing.push(['the channels you can use, in the available channels input', 'which tasks stay in the plan and where the messages go']);
+  if (!args.team_size) missing.push(['the team size, in the team size input; the plan assumes small (2 to 5)', 'who owns each task']);
+  if (!args.budget_level) missing.push(['the budget level, in the budget level input; the plan assumes moderate', 'the tactics in Channels and budget']);
   // a product described in some detail is not asked for again; a bare name or a short phrase is
   const kinds = kindsWithLines(ctx, ['pains', 'cta', 'launchTasks', 'channels', 'adoption', 'checklist']);
-  if (kinds.length && prod.desc.split(/\s+/).filter(Boolean).length < 8) missing.push([`what ${prod.name ?? 'the solution'} sells, in the product_feature input`, 'the pilot, integration and adoption tasks, which now fit any company in the sector']);
+  if (kinds.length && prod.desc.split(/\s+/).filter(Boolean).length < 8) missing.push([`what ${prod.name ?? 'the solution'} sells, in the product feature input`, 'the pilot, integration and adoption tasks, which now fit any company in the sector']);
   if (needs.deals) missing.push(['your win rate from buying conversation to signed deal', 'the number of conversations to book, which is now the number of deals as a minimum']);
   const kindsOfGoals = new Set(goals.map(kindOf));
   if (!kindsOfGoals.has('Adoption') && !kindsOfGoals.has('Revenue')) missing.push(['a target for pipeline or adoption in the goals', 'the Follow-up phase, which has no adoption target to track']);
@@ -942,7 +936,7 @@ const REASON_KINDS: Array<[ReasonKind, RegExp]> = [
   ['competitor', /\b(competitors?|switch\w*|alternatives?|rivals?|incumbents?)\b/],
   ['adoption', /\b(adopt\w*|usage|engagement|unused|not using|low use|(?:do|does|did|will|would) not use|won't use|logging in|log in|logins?|stopped using)\b/],
 ];
-const kindOfReason = (text: string): ReasonKind => (REASON_KINDS.find(([, re]) => re.test(text.toLowerCase())) ?? ['other'])[0];
+const kindOfReason = (text: string): ReasonKind => (REASON_KINDS.find(([kind, re]) => hasSignal(text, re, kind === 'person' ? 'departed' : kind === 'competitor' ? 'incumbent' : kind)) ?? ['other'])[0];
 
 /** What each current intervention can help with, by what it is called. */
 const INTERVENTION_HELPS: Array<[RegExp, ReasonKind[]]> = [
@@ -956,12 +950,19 @@ const INTERVENTION_HELPS: Array<[RegExp, ReasonKind[]]> = [
 ];
 
 function parseChurn(text: string): { n: number | null; period: 'month' | 'year' | 'quarter' | 'unstated'; monthly: number; annual: number } {
-  const m = text.match(/(\d+(?:\.\d+)?)/);
-  if (!m) return { n: null, period: 'unstated', monthly: 0, annual: 0 };
+  const empty = { n: null, period: 'unstated' as const, monthly: 0, annual: 0 };
+  const m = text.match(/(-?\d+(?:\.\d+)?)/);
+  if (!m) return empty;
   const n = parseFloat(m[1]);
-  const period = /\b(?:annual(?:ly)?|yearly|per year|a year|per annum|p\.?a\.?|each year)\b|\/\s?(?:yr|year)\b/i.test(text) ? 'year'
-    : /\bquarter(?:ly)?\b|\/\s?q\b/i.test(text) ? 'quarter'
-    : /\b(?:month(?:ly)?|per month|a month|each month|\/\s?mo)\b/i.test(text) ? 'month' : 'unstated';
+  if (n < 0 || n > 100) return empty;
+  const periods = [
+    ['year', readSignal(text, /\b(?:annual(?:ly)?|yearly|per year|a year|per annum|p\.?a\.?|each year)\b|\/\s?(?:yr|year)\b/i, SIGNALS.annual_period)],
+    ['quarter', readSignal(text, /\bquarter(?:ly)?\b|\/\s?q\b/i, SIGNALS.quarterly_period)],
+    ['month', readSignal(text, /\b(?:month(?:ly)?|per month|a month|each month|\/\s?mo)\b/i, SIGNALS.monthly_period)],
+  ] as const;
+  const affirmed = periods.filter(([,r]) => r.state === 'affirmed');
+  if (affirmed.length > 1 || periods.some(([,r]) => r.state === 'unclear')) return empty;
+  const period = affirmed[0]?.[0] || 'unstated';
   // 28 Oct 2026 (owner): churn compounds. Each month's loss applies only to the customers still left, so a monthly rate m
   // loses 1 - (1 - m)^12 of today's base in a year, and an annual or quarterly rate converts to the monthly rate that compounds to it.
   const share = (r: number) => Math.min(Math.max(r, 0), 100) / 100;
@@ -1004,7 +1005,7 @@ export function writeRetentionPlaybook(args: {
   const typedRate = roundTypedPercents(args.current_churn_rate).trim();
   const pb = ctx.v ? playbookFor(ctx.v) : null;
   const notes = segmentNotes(segment);
-  const smallCustomers = /\b(smb|small|sellers?|merchants?|d2c|startups?|freelanc\w+|individuals?|consumers?|shops?|stores?|retailers?|businesses)\b/i.test(segment) && !/\b(enterprise|large|corporate|institution\w*)\b/i.test(segment);
+  const smallCustomers = sizeReading(segment, /\b(smb|small|sellers?|merchants?|d2c|startups?|freelanc\w+|individuals?|consumers?|shops?|stores?|retailers?|businesses)\b/i).state === 'affirmed' && sizeReading(segment, /\b(enterprise|large|corporate|institution\w*)\b/i).state !== 'affirmed';
   const volumeModel = choice === 'transactional' || choice === 'usage_based' || choice === 'marketplace' || choice === 'freemium';
   const enterpriseLike = !volumeModel && !smallCustomers;
   // how leaving is worded for this model: "customers who ___" (past) and "you decided to ___" (infinitive)
@@ -1029,7 +1030,7 @@ export function writeRetentionPlaybook(args: {
   const stand: string[] = [];
   stand.push(`This is written for ${headSeg ? segment : 'the segment you described'}${product && !segment.toLowerCase().includes(product.toLowerCase()) && !/customers of/i.test(segment) ? ` (customers of ${product})` : ''}, on ${aAn(modelName)} ${modelName} model, with ${readableChoice(csTeamSize)} customer success capacity${args.cs_team_size ? '' : ' (assumed)'}.`);
   if (headSeg === null) stand.push(`The segment, as you described it: ${quoted(segment)}.`);
-  if (churn.n === null) stand.push(`You gave a churn rate of ${quoted(typedRate)}, which could not be read as a number, so no severity is shown.`);
+  if (churn.n === null) stand.push(`You gave a churn rate of ${quoted(typedRate)}, which could not be read as one valid rate and period (0 to 100 percent, with no conflicting periods), so no severity is shown.`);
   else {
     stand.push(`You report churn of ${typedRate}${churn.period === 'unstated' ? ', which is read as a monthly rate' : ''}.`);
     if (churn.period === 'year') stand.push(`That is about ${pct(churn.monthly)}% a month, compounded (the monthly rate that, applied each month to the customers still left, adds up to your annual rate).`);
@@ -1218,11 +1219,11 @@ export function writeRetentionPlaybook(args: {
 
   // ---- what was not given ----
   const missing: Array<[string, string]> = [];
-  if (!reasons.length) missing.push(['the churn reasons (why customers leave), in the churn_reasons input', 'this kit, which would become a playbook with a signal, a step, an owner and a draft message for each reason']);
-  if (!dataSignals.length) missing.push(['the data signals you can track, in the available_data_signals input', 'the health score table, where every signal is now marked "to add"']);
-  if (!current.length) missing.push(['what you already do to keep customers, in the current_interventions input', 'the comparison with each reason, which shows what is covered and what is not']);
+  if (!reasons.length) missing.push(['the churn reasons (why customers leave), in the churn reasons input', 'this kit, which would become a playbook with a signal, a step, an owner and a draft message for each reason']);
+  if (!dataSignals.length) missing.push(['the data signals you can track, in the available data signals input', 'the health score table, where every signal is now marked "to add"']);
+  if (!current.length) missing.push(['what you already do to keep customers, in the current interventions input', 'the comparison with each reason, which shows what is covered and what is not']);
   if (!product) missing.push(['the product or company name, in the product input', 'the title and the drafts, which now say "our service"']);
-  if (!args.cs_team_size) missing.push(['the customer success team size, in the cs_team_size input; the plan assumes small (1 to 3)', 'the split between personal, one-to-many and automated contact']);
+  if (!args.cs_team_size) missing.push(['the customer success team size, in the cs team size input; the plan assumes small (1 to 3)', 'the split between personal, one-to-many and automated contact']);
   if (churn.n === null) missing.push(['the churn rate as a number with its period, such as 5% a month', 'the severity, the annual figure and the sizing of the plan']);
   else if (churn.period === 'unstated') missing.push(['whether the churn rate is monthly, quarterly or yearly', `the annual figure, which now reads ${typedRate} as monthly`]);
   if (!args.industry && !ctx.v) missing.push(['the industry, in the industry input', 'the sector measures, objections and renewal habits, which are now left out']);
@@ -1304,7 +1305,7 @@ export function writeRetentionPlaybook(args: {
     list.forEach((r, i) => { k.push(`### ${i + 1}. ${r}`); k.push(''); k.push(`**Signal:** ${stripEnd(signalOf(r))}.`); k.push(`**First step if true:** ${stripEnd(stepOf(r))}.`); k.push(''); });
     k.push('## After the first answers');
     k.push('');
-    k.push('Come back with the three to five reasons you hear most, in the churn_reasons input (one per line or separated by semicolons), and this becomes a playbook with a signal, an owner, a timing and a draft message for each one.');
+    k.push('Come back with the three to five reasons you hear most, in the churn reasons input (one per line or separated by semicolons), and this becomes a playbook with a signal, an owner, a timing and a draft message for each one.');
     k.push('');
     return k;
   }
@@ -1392,7 +1393,7 @@ export function writeCrisisPlan(args: {
   let crises: string[];
   if (typed.length) crises = typed;
   else {
-    crises = [...(DEFAULT_CRISES[args.industry] || DEFAULT_CRISES.other)];
+    crises = [...(DEFAULT_CRISES[(ctx.v?.id || args.industry).replace(/-/g, '_')] || DEFAULT_CRISES.other)];
     if (pb) for (const c of pb.crises.slice(0, 2)) if (!crises.includes(c.key)) crises.unshift(c.key);
     crises = crises.slice(0, 5);
     if (sensitivity === 'high_pii_financial' && !crises.includes('data_breach')) crises.unshift('data_breach');
@@ -1484,7 +1485,7 @@ ${audiences([['Client service owner', 'A call from the account owner', 'What hap
     if (ownC && genC) { crises = crises.filter((c) => c !== genC); absorbed.set(ownKey(ownC)!, a.add); alsoCovers.set(ownKey(ownC)!, [genC]); }
   }
   // a crisis that the plan answers with the breach steps (an SLA breach, a regulatory breach or a customer data exposure is answered by its own steps)
-  const isBreachKind = (c: string): boolean => { const l = c.toLowerCase(); return !/vulnerab|data[ _]exposure|customer_data|\bsla\b|sla_|service[ _]level|regulat|fraud|ai_wrong|wrong[ _]action|ai[ _]error|hallucinat/.test(l) && /breach|security|hack|exposure/.test(l); };
+  const isBreachKind = (c: string): boolean => { const l = c.toLowerCase(); return !/vulnerab|data[ _]exposure|customer_data|\bsla\b|sla_|service[ _]level|regulat|fraud|ai_wrong|wrong[ _]action|ai[ _]error|hallucinat/.test(l) && securityIncident(c).state === 'affirmed'; };
   // a data breach and a customer data exposure asked together are one playbook, so that two lists of nearly the same steps do not sit side by side
   const breachC = crises.find((c) => /breach|hack/i.test(c) && isBreachKind(c));
   const exposureC = crises.find((c) => /data[ _]exposure|customer_data/i.test(c));
@@ -1495,9 +1496,10 @@ ${audiences([['Client service owner', 'A call from the account owner', 'What hap
   const playbook = (crisis: string, wasTyped: boolean): string => {
     const lower = crisis.toLowerCase();
     const name = spaced(crisis);
+    if (securityIncident(crisis).state === 'unclear') return `### Incident needs clarification: ${name}\n\nThe security fact is not clear. Confirm what occurred and preserve the evidence before choosing an incident playbook.\n`;
     const t = stems(crisis);
     // a crisis of the sector's own (by its key, or by its words when the text names no known kind of crisis), used once
-    const knownKind = /vulnerab|data[ _]exposure|customer_data|\bsla\b|sla_|service[ _]level|regulat|fraud|ai_wrong|wrong[ _]action|ai[ _]error|hallucinat|breach|security|hack|exposure|outage|downtime|\bdown\b|(^|[^a-z])pr([^a-z]|$)|reputation|media|social|executive|departure|fired|resign|competitor|attack|market/.test(lower);
+    const knownKind = securityIncident(crisis).state === 'affirmed' || /vulnerab|data[ _]exposure|customer_data|\bsla\b|sla_|service[ _]level|regulat|fraud|ai_wrong|wrong[ _]action|ai[ _]error|hallucinat|breach|security|hack|exposure|outage|downtime|\bdown\b|(^|[^a-z])pr([^a-z]|$)|reputation|media|social|executive|departure|fired|resign|competitor|attack|market/.test(lower);
     const byKey = pb ? pb.crises.find((c) => lower.includes(c.key) || lower.includes(c.key.replace(/_/g, ' '))) : undefined;
     const byWords = pb && !knownKind && t.length > 0 ? pb.crises.find((c) => t.some((st) => stems(`${c.title} ${c.what}`).includes(st))) : undefined;
     const found = byKey ?? byWords;
@@ -1586,7 +1588,7 @@ ${audiences([['Affected customers', enterprise ? 'A call from the account owner'
 4. Name the owner: ${lead} with the data or AI lead.
 
 ${aiCorrection()}`;
-    if (/breach|security|hack|exposure/.test(lower)) {
+    if (securityIncident(crisis).state === 'affirmed') {
       if (securityDone) return `### ${heading('Security incident', name)}\n\nFollow the steps of "${securityDone}" above, and add the audiences and facts that are specific to this one.\n`;
       securityDone = name;
       return `### ${heading('Security incident', name)}${mergedExposure ? ` (also covers: ${(exposureC ?? '').replace(/_/g, ' ')})` : ''}
@@ -1668,7 +1670,7 @@ ${audiences([[enterprise ? 'Technology or service owners at customers' : 'Custom
 4. Name the interim leader and the chain of command.
 5. ${enterprise ? 'Call your largest accounts yourself.' : 'Prepare a customer FAQ.'}
 `;
-    if (/competitor|attack|market/.test(lower)) return `### ${heading('Competitive threat', name)}
+    if (readSignal(crisis,/competitor|attack|market/i).state === 'affirmed') return `### ${heading('Competitive threat', name)}
 
 | Threat | Response | When |
 |--------|----------|------|
@@ -1710,7 +1712,7 @@ ${audiences([[enterprise ? 'Technology or service owners at customers' : 'Custom
   out.push(readLine(ctx, model, true));
   out.push('');
   out.push('## The plan in brief');
-  const industryName = readableChoice(args.industry);
+  const industryName = ctx.v?.name || readableChoice(args.industry);
   const brief: string[] = [];
   brief.push(`${N === 'your company' ? 'This plan is for your company' : `This plan is for ${N}`}, ${aAn(industryName)} ${industryName} company with ${readableChoice(base)} customers, ${readableChoice(sensitivity)} data sensitivity and a ${readableChoice(companySize)} team${args.company_size ? '' : ' (assumed)'}.`);
   if (prod.desc) brief.push(`You describe the company as ${quoted(prod.desc)}.`);
@@ -1736,11 +1738,11 @@ ${audiences([[enterprise ? 'Technology or service owners at customers' : 'Custom
   out.push('Be fast with the first facts and honest about what you do not yet know. Acknowledge the impact before you explain it. Be specific, because vague statements erode trust. Use one spokesperson and one set of facts.');
 
   const missing: Array<[string, string]> = [];
-  if (!typed.length) missing.push(['the crises you have seen or fear, in the potential_crises input', 'the playbooks, which are now a default set for the sector']);
-  if (!compItems.length) missing.push(['the compliance items that apply to you, in the compliance_requirements input', 'the notification steps, which now say "each requirement you have"']);
+  if (!typed.length) missing.push(['the crises you have seen or fear, in the potential crises input', 'the playbooks, which are now a default set for the sector']);
+  if (!compItems.length) missing.push(['the compliance items that apply to you, in the compliance requirements input', 'the notification steps, which now say "each requirement you have"']);
   if (!prod.desc) missing.push(['what the company sells, in the company input, as the name followed by a short description', `which crises and which words are used, and who is on the team`]);
-  if (!args.company_size) missing.push(['the company size, in the company_size input; the plan assumes scale-up (50 to 200)', 'the response team']);
-  if (!args.business_model) missing.push(['the business model, in the business_model input', 'the severity levels and the words used for credits and service levels']);
+  if (!args.company_size) missing.push(['the company size, in the company size input; the plan assumes scale-up (50 to 200)', 'the response team']);
+  if (!args.business_model) missing.push(['the business model, in the how you charge input', 'the severity levels and the words used for credits and service levels']);
   out.push(sharpenBlock(missing));
   return dropRepeatedLines(out.join('\n')).replace(/\n{3,}/g, '\n\n').trimEnd() + '\n';
 }

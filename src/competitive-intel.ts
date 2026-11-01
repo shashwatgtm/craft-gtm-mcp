@@ -1,3 +1,5 @@
+import { frictionReading, readSignal } from './text-signals.js';
+import { objectionKind, type ObjectionKind } from './text-signals.js';
 import { escapePiece } from './escape-inputs.js';
 import { cap, lowerFirstIfCommon } from './utils.js';
 import { readContext, isOnePhrase, splitItems, splitPhrases, splitTopLevel, q, answerFor, type Vertical } from './context.js';
@@ -72,7 +74,7 @@ const isDescription = (c: string): boolean => shortOf(c).split(/\s+/).length > 4
 const AHEAD = /\b(?:strong(?:er)?|cheaper|cheap|better|faster|bundl\w*|free|larger|bigger|leader|established|incumbent|more (?:mature|complete)|wider|broader|lower (?:price|cost)|well[- ]known|trusted)\b/i;
 const WEAK = /\b(?:break\w*|brok\w*|stuck|errors?|wrong|leak\w*|late|slow\w*|manual\w*|miss\w*|fail\w*|cause[sd]?|lack\w*|no|not|only|cannot|can't|constraint|drift|delays?|expensive|costly|overpriced|siloed|static|black box|fragile|legacy|fragmented|difficult|hard|bypassed|sluggish|congested|disconnect\w*|isolated|periodic|accumulates?)\b/i;
 function sideOf(detail: string): 'weak' | 'ahead' | 'neutral' {
-  const a = AHEAD.test(detail); const w = WEAK.test(detail);
+  const a = readSignal(detail, AHEAD).state === 'affirmed'; const fr = frictionReading(detail); const w = fr.state === 'absent' ? WEAK.test(detail) : fr.state === 'affirmed';
   return w && !a ? 'weak' : a && !w ? 'ahead' : 'neutral';
 }
 
@@ -99,15 +101,19 @@ function splitObjections(text: string): string[] {
   return out;
 }
 
-type ObjKind = 'price' | 'comparison' | 'timing' | 'capability' | 'explain' | 'risk' | 'other';
+type ObjKind = ObjectionKind;
 
 // A source label at the end of a note or an alternative: "(a seller's words)", "(reviewers' words on the page)", "(page claims)".
+// Run 42C: a note about what the user's pages say is the user's reading, not a line to say to a buyer
+const PAGE_NOTE = /^(?:the |your |our )?(?:[\w-]+ ){0,2}(?:pages?|notes|site|website)\b/i;
 const SOURCE_LABEL = /\s*\(([^()]*(?:words|page|claims?|reviews?|quote)[^()]*)\)\s*\.?$/i;
 const withoutSource = (t: string): string => stripEnd(t.replace(SOURCE_LABEL, ''));
 // A description of an approach, named in running text by its leading noun phrase ("a managed streaming service" for "a managed streaming service built on
 // a vendor-specific Kafka distribution"), else by its first clause, else whole when short; "alternative N" only when nothing fits.
 function descRef(raw: string, i: number, total = 2): string {
   const t = withoutSource(raw).replace(/^(\w+(?:\s+\w+)?);\s+/, '$1, ');
+  // Run 42C: a typed status quo that is a whole sentence ("the current way of handling X: ...") is never cut at its colon or clause; one alternative is named by what it is
+  if (total === 1 && t.split(/\s+/).length >= 8 && /^(?:the |our |their )?(?:current|existing|usual|status quo|today's|present)\b/i.test(t)) return 'the current approach you described';
   const m = t.match(/^(.+?)\s+(?:that|which|who|tied|built|moved|kept|bundled|sold|offered|provided|supplied|working|requests?|requesting|relying|without|through|across|with|using|based|where|run|written|made)\b/i);
   const head = m && !/(?:ed|ing|by|of|to|and|or|the|an?)$/i.test(m[1]) ? m[1] : t;
   if (head.split(/\s+/).length >= 2 && head.length <= 60 && (head.length < t.length || t.length > 60)) return lc(head);
@@ -256,7 +262,7 @@ export function generateCompetitiveIntel(args: {
   });
   const metricFor = (i: number): string => (v ? v.metrics[i % v.metrics.length] : 'time or cost');
   const testable = S.filter((x) => !POPULARITY.test(x));
-  const sayList = (items: string[]): string => items.map((x) => lc(stripEnd(x))).join('; ');
+  const sayList = (items: string[]): string => items.map((x) => lowerFirstIfCommon(stripEnd(x))).join('; ');
   const claimOnly = (items: string[]): boolean => items.length > 0 && items.every(isClaim);
   const nameWord = label.name ? label.name.split(/\s+/)[0].toLowerCase() : '';
   const parts = productParts(label.rest.startsWith('(') ? label.whole : label.rest || label.whole).filter((x) => !nameWord || !x.toLowerCase().includes(nameWord));
@@ -322,18 +328,7 @@ export function generateCompetitiveIntel(args: {
   }
 
   // ---- the objection handlers ----
-  const kindOf = (objection: string, named: Comp | undefined): ObjKind => {
-    const o = objection.toLowerCase();
-    const asksHow = /^\s*(?:how (?:does|do|is|are)|why (?:do|does|is|are)|what (?:is|are|does|do)|what's)\b/.test(o) && !/\b(compared?|cheaper|better|than|versus|vs|competitors?|alternatives?|expensive)\b/.test(o);
-    if (asksHow && /\b(price|prices|pricing|cost|costs|charges?|rates?|fees?)\b/.test(o)) return 'explain';
-    if (/\b(price|prices|pricing|expensive|cost|costs|budget|cheaper|cheap|charges?|rates?|fees?)\b/.test(o)) return 'price';
-    if (named || /\b(differ\w*|different|versus|vs|compared? (?:to|with)|instead of|why (?:\w+ ){0,3}over|better than|competitors?|alternatives?|other (?:vendors?|options?|tools?)|rivals?)\b/.test(o)) return 'comparison';
-    if (/\b(timing|not ready|ready|later|next year|not now|right now|this quarter)\b/.test(o)) return 'timing';
-    if (/^\s*(?:how (?:does|do)|what (?:is|are|does|do)|what's)\b/.test(o) && !/\b(long|quickly|fast|take to|easy|easily|support|integrate|different)\b/.test(o)) return 'explain';
-    if (/\b(features?|can't|cannot|doesn't|does it|do you|does .* support|missing|lack|lacks|lacking|support|how long|how quickly|how fast|take to|get(?:ting)? started|how easy)\b/.test(o) || /^\s*(?:does|do|can|is|are|will)\b/.test(o)) return 'capability';
-    if (/\b(risk|risky|trust|new|proven|unproven)\b/.test(o)) return 'risk';
-    return 'other';
-  };
+  const kindOf = (objection:string,named:Comp|undefined):ObjKind => objectionKind(objection,!!named);
   const said = new Set<string>();
   let proofUsed = false;
   // the first variant of a spoken sentence that no earlier line of this answer used; none left means the line is left out (no sentence is said twice)
@@ -368,6 +363,7 @@ export function generateCompetitiveIntel(args: {
       : pick([`On ${quoted} I would rather give you an accurate answer than a guess, so I will confirm the specifics and come back to you.`, 'I would rather confirm the facts than guess, and I will come back to you.']);
     const weakLine = weakFits && weakCore ? pick([weakOwner !== named ? `In your own words on the alternatives: ${weakCore.core}.` : weakCore.who ? `Against ${weakOwner!.ref}, in ${weakCore.who}: ${weakCore.core}.` : `Against ${weakOwner!.ref} specifically, we have seen ${weakText}.`]) : '';
     const ACK: Record<ObjKind, string[]> = {
+      security: ['Your security requirements need an evidence-based answer.'],
       price: ['I understand that budget matters.', 'Cost is a fair thing to ask about.', 'It is right to look at the price carefully.'],
       comparison: ['It makes sense to compare your options properly.', 'Comparing options is the right thing to do.', 'You should hold us up against the alternatives.'],
       timing: ['Timing matters, and it is worth getting right.', 'Getting the timing right is important.'],
@@ -377,6 +373,7 @@ export function generateCompetitiveIntel(args: {
       other: ['Thank you for raising that.', 'I am glad you said that.', 'That is useful to hear.'],
     };
     const COUNTER: Record<ObjKind, string[]> = {
+      security: ['List the controls you require and check the available evidence with the security owner.'],
       price: ['Let us agree what the problem costs you today, then compare the price with that.', 'Set the price against what the problem costs today, not against zero.', 'The useful comparison is the price against the cost of leaving things as they are.'],
       comparison: [], capability: [], explain: [], other: [],
       timing: ['Find the event that makes it urgent for you (a renewal, an audit, a season or a target) and plan back from it.', 'Work back from the date that matters to you and see what has to start when.'],
@@ -384,6 +381,7 @@ export function generateCompetitiveIntel(args: {
     };
     const setupQ = /\b(how long|how quickly|how fast|take to|get(?:ting)? started|how easy)\b/.test(o);
     const REDIRECTS: Record<ObjKind, string[]> = {
+      security: ['Which control and evidence would your security reviewer need before proceeding?'],
       price: ['What would it cost your team to leave this problem unsolved?', 'If the problem stays as it is for another year, what does that cost you?', 'What is the problem costing you each quarter today?'],
       comparison: ['What matters most to you in making this decision?', 'Which of the options on your list worries you most, and why?', 'What would make you choose one option over another?'],
       timing: ['What would need to change for the timing to feel right?', 'What would have to happen first for you to start?', 'Which date or event is driving your timing?'],
@@ -475,7 +473,7 @@ ${comps.length === 1 && comps[0].ref === 'the current approach you described' ? 
     out += `**Questions to ask the buyer about ${c.ref}:**\n${qs.slice(0, 3).map((x, n) => `${n + 1}. ${x}`).join('\n')}\n\n`;
     if (lead.length || c.weak.length) {
       const claims = claimOnly(lead);
-      out += `**${c.desc ? 'Why not stay with the current approach?' : `Why not ${c.name}?`} What to say:**\n\n> "Comparing us with ${c.ref} is fair, and I would rather answer it than dodge it.${lead.length ? ` Against ${c.ref}, ${claims ? 'our own materials say' : 'here is what I can point to'}: ${sayList(lead.slice(0, 2))}.` : ''}${c.weak.length ? (() => { const np = noteParts(c.weak[0]); return np.who ? ` And on ${c.ref}, in ${np.who}: ${np.core}.` : ` And on ${c.ref}, what we have seen is: ${np.core}.`; })() : ''} Which of that would you want to check first against ${c.ref}?"\n\n`;
+      out += `**${c.desc ? 'Why not stay with the current approach?' : `Why not ${c.name}?`} What to say:**\n\n> "Comparing us with ${c.ref} is fair, and I would rather answer it than dodge it.${lead.length ? ` Against ${c.ref}, ${claims ? 'our own materials say' : 'here is what I can point to'}: ${sayList(lead.slice(0, 2))}.` : ''}${c.weak.length && !PAGE_NOTE.test(noteParts(c.weak[0]).core) ? (() => { const np = noteParts(c.weak[0]); return np.who ? ` And on ${c.ref}, in ${np.who}: ${np.core}.` : ` And on ${c.ref}, what we have seen is: ${np.core}.`; })() : ''} Which of that would you want to check first against ${c.ref}?"\n\n`;
     }
   });
 
@@ -504,16 +502,16 @@ ${comps.length === 1 && comps[0].ref === 'the current approach you described' ? 
 
   // ---- what was not given ----
   const asks: Array<[string, string]> = [];
-  if (!S.length) asks.push(['your_strengths or recent_wins', 'what each card leads with']);
-  if (S.length && !testable.length) asks.push(['your_strengths that a buyer can test, such as a speed, a result or a feature, because the claims you gave cannot be tested', 'what each card leads with']);
-  if (!W.length) asks.push(['your_weaknesses or recent_losses', 'the lines on where each alternative may be ahead']);
+  if (!S.length) asks.push(['your strengths or recent wins', 'what each card leads with']);
+  if (S.length && !testable.length) asks.push(['your strengths that a buyer can test, such as a speed, a result or a feature, because the claims you gave cannot be tested', 'what each card leads with']);
+  if (!W.length) asks.push(['your weaknesses or recent losses', 'the lines on where each alternative may be ahead']);
   const bare = comps.filter((c) => !c.notes.length);
-  if (!args.competitor_details) asks.push(['competitor_details: a price, a segment or a known weak point for each alternative', 'the weak points, the questions and the "why not" line on each card']);
-  else if (bare.length && !generalLeft.length) asks.push([`competitor_details about ${listAnd(bare.map((c) => c.ref))}`, `the weak points and the questions on ${bare.length === 1 ? 'that card' : 'those cards'}`]);
-  if (!objections.length) asks.push(['common_objections: the ones you hear most', 'a written answer for each, in place of the sector list']);
+  if (!args.competitor_details) asks.push(['competitor details: a price, a segment or a known weak point for each alternative', 'the weak points, the questions and the "why not" line on each card']);
+  else if (bare.length && !generalLeft.length) asks.push([`competitor details about ${listAnd(bare.map((c) => c.ref))}`, `the weak points and the questions on ${bare.length === 1 ? 'that card' : 'those cards'}`]);
+  if (!objections.length) asks.push(['common objections: the ones you hear most', 'a written answer for each, in place of the sector list']);
   asks.push(...needs);
   asks.push(['the deals you met and won against each alternative', 'a win rate for each alternative']);
-  if (ctx.how === 'sector' || ctx.how === 'unknown') asks.push(['business_model, which these cards read from your sector or text', 'the wording on price, trials and contracts']);
+  if (ctx.how === 'sector' || ctx.how === 'unknown') asks.push(['how you charge, which these cards read from your sector or text', 'the wording on price, trials and contracts']);
   out += closing(asks);
   return finalise(out);
 }
@@ -557,10 +555,10 @@ ${comps.map((c) => (c.desc
 
 `;
   if (v) out += `## Objections ${v.name} buyers often raise\n\n${v.objections.slice(0, 4).map((o) => `- **${o.objection}:** ${o.response}`).join('\n')}\n\n## A proof point that lands\n\n${sentence(v.proofShape)}\n\n`;
-  const asks: Array<[string, string]> = [['your_strengths, your_weaknesses and common_objections, or recent_wins and recent_losses', 'this draft into one battle card for each alternative, with a written answer to each objection']];
-  if (!args.competitor_details) asks.push(['competitor_details: what you know of each alternative', 'the weak points and questions on each card']);
+  const asks: Array<[string, string]> = [['your strengths, your weaknesses and common objections, or recent wins and recent losses', 'this draft into one battle card for each alternative, with a written answer to each objection']];
+  if (!args.competitor_details) asks.push(['competitor details: what you know of each alternative', 'the weak points and questions on each card']);
   asks.push(['the deals you met and won against each alternative', 'a win rate for each alternative']);
-  if (how === 'sector' || how === 'unknown') asks.push(['business_model, which this draft reads from your sector or text', 'the wording on price, trials and contracts']);
+  if (how === 'sector' || how === 'unknown') asks.push(['how you charge, which this draft reads from your sector or text', 'the wording on price, trials and contracts']);
   out += closing(asks);
   return finalise(out);
 }

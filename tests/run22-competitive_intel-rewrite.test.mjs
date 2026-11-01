@@ -73,7 +73,7 @@ test("missing inputs are named once, at the end, with what each would change; no
   const end = closingOf(out);
   assert.ok(end, "closing block");
   assert.ok(out.trim().endsWith(end.trim()), "the closing block is the last section");
-  for (const k of ["your_weaknesses", "competitor_details", "common_objections"]) assert.match(end, new RegExp(k));
+  for (const k of ["your_weaknesses", "competitor_details", "common_objections"]) assert.match(end, new RegExp(k.replace(/_/g, " ")));
   assert.match(end, /\(it would change [^)]+\)/);
   assert.doesNotMatch(out.slice(0, out.indexOf("To sharpen this")), /\badd (?:your_|a competitor detail)|Fact needed from you/i);
 });
@@ -84,7 +84,7 @@ test("with only a product and competitors the answer is still a usable discovery
   assert.match(out, /Routewell/); assert.match(out, /Fleetgrid/);
   assert.doesNotMatch(out, /- \[ \]|\|\s{2,}\|/);
   assert.match(out, /dispatcher|re-?plan|first attempt|cost per delivery/i, "last mile vocabulary from the sector data");
-  assert.match(closingOf(out), /your_strengths/);
+  assert.match(closingOf(out), /your strengths/);
 });
 
 test("a services firm and a connectivity seller get no subscription words", async () => {
