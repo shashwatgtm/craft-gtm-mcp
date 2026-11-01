@@ -1,3 +1,4 @@
+import { readSignal, SIGNALS } from './text-signals.js';
 import { escapePiece } from './escape-inputs.js';
 // ============================================================================
 // UTILITY FUNCTIONS - Metric Parsing & Analysis
@@ -552,13 +553,13 @@ function scoreGroups(lines: string[], groups: Group[]): { found: string[]; evide
   for (const g of groups) {
     let hit = false;
     for (const line of lines) {
-      for (const pattern of g.patterns) {
-        const matches = line.match(pattern);
-        if (matches) {
-          addDistinct(found, matches); hit = true;
-          if (evidence.length < 2) {
-            const at = line.search(new RegExp(pattern.source, pattern.flags.replace('g', '')));
-            const shown = sentenceAt(line, Math.max(0, at));
+      const readings = g.patterns.map(pattern => readSignal(line, pattern));
+      if (readings.every(r => r.state === 'absent') && SIGNALS[g.label]) readings.push(readSignal(line, SIGNALS[g.label]));
+      for (const reading of readings) {
+        if (reading.state === 'affirmed') {
+          addDistinct(found, reading.matched); hit = true;
+          for (const clause of reading.evidence) {
+            const shown = line.includes(clause + '.') ? clause + '.' : clause;
             if (shown && !evidence.includes(shown)) evidence.push(shown);
           }
         }
