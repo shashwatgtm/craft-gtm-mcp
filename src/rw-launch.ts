@@ -993,9 +993,12 @@ export function writeRetentionPlaybook(args: {
   cs_team_size?: string; current_interventions?: string; product?: string; industry?: string; your_sector?: string;
 }): string {
   const choice = args.business_model;
-  const csTeamSize = args.cs_team_size || 'small_1_3';
-  const capacity = CAPACITY[csTeamSize] || CAPACITY.small_1_3;
-  const reasons = typedList(args.churn_reasons);
+  const csTeamSize = args.cs_team_size || 'unknown';
+  const capacity = CAPACITY[csTeamSize] || {highTouch:0,scaledTouch:0,automated:0};
+  const reasonNotes = (args.churn_reasons || '').split(/[;\n]/).map(x=>x.trim()).filter(Boolean);
+  const unresolved = reasonNotes.filter(x=>/\b(?:unknown|unconfirmed|not (?:yet )?(?:known|confirmed|established)|no evidence)\b/i.test(x) || readSignal(x,/\b(?:training gaps?|training problems?|training issues?)\b/i).state === 'negated');
+  const reasons = reasonNotes.filter(x=>!unresolved.includes(x));
+  const trainingObserved = reasons.some(x=>hasSignal(x,/\b(?:training gaps?|training problems?|training issues?|lack of training|insufficient training)\b/i));
   const dataSignals = typedList(args.available_data_signals);
   const current = typedList(args.current_interventions);
   const product = args.product ? args.product.trim() : '';
@@ -1044,9 +1047,15 @@ export function writeRetentionPlaybook(args: {
   out.push('');
   out.push(ctxLine);
   out.push('');
+  out.push('## First evidence and capacity decisions');
+  out.push(`Reported observations: ${reasons.length ? reasons.map(quoted).join('; ') : 'None confirmed in the supplied notes'}.`);
+  out.push(`Unestablished causes: ${unresolved.length ? unresolved.map(quoted).join('; ') : 'No additional cause evidence supplied; do not extrapolate observations to other departures'}.`);
+  out.push(trainingObserved ? 'First task: validate the reported training gaps with the interviewed customers. Reconstruct the last dispatcher task, record the failure point and test whether training changes it. Owner and review date: confirm.' : 'First task: validate one reported cause with the affected customer before choosing an intervention. Owner and review date: confirm.');
+  out.push('Second task: investigate each departure whose cause is unknown; compare interview notes and service history, including evidence that contradicts the reported cause. Keep unknown cases separate. Owner and review date: confirm.');
+  out.push(args.cs_team_size ? 'Team size was supplied; confirm hours available before allocating personal, scaled or automated coverage.' : 'Capacity: unknown. Confirm the responsible people and available time before allocating personal, scaled or automated coverage.');
   out.push('## Where you stand');
   const stand: string[] = [];
-  stand.push(`This is written for ${headSeg ? segment : 'the segment you described'}${product && !segment.toLowerCase().includes(product.toLowerCase()) && !/customers of/i.test(segment) ? ` (customers of ${product})` : ''}, on ${aAn(modelName)} ${modelName} model, with ${readableChoice(csTeamSize)} customer success capacity${args.cs_team_size ? '' : ' (assumed)'}.`);
+  stand.push(`This is written for ${headSeg ? segment : 'the segment you described'}${product && !segment.toLowerCase().includes(product.toLowerCase()) && !/customers of/i.test(segment) ? ` (customers of ${product})` : ''}, on ${aAn(modelName)} ${modelName} model, with ${args.cs_team_size ? readableChoice(csTeamSize)+' customer success team size (supplied; confirm available time)' : 'unknown customer success capacity'}.`);
   if (headSeg === null) stand.push(`The segment, as you described it: ${quoted(segment)}.`);
   if (churn.n === null) stand.push(`You gave a churn rate of ${quoted(typedRate)}, which could not be read as one valid rate and period (0 to 100 percent, with no conflicting periods), so no severity is shown.`);
   else {
@@ -1184,8 +1193,10 @@ export function writeRetentionPlaybook(args: {
   // ---- team time ----
   out.push('## How the team\'s time is split');
   out.push('');
-  out.push(`A starting split for ${readableChoice(csTeamSize)} capacity (an illustration to adapt): ${capacity.highTouch}% personal contact (calls, custom solutions, executive involvement), ${capacity.scaledTouch}% one-to-many contact (webinars, office hours, community) and ${capacity.automated}% automated contact (${subscription ? 'email sequences, in-product messages, self-serve help' : 'email sequences, scheduled reports, portal updates'}).`);
+  if (args.cs_team_size) out.push(`A starting split for ${readableChoice(csTeamSize)} capacity (an illustration to adapt): ${capacity.highTouch}% personal contact (calls, custom solutions, executive involvement), ${capacity.scaledTouch}% one-to-many contact (webinars, office hours, community) and ${capacity.automated}% automated contact (${subscription ? 'email sequences, in-product messages, self-serve help' : 'email sequences, scheduled reports, portal updates'}).`);
   out.push('');
+
+  if (!args.cs_team_size) out.push('Coverage split withheld until capacity and the first validation and investigation tasks are agreed.');
 
   // ---- timing ----
   out.push(`## ${subscription ? 'When to reach out' : 'Contract moments to plan around'}`);
