@@ -228,8 +228,10 @@ define(
   },
 );
 
-export const waveTools: Tool[] = Object.values(registry).map((x) => x.tool);
+// HOLD: the definition remains for review but is not registered or callable.
+export const waveTools: Tool[] = [];
 export const isWaveTool = (name: string) =>
+  name !== "prompt_structure_check" &&
   Object.prototype.hasOwnProperty.call(registry, name);
 export function callWaveTool(name: string, args: unknown): CallToolResult {
   if (!isWaveTool(name))

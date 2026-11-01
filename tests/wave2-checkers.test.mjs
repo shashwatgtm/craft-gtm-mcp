@@ -36,3 +36,5 @@ for(const t of waveTools){
 }
 if(waveTools.some(t=>t.name==='sales_sequence_check'))test('weekend shifts never collide and first-send anchor is retained',()=>{const r=read('sales_sequence_check',inputs.sales_sequence_check);assert.deepEqual(r.dates.map(x=>x.scheduled),['2026-11-06','2026-11-09','2026-11-10']);});
 export { inputs };
+
+test('prompt checker is held, unlisted and uncallable',()=>{assert.equal(waveTools.length,0);assert.equal(callWaveTool('prompt_structure_check',inputs.prompt_structure_check).isError,true);});
