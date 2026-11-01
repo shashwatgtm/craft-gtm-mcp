@@ -157,7 +157,8 @@ test("launch_commander: a managed network launch has no consumer or software-onl
   assert.doesNotMatch(r.text, /in-app|product hunt|influencer|waitlist/i);
   // run 22: the goals table has one row per goal, with the kind of measure in the second column
   const row = (goal) => r.text.split("\n").find((l) => l.startsWith("| ") && l.includes(goal)) || "";
-  assert.match(row("$300K pipeline"), /\| Revenue \|/);
+  // F17 known fault: pipeline is not booked revenue.
+  assert.match(row("$300K pipeline"), /\| Pipeline \|/);
   assert.doesNotMatch(row("$300K pipeline"), /branch-rollout demos/);
   assert.match(row("40 branch-rollout demos"), /\| Engagement \|/);
   assert.match(row("5 reference customers"), /\| Adoption \|/);
@@ -169,7 +170,8 @@ test("launch_commander: a goal that mentions sales heads is not filed under Reve
     goals: "40 qualified meetings with National Sales Heads, $360,000 pipeline" });
   const row = (goal) => r.text.split("\n").find((l) => l.startsWith("| ") && l.includes(goal)) || "";
   assert.match(row("40 qualified meetings with National Sales Heads"), /\| Engagement \|/);
-  assert.match(row("$360,000 pipeline"), /\| Revenue \|/);
+  // F17 known fault: pipeline is not booked revenue.
+  assert.match(row("$360,000 pipeline"), /\| Pipeline \|/);
 });
 
 // ---------------------------------------------------------------------------------------------------------------------

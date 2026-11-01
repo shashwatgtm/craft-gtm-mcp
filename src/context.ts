@@ -256,7 +256,7 @@ export function readContext(opts: { model?: unknown; hintModel?: BusinessModel |
   const sector = vAdj ? `${chosen ? `${vAdj!.name} (from your choice)` : `read from your inputs as ${vAdj!.name}`}` : `not clear from your inputs${buyerSide || ' (name the industry for sector notes)'}`;
   const mtxt = model
     ? `${MODEL_LABEL[model]} (${how === 'input' ? 'from your answer' : how === 'hint' ? 'from your market choice; confirm how you charge' : how === 'sector' ? 'the usual model in this sector, assumed; confirm how you charge' : 'read from your inputs; confirm how you charge'})`
-    : 'not clear from your inputs; set how you charge (saas, services, connectivity, transactions, marketplace, hardware_software or investment) for advice that fits it';
+    : 'not clear from your inputs; describe how you charge for advice that fits it';
   return { v: vAdj, model, how, sector, line: `*Sector: ${sector}. Business model: ${mtxt}.*`, buyerV };
 }
 

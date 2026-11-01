@@ -1,4 +1,4 @@
-import { hasSignal, readSignal, SIGNALS } from './text-signals.js';
+import { hasSignal, readSignal, SIGNALS, launchGoalReading, securityIncident, statedGoalCount, launchFollowup } from './text-signals.js';
 // Run 22 (writer cg-w2): the rewritten launch_commander, retention_playbook and crisis_planner.
 // Each tool writes a finished draft from the user's own inputs: every input is used where it matters, in clean sentences, nothing is invented
 // (no figure, customer, date or promise that was not given), and what was not given is named once at the end ("To sharpen this, give: ...").
@@ -328,7 +328,7 @@ const DETAIL: Record<string, (c: LaunchCtx) => string> = {
   'feedback system': () => 'One place where feedback is collected, one owner and a weekly review',
   'review meeting schedule with the pilot accounts': () => 'Fixed review meetings with each pilot account, with a named owner on both sides',
   'communication plan': (c) => `What testers hear, when and from whom, from invitation to the end of the beta of ${c.N}`,
-  'success metrics': (c) => `The measures that decide whether the beta worked${c.goals.length ? `, taken from the goals above` : ''}`,
+  'success metrics': (c) => launchFollowup(c.goals, 'Name the measure that decides whether the beta worked'),
   'beta invitations': (c) => `Invite testers from ${c.segRef} with a short note on what ${c.N} does and what you need from them`,
   'invitations to selected accounts for a pilot': (c) => `Invite selected accounts in ${c.segRef} to a pilot, with scope, duration and the success measures stated`,
   'onboarding flow': (c) => `The steps a tester follows to start using ${c.N}, and who helps at each one`,
@@ -363,12 +363,12 @@ const DETAIL: Record<string, (c: LaunchCtx) => string> = {
   'support brief': () => 'A one-page brief for support with the questions to expect',
   'account-team and support briefing': () => 'A one-page brief for account teams and support with the questions to expect',
   // follow-up
-  'monitor metrics': (c) => `Watch ${c.adoption} and the goals above each week`,
+  'monitor metrics': (c) => launchFollowup(c.goals, `Watch ${c.adoption} each week`),
   'gather feedback': () => 'Collect what customers and sales say, in one place, with the name of who said it',
   'address issues': () => 'Fix what blocks adoption first, and tell the people who reported it',
   'amplify wins': () => 'Share results customers have agreed to share, with the source and the date',
   'iterate messaging': (c) => `Change the messages for ${c.segRef} where the replies show they miss`,
-  'adoption tracking': (c) => `Track ${c.adoption} every week for the first two weeks`,
+  'adoption tracking': (c) => launchFollowup(c.goals, `Track ${c.adoption} every week for the first two weeks`),
   'feature tips': (c) => `Short how-to messages that show customers the parts of ${c.N} they have not tried`,
   'service review at the first live customers': (c) => `A service review at the first live customers, covering ${c.adoption}`,
   'success stories': () => 'Ask the first customers for a result you can show, with its source and date, before it is used anywhere',
@@ -428,22 +428,18 @@ function fitScore(segText: string, review: string, part: string): number {
 }
 
 // ---- what a goal needs, from the user's figure only ----
-const NUMBER_WORDS: Record<string, number> = { one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10, eleven: 11, twelve: 12, fifteen: 15, twenty: 20, thirty: 30, forty: 40, fifty: 50 };
-const COUNT_UNIT = /(deals?|meetings?|pilots?|pilot sites?|sites?|customers?|clients?|demos?|workshops?|surveys?|accounts?|opportunities|sign-?ups?|calls?|trials?|partners?|references?)\b/i;
 function goalNeeds(goals: string[], segs: string[], ctxBuyer: string | null): { lines: string[]; deals: boolean } {
   const lines: string[] = []; let deals = false;
   const k = segs.length;
   for (const g of goals) {
-    const m = g.match(new RegExp(`(?:^|[^\\w$.,])(\\d[\\d,]*|${Object.keys(NUMBER_WORDS).join('|')})\\s+((?:[a-z-]+\\s+){0,3}?)${COUNT_UNIT.source}`, 'i'));
-    if (!m) continue;
-    const typed = m[1]; const n = /^\d/.test(typed) ? parseInt(typed.replace(/,/g, ''), 10) : NUMBER_WORDS[typed.toLowerCase()];
-    if (!n || n < 2) continue;
-    const phrase = `${typed} ${m[2]}${m[3]}`.replace(/\s+/g, ' ').trim();
+    const reading = statedGoalCount(g);
+    if (!reading || reading.count < 2) continue;
+    const n=reading.count, phrase=reading.phrase;
     const share = Math.ceil(n / Math.max(k, 1));
     const where = k > 1 ? `about ${share} in each of ${k} segments if you share them evenly (${n} divided by ${k}, rounded up)` : `all in ${segs[0]}`;
-    if (/^deals?$/i.test(m[3])) {
+    if (/^deals?$/i.test(reading.unit)) {
       deals = true;
-      lines.push(`${upper1(phrase)} need at least ${typed} buying conversations in all, ${where}. Your win rate decides how many more are needed: it was not given.`);
+      lines.push(`${upper1(phrase)} need at least ${/dozen/i.test(phrase) ? n : phrase.split(/\s+/)[0]} buying conversations in all, ${where}. Your win rate decides how many more are needed: it was not given.`);
     } else lines.push(`${upper1(phrase)} is ${where}.`);
   }
   void ctxBuyer;
@@ -608,13 +604,10 @@ export function writeLaunchPlan(args: {
   out.push('');
 
   // ---- goals ----
-  const kindOf = (g: string): string => /pipeline|revenue|\$|closed|\barr\b|\bmrr\b|bookings?|deal value/i.test(g) ? 'Revenue'
-    : /meeting|demo|sign-?up|trial|\bleads?\b|registr|attend|click|\bctr\b|opportunit|\bcalls?\b|inquir|enquir|workshop|survey|assessment/i.test(g) ? 'Engagement'
-    : /view|impression|visit|traffic|reach|download|follower|aware/i.test(g) ? 'Awareness'
-    : /activat|usage|active user|adopt|conversion|retention|rollout|renew|reference|go-?live|live sites?|pilot/i.test(g) ? 'Adoption' : 'Other';
+  const kindOf = (g: string): string => launchGoalReading(g).kind;
   const trackedBy: Record<string, string> = {
-    Revenue: 'CRM, from signed deals', Engagement: contractSale ? 'CRM, meetings with named contacts' : 'CRM and analytics',
-    Awareness: contractSale ? 'CRM, named accounts reached' : 'Analytics', Adoption: pb ? `${pb.adoption.source}, counting ${pb.adoption.measure}` : 'Product or service usage data', Other: 'The source you name for this goal',
+    Pipeline: 'CRM; inspect qualified opportunities, exclude closed revenue', Revenue: 'CRM; check signed deals', Engagement: 'CRM; assign meeting follow-up',
+    Awareness: 'CRM or analytics; inspect audience reach', Adoption: pb ? `${pb.adoption.source}, counting ${pb.adoption.measure}` : 'Product or service usage data', Other: 'The source you name for this goal',
   };
   out.push('## Goals and how each is measured');
   out.push('');
@@ -1492,7 +1485,7 @@ ${audiences([['Client service owner', 'A call from the account owner', 'What hap
     if (ownC && genC) { crises = crises.filter((c) => c !== genC); absorbed.set(ownKey(ownC)!, a.add); alsoCovers.set(ownKey(ownC)!, [genC]); }
   }
   // a crisis that the plan answers with the breach steps (an SLA breach, a regulatory breach or a customer data exposure is answered by its own steps)
-  const isBreachKind = (c: string): boolean => { const l = c.toLowerCase(); return !/vulnerab|data[ _]exposure|customer_data|\bsla\b|sla_|service[ _]level|regulat|fraud|ai_wrong|wrong[ _]action|ai[ _]error|hallucinat/.test(l) && /breach|security|hack|exposure/.test(l); };
+  const isBreachKind = (c: string): boolean => { const l = c.toLowerCase(); return !/vulnerab|data[ _]exposure|customer_data|\bsla\b|sla_|service[ _]level|regulat|fraud|ai_wrong|wrong[ _]action|ai[ _]error|hallucinat/.test(l) && securityIncident(c).state === 'affirmed'; };
   // a data breach and a customer data exposure asked together are one playbook, so that two lists of nearly the same steps do not sit side by side
   const breachC = crises.find((c) => /breach|hack/i.test(c) && isBreachKind(c));
   const exposureC = crises.find((c) => /data[ _]exposure|customer_data/i.test(c));
@@ -1503,9 +1496,10 @@ ${audiences([['Client service owner', 'A call from the account owner', 'What hap
   const playbook = (crisis: string, wasTyped: boolean): string => {
     const lower = crisis.toLowerCase();
     const name = spaced(crisis);
+    if (securityIncident(crisis).state === 'unclear') return `### Incident needs clarification: ${name}\n\nThe security fact is not clear. Confirm what occurred and preserve the evidence before choosing an incident playbook.\n`;
     const t = stems(crisis);
     // a crisis of the sector's own (by its key, or by its words when the text names no known kind of crisis), used once
-    const knownKind = /vulnerab|data[ _]exposure|customer_data|\bsla\b|sla_|service[ _]level|regulat|fraud|ai_wrong|wrong[ _]action|ai[ _]error|hallucinat|breach|security|hack|exposure|outage|downtime|\bdown\b|(^|[^a-z])pr([^a-z]|$)|reputation|media|social|executive|departure|fired|resign|competitor|attack|market/.test(lower);
+    const knownKind = securityIncident(crisis).state === 'affirmed' || /vulnerab|data[ _]exposure|customer_data|\bsla\b|sla_|service[ _]level|regulat|fraud|ai_wrong|wrong[ _]action|ai[ _]error|hallucinat|breach|security|hack|exposure|outage|downtime|\bdown\b|(^|[^a-z])pr([^a-z]|$)|reputation|media|social|executive|departure|fired|resign|competitor|attack|market/.test(lower);
     const byKey = pb ? pb.crises.find((c) => lower.includes(c.key) || lower.includes(c.key.replace(/_/g, ' '))) : undefined;
     const byWords = pb && !knownKind && t.length > 0 ? pb.crises.find((c) => t.some((st) => stems(`${c.title} ${c.what}`).includes(st))) : undefined;
     const found = byKey ?? byWords;
@@ -1594,7 +1588,7 @@ ${audiences([['Affected customers', enterprise ? 'A call from the account owner'
 4. Name the owner: ${lead} with the data or AI lead.
 
 ${aiCorrection()}`;
-    if (/breach|security|hack|exposure/.test(lower)) {
+    if (securityIncident(crisis).state === 'affirmed') {
       if (securityDone) return `### ${heading('Security incident', name)}\n\nFollow the steps of "${securityDone}" above, and add the audiences and facts that are specific to this one.\n`;
       securityDone = name;
       return `### ${heading('Security incident', name)}${mergedExposure ? ` (also covers: ${(exposureC ?? '').replace(/_/g, ' ')})` : ''}
@@ -1676,7 +1670,7 @@ ${audiences([[enterprise ? 'Technology or service owners at customers' : 'Custom
 4. Name the interim leader and the chain of command.
 5. ${enterprise ? 'Call your largest accounts yourself.' : 'Prepare a customer FAQ.'}
 `;
-    if (/competitor|attack|market/.test(lower)) return `### ${heading('Competitive threat', name)}
+    if (readSignal(crisis,/competitor|attack|market/i).state === 'affirmed') return `### ${heading('Competitive threat', name)}
 
 | Threat | Response | When |
 |--------|----------|------|

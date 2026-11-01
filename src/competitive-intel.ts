@@ -1,3 +1,4 @@
+import { objectionKind, type ObjectionKind } from './text-signals.js';
 import { escapePiece } from './escape-inputs.js';
 import { cap, lowerFirstIfCommon } from './utils.js';
 import { readContext, isOnePhrase, splitItems, splitPhrases, splitTopLevel, q, answerFor, type Vertical } from './context.js';
@@ -99,7 +100,7 @@ function splitObjections(text: string): string[] {
   return out;
 }
 
-type ObjKind = 'price' | 'comparison' | 'timing' | 'capability' | 'explain' | 'risk' | 'other';
+type ObjKind = ObjectionKind;
 
 // A source label at the end of a note or an alternative: "(a seller's words)", "(reviewers' words on the page)", "(page claims)".
 // Run 42C: a note about what the user's pages say is the user's reading, not a line to say to a buyer
@@ -326,18 +327,7 @@ export function generateCompetitiveIntel(args: {
   }
 
   // ---- the objection handlers ----
-  const kindOf = (objection: string, named: Comp | undefined): ObjKind => {
-    const o = objection.toLowerCase();
-    const asksHow = /^\s*(?:how (?:does|do|is|are)|why (?:do|does|is|are)|what (?:is|are|does|do)|what's)\b/.test(o) && !/\b(compared?|cheaper|better|than|versus|vs|competitors?|alternatives?|expensive)\b/.test(o);
-    if (asksHow && /\b(price|prices|pricing|cost|costs|charges?|rates?|fees?)\b/.test(o)) return 'explain';
-    if (/\b(price|prices|pricing|expensive|cost|costs|budget|cheaper|cheap|charges?|rates?|fees?)\b/.test(o)) return 'price';
-    if (named || /\b(differ\w*|different|versus|vs|compared? (?:to|with)|instead of|why (?:\w+ ){0,3}over|better than|competitors?|alternatives?|other (?:vendors?|options?|tools?)|rivals?)\b/.test(o)) return 'comparison';
-    if (/\b(timing|not ready|ready|later|next year|not now|right now|this quarter)\b/.test(o)) return 'timing';
-    if (/^\s*(?:how (?:does|do)|what (?:is|are|does|do)|what's)\b/.test(o) && !/\b(long|quickly|fast|take to|easy|easily|support|integrate|different)\b/.test(o)) return 'explain';
-    if (/\b(features?|can't|cannot|doesn't|does it|do you|does .* support|missing|lack|lacks|lacking|support|how long|how quickly|how fast|take to|get(?:ting)? started|how easy)\b/.test(o) || /^\s*(?:does|do|can|is|are|will)\b/.test(o)) return 'capability';
-    if (/\b(risk|risky|trust|new|proven|unproven)\b/.test(o)) return 'risk';
-    return 'other';
-  };
+  const kindOf = (objection:string,named:Comp|undefined):ObjKind => objectionKind(objection,!!named);
   const said = new Set<string>();
   let proofUsed = false;
   // the first variant of a spoken sentence that no earlier line of this answer used; none left means the line is left out (no sentence is said twice)
@@ -372,6 +362,7 @@ export function generateCompetitiveIntel(args: {
       : pick([`On ${quoted} I would rather give you an accurate answer than a guess, so I will confirm the specifics and come back to you.`, 'I would rather confirm the facts than guess, and I will come back to you.']);
     const weakLine = weakFits && weakCore ? pick([weakOwner !== named ? `In your own words on the alternatives: ${weakCore.core}.` : weakCore.who ? `Against ${weakOwner!.ref}, in ${weakCore.who}: ${weakCore.core}.` : `Against ${weakOwner!.ref} specifically, we have seen ${weakText}.`]) : '';
     const ACK: Record<ObjKind, string[]> = {
+      security: ['Your security requirements need an evidence-based answer.'],
       price: ['I understand that budget matters.', 'Cost is a fair thing to ask about.', 'It is right to look at the price carefully.'],
       comparison: ['It makes sense to compare your options properly.', 'Comparing options is the right thing to do.', 'You should hold us up against the alternatives.'],
       timing: ['Timing matters, and it is worth getting right.', 'Getting the timing right is important.'],
@@ -381,6 +372,7 @@ export function generateCompetitiveIntel(args: {
       other: ['Thank you for raising that.', 'I am glad you said that.', 'That is useful to hear.'],
     };
     const COUNTER: Record<ObjKind, string[]> = {
+      security: ['List the controls you require and check the available evidence with the security owner.'],
       price: ['Let us agree what the problem costs you today, then compare the price with that.', 'Set the price against what the problem costs today, not against zero.', 'The useful comparison is the price against the cost of leaving things as they are.'],
       comparison: [], capability: [], explain: [], other: [],
       timing: ['Find the event that makes it urgent for you (a renewal, an audit, a season or a target) and plan back from it.', 'Work back from the date that matters to you and see what has to start when.'],
@@ -388,6 +380,7 @@ export function generateCompetitiveIntel(args: {
     };
     const setupQ = /\b(how long|how quickly|how fast|take to|get(?:ting)? started|how easy)\b/.test(o);
     const REDIRECTS: Record<ObjKind, string[]> = {
+      security: ['Which control and evidence would your security reviewer need before proceeding?'],
       price: ['What would it cost your team to leave this problem unsolved?', 'If the problem stays as it is for another year, what does that cost you?', 'What is the problem costing you each quarter today?'],
       comparison: ['What matters most to you in making this decision?', 'Which of the options on your list worries you most, and why?', 'What would make you choose one option over another?'],
       timing: ['What would need to change for the timing to feel right?', 'What would have to happen first for you to start?', 'Which date or event is driving your timing?'],
