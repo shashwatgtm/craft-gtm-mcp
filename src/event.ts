@@ -27,6 +27,14 @@ const finite = (n: number) => {
     );
   return n;
 };
+const displayNumber = (value: number | null | undefined): string =>
+  value === null || value === undefined
+    ? "Not computed"
+    : value !== 0 && Math.abs(value) < 0.01
+      ? value < 0
+        ? "More than -0.01"
+        : "Less than 0.01"
+      : value.toLocaleString("en-US", { maximumFractionDigits: 2 });
 const mul = (
   a: number | undefined | null,
   b: number | undefined | null,
@@ -233,7 +241,35 @@ export function eventPortfolio(a: Row) {
     missing.push("[User to add: share of target events must deliver]");
   let backward: Row | null = null;
   if (a.backward) {
-    const b = a.backward;
+    const selected = a.backward.type_name
+      ? a.types.find((t: Row) => t.name === a.backward.type_name)
+      : a.types.length === 1
+        ? a.types[0]
+        : null;
+    if (a.backward.type_name && !selected)
+      throw new Error(
+        "Backward plan type name must match a supplied event type.",
+      );
+    if (
+      selected &&
+      ["analyst_day", "analyst_programme"].includes(selected.format)
+    )
+      throw new Error(
+        "Analyst formats do not supply lead conversion rates for a backward plan.",
+      );
+    const inherited = selected
+      ? Object.fromEntries(
+          [
+            "first_stage_rate",
+            "accepted_rate",
+            "relevant_share",
+            "contacts_per_event",
+          ]
+            .filter((k) => selected[k] !== undefined)
+            .map((k) => [k, selected[k]]),
+        )
+      : {};
+    const b = { ...inherited, ...a.backward };
     const req = [
         "accepted",
         "first_stage_rate",
@@ -274,6 +310,12 @@ export function eventPortfolio(a: Row) {
         eventsNeeded,
       };
     }
+    if (backward)
+      backward.rateSource = selected
+        ? "Missing rates reused from " +
+          selected.name +
+          "; explicit backward values take precedence."
+        : "Rates must be supplied or one event type selected.";
   }
   const timeline = (a.timeline ?? [])
     .map((t: Row) => {
@@ -305,9 +347,9 @@ export function eventPortfolio(a: Row) {
     backward,
     missing,
     timeline,
-    stage: a.accepted_stage,
-    currency: a.currency,
-    period: a.period,
+    stage: a.accepted_stage ?? "Not supplied",
+    currency: a.currency ?? "Not supplied",
+    period: a.period ?? "Not supplied",
     decision:
       leadRows.length > 1 &&
       leadRows.every((r: Row) => r.cost_per_accepted !== null)
@@ -387,6 +429,7 @@ define(
       ),
       backward: object(
         {
+          type_name: text,
           accepted: fig,
           first_stage_rate: pct,
           accepted_rate: pct,
@@ -408,18 +451,32 @@ define(
         100,
       ),
     },
-    ["as_of", "accepted_stage", "currency", "period", "types"],
+    ["as_of", "types"],
   ),
   (a) => {
     const r = eventPortfolio(a);
     return {
       title: "Event portfolio and plan",
       summary: [
+        ...r.rows
+          .filter((x: Row) => x.date?.check === "MISMATCH")
+          .map(
+            (x: Row) =>
+              "Date check: " +
+              x.name +
+              " on " +
+              x.date.date +
+              " is " +
+              x.date.weekday +
+              ", not " +
+              x.date.claimedWeekday +
+              ". Confirm the intended date before publishing.",
+          ),
         "Target stage: " + r.stage,
         "Period: " + r.period,
         "Currency: " + r.currency,
-        "Planned accepted: " + (r.plannedAccepted ?? "Not computed"),
-        "Gap to event share: " + (r.gap ?? "Not computed"),
+        "Planned accepted: " + displayNumber(r.plannedAccepted),
+        "Gap to event share: " + displayNumber(r.gap),
         "Decision: " + r.decision,
       ],
       sections: [
@@ -437,12 +494,12 @@ define(
             ],
             rows: r.rows.map((x: Row) => [
               x.name,
-              x.total_contacts,
-              x.relevant_contacts,
-              x.first_stage,
-              x.accepted,
-              x.total_cost,
-              x.cost_per_accepted,
+              displayNumber(x.total_contacts),
+              displayNumber(x.relevant_contacts),
+              displayNumber(x.first_stage),
+              displayNumber(x.accepted),
+              displayNumber(x.total_cost),
+              displayNumber(x.cost_per_accepted),
             ]),
           },
         },
@@ -453,7 +510,14 @@ define(
             rows: r.rows.map((x: Row) => [
               x.name,
               x.date
-                ? JSON.stringify(x.date)
+                ? x.date.date +
+                  " is " +
+                  x.date.weekday +
+                  (x.date.claimedWeekday
+                    ? "; supplied weekday: " + x.date.claimedWeekday
+                    : "") +
+                  "; time zone: " +
+                  x.date.timezone
                 : "[User to add: date and time zone]",
               x.methodStatus,
               x.planFields.join("; "),
@@ -463,7 +527,21 @@ define(
         {
           heading: "Backwards plan",
           body: r.backward
-            ? JSON.stringify(r.backward)
+            ? r.backward.status === "MISSING_INPUTS"
+              ? "Missing: " +
+                r.backward.missing.join(", ") +
+                ". " +
+                r.backward.rateSource
+              : "Events needed: " +
+                displayNumber(r.backward.eventsNeeded) +
+                ". Contacts needed: " +
+                displayNumber(r.backward.contactsNeeded) +
+                ". Relevant contacts needed: " +
+                displayNumber(r.backward.relevantNeeded) +
+                ". First-stage leads needed: " +
+                displayNumber(r.backward.firstNeeded) +
+                ". " +
+                r.backward.rateSource
             : "Supply the accepted target, your conversion rates and contacts per event.",
         },
         { heading: "Missing inputs", body: r.missing.join(" ") },
@@ -475,6 +553,7 @@ define(
       data: r,
       limitations: [
         "All arithmetic uses your supplied figures. No benchmark, default conversion or invented phase boundary is used.",
+        "Displayed numbers are rounded to two decimal places; underlying calculations retain precision. Confirm the accepted stage, currency and period before interpreting the plan.",
         "Calendar arithmetic checks dates and weekdays; it does not verify an event exists or account for holidays.",
         "Analyst day, own mid-sized event and large programmes have incomplete source methods; the missing plans stay visible.",
         "No invitations, bookings, posts or messages are sent.",

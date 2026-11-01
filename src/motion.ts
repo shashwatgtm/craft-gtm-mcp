@@ -145,11 +145,38 @@ export function motionScore(a: Row) {
   } else if (!primary)
     tieDecision =
       "User to choose lower execution complexity among " + ties.join(", ");
-  const secondary = primary ? sorted.filter((k) => k !== primary)[0] : null,
-    clustered =
-      Math.max(...(Object.values(score) as number[])) -
-        Math.min(...(Object.values(score) as number[])) <=
-      2;
+  const clustered =
+    Math.max(...(Object.values(score) as number[])) -
+      Math.min(...(Object.values(score) as number[])) <=
+    2;
+  const noLeader = clustered || trace.length === 0;
+  if (noLeader) {
+    primary = null;
+    tieDecision =
+      "No motion leads yet; run a 90-day test using your own conversion and retention evidence.";
+  }
+  const remaining = primary ? sorted.filter((k) => k !== primary) : [];
+  const secondaryTies = remaining.length
+    ? remaining.filter((k) => score[k] === score[remaining[0]])
+    : [];
+  const secondary = secondaryTies.length === 1 ? secondaryTies[0] : null;
+  if (!dominant)
+    warnings.push(
+      "No dominant acquisition channel is established by the supplied deal-source shares.",
+    );
+  if (secondaryTies.length > 1)
+    warnings.push(
+      "Secondary motions are tied: " +
+        secondaryTies.map((k) => labels[k]).join(", ") +
+        ". Test execution fit instead of choosing by list order.",
+    );
+  const safeActions = (key: string) =>
+    key === "P" && a.self_serve !== true
+      ? [
+          "Confirm whether a self-serve journey exists before planning product-led work.",
+          actions.P[1],
+        ]
+      : actions[key];
   if (a.enterprise_focus && score.P > 6 && score.E > 6)
     warnings.push(
       "Hybrid signal: review self-serve land and ecosystem expansion sequencing.",
@@ -165,7 +192,12 @@ export function motionScore(a: Row) {
     scores: score,
     scoreLabel: "Example diagnostic scores, not validated predictions",
     primary,
-    primaryLabel: primary ? labels[primary] : "Unresolved tie",
+    primaryLabel: primary
+      ? labels[primary]
+      : noLeader
+        ? "No motion leads yet"
+        : "Unresolved tie",
+    secondaryTies,
     secondary,
     topTies: ties,
     tieDecision,
@@ -176,9 +208,12 @@ export function motionScore(a: Row) {
     missing: unknown,
     warnings,
     actions: primary
-      ? [...actions[primary], ...(secondary ? [actions[secondary][0]] : [])]
+      ? [
+          ...safeActions(primary),
+          ...(secondary ? [safeActions(secondary)[0]] : []),
+        ]
       : [
-          "Choose the lower-complexity motion among the tied leaders using your team and product capacity.",
+          "Run a 90-day test of the lower-complexity options using your own conversion, retention and delivery-capacity evidence before choosing a leading motion.",
         ],
     stopReview: (a.current_motions ?? [])
       .filter((k: string) => k !== primary && score[k] < top - 2)
@@ -252,7 +287,10 @@ define(
         "Primary: " + r.primaryLabel,
         "Secondary: " + (r.secondary ? labels[r.secondary] : "Not established"),
         "Scores: example diagnostic, not a performance forecast",
-        "Next: test the motion against your own evidence",
+        "Next: " +
+          (r.primary
+            ? "test the motion against your own evidence"
+            : "run a 90-day test before choosing a leading motion"),
       ],
       metrics: order.map((label) => ({
         label,
