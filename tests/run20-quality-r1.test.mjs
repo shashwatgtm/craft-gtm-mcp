@@ -293,7 +293,7 @@ test("pmf_scorecard: a services firm is not asked for an aha moment, and the nex
   assert.match(r.text, /FEEDBACK: fix the friction you named first/);
 });
 test("pmf_scorecard: the benchmark cell gives both marks, and a value on the mark says so", async () => {
-  const r = await call("pmf_scorecard", { product: "Shelfwalk", target_market: "vertical_saas", current_metrics: "Churn: 1%, NPS: 41" });
+  const r = await call("pmf_scorecard", { product: "Shelfwalk", target_market: "vertical_saas", current_metrics: "Monthly Churn: 1%, NPS: 41" });
   assert.match(r.text, /healthy up to 3%, excellent up to 1%/);
   assert.match(r.text, /1% is exactly at the excellent mark of 1%/);
   assert.doesNotMatch(r.text, /at or below the excellent mark of 1%/);

@@ -79,7 +79,15 @@ export function generatePMFScorecard(args) {
     const activationApplies = !(ctx.model === 'services' || ctx.model === 'connectivity' || ctx.model === 'investment');
     const dimensionCount = activationApplies ? 5 : 4;
     // Score each dimension
-    const churnScore = scoreMetric(metrics.churn, b.churn, false);
+    const months = reading.churnMonths;
+    const churnLabel = months === 12 ? 'Annual Churn' : months === 3 ? 'Quarterly Churn' : months === 1 ? 'Monthly Churn' : 'Churn (period not supplied)';
+    const churnRange = months && months > 1
+        ? { low: (1 - (1 - b.churn.low / 100) ** months) * 100, medium: (1 - (1 - b.churn.medium / 100) ** months) * 100, high: (1 - (1 - b.churn.high / 100) ** months) * 100 }
+        : b.churn;
+    const churnScore = scoreMetric(months ? metrics.churn : undefined, churnRange, false);
+    const churnPeriodNote = metrics.churn !== undefined && !months
+        ? 'Period not supplied. This churn figure is listed but not scored; confirm whether it is monthly, quarterly or annual.'
+        : months && months > 1 ? `Your ${months === 12 ? 'annual' : 'quarterly'} figure stays on its stated basis. Example monthly benchmarks are converted to the same period: (1 − (1 − monthly rate / 100)^${months}) × 100. Healthy up to ${pct(churnRange.medium)}%, excellent up to ${pct(churnRange.low)}%. This assumes a constant monthly loss rate.` : '';
     const npsScore = scoreMetric(metrics.nps, b.nps, true);
     const ltvCacScore = scoreMetric(metrics.ltvCacRatio, b.ltvCac, true, metrics.ltvCacRatio?.toFixed(1), 'x');
     const retentionScore = scoreMetric(metrics.retentionRate, b.retention, true, undefined, '%');
@@ -133,7 +141,7 @@ export function generatePMFScorecard(args) {
     const owns = (m) => (m === 'investment' ? 'an investment mandate' : m === 'connectivity' ? 'a connectivity contract' : 'a services contract');
     // Host review 29 Oct 2026 (W6 eval): a missing churn or retention figure is a priority action, so the list never says "focus on scaling" without them.
     if (churnScore.label === 'MISSING') {
-        recommendations.push(`CHURN: not given, so it is not scored. ${contract ? 'Count the contracts not renewed in the period, divided by the contracts up for renewal' : 'Read it from your billing records: customers lost in a month divided by customers at the start of that month'}.`);
+        recommendations.push(`CHURN: ${metrics.churn !== undefined ? 'period not supplied, so the figure is not scored. Confirm the measurement period.' : 'not given, so it is not scored.'} ${contract ? 'Count the contracts not renewed in the period, divided by the contracts up for renewal' : 'Read it from your billing records: customers lost in a month divided by customers at the start of that month'}.`);
     }
     else if (churnScore.label === 'CRITICAL' || churnScore.label === 'DEVELOPING') {
         recommendations.push(contract
@@ -268,9 +276,9 @@ Each score and status compares your value with an example benchmark. ${rangeNote
 ### 1. Customer Retention (Churn)
 ${dimensionHeader}
 |--------|-----------|-------|-----------|--------|
-| Monthly Churn | ${metrics.churn !== undefined ? pct(metrics.churn) + '%' : 'NOT PROVIDED'} | ${churnScore.score}/10 | healthy up to ${b.churn.medium}%, excellent up to ${b.churn.low}% | ${churnScore.label} |
+| ${churnLabel} | ${metrics.churn !== undefined ? pct(metrics.churn) + '%' : 'NOT PROVIDED'} | ${churnScore.score}/10 | ${months ? `healthy up to ${pct(churnRange.medium)}%, excellent up to ${pct(churnRange.low)}%` : 'Period needed before comparison'} | ${churnScore.label} |
 
-**Analysis:** ${churnScore.analysis}
+**Analysis:** ${churnPeriodNote || churnScore.analysis}
 
 ---
 
@@ -329,7 +337,7 @@ ${recommendations.length > 0 ? recommendations.map((r, i) => `${i + 1}. ${r}`).j
 ${ctx.v ? `## Sector Reading\n\n${sectorNotes(ctx.v, 'metrics')}\n\n---\n\n` : ''}## Data Gaps to Fill
 
 ${[
-        metrics.churn === undefined ? '- [ ] Churn rate (monthly or annual)' : null,
+        metrics.churn === undefined ? '- [ ] Churn rate (monthly or annual)' : !months ? '- [ ] Measurement period for the supplied churn rate' : null,
         metrics.nps === undefined ? '- [ ] NPS score (survey customers)' : null,
         metrics.ltv === undefined ? '- [ ] Customer LTV calculation' : null,
         metrics.cac === undefined ? '- [ ] Customer Acquisition Cost' : null,

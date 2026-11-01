@@ -78,7 +78,7 @@ const COS = {
   answerloop: { name: "Answerloop", saas: true, desc: "AI agents that resolve customer support tickets inside the help desk", buyer: "Head of Customer Experience", segments: "consumer apps, SaaS companies" },
   lanehop: { name: "Lanehop", saas: true, desc: "last-mile delivery routing and dispatch software", buyer: "Head of Last-Mile Operations", segments: "third-party logistics providers, e-commerce brands" },
 };
-const metrics = (c) => c.saas ? "MRR: $60K, Churn: 1.5%, NPS: 44, CAC: $9000, LTV: $72000, Retention: 95%" : "Annual contract value: $240,000, logo churn: 1% monthly, NPS: 38, net revenue retention 108%";
+const metrics = (c) => c.saas ? "MRR: $60K, Monthly Churn: 1.5%, NPS: 44, CAC: $9000, LTV: $72000, Retention: 95%" : "Annual contract value: $240,000, logo churn: 1% monthly, NPS: 38, net revenue retention 108%";
 const argsFor = (tool, c) => ({
   pmf_scorecard: { product: `${c.name}, ${c.desc}`, target_market: "other", current_metrics: metrics(c), customer_feedback: "buyers like the reports but rollout takes longer than promised" },
   launch_commander: { product_feature: `${c.name}: ${c.desc}`, launch_date: "2026-11-15", launch_type: "feature_launch", target_segments: c.segments, goals: "40 qualified meetings, $300K pipeline, 5 reference customers" },
@@ -136,7 +136,7 @@ test("pmf_scorecard: a connectivity business gets no activation score and no aha
 });
 test("pmf_scorecard: a subscription business keeps the activation score; the missing activation action has no aha moment", async () => {
   const r = await call("pmf_scorecard", { product: "Shelfwalk, a field sales app for consumer goods brands", target_market: "enterprise_saas",
-    current_metrics: "MRR: $60K, Churn: 1.5%, NPS: 44, CAC: $9000, LTV: $72000, Retention: 95%", business_model: "saas" });
+    current_metrics: "MRR: $60K, Monthly Churn: 1.5%, NPS: 44, CAC: $9000, LTV: $72000, Retention: 95%", business_model: "saas" });
   assert.match(r.text, /Based on 5 of 5|Based on 4 of 5/);
   assert.match(r.text, /ACTIVATION:[^\n]*first action/i);
   assert.doesNotMatch(r.text, /aha moment/i);

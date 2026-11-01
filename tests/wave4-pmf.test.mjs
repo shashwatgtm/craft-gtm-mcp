@@ -2,11 +2,11 @@ import test from 'node:test';import assert from 'node:assert/strict';import {pat
 const home=process.env.WAVE4_TEST_HOME||path.resolve('.');
 const {generatePMFScorecard:score}=await import(pathToFileURL(home+'/dist/pmf-scorecard.js'));
 const markets=['logistics_tech','fintech','enterprise_saas','vertical_saas','ai_native','ites','telecom','software','cybersecurity'];
-const healthy='Churn: 0.5%, NPS: 80, LTV: $300000, CAC: $30000, Retention: 98%, Activation: 90%';
+const healthy='Monthly Churn: 0.5%, NPS: 80, LTV: $300000, CAC: $30000, Retention: 98%, Activation: 90%';
 for(const market of markets){
  const run=text=>score({product:market+' vendor',target_market:market,current_metrics:text,business_model:'saas'});
  test('F1/F2 '+market+': every critical dimension creates action and caps verdict',()=>{
-  for(const [from,to,action] of [['Churn: 0.5%','Churn: 30%','CHURN'],['NPS: 80','NPS: -70','NPS'],['Retention: 98%','Retention: 0%','RETENTION'],['LTV: $300000','LTV: $3000','UNIT ECONOMICS'],['Activation: 90%','Activation: 1%','ACTIVATION']]){
+  for(const [from,to,action] of [['Monthly Churn: 0.5%','Monthly Churn: 30%','CHURN'],['NPS: 80','NPS: -70','NPS'],['Retention: 98%','Retention: 0%','RETENTION'],['LTV: $300000','LTV: $3000','UNIT ECONOMICS'],['Activation: 90%','Activation: 1%','ACTIVATION']]){
    const out=run(healthy.replace(from,to));assert.match(out,/CRITICAL/);assert.match(out,new RegExp('\\d+\\. '+action+':'));assert.doesNotMatch(out,/Strong PMF|Emerging PMF|\| Yes \||Every dimension scores well/);
   }
  });

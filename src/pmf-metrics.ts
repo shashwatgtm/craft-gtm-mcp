@@ -1,9 +1,10 @@
+import { readSignal } from './text-signals.js';
 /** Deterministic metric reader. Never score a target, negation or conflicting pair as an observed fact. */
-export interface MetricReading { values: Record<string, number>; evidence: string[]; issues: string[]; retentionIsNet: boolean }
+export interface MetricReading { values: Record<string, number>; evidence: string[]; issues: string[]; retentionIsNet: boolean; churnMonths?: number }
 export function readPMFMetrics(raw: string): MetricReading {
   const result: MetricReading = { values: {}, evidence: [], issues: [], retentionIsNet: false };
   const definitions: [string, string, number, number][] = [
-    ['churn', '(?:monthly\\s+)?churn(?:\\s+rates?)?', 0, 100],
+    ['churn', '(?:(?:monthly|annual|yearly|quarterly)\\s+)?(?:logo\\s+)?churn(?:\\s+rates?)?', 0, 100],
     ['nps', '(?:nps|net promoter score)', -100, 100],
     ['ltv', 'ltv', 0, Infinity], ['cac', 'cac', 0, Infinity],
     ['retentionRate', '(?:(?:net revenue|gross revenue|net|gross|customer|logo)\\s+)?retention(?:\\s+rates?)?|nrr', 0, Infinity],
@@ -35,6 +36,20 @@ export function readPMFMetrics(raw: string): MetricReading {
       }
       if (result.values[key] !== undefined && result.values[key] !== value) {
         result.issues.push(`${key}: conflicting values or bases; give one confirmed measure and period. Read: "${match[0]}".`);continue;
+      }
+      if (key === 'churn') {
+        // Read the period only in this metric's clause, never from a neighbouring measure.
+        const clause = (before.split(/,(?!\d)/).pop() + match[0] + after).trim();
+        const periods: [number, RegExp][] = [
+          [12, /\b(?:annual(?:ly)?|yearly|per year|a year|(?:over|in|during) (?:twelve|12) months)\b/i],
+          [3, /\b(?:quarterly|per quarter|(?:over|in|during) (?:three|3) months)\b/i],
+          [1, /\b(?:monthly|per month|a month|(?:over|in|during) (?:one|a|1) month)\b/i],
+        ];
+        const found = periods.filter(([,pattern]) => readSignal(clause, pattern).state === 'affirmed').map(([months]) => months);
+        if (found.length > 1 || (result.churnMonths !== undefined && found.length && result.churnMonths !== found[0])) {
+          result.issues.push('churn: conflicting periods; give one confirmed measure and period.');
+        }
+        result.churnMonths = found[0];
       }
       result.values[key]=value;
       if (key==='retentionRate')result.retentionIsNet=net;
