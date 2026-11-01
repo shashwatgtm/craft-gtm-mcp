@@ -102,12 +102,16 @@ function splitObjections(text: string): string[] {
 type ObjKind = 'price' | 'comparison' | 'timing' | 'capability' | 'explain' | 'risk' | 'other';
 
 // A source label at the end of a note or an alternative: "(a seller's words)", "(reviewers' words on the page)", "(page claims)".
+// Run 42C: a note about what the user's pages say is the user's reading, not a line to say to a buyer
+const PAGE_NOTE = /^(?:the |your |our )?(?:[\w-]+ ){0,2}(?:pages?|notes|site|website)\b/i;
 const SOURCE_LABEL = /\s*\(([^()]*(?:words|page|claims?|reviews?|quote)[^()]*)\)\s*\.?$/i;
 const withoutSource = (t: string): string => stripEnd(t.replace(SOURCE_LABEL, ''));
 // A description of an approach, named in running text by its leading noun phrase ("a managed streaming service" for "a managed streaming service built on
 // a vendor-specific Kafka distribution"), else by its first clause, else whole when short; "alternative N" only when nothing fits.
 function descRef(raw: string, i: number, total = 2): string {
   const t = withoutSource(raw).replace(/^(\w+(?:\s+\w+)?);\s+/, '$1, ');
+  // Run 42C: a typed status quo that is a whole sentence ("the current way of handling X: ...") is never cut at its colon or clause; one alternative is named by what it is
+  if (total === 1 && t.split(/\s+/).length >= 8 && /^(?:the |our |their )?(?:current|existing|usual|status quo|today's|present)\b/i.test(t)) return 'the current approach you described';
   const m = t.match(/^(.+?)\s+(?:that|which|who|tied|built|moved|kept|bundled|sold|offered|provided|supplied|working|requests?|requesting|relying|without|through|across|with|using|based|where|run|written|made)\b/i);
   const head = m && !/(?:ed|ing|by|of|to|and|or|the|an?)$/i.test(m[1]) ? m[1] : t;
   if (head.split(/\s+/).length >= 2 && head.length <= 60 && (head.length < t.length || t.length > 60)) return lc(head);
@@ -256,7 +260,7 @@ export function generateCompetitiveIntel(args: {
   });
   const metricFor = (i: number): string => (v ? v.metrics[i % v.metrics.length] : 'time or cost');
   const testable = S.filter((x) => !POPULARITY.test(x));
-  const sayList = (items: string[]): string => items.map((x) => lc(stripEnd(x))).join('; ');
+  const sayList = (items: string[]): string => items.map((x) => lowerFirstIfCommon(stripEnd(x))).join('; ');
   const claimOnly = (items: string[]): boolean => items.length > 0 && items.every(isClaim);
   const nameWord = label.name ? label.name.split(/\s+/)[0].toLowerCase() : '';
   const parts = productParts(label.rest.startsWith('(') ? label.whole : label.rest || label.whole).filter((x) => !nameWord || !x.toLowerCase().includes(nameWord));
@@ -475,7 +479,7 @@ ${comps.length === 1 && comps[0].ref === 'the current approach you described' ? 
     out += `**Questions to ask the buyer about ${c.ref}:**\n${qs.slice(0, 3).map((x, n) => `${n + 1}. ${x}`).join('\n')}\n\n`;
     if (lead.length || c.weak.length) {
       const claims = claimOnly(lead);
-      out += `**${c.desc ? 'Why not stay with the current approach?' : `Why not ${c.name}?`} What to say:**\n\n> "Comparing us with ${c.ref} is fair, and I would rather answer it than dodge it.${lead.length ? ` Against ${c.ref}, ${claims ? 'our own materials say' : 'here is what I can point to'}: ${sayList(lead.slice(0, 2))}.` : ''}${c.weak.length ? (() => { const np = noteParts(c.weak[0]); return np.who ? ` And on ${c.ref}, in ${np.who}: ${np.core}.` : ` And on ${c.ref}, what we have seen is: ${np.core}.`; })() : ''} Which of that would you want to check first against ${c.ref}?"\n\n`;
+      out += `**${c.desc ? 'Why not stay with the current approach?' : `Why not ${c.name}?`} What to say:**\n\n> "Comparing us with ${c.ref} is fair, and I would rather answer it than dodge it.${lead.length ? ` Against ${c.ref}, ${claims ? 'our own materials say' : 'here is what I can point to'}: ${sayList(lead.slice(0, 2))}.` : ''}${c.weak.length && !PAGE_NOTE.test(noteParts(c.weak[0]).core) ? (() => { const np = noteParts(c.weak[0]); return np.who ? ` And on ${c.ref}, in ${np.who}: ${np.core}.` : ` And on ${c.ref}, what we have seen is: ${np.core}.`; })() : ''} Which of that would you want to check first against ${c.ref}?"\n\n`;
     }
   });
 
