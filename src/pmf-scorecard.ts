@@ -1,3 +1,4 @@
+import { frictionReading, readSignal } from './text-signals.js';
 import { readPMFMetrics } from './pmf-metrics.js';
 import { parseMetrics, pct, scoreMetric, describeChoice, readableChoice, cap, unscoredFigures, EXAMPLE_FIGURES, SUGGESTION_FOOTER } from './utils.js';
 import { readContext, sectorNotes, answerFor, splitItems, q, andList, capEcho, lcFirst, type BusinessModel } from './context.js';
@@ -176,7 +177,6 @@ export function generatePMFScorecard(args: {
   // Run 19 (D80, problem 3): every feedback theme you give is quoted and answered; none is only scanned for keywords.
   const feedbackItems = splitItems(args.customer_feedback);
   const POSITIVE = /\b(love|loves|loved|like|likes|liked|great|essential|happy|praise|trust|reliable|fast)\b/i;
-  const NEGATIVE = /\b(but|however|wish|struggle|struggles|struggled|late|slow|confus\w*|difficult|complex|missing|lack|lacks|problem|problems|issue|issues|frustrat\w*|longer|not synced|will not|won't|cannot|can't|hard)\b/i;
   // A customer result or an award (a figure with a saving, a rise, a volume, or a recognition) is a proof claim, not a theme to answer.
   const RESULT = /(?:\d[\d,.]*\s*(?:%|x\b|billion|million|[kmb]\b)|\$\s*\d|\b(?:cuts?|cut|saved?|savings?|reduc\w+|increas\w+|faster|fewer|deployed|powered|named|recogni[sz]ed|award\w*|leader|contender|innovator|thanks?)\b)/i;
   // What kind of proof an item is, so the next step fits it (a story is turned into a case study, a listing is cited, a count is checked).
@@ -190,7 +190,7 @@ export function generatePMFScorecard(args: {
     return null;
   };
   const feedbackRows = feedbackItems.map((item) => {
-    const pos = POSITIVE.test(item); const neg = NEGATIVE.test(item);
+    const fr = frictionReading(item); const pos = readSignal(item, POSITIVE).state === 'affirmed'; const neg = fr.state === 'affirmed';
     const pk = neg ? null : kindOfProof(item);
     const proof = pk === 'result';
     const quote = !pk && !neg && /\bquote\b|\bsays?\b|\bthanks?\b|\btold us\b/i.test(item);
@@ -208,6 +208,10 @@ export function generatePMFScorecard(args: {
       ? 'Use it as a reference quote: confirm the person agrees to be quoted, and keep their role and the date with it.'
       : proof
       ? `Use it as proof: keep the wording, name the source and date, and check that it is yours to quote.${proofLine}`
+      : fr.state === 'negated'
+      ? 'No current friction is stated in this feedback. Keep the wording and confirm whether any separate difficulty remains.'
+      : fr.state === 'unclear'
+      ? 'The feedback does not establish a current difficulty. Ask which part is difficult now before proposing a remedy.'
       : signal === 'Positive'
       ? `Turn it into proof: ask for a number or a reference.${proofLine}`
       : answerFor(item, ctx.v);
@@ -216,8 +220,8 @@ export function generatePMFScorecard(args: {
   const feedbackAnalysis = feedbackRows.length
     ? `| Feedback (as you wrote it) | Signal | Next step |\n|---|---|---|\n${feedbackRows.join('\n')}`
     : '';
-  const frictionItems = feedbackItems.filter((it) => NEGATIVE.test(it) && !POSITIVE.test(it));
-  const proofItems = feedbackItems.filter((it) => !NEGATIVE.test(it) && kindOfProof(it) !== null);
+  const frictionItems = feedbackItems.filter((it) => frictionReading(it).state === 'affirmed' && readSignal(it, POSITIVE).state !== 'affirmed');
+  const proofItems = feedbackItems.filter((it) => frictionReading(it).state !== 'affirmed' && kindOfProof(it) !== null);
   if (frictionItems.length) recommendations.push(`FEEDBACK: fix the friction you named first: ${q(capEcho(frictionItems[0], 140).short)}`);
   if (proofItems.length) recommendations.push(`PROOF: you gave ${proofItems.length === 1 ? 'one customer result' : proofItems.length + ' customer results or recognitions'}. Check each is yours to quote and put the strongest in your sales story${ctx.v ? `; the form of proof that lands in ${ctx.v.name} is ${lcFirst(ctx.v.proofShape)}` : ''}`);
   const unscored = unscoredFigures(args.current_metrics);

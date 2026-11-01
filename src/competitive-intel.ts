@@ -1,3 +1,4 @@
+import { frictionReading, readSignal } from './text-signals.js';
 import { objectionKind, type ObjectionKind } from './text-signals.js';
 import { escapePiece } from './escape-inputs.js';
 import { cap, lowerFirstIfCommon } from './utils.js';
@@ -73,7 +74,7 @@ const isDescription = (c: string): boolean => shortOf(c).split(/\s+/).length > 4
 const AHEAD = /\b(?:strong(?:er)?|cheaper|cheap|better|faster|bundl\w*|free|larger|bigger|leader|established|incumbent|more (?:mature|complete)|wider|broader|lower (?:price|cost)|well[- ]known|trusted)\b/i;
 const WEAK = /\b(?:break\w*|brok\w*|stuck|errors?|wrong|leak\w*|late|slow\w*|manual\w*|miss\w*|fail\w*|cause[sd]?|lack\w*|no|not|only|cannot|can't|constraint|drift|delays?|expensive|costly|overpriced|siloed|static|black box|fragile|legacy|fragmented|difficult|hard|bypassed|sluggish|congested|disconnect\w*|isolated|periodic|accumulates?)\b/i;
 function sideOf(detail: string): 'weak' | 'ahead' | 'neutral' {
-  const a = AHEAD.test(detail); const w = WEAK.test(detail);
+  const a = readSignal(detail, AHEAD).state === 'affirmed'; const fr = frictionReading(detail); const w = fr.state === 'absent' ? WEAK.test(detail) : fr.state === 'affirmed';
   return w && !a ? 'weak' : a && !w ? 'ahead' : 'neutral';
 }
 
