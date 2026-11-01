@@ -11,19 +11,8 @@ async function call(name, args) {
 }
 const P = (deal, extra = {}) => call("partner_architect", { company: "Ledgerline", product: "Ledgerline", partner_model: "referral", partner_goals: "Partner-sourced pipeline among banks", your_deal_size: deal, ...extra });
 
-test("partner_architect: the viability text follows the commission at the deal size", async () => {
-  const verdict = async (deal) => (await P(deal)).text.split("**What the economics support:**")[1].split("\n\n")[0];
-  const small = await verdict("$2,400 ACV");
-  assert.match(small, /earns \$240 on one closed deal/);
-  assert.match(small, /not justified|self.serve/i);
-  assert.doesNotMatch(small, /named partner manager and tailored onboarding/);
-  const mid = await verdict("$24,000 ACV");
-  assert.match(mid, /earns \$2,400 on one closed deal/);
-  assert.match(mid, /shared partner manager|pooled/i);
-  assert.doesNotMatch(mid, /named partner manager and tailored onboarding/);
-  const big = await verdict("$250,000 ACV");
-  assert.match(big, /earns \$25,000 on one closed deal/);
-  assert.match(big, /named partner manager/);
+test("partner_architect: deal size alone cannot establish viable commission or staffing", async () => {
+ for(const deal of ["$2,400 ACV","$24,000 ACV","$250,000 ACV"]){const t=(await P(deal)).text;assert.match(t,/Commission rate and margin constraint are unconfirmed/);assert.match(t,/No payment terms are proposed/);assert.doesNotMatch(t,/What the economics support|named partner manager and tailored onboarding for each active partner are justified/);}
 });
 test("partner_architect: investment consultants carry the independence caution; no sector read says what is assumed", async () => {
   const t = (await P("$250,000 ACV", { partner_goals: "Partner-sourced pipeline among asset allocators (pensions; endowments)" })).text;

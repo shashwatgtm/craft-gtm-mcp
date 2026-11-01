@@ -17,7 +17,7 @@ async function call(name, args) {
 test("partner_architect: the OEM tier carries no discount figure of ours", async () => {
   const t = await call("partner_architect", { company: "Plain Co", product: "a business tool", partner_model: "oem_white_label", partner_goals: "partner-sourced pipeline; no numeric target given", your_deal_size: "$40,000 ACV (hypothetical)", industry: "saas" });
   assert.doesNotMatch(t, /50-70%|typically \d+/i);
-  assert.match(t, /your own OEM discount \(not given\)/);
+  assert.match(t, /No payment terms are proposed/);
 });
 
 test("customer_interview_kit: an email security company is not asked which clouds are in scope; a cloud security company still is", async () => {

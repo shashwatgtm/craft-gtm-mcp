@@ -220,12 +220,12 @@ ${program.tiers.map((tier, i) => `### Tier ${i + 1}: ${tier.name}
 
 - **To qualify:** ${tier.requirements.map(lc).join('; ')}.
 - **Benefits:** ${tier.benefits.map((b) => lc(b.replace(/\badvisory board seat\b/i, 'a place on the partner advisory board'))).join('; ')}.
-- **Partner earns:** ${terms}
+- **Partner earns:** Terms for ${tier.name} await commercial confirmation
 - **Support:** ${lc(tier.support)}.`).join('\n\n')}
 
 ## Commercial terms to confirm
 
-${terms}
+Review the commercial confirmation above.
 A deal amount alone does not establish margin or support capacity. Confirm the payment basis, unit cost, retained margin and attribution window before proposing commission.
 
 ## Targets and KPIs

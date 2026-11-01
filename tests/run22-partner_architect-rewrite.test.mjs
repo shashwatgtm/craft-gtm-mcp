@@ -21,11 +21,8 @@ test("every input is used, in a clean answer", async () => {
   assert.match(out, /referral/i); assert.match(out, /high.touch|dedicated partner/i);
 });
 
-test("the tier maths of the base is unchanged (D80)", async () => {
-  const out = await text("partner_architect", { company: "Ledgerline", product: "Ledgerline", partner_model: "referral", partner_goals: "Partner-sourced pipeline among banks", your_deal_size: "$400,000 ACV" });
-  for (const n of ["$40,000", "$60,000", "$300,000", "$1,700,000", "$2,000,000", "$6,000,000", "$4,000,000"]) assert.ok(out.includes(n), n);
-  const reseller = await text("partner_architect", { company: "Ledgerline", product: "Ledgerline", partner_model: "reseller", partner_goals: "10 active resellers", your_deal_size: "$5000" });
-  for (const n of ["$750", "$1,000", "$1,250", "$1,500"]) assert.ok(reseller.includes(n), n);
+test("unconfirmed rates do not become proposed tier payments", async () => {
+ for(const partner_model of ['referral','reseller']){const out=await text('partner_architect',{company:'Ledgerline',product:'Ledgerline',partner_model,partner_goals:'Partner sourced pipeline among banks',your_deal_size:'$400,000 ACV'});assert.match(out,/No payment terms are proposed/);assert.doesNotMatch(out,/\| A starting partner|\| A top partner/);assert.match(out,/unit cost, retained margin and attribution window/);}
 });
 
 test("each segment of the goal gets its own partner kinds; energy and utilities is not read as manufacturing", async () => {
@@ -135,7 +132,7 @@ test("round 2: the recruitment email names what the product does for the partner
   const email = out.slice(out.indexOf("Subject:"));
   assert.match(email, /works with languages and localisation/);
   assert.match(email, /Our goal is partner-sourced pipeline among enterprise software, financial services, education, web and mobile apps/);
-  assert.match(out, /not the rates of the tiers above/);
+  assert.match(out, /No payment terms are proposed/);
   assert.doesNotMatch(out, /\| (?:Referrer|Advocate|Authorized|Silver|Gold|Platinum), \d+ deals? at/);
 });
 test("round 2: an AI company name adds AI partner kinds even when the product is a bare name", async () => {

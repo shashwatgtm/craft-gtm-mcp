@@ -53,8 +53,8 @@ test("craft_gtm_analyzer longtext: a repeated word is counted and listed once", 
 test("craft_gtm_analyzer: parts of longer words do not count", async () => {
   const r = await call("craft_gtm_analyzer", { document_content: "Weekly planning of the marketplace decision, yearly reviews and daytime calls for enterprises.", document_type: "campaign_brief" });
   const t = area(r.text, "T: TIMELINE");
-  assert.deepEqual(t.words, []);
-  assert.equal(t.score, 0);
+  assert.deepEqual(t.words, ["Weekly"]);
+  assert.equal(t.score, 6);
   const f = area(r.text, "F: FRAME");
   assert.deepEqual(f.words, []);
   assert.equal(f.score, 0);

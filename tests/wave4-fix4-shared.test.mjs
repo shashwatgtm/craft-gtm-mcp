@@ -7,7 +7,7 @@ for(const v of vs)for(const[form,phrase,want]of [['exact','Setup is difficult.',
  let raw,checks;
  if(repo==='revenue-enablement-mcp'){raw=mod.readPains(phrase);checks={classification:(raw.pains.length>0)===want,retained:JSON.stringify(raw).includes(phrase.replace(/[.]$/,''))};}
  else if(repo==='craft-content-mcp'){const points=mod.readPoints(phrase);const draft=caseStudy({customer_name:'Customer account',your_product:v+' vendor',mode:'full',interview_notes:phrase,solution:'The team installed the software.',results:'No outcome figures were supplied.'});raw={points,draft};checks={classification:points.some(p=>p.role==='problem')===want,challenge:/challenge came from the interview notes/i.test(draft)===want,retained:draft.includes(phrase.replace(/[.]$/,''))};}
- else{raw=mod.generateCompetitiveIntel({your_product:v+' vendor',competitors:'Current workflow',your_strengths:'Export the review trail',competitor_details:'Current workflow: '+phrase});checks={classification:/what we have seen is:/.test(raw)===want,retained:raw.includes(phrase.replace(/[.]$/,''))};}
+ else{raw=mod.generateCompetitiveIntel({your_product:v+' vendor',competitors:'Current workflow',your_strengths:'Export the review trail',competitor_details:'Current workflow: '+phrase});checks={classification:/the supplied, unverified note says:/.test(raw)===want,retained:raw.includes(phrase.replace(/[.]$/,''))};}
  rows.push({v,form,phrase,want,raw,checks});assert.ok(Object.values(checks).every(Boolean),JSON.stringify({phrase,checks,raw}));
 });
 test.after(()=>{if(process.env.WAVE4_RECEIPT)fs.writeFileSync(process.env.WAVE4_RECEIPT,JSON.stringify(rows,null,2)+'\n')});

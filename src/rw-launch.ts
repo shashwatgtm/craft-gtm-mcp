@@ -718,9 +718,11 @@ export function writeLaunchPlan(args: {
   out.push('');
 
   // ---- timeline ----
+  if (dated || taskCapacity>0) {
   out.push('## Confirm remaining delivery capacity');
-  out.push(`Assessment date: ${assessed.toISOString().slice(0,10)}. Launch date stays ${when.label || 'unconfirmed'} unless you explicitly change it.`);
-  out.push(taskCapacity > 0 ? `Confirmed delivery capacity: ${taskCapacity} tasks per day. The remaining dates below are conditional on confirming which tasks are still open; confirm estimates and dependencies before committing.` : 'Delivery capacity is unknown. First confirm which elapsed tasks are complete, then name each owner and their available tasks per day. The original dates below are a reference, not a feasible remaining schedule.');
+  out.push(dated ? `Assessment date: ${assessed.toISOString().slice(0,10)}. Launch date stays ${when.label} unless you explicitly change it.` : 'Confirm a launch date; relative weeks are a reference only.');
+  out.push(taskCapacity > 0 ? `Confirmed delivery capacity: ${taskCapacity} tasks per day. The remaining dates below are conditional on confirming which tasks are still open; confirm estimates and dependencies before committing.` : 'Capacity unknown. Confirm completed tasks, owners and available tasks per day. The reference schedule does not establish feasibility.');
+  } else out.push('Confirm capacity and completed tasks before dating this plan.');
   out.push('## Timeline');
   out.push('');
   out.push(dated ? '*Task dates are suggestions spread across each phase: move them to fit your launch day.*' : '*Tasks are placed in weeks before and after launch; with a launch date they would carry calendar dates.*');
@@ -741,7 +743,7 @@ export function writeLaunchPlan(args: {
       const elapsed = dated && dueDate < assessed;
       const proposed = taskCapacity > 0 ? addDays(assessed, Math.floor(remainingIndex++ / taskCapacity)) : null;
       const capacityStatus = proposed ? ` If still open, proposed remaining date: ${formatDate(proposed)}.${dated && offset <= 0 && proposed > reference ? ' Capacity conflict: this falls after the fixed launch date; reduce scope or confirm more capacity.' : ''}` : '';
-      const status = elapsed ? ' Overdue if unfinished; completion unknown. Confirm whether complete and retain evidence.' : ' Completion unknown; confirm owner and capacity.';
+      const status = !dated ? '' : elapsed ? ' Overdue if unfinished; completion unknown' : ' Completion unknown';
       out.push(`- **${stripEnd(row.title)}** (${ownerOf(row.owner)}, ${dated ? 'due ' : ''}${due})${row.detail ? `: ${stripEnd(row.detail)}.` : '.'}${status}${capacityStatus}`);
     });
     out.push('');

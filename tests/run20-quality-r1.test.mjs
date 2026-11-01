@@ -173,7 +173,7 @@ const CI = { your_product: "Ledgerline billing platform for subscription compani
 test("competitive_intel: a strengths sentence is split into phrases, never into fragments that start with 'and'", async () => {
   const r = await call("competitive_intel", CI);
   assert.equal(r.isError, false);
-  const items = r.text.split("**You win on:** ")[1].split("\n")[0].replace(/\.$/, "").split("; ");
+  const items = r.text.split("**Seller claims to test:** ")[1].split("\n")[0].replace(/\.$/, "").split("; ");
   assert.ok(items.length >= 2);
   for (const it of items) assert.doesNotMatch(it, /^(and|or|but|with|which)\b/i, it);
 });

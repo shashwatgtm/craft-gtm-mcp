@@ -40,7 +40,7 @@ for (const [sector, vid] of Object.entries(SECTOR_CHOICES)) {
       const out = await call(tool, argsFor(tool, sector));
       const lines = out.split("\n").filter((l) => /Business model:/.test(l));
       for (const l of lines) {
-        assert.ok(l.includes(`Business model: ${want} (the usual model in this sector`), `${tool} ${sector}: ${l}`);
+        assert.ok(tool === "competitive_intel" ? l.includes("Business model: unknown; confirm how you charge") : l.includes(`Business model: ${want} (the usual model in this sector`), `${tool} ${sector}: ${l}`);
       }
       if (SECTOR_MODEL[vid] !== "connectivity") assert.ok(!/per site, per link or bandwidth/i.test(out), `${tool} ${sector}: telecom model wording`);
       if (!["software", "cybersecurity"].includes(sector) && tool === "craft_gtm_analyzer") assert.ok(!/trial first|developers usually try/i.test(out), `${sector}: developer trial habits`);

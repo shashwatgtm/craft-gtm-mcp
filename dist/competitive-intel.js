@@ -194,7 +194,9 @@ export function generateCompetitiveIntel(args) {
     const competitorsRaw = (() => {
         const out = [];
         let tail = false; // inside a description whose own comma list ("with fragmented teams, tools and data") is being joined back
-        const rawPieces = args.competitors.split(/;|\n/).flatMap(part => splitTopLevel(part, false));
+        const namedAlternatives = args.competitors.split(/;|\n/).map(x => x.trim()).filter(Boolean);
+        const clearList = namedAlternatives.length > 1 && namedAlternatives.every(x => /^[A-Z][\w-]+(?:\s+[A-Z][\w-]+)*$/.test(x) || /^(?:an? |the )?(?:incumbent|internal|in.house|manual|legacy|current|managed provider)\b/i.test(x)) && !namedAlternatives.some(x => /\b(?:with|that|which)\b/.test(x));
+        const rawPieces = clearList ? namedAlternatives : splitTopLevel(args.competitors, false);
         // Run 42B (addendum 9): one typed phrase is one alternative. A single line (no semicolon or new line) whose first piece is a long description in lower case
         // ("the current way of handling X is hard across product, design, engineering ...") or that reads "<word>, <word> and <word> in one place" is not a list of competitors.
         const oneLine = !/[;\n]/.test(args.competitors ?? '');
@@ -222,7 +224,7 @@ export function generateCompetitiveIntel(args) {
     const wins = splitItems(args.recent_wins);
     const losses = splitItems(args.recent_losses);
     const objections = args.common_objections ? splitObjections(args.common_objections) : [];
-    const ctx = readContext({ model: args.business_model, vertical: args.industry, sector: args.your_sector }, { seller: [args.your_product, args.your_strengths], context: [args.competitors, args.competitor_details, args.common_objections, args.recent_wins, args.recent_losses] });
+    const ctx = readContext({ model: args.business_model, vertical: args.industry, sector: args.your_sector || (/^software(?: vendor)?$/i.test(args.your_product.trim()) ? 'software' : undefined) }, { seller: [args.your_product, args.your_strengths], context: [args.competitors, args.competitor_details, args.common_objections, args.recent_wins, args.recent_losses] });
     const v = ctx.v;
     const contextLine = args.business_model ? ctx.line : ctx.line.replace(/Business model:.*(?=\*$)/, "Business model: unknown; confirm how you charge.");
     // Strengths: the ones you gave, else your own words from your wins (Run 19, D80, problem 7: a win phrase is never turned into a claim you did not make).
@@ -483,7 +485,7 @@ ${comps.length === 1 && comps[0].ref === 'the current approach you described' ? 
 `;
     if (S.length)
         out += `**${fromWins ? 'Reported wins to investigate:' : 'Seller claims to test:'}** ${sayList(S)}.\n\n`;
-    const cell = (x) => x.replace(/\|/g, '/').replace(/\s+/g, ' ').trim();
+    const cell = (x) => clauseCut(x, 180).replace(/\|/g, '/').replace(/\s+/g, ' ').trim();
     out += `## Comparison evidence to confirm\n\n| Named alternative | Buyer criterion | Your supplied evidence | Alternative supplied evidence | Conclusion |\n| --- | --- | --- | --- | --- |\n${comps.map(c => `| ${cell(c.name)} | Unknown; agree the buyer's criterion | ${S.length ? 'Seller claim, unverified: ' + cell(sayList(S)) : 'Unknown'} | ${c.notes.length ? 'Supplied notes, unverified: ' + cell(c.notes.join('; ')) : 'Unknown'} | Not established; compare both options on the same buyer task and retain the source |`).join('\n')}\n\n`;
     if (args.your_strengths && wins.length)
         out += `**Recent wins:** ${sayList(wins)}.\n\n`;
