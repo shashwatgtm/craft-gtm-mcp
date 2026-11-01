@@ -91,13 +91,14 @@ export function generatePMFScorecard(args: {
   // Score each dimension
   const months = reading.churnMonths;
   const churnLabel = months === 12 ? 'Annual Churn' : months === 3 ? 'Quarterly Churn' : months === 1 ? 'Monthly Churn' : 'Churn (period not supplied)';
-  const churnRange = months && months > 1
-    ? { low: (1 - (1 - b.churn.low / 100) ** months) * 100, medium: (1 - (1 - b.churn.medium / 100) ** months) * 100, high: (1 - (1 - b.churn.high / 100) ** months) * 100 }
-    : b.churn;
-  const churnScore = scoreMetric(months ? metrics.churn : undefined, churnRange, false);
+  const churnRange = b.churn;
+  const monthlyChurn = metrics.churn === undefined || !months ? undefined
+    : months === 1 ? metrics.churn : (1 - (1 - metrics.churn / 100) ** (1 / months)) * 100;
+  const monthlyShown = monthlyChurn === undefined ? '' : Number(monthlyChurn.toFixed(2)).toString();
+  const churnScore = scoreMetric(monthlyChurn, churnRange, false);
   const churnPeriodNote = metrics.churn !== undefined && !months
     ? 'Period not supplied. This churn figure is listed but not scored; confirm whether it is monthly, quarterly or annual.'
-    : months && months > 1 ? `Your ${months === 12 ? 'annual' : 'quarterly'} figure stays on its stated basis. Example monthly benchmarks are converted to the same period: (1 − (1 − monthly rate / 100)^${months}) × 100. Healthy up to ${pct(churnRange.medium)}%, excellent up to ${pct(churnRange.low)}%. This assumes a constant monthly loss rate.` : '';
+    : metrics.churn !== undefined && months && months > 1 ? `Your ${months === 12 ? 'annual' : 'quarterly'} churn remains ${pct(metrics.churn)}%. Monthly equivalent: (1 − (1 − ${pct(metrics.churn)} / 100)^(1/${months})) × 100 = ${monthlyShown}%. This assumes a constant monthly loss rate. The monthly equivalent is compared with the existing monthly example range: healthy up to ${pct(churnRange.medium)}%, excellent up to ${pct(churnRange.low)}%.` : '';
   const npsScore = scoreMetric(metrics.nps, b.nps, true);
   const ltvCacScore = scoreMetric(metrics.ltvCacRatio, b.ltvCac, true, metrics.ltvCacRatio?.toFixed(1), 'x');
   const retentionScore = scoreMetric(metrics.retentionRate, b.retention, true, undefined, '%');
@@ -273,7 +274,7 @@ Each score and status compares your value with an example benchmark. ${rangeNote
 ### 1. Customer Retention (Churn)
 ${dimensionHeader}
 |--------|-----------|-------|-----------|--------|
-| ${churnLabel} | ${metrics.churn !== undefined ? pct(metrics.churn) + '%' : 'NOT PROVIDED'} | ${churnScore.score}/10 | ${months ? `healthy up to ${pct(churnRange.medium)}%, excellent up to ${pct(churnRange.low)}%` : 'Period needed before comparison'} | ${churnScore.label} |
+| ${churnLabel} | ${metrics.churn !== undefined ? pct(metrics.churn) + '%' + (months && months > 1 ? ` (${monthlyShown}% monthly equivalent)` : '') : 'NOT PROVIDED'} | ${churnScore.score}/10 | ${months ? `Monthly example: healthy up to ${pct(churnRange.medium)}%, excellent up to ${pct(churnRange.low)}%` : 'Period needed before comparison'} | ${churnScore.label} |
 
 **Analysis:** ${churnPeriodNote || churnScore.analysis}
 
