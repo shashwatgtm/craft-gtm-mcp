@@ -51,7 +51,13 @@ export function generatePartnerArchitect(args: {
   const supportCapacity = args.partner_support_capacity || 'moderate';
   // Run 19 (D80): the sector and the business model are read from the inputs; the stated goal and the existing partners are used.
   const ctx = readContext({ model: args.business_model, vertical: args.industry, sector: args.your_sector }, { seller: [cleanCompanyName(args.company), args.product], context: [args.existing_partners], buyer: [args.partner_goals] });
-  const existingPartners = splitItems(args.existing_partners);
+  const existingText = (args.existing_partners || '').trim();
+  const absentPartners = /^(?:no\b|none\b|not (?:yet )?any\b|we (?:do not|don't) have\b|without\b)/i.test(existingText);
+  const existingPartners = absentPartners ? [] : splitItems(args.existing_partners);
+  const rate = args.partner_goals.match(/(?:Confirmed rate|Approved commission):\s*(\d+(?:\.\d+)?)%/i)?.[1];
+  const margin = args.partner_goals.match(/(?:Minimum retained margin|Margin constraint):\s*(\d+(?:\.\d+)?)%/i)?.[1];
+  const termsConfirmed = !!rate && !!margin && Number(rate)<=100 && Number(margin)<=100 && !/\b(?:not|unconfirmed|proposed)\b[^;\n]{0,30}(?:rate|commission|margin)/i.test(args.partner_goals);
+  const terms = termsConfirmed ? `Owner supplied commission ${rate}%; minimum retained margin ${margin}%. Verify actual unit costs and partner acceptance before agreeing terms.` : 'Commission rate and margin constraint are unconfirmed. No payment terms are proposed.';
   
   // Parse deal size for commission calculations
   const dealSizeRead = readAmount(args.your_deal_size);
@@ -169,6 +175,12 @@ export function generatePartnerArchitect(args: {
 
   let out = `# Partner program for ${company}
 
+## First referral pilot
+${absentPartners ? 'No existing partner evidence was supplied.' : existingPartners.length ? 'Named partners still need qualification and agreement for this pilot.' : 'Existing partner evidence is unknown.'}
+Qualify one introduction: the buyer confirms an approval or workflow problem, the relevant decision role and permission for contact. Record the introduction source, date and CRM owner; agree attribution before outreach. Review the pilot after the first introduction with the partner and owner, using acceptance, buyer response and support time. Continue only when qualification and attribution are agreed.
+
+**Commercial confirmation:** ${terms}
+
 This is a ${pm} partner program for ${offer}. ${dealLine} You can support partners at a ${capacity} level.
 
 **Your stated goal:** ${q(args.partner_goals)}
@@ -208,27 +220,13 @@ ${program.tiers.map((tier, i) => `### Tier ${i + 1}: ${tier.name}
 
 - **To qualify:** ${tier.requirements.map(lc).join('; ')}.
 - **Benefits:** ${tier.benefits.map((b) => lc(b.replace(/\badvisory board seat\b/i, 'a place on the partner advisory board'))).join('; ')}.
-- **Partner earns:** ${tier.commission}.
+- **Partner earns:** ${terms}
 - **Support:** ${lc(tier.support)}.`).join('\n\n')}
 
-## What a partner earns
+## Commercial terms to confirm
 
-The table applies three fixed example rates (10%, 15% and 25%) to ${dealSizeMatch ? 'your' : 'the assumed'} deal size, to show what a starting, an active and a top partner would cost you. They are not the rates of the tiers above (${program.tiers.some((t) => /25%/.test(t.commission)) ? 'one tier uses 25%, the others differ' : 'no tier uses 25%'}): set the rate of each tier yourself, then read the matching row.
-
-| Scenario | Partner earns | You keep |
-|----------|---------------|----------|
-| A starting partner, 1 deal at 10% | ${money(dealSize * 0.10)} | ${money(dealSize * 0.90)} |
-| An active partner, 5 deals at 15% | ${money(dealSize * 0.15 * 5)} | ${money(dealSize * 0.85 * 5)} |
-| A top partner, 20 deals at 25% | ${money(dealSize * 0.25 * 20)} | ${money(dealSize * 0.75 * 20)} |
-
-${(() => {
-  const c = dealSize * 0.10; const first = money(c);
-  const verdict = c < 500 ? `At ${first} a deal a partner earns too little to be worth a person on your side, so keep the program self serve and consider affiliate or referral links only.`
-    : c < 3000 ? `At ${first} a deal, a shared partner manager (pooled across partners, not one per partner) is the most the economics support.`
-    : c < 10000 ? `At ${first} a deal, a named contact for your top partners is justified; keep the others on pooled support.`
-    : `At ${first} a deal, a named partner manager and tailored onboarding for each active partner are justified.`;
-  return `**What the economics support:** the first tier earns ${first} on one closed deal at the example 10% rate. ${verdict} ${dealSize > 1000 ? 'The deal size leaves room for a meaningful commission.' : 'The deal size is small for a reseller model, so consider affiliate or referral instead.'}`;
-})()}
+${terms}
+A deal amount alone does not establish margin or support capacity. Confirm the payment basis, unit cost, retained margin and attribution window before proposing commission.
 
 ## Targets and KPIs
 
