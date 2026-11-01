@@ -1,4 +1,4 @@
-import { hasSignal, readSignal, SIGNALS, launchGoalReading, securityIncident, statedGoalCount, launchFollowup } from './text-signals.js';
+import { sizeReading, hasSignal, readSignal, SIGNALS, launchGoalReading, securityIncident, statedGoalCount, launchFollowup } from './text-signals.js';
 // Run 22 (writer cg-w2): the rewritten launch_commander, retention_playbook and crisis_planner.
 // Each tool writes a finished draft from the user's own inputs: every input is used where it matters, in clean sentences, nothing is invented
 // (no figure, customer, date or promise that was not given), and what was not given is named once at the end ("To sharpen this, give: ...").
@@ -1005,7 +1005,7 @@ export function writeRetentionPlaybook(args: {
   const typedRate = roundTypedPercents(args.current_churn_rate).trim();
   const pb = ctx.v ? playbookFor(ctx.v) : null;
   const notes = segmentNotes(segment);
-  const smallCustomers = /\b(smb|small|sellers?|merchants?|d2c|startups?|freelanc\w+|individuals?|consumers?|shops?|stores?|retailers?|businesses)\b/i.test(segment) && !/\b(enterprise|large|corporate|institution\w*)\b/i.test(segment);
+  const smallCustomers = sizeReading(segment, /\b(smb|small|sellers?|merchants?|d2c|startups?|freelanc\w+|individuals?|consumers?|shops?|stores?|retailers?|businesses)\b/i).state === 'affirmed' && sizeReading(segment, /\b(enterprise|large|corporate|institution\w*)\b/i).state !== 'affirmed';
   const volumeModel = choice === 'transactional' || choice === 'usage_based' || choice === 'marketplace' || choice === 'freemium';
   const enterpriseLike = !volumeModel && !smallCustomers;
   // how leaving is worded for this model: "customers who ___" (past) and "you decided to ___" (infinitive)
