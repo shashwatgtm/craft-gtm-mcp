@@ -1,3 +1,4 @@
+import { eventCapacity } from "./event-capacity.js";
 import {
   define,
   text,
@@ -332,6 +333,7 @@ export function eventPortfolio(a: Row) {
     })
     .sort((x: Row, y: Row) => x.date.localeCompare(y.date));
   return {
+    capacity: eventCapacity(a),
     rows,
     plannedAccepted: planned,
     totalCost,
@@ -350,11 +352,11 @@ export function eventPortfolio(a: Row) {
     stage: a.accepted_stage ?? "Not supplied",
     currency: a.currency ?? "Not supplied",
     period: a.period ?? "Not supplied",
-    decision:
+    decision: eventCapacity(a)?.decision ?? (
       leadRows.length > 1 &&
       leadRows.every((r: Row) => r.cost_per_accepted !== null)
         ? "Compare cost per accepted on your figures alongside audience fit, package and goal; no winner is selected from cost alone."
-        : "Not enough complete comparable figures to choose an event.",
+        : "Not enough complete comparable figures to choose an event."),
     sharedPlan: [
       {
         phase: "pre",

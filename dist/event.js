@@ -1,3 +1,4 @@
+import { eventCapacity } from "./event-capacity.js";
 import { define, text, num, choice, object, array, requireDate, requireUnique, days, sum, } from "./reserve-common.js";
 const fields = [
     "events",
@@ -266,6 +267,7 @@ export function eventPortfolio(a) {
     })
         .sort((x, y) => x.date.localeCompare(y.date));
     return {
+        capacity: eventCapacity(a),
         rows,
         plannedAccepted: planned,
         totalCost,
@@ -283,10 +285,10 @@ export function eventPortfolio(a) {
         stage: a.accepted_stage ?? "Not supplied",
         currency: a.currency ?? "Not supplied",
         period: a.period ?? "Not supplied",
-        decision: leadRows.length > 1 &&
+        decision: eventCapacity(a)?.decision ?? (leadRows.length > 1 &&
             leadRows.every((r) => r.cost_per_accepted !== null)
             ? "Compare cost per accepted on your figures alongside audience fit, package and goal; no winner is selected from cost alone."
-            : "Not enough complete comparable figures to choose an event.",
+            : "Not enough complete comparable figures to choose an event."),
         sharedPlan: [
             {
                 phase: "pre",

@@ -1,5 +1,6 @@
 import { type Row } from "./reserve-common.js";
 export declare function eventPortfolio(a: Row): {
+    capacity: any;
     rows: any;
     plannedAccepted: number | null;
     totalCost: number | null;
@@ -12,7 +13,7 @@ export declare function eventPortfolio(a: Row): {
     stage: any;
     currency: any;
     period: any;
-    decision: string;
+    decision: any;
     sharedPlan: {
         phase: string;
         task: string;
