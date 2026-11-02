@@ -306,7 +306,7 @@ export function readContext(opts, rawInput) {
         model = null;
         how = 'unknown';
     }
-    if (!v && how === 'sector') {
+    if (how === 'sector' || how === 'hint') {
         model = null;
         how = 'unknown';
     }
@@ -320,9 +320,9 @@ export function readContext(opts, rawInput) {
     const vAdj = vSeats;
     const sector = vAdj ? `${chosen ? `${vAdj.name} (from your choice)` : `read from your inputs as ${vAdj.name}`}` : `not clear from your inputs${buyerSide || ' (name the industry for sector notes)'}`;
     const mtxt = model
-        ? `${MODEL_LABEL[model]} (${how === 'input' ? 'from your answer' : how === 'hint' ? 'from your market choice; confirm how you charge' : how === 'sector' ? 'the usual model in this sector, assumed; confirm how you charge' : 'read from your inputs; confirm how you charge'})`
-        : 'not clear from your inputs; describe how you charge for advice that fits it';
-    return { v: vAdj, model, how, sector, line: `*Sector: ${sector}. Business model: ${mtxt}.*`, buyerV };
+        ? `${MODEL_LABEL[model]} (${how === 'input' ? 'from your answer' : 'read from your inputs; confirm how you charge'})`
+        : 'not stated. Tell us how you charge and the plan will adjust';
+    return { v: vAdj, model, how, sector, line: `*Sector: ${sector}. Business model: ${mtxt}.*${!model ? "\n\nBilling dependent steps are conditional: trials, seats and recurring renewals require a subscription; a statement of work requires a services contract; site or link commitments require connectivity billing. Confirm the applicable choice before using those steps." : ""}`, buyerV };
 }
 /** Sector notes: the buying committee, what the sector measures and its usual objections (no figures, rule B82). */
 export function sectorNotes(v, what = 'all') {

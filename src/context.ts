@@ -248,7 +248,7 @@ export function readContext(opts: { model?: unknown; hintModel?: BusinessModel |
   }
   // No sector of the seller's own is known (the sector read from the buyer's industry is not used), so there is no usual model to assume either.
   if (!explicit && nonRecurringBilling(sellerTexts.join(' . '))) { model = null; how = 'unknown'; }
-  if (!v && how === 'sector') { model = null; how = 'unknown'; }
+  if (how === 'sector' || how === 'hint') { model = null; how = 'unknown'; }
   const buyerSide = buyerV ? ` (name it with the industry input for sector notes)` : '';
   // A seller that manages money (the investment model) is not sold to like the sector the shared reader named (support-automation buyers for "AI native",
   // finance-function buyers for "fintech"): the committee, roles, measures and discovery questions are those of an investment decision.
@@ -259,9 +259,9 @@ export function readContext(opts: { model?: unknown; hintModel?: BusinessModel |
   const vAdj: Vertical | null = vSeats;
   const sector = vAdj ? `${chosen ? `${vAdj!.name} (from your choice)` : `read from your inputs as ${vAdj!.name}`}` : `not clear from your inputs${buyerSide || ' (name the industry for sector notes)'}`;
   const mtxt = model
-    ? `${MODEL_LABEL[model]} (${how === 'input' ? 'from your answer' : how === 'hint' ? 'from your market choice; confirm how you charge' : how === 'sector' ? 'the usual model in this sector, assumed; confirm how you charge' : 'read from your inputs; confirm how you charge'})`
-    : 'not clear from your inputs; describe how you charge for advice that fits it';
-  return { v: vAdj, model, how, sector, line: `*Sector: ${sector}. Business model: ${mtxt}.*`, buyerV };
+    ? `${MODEL_LABEL[model]} (${how === 'input' ? 'from your answer' : 'read from your inputs; confirm how you charge'})`
+    : 'not stated. Tell us how you charge and the plan will adjust';
+  return { v: vAdj, model, how, sector, line: `*Sector: ${sector}. Business model: ${mtxt}.*${!model ? "\n\nBilling dependent steps are conditional: trials, seats and recurring renewals require a subscription; a statement of work requires a services contract; site or link commitments require connectivity billing. Confirm the applicable choice before using those steps." : ""}`, buyerV };
 }
 
 /** Sector notes: the buying committee, what the sector measures and its usual objections (no figures, rule B82). */
