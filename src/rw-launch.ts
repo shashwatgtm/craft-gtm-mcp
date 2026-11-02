@@ -1483,8 +1483,8 @@ ${rows.map((l) => `| ${l.join(' | ')} |`).join('\n')}
 
 | After | Update | Channel |
 |-------|--------|---------|
-| 15 minutes | "Identified", with a one-line plain description of the cause | ${enterprise ? 'Status page, and a direct update from the account owner' : 'Status page'} |
-| 30 minutes | "Working on a fix", with the time of the next update | ${consumers ? 'Status page and social channels' : 'Status page, and a direct update from the account owner'} |
+| 15 minutes | Share confirmed impact and unknowns. Use "Identified" only after the incident lead verifies the cause | ${enterprise ? 'Status page, and a direct update from the account owner' : 'Status page'} |
+| 30 minutes | Say what is being investigated or fixed and when the next update is due. Do not imply a fix has started unless it has | ${consumers ? 'Status page and social channels' : 'Status page, and a direct update from the account owner'} |
 | 60 minutes | Progress, or a revised time | Status page and an email to the affected |
 | Every 30 minutes | A further update until it is resolved | Status page |
 `;
