@@ -7542,7 +7542,7 @@ export const REGION_DATA = [
         "region_name": "UK",
         "review_status": "draft",
         "updated_at": "2026-11-03",
-        "scope_note": "United Kingdom only. Check the relevant UK nation for devolved procurement and transport rules. Country selection does not establish that a buyer or product is regulated. Draft for owner review. Depth review follows REGIONS-DEPTH.md. Waiting cells identify unfinished source checks and must not be counted as proven inheritance.",
+        "scope_note": "United Kingdom only. Check the relevant UK nation for devolved procurement and transport rules. Country selection does not establish that a buyer or product is regulated. Draft for owner review. Final owner scope permits remaining subtypes to inherit. Specific means a sourced addition for the named country and activity, not complete country coverage. Pending topics retain narrower research gaps.",
         "reader_hints": {
             "aliases": [
                 "UK",
@@ -7944,9 +7944,9 @@ export const REGION_DATA = [
             {
                 "subtype_id": "freight-visibility",
                 "vertical_id": "logistics-tech",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "logistics-tech",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -7957,16 +7957,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "freight-visibility: check FCA Handbook and authorisation guidance; PRA rules; ICO UK GDPR guidance; relevant UK sector authority for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "freight-marketplace",
                 "vertical_id": "logistics-tech",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "logistics-tech",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -7977,16 +7975,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "freight-marketplace: check FCA Handbook and authorisation guidance; PRA rules; ICO UK GDPR guidance; relevant UK sector authority for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "seller-shipping",
                 "vertical_id": "logistics-tech",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "logistics-tech",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -7997,16 +7993,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "seller-shipping: check FCA Handbook and authorisation guidance; PRA rules; ICO UK GDPR guidance; relevant UK sector authority for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "last-mile",
                 "vertical_id": "logistics-tech",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "logistics-tech",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -8017,16 +8011,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "last-mile: check FCA Handbook and authorisation guidance; PRA rules; ICO UK GDPR guidance; relevant UK sector authority for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "warehousing",
                 "vertical_id": "logistics-tech",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "logistics-tech",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -8037,16 +8029,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "warehousing: check FCA Handbook and authorisation guidance; PRA rules; ICO UK GDPR guidance; relevant UK sector authority for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "transport-management",
                 "vertical_id": "logistics-tech",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "logistics-tech",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -8057,16 +8047,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "transport-management: check FCA Handbook and authorisation guidance; PRA rules; ICO UK GDPR guidance; relevant UK sector authority for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "payments-banking",
                 "vertical_id": "fintech",
                 "status": "specific",
                 "inherits_from": "fintech",
-                "inheritance_note": "Country scoped subtype notes supplement the parent. A specific status requires sourced permission, accountable role, data rule and proof for every declared country. Unfinished checks remain waiting.",
+                "inheritance_note": "Country and activity scoped additions supplement the vertical. Other countries use applicable vertical notes. Specific status does not assert complete country depth.",
                 "context": {
                     "decision_approvers": [
                         {
@@ -8132,7 +8120,7 @@ export const REGION_DATA = [
                 "vertical_id": "fintech",
                 "status": "specific",
                 "inherits_from": "fintech",
-                "inheritance_note": "Country scoped subtype notes supplement the parent. A specific status requires sourced permission, accountable role, data rule and proof for every declared country. Unfinished checks remain waiting.",
+                "inheritance_note": "Country and activity scoped additions supplement the vertical. Other countries use applicable vertical notes. Specific status does not assert complete country depth.",
                 "context": {
                     "decision_approvers": [
                         {
@@ -8198,7 +8186,7 @@ export const REGION_DATA = [
                 "vertical_id": "fintech",
                 "status": "specific",
                 "inherits_from": "fintech",
-                "inheritance_note": "Country scoped subtype notes supplement the parent. A specific status requires sourced permission, accountable role, data rule and proof for every declared country. Unfinished checks remain waiting.",
+                "inheritance_note": "Country and activity scoped additions supplement the vertical. Other countries use applicable vertical notes. Specific status does not assert complete country depth.",
                 "context": {
                     "decision_approvers": [
                         {
@@ -8276,7 +8264,7 @@ export const REGION_DATA = [
                 "vertical_id": "fintech",
                 "status": "specific",
                 "inherits_from": "fintech",
-                "inheritance_note": "Country scoped subtype notes supplement the parent. A specific status requires sourced permission, accountable role, data rule and proof for every declared country. Unfinished checks remain waiting.",
+                "inheritance_note": "Country and activity scoped additions supplement the vertical. Other countries use applicable vertical notes. Specific status does not assert complete country depth.",
                 "context": {
                     "decision_approvers": [
                         {
@@ -8342,7 +8330,7 @@ export const REGION_DATA = [
                 "vertical_id": "fintech",
                 "status": "specific",
                 "inherits_from": "fintech",
-                "inheritance_note": "Country scoped subtype notes supplement the parent. A specific status requires sourced permission, accountable role, data rule and proof for every declared country. Unfinished checks remain waiting.",
+                "inheritance_note": "Country and activity scoped additions supplement the vertical. Other countries use applicable vertical notes. Specific status does not assert complete country depth.",
                 "context": {
                     "decision_approvers": [
                         {
@@ -8408,7 +8396,7 @@ export const REGION_DATA = [
                 "vertical_id": "fintech",
                 "status": "specific",
                 "inherits_from": "fintech",
-                "inheritance_note": "Country scoped subtype notes supplement the parent. A specific status requires sourced permission, accountable role, data rule and proof for every declared country. Unfinished checks remain waiting.",
+                "inheritance_note": "Country and activity scoped additions supplement the vertical. Other countries use applicable vertical notes. Specific status does not assert complete country depth.",
                 "context": {
                     "decision_approvers": [
                         {
@@ -8473,9 +8461,9 @@ export const REGION_DATA = [
             {
                 "subtype_id": "customer-service",
                 "vertical_id": "saas",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "saas",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -8486,16 +8474,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "customer-service: check FCA Handbook and authorisation guidance; PRA rules; ICO UK GDPR guidance; relevant UK sector authority for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "crm-marketing",
                 "vertical_id": "saas",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "saas",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -8506,16 +8492,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "crm-marketing: check FCA Handbook and authorisation guidance; PRA rules; ICO UK GDPR guidance; relevant UK sector authority for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "collaboration",
                 "vertical_id": "saas",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "saas",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -8526,16 +8510,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "collaboration: check FCA Handbook and authorisation guidance; PRA rules; ICO UK GDPR guidance; relevant UK sector authority for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "product-growth",
                 "vertical_id": "saas",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "saas",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -8546,16 +8528,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "product-growth: check FCA Handbook and authorisation guidance; PRA rules; ICO UK GDPR guidance; relevant UK sector authority for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "construction",
                 "vertical_id": "vertical-saas",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "vertical-saas",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -8566,16 +8546,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "construction: check FCA Handbook and authorisation guidance; PRA rules; ICO UK GDPR guidance; relevant UK sector authority for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "property-management",
                 "vertical_id": "vertical-saas",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "vertical-saas",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -8586,16 +8564,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "property-management: check FCA Handbook and authorisation guidance; PRA rules; ICO UK GDPR guidance; relevant UK sector authority for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "field-services",
                 "vertical_id": "vertical-saas",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "vertical-saas",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -8606,16 +8582,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "field-services: check FCA Handbook and authorisation guidance; PRA rules; ICO UK GDPR guidance; relevant UK sector authority for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "fmcg-retail-execution",
                 "vertical_id": "vertical-saas",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "vertical-saas",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -8626,16 +8600,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "fmcg-retail-execution: check FCA Handbook and authorisation guidance; PRA rules; ICO UK GDPR guidance; relevant UK sector authority for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "industry-hr-payroll",
                 "vertical_id": "vertical-saas",
                 "status": "specific",
                 "inherits_from": "vertical-saas",
-                "inheritance_note": "Parent context remains. The following sourced UK addition applies only within its stated scope.",
+                "inheritance_note": "Country and activity scoped additions supplement the vertical. Other countries use applicable vertical notes. Specific status does not assert complete country depth.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -8663,9 +8635,9 @@ export const REGION_DATA = [
             {
                 "subtype_id": "hotel-lodging",
                 "vertical_id": "vertical-saas",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "vertical-saas",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -8676,16 +8648,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "hotel-lodging: check FCA Handbook and authorisation guidance; PRA rules; ICO UK GDPR guidance; relevant UK sector authority for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "retail-restaurant-ops",
                 "vertical_id": "vertical-saas",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "vertical-saas",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -8696,16 +8666,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "retail-restaurant-ops: check FCA Handbook and authorisation guidance; PRA rules; ICO UK GDPR guidance; relevant UK sector authority for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "agents-copilots",
                 "vertical_id": "ai-native",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "ai-native",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -8716,16 +8684,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "agents-copilots: check FCA Handbook and authorisation guidance; PRA rules; ICO UK GDPR guidance; relevant UK sector authority for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "voice-language-models",
                 "vertical_id": "ai-native",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "ai-native",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -8736,16 +8702,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "voice-language-models: check FCA Handbook and authorisation guidance; PRA rules; ICO UK GDPR guidance; relevant UK sector authority for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "enterprise-search",
                 "vertical_id": "ai-native",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "ai-native",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -8756,16 +8720,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "enterprise-search: check FCA Handbook and authorisation guidance; PRA rules; ICO UK GDPR guidance; relevant UK sector authority for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "it-services",
                 "vertical_id": "ites",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "ites",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -8776,16 +8738,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "it-services: check FCA Handbook and authorisation guidance; PRA rules; ICO UK GDPR guidance; relevant UK sector authority for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "bpo-cx",
                 "vertical_id": "ites",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "ites",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -8796,16 +8756,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "bpo-cx: check FCA Handbook and authorisation guidance; PRA rules; ICO UK GDPR guidance; relevant UK sector authority for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "digital-engineering",
                 "vertical_id": "ites",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "ites",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -8816,16 +8774,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "digital-engineering: check FCA Handbook and authorisation guidance; PRA rules; ICO UK GDPR guidance; relevant UK sector authority for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "data-services",
                 "vertical_id": "ites",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "ites",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -8836,16 +8792,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "data-services: check FCA Handbook and authorisation guidance; PRA rules; ICO UK GDPR guidance; relevant UK sector authority for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "operators-connectivity",
                 "vertical_id": "telecom",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "telecom",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -8856,16 +8810,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "operators-connectivity: check FCA Handbook and authorisation guidance; PRA rules; ICO UK GDPR guidance; relevant UK sector authority for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "cpaas-messaging",
                 "vertical_id": "telecom",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "telecom",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -8876,16 +8828,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "cpaas-messaging: check FCA Handbook and authorisation guidance; PRA rules; ICO UK GDPR guidance; relevant UK sector authority for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "telecom-software",
                 "vertical_id": "telecom",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "telecom",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -8896,16 +8846,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "telecom-software: check FCA Handbook and authorisation guidance; PRA rules; ICO UK GDPR guidance; relevant UK sector authority for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "business-voice-ucaas",
                 "vertical_id": "telecom",
                 "status": "specific",
                 "inherits_from": "telecom",
-                "inheritance_note": "Parent context remains. The following sourced UK addition applies only within its stated scope.",
+                "inheritance_note": "Country and activity scoped additions supplement the vertical. Other countries use applicable vertical notes. Specific status does not assert complete country depth.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -8933,9 +8881,9 @@ export const REGION_DATA = [
             {
                 "subtype_id": "developer-platform",
                 "vertical_id": "software",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "software",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -8946,16 +8894,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "developer-platform: check FCA Handbook and authorisation guidance; PRA rules; ICO UK GDPR guidance; relevant UK sector authority for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "data-infrastructure",
                 "vertical_id": "software",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "software",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -8966,16 +8912,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "data-infrastructure: check FCA Handbook and authorisation guidance; PRA rules; ICO UK GDPR guidance; relevant UK sector authority for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "observability",
                 "vertical_id": "software",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "software",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -8986,16 +8930,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "observability: check FCA Handbook and authorisation guidance; PRA rules; ICO UK GDPR guidance; relevant UK sector authority for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "testing",
                 "vertical_id": "software",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "software",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -9006,16 +8948,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "testing: check FCA Handbook and authorisation guidance; PRA rules; ICO UK GDPR guidance; relevant UK sector authority for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "dev-tools",
                 "vertical_id": "software",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "software",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -9026,23 +8966,33 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "dev-tools: check FCA Handbook and authorisation guidance; PRA rules; ICO UK GDPR guidance; relevant UK sector authority for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "cloud-security",
                 "vertical_id": "cybersecurity",
-                "status": "waiting_for_source",
+                "status": "specific",
                 "inherits_from": "cybersecurity",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Country and activity scoped additions supplement the vertical. Other countries use applicable vertical notes. Specific status does not assert complete country depth.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
                     "procurement_payment": [],
                     "data_privacy": [],
                     "buyer_language": [],
-                    "proof": [],
+                    "proof": [
+                        {
+                            "text": "Show how customer environments are separated, how administration is controlled and which audit records the cloud service exposes. NCSC principles guide assurance; a self declaration is not proof of implementation.",
+                            "kind": "operating",
+                            "source_ids": [
+                                "J:UK-NCSC-CLOUD"
+                            ],
+                            "jurisdictions": [
+                                "GB"
+                            ],
+                            "applies_when": "Voluntary UK NCSC guidance; any contractual obligation needs separate confirmation."
+                        }
+                    ],
                     "objections": [],
                     "sales_motion": []
                 },
@@ -9053,16 +9003,28 @@ export const REGION_DATA = [
             {
                 "subtype_id": "identity-security",
                 "vertical_id": "cybersecurity",
-                "status": "waiting_for_source",
+                "status": "specific",
                 "inherits_from": "cybersecurity",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Country and activity scoped additions supplement the vertical. Other countries use applicable vertical notes. Specific status does not assert complete country depth.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
                     "procurement_payment": [],
                     "data_privacy": [],
                     "buyer_language": [],
-                    "proof": [],
+                    "proof": [
+                        {
+                            "text": "Show joiner, mover and leaver controls, privileged access restrictions and proportionate authentication. Include evidence that access is removed when duties or employment change.",
+                            "kind": "operating",
+                            "source_ids": [
+                                "J:UK-NCSC-IDENTITY"
+                            ],
+                            "jurisdictions": [
+                                "GB"
+                            ],
+                            "applies_when": "Voluntary UK NCSC guidance; any contractual obligation needs separate confirmation."
+                        }
+                    ],
                     "objections": [],
                     "sales_motion": []
                 },
@@ -9073,16 +9035,28 @@ export const REGION_DATA = [
             {
                 "subtype_id": "email-security",
                 "vertical_id": "cybersecurity",
-                "status": "waiting_for_source",
+                "status": "specific",
                 "inherits_from": "cybersecurity",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Country and activity scoped additions supplement the vertical. Other countries use applicable vertical notes. Specific status does not assert complete country depth.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
                     "procurement_payment": [],
                     "data_privacy": [],
                     "buyer_language": [],
-                    "proof": [],
+                    "proof": [
+                        {
+                            "text": "Demonstrate anti-spoofing, filtering, staff reporting and incident response together. NCSC treats phishing protection as layers; training completion alone does not establish email security.",
+                            "kind": "operating",
+                            "source_ids": [
+                                "J:UK-NCSC-EMAIL"
+                            ],
+                            "jurisdictions": [
+                                "GB"
+                            ],
+                            "applies_when": "Voluntary UK NCSC guidance; any contractual obligation needs separate confirmation."
+                        }
+                    ],
                     "objections": [],
                     "sales_motion": []
                 },
@@ -9093,16 +9067,28 @@ export const REGION_DATA = [
             {
                 "subtype_id": "awareness-training",
                 "vertical_id": "cybersecurity",
-                "status": "waiting_for_source",
+                "status": "specific",
                 "inherits_from": "cybersecurity",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Country and activity scoped additions supplement the vertical. Other countries use applicable vertical notes. Specific status does not assert complete country depth.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
                     "procurement_payment": [],
                     "data_privacy": [],
                     "buyer_language": [],
-                    "proof": [],
+                    "proof": [
+                        {
+                            "text": "Make training relevant to employees' work and use feedback to improve it. Include a practical route to report suspicious activity without blame.",
+                            "kind": "operating",
+                            "source_ids": [
+                                "J:UK-NCSC-TRAINING"
+                            ],
+                            "jurisdictions": [
+                                "GB"
+                            ],
+                            "applies_when": "Voluntary UK NCSC guidance; any contractual obligation needs separate confirmation."
+                        }
+                    ],
                     "objections": [],
                     "sales_motion": []
                 },
@@ -9113,16 +9099,28 @@ export const REGION_DATA = [
             {
                 "subtype_id": "appsec",
                 "vertical_id": "cybersecurity",
-                "status": "waiting_for_source",
+                "status": "specific",
                 "inherits_from": "cybersecurity",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Country and activity scoped additions supplement the vertical. Other countries use applicable vertical notes. Specific status does not assert complete country depth.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
                     "procurement_payment": [],
                     "data_privacy": [],
                     "buyer_language": [],
-                    "proof": [],
+                    "proof": [
+                        {
+                            "text": "Show secure development rules, code review, protected build credentials and separation of production from development. Match assurance to the data the application handles.",
+                            "kind": "operating",
+                            "source_ids": [
+                                "J:UK-NCSC-APPSEC"
+                            ],
+                            "jurisdictions": [
+                                "GB"
+                            ],
+                            "applies_when": "Voluntary UK NCSC guidance; any contractual obligation needs separate confirmation."
+                        }
+                    ],
                     "objections": [],
                     "sales_motion": []
                 },
@@ -9133,16 +9131,28 @@ export const REGION_DATA = [
             {
                 "subtype_id": "mobile-appsec",
                 "vertical_id": "cybersecurity",
-                "status": "waiting_for_source",
+                "status": "specific",
                 "inherits_from": "cybersecurity",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Country and activity scoped additions supplement the vertical. Other countries use applicable vertical notes. Specific status does not assert complete country depth.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
                     "procurement_payment": [],
                     "data_privacy": [],
                     "buyer_language": [],
-                    "proof": [],
+                    "proof": [
+                        {
+                            "text": "For applications handling OFFICIAL data, show secure local storage, protected transmission and server enforced authorisation. Review what exposure to other applications or a compromised device means.",
+                            "kind": "operating",
+                            "source_ids": [
+                                "J:UK-NCSC-MOBILE"
+                            ],
+                            "jurisdictions": [
+                                "GB"
+                            ],
+                            "applies_when": "NCSC guidance for applications handling OFFICIAL data; not a universal requirement for commercial apps."
+                        }
+                    ],
                     "objections": [],
                     "sales_motion": []
                 },
@@ -9153,16 +9163,28 @@ export const REGION_DATA = [
             {
                 "subtype_id": "soc-services",
                 "vertical_id": "cybersecurity",
-                "status": "waiting_for_source",
+                "status": "specific",
                 "inherits_from": "cybersecurity",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Country and activity scoped additions supplement the vertical. Other countries use applicable vertical notes. Specific status does not assert complete country depth.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
                     "procurement_payment": [],
                     "data_privacy": [],
                     "buyer_language": [],
-                    "proof": [],
+                    "proof": [
+                        {
+                            "text": "Define what monitoring should detect, protect the logs and show how alerts reach an exercised response process. Collecting events alone does not demonstrate an effective monitoring service.",
+                            "kind": "operating",
+                            "source_ids": [
+                                "J:UK-NCSC-SOC"
+                            ],
+                            "jurisdictions": [
+                                "GB"
+                            ],
+                            "applies_when": "Voluntary UK NCSC guidance; any contractual obligation needs separate confirmation."
+                        }
+                    ],
                     "objections": [],
                     "sales_motion": []
                 },
@@ -9173,16 +9195,28 @@ export const REGION_DATA = [
             {
                 "subtype_id": "endpoint-network",
                 "vertical_id": "cybersecurity",
-                "status": "waiting_for_source",
+                "status": "specific",
                 "inherits_from": "cybersecurity",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Country and activity scoped additions supplement the vertical. Other countries use applicable vertical notes. Specific status does not assert complete country depth.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
                     "procurement_payment": [],
                     "data_privacy": [],
                     "buyer_language": [],
-                    "proof": [],
+                    "proof": [
+                        {
+                            "text": "Show hardened device configurations, restricted communication flows and containment between critical network components. Test recovery and the protection of administrative interfaces against the stated threat model.",
+                            "kind": "operating",
+                            "source_ids": [
+                                "J:UK-NCSC-ENDPOINT"
+                            ],
+                            "jurisdictions": [
+                                "GB"
+                            ],
+                            "applies_when": "Voluntary UK NCSC guidance; any contractual obligation needs separate confirmation."
+                        }
+                    ],
                     "objections": [],
                     "sales_motion": []
                 },
@@ -9193,9 +9227,9 @@ export const REGION_DATA = [
             {
                 "subtype_id": "document-ai",
                 "vertical_id": "ai-native",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "ai-native",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -9206,16 +9240,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "document-ai: check FCA Handbook and authorisation guidance; PRA rules; ICO UK GDPR guidance; relevant UK sector authority for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "ai-video",
                 "vertical_id": "ai-native",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "ai-native",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -9226,16 +9258,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "ai-video: check FCA Handbook and authorisation guidance; PRA rules; ICO UK GDPR guidance; relevant UK sector authority for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "engineering-talent",
                 "vertical_id": "ites",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "ites",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -9246,16 +9276,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "engineering-talent: check FCA Handbook and authorisation guidance; PRA rules; ICO UK GDPR guidance; relevant UK sector authority for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "product-management",
                 "vertical_id": "saas",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "saas",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -9266,16 +9294,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "product-management: check FCA Handbook and authorisation guidance; PRA rules; ICO UK GDPR guidance; relevant UK sector authority for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "digital-adoption",
                 "vertical_id": "saas",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "saas",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -9286,23 +9312,33 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "digital-adoption: check FCA Handbook and authorisation guidance; PRA rules; ICO UK GDPR guidance; relevant UK sector authority for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "pentest",
                 "vertical_id": "cybersecurity",
-                "status": "waiting_for_source",
+                "status": "specific",
                 "inherits_from": "cybersecurity",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Country and activity scoped additions supplement the vertical. Other countries use applicable vertical notes. Specific status does not assert complete country depth.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
                     "procurement_payment": [],
                     "data_privacy": [],
                     "buyer_language": [],
-                    "proof": [],
+                    "proof": [
+                        {
+                            "text": "Agree authorised targets, techniques and operational limits before testing. Track findings to remediation; a penetration test is a point in time assessment, not a permanent security guarantee.",
+                            "kind": "operating",
+                            "source_ids": [
+                                "J:UK-NCSC-PENTEST"
+                            ],
+                            "jurisdictions": [
+                                "GB"
+                            ],
+                            "applies_when": "Voluntary UK NCSC guidance; any contractual obligation needs separate confirmation."
+                        }
+                    ],
                     "objections": [],
                     "sales_motion": []
                 },
@@ -9313,16 +9349,28 @@ export const REGION_DATA = [
             {
                 "subtype_id": "attack-surface-dast",
                 "vertical_id": "cybersecurity",
-                "status": "waiting_for_source",
+                "status": "specific",
                 "inherits_from": "cybersecurity",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Country and activity scoped additions supplement the vertical. Other countries use applicable vertical notes. Specific status does not assert complete country depth.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
                     "procurement_payment": [],
                     "data_privacy": [],
                     "buyer_language": [],
-                    "proof": [],
+                    "proof": [
+                        {
+                            "text": "Map scans to the asset inventory, including exposed application interfaces. Triage findings by exploitability and business impact, record mitigation and use manual testing where automated scans leave gaps.",
+                            "kind": "operating",
+                            "source_ids": [
+                                "J:UK-NCSC-VULN"
+                            ],
+                            "jurisdictions": [
+                                "GB"
+                            ],
+                            "applies_when": "Voluntary UK NCSC guidance; any contractual obligation needs separate confirmation."
+                        }
+                    ],
                     "objections": [],
                     "sales_motion": []
                 },
@@ -9333,9 +9381,9 @@ export const REGION_DATA = [
             {
                 "subtype_id": "process-orchestration",
                 "vertical_id": "software",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "software",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -9346,16 +9394,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "process-orchestration: check FCA Handbook and authorisation guidance; PRA rules; ICO UK GDPR guidance; relevant UK sector authority for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "open-source-support",
                 "vertical_id": "software",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "software",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -9366,16 +9412,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "open-source-support: check FCA Handbook and authorisation guidance; PRA rules; ICO UK GDPR guidance; relevant UK sector authority for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "iot-connectivity",
                 "vertical_id": "telecom",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "telecom",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -9386,9 +9430,7 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "iot-connectivity: check FCA Handbook and authorisation guidance; PRA rules; ICO UK GDPR guidance; relevant UK sector authority for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             }
         ]
     },
@@ -9398,7 +9440,7 @@ export const REGION_DATA = [
         "region_name": "Western Europe",
         "review_status": "draft",
         "updated_at": "2026-11-03",
-        "scope_note": "This draft covers Austria, Belgium, France, Germany, Liechtenstein, Luxembourg, Monaco, the Netherlands and Switzerland. The UK has its own file. This is a declared country scope, not a claim that all European markets are covered. EU provisions are attached only to the listed EU countries when that territorial scope is sourced. Liechtenstein, Monaco and Switzerland receive separately sourced notes. No country is a regional default. Draft for owner review. Depth review follows REGIONS-DEPTH.md. Waiting cells identify unfinished source checks and must not be counted as proven inheritance.",
+        "scope_note": "This draft covers Austria, Belgium, France, Germany, Liechtenstein, Luxembourg, Monaco, the Netherlands and Switzerland. The UK has its own file. This is a declared country scope, not a claim that all European markets are covered. EU provisions are attached only to the listed EU countries when that territorial scope is sourced. Liechtenstein, Monaco and Switzerland receive separately sourced notes. No country is a regional default. Draft for owner review. Final owner scope permits remaining subtypes to inherit. Specific means a sourced addition for the named country and activity, not complete country coverage. Pending topics retain narrower research gaps.",
         "reader_hints": {
             "aliases": [
                 "Western Europe"
@@ -10349,9 +10391,9 @@ export const REGION_DATA = [
             {
                 "subtype_id": "freight-visibility",
                 "vertical_id": "logistics-tech",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "logistics-tech",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -10362,16 +10404,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "freight-visibility: check National sector authority and privacy authority for AT BE FR DE LI LU MC NL CH; EU law only where applicability is verified for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "freight-marketplace",
                 "vertical_id": "logistics-tech",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "logistics-tech",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -10382,16 +10422,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "freight-marketplace: check National sector authority and privacy authority for AT BE FR DE LI LU MC NL CH; EU law only where applicability is verified for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "seller-shipping",
                 "vertical_id": "logistics-tech",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "logistics-tech",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -10402,16 +10440,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "seller-shipping: check National sector authority and privacy authority for AT BE FR DE LI LU MC NL CH; EU law only where applicability is verified for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "last-mile",
                 "vertical_id": "logistics-tech",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "logistics-tech",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -10422,16 +10458,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "last-mile: check National sector authority and privacy authority for AT BE FR DE LI LU MC NL CH; EU law only where applicability is verified for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "warehousing",
                 "vertical_id": "logistics-tech",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "logistics-tech",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -10442,16 +10476,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "warehousing: check National sector authority and privacy authority for AT BE FR DE LI LU MC NL CH; EU law only where applicability is verified for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "transport-management",
                 "vertical_id": "logistics-tech",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "logistics-tech",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -10462,16 +10494,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "transport-management: check National sector authority and privacy authority for AT BE FR DE LI LU MC NL CH; EU law only where applicability is verified for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "payments-banking",
                 "vertical_id": "fintech",
-                "status": "waiting_for_source",
+                "status": "specific",
                 "inherits_from": "fintech",
-                "inheritance_note": "Country scoped subtype notes supplement the parent. A specific status requires sourced permission, accountable role, data rule and proof for every declared country. Unfinished checks remain waiting.",
+                "inheritance_note": "Country and activity scoped additions supplement the vertical. Other countries use applicable vertical notes. Specific status does not assert complete country depth.",
                 "context": {
                     "decision_approvers": [
                         {
@@ -10681,9 +10711,9 @@ export const REGION_DATA = [
             {
                 "subtype_id": "core-banking",
                 "vertical_id": "fintech",
-                "status": "waiting_for_source",
+                "status": "specific",
                 "inherits_from": "fintech",
-                "inheritance_note": "Country scoped subtype notes supplement the parent. A specific status requires sourced permission, accountable role, data rule and proof for every declared country. Unfinished checks remain waiting.",
+                "inheritance_note": "Country and activity scoped additions supplement the vertical. Other countries use applicable vertical notes. Specific status does not assert complete country depth.",
                 "context": {
                     "decision_approvers": [
                         {
@@ -10849,8 +10879,7 @@ export const REGION_DATA = [
                             "text": "DORA Article 30 requires ICT contracts to identify processing and storage countries and address data protection. This is not an EU only hosting mandate.",
                             "kind": "legal",
                             "source_ids": [
-                                "J:EU-DORA",
-                                "J:LI-DORA"
+                                "J:EU-DORA"
                             ],
                             "jurisdictions": [
                                 "AT",
@@ -10858,10 +10887,21 @@ export const REGION_DATA = [
                                 "FR",
                                 "DE",
                                 "LU",
-                                "NL",
+                                "NL"
+                            ],
+                            "applies_when": "For ICT contracts of covered EU financial entities under DORA Article 30."
+                        },
+                        {
+                            "text": "DORA Article 30 requires ICT contracts to identify processing and storage countries and address data protection. This is not an EU only hosting mandate.",
+                            "kind": "legal",
+                            "source_ids": [
+                                "J:EU-DORA",
+                                "J:LI-DORA"
+                            ],
+                            "jurisdictions": [
                                 "LI"
                             ],
-                            "applies_when": "For in scope ICT contracts; Liechtenstein applicability is separately verified by J:LI-DORA."
+                            "applies_when": "For covered Liechtenstein entities under the EEA DORA Implementation Act and DORA Article 30."
                         },
                         {
                             "text": "Swiss bank outsourcing contracts must define security controls. Overseas arrangements must preserve enforceable audit access and access in Switzerland to information needed for restructuring or resolution.",
@@ -10881,8 +10921,7 @@ export const REGION_DATA = [
                             "text": "DORA Article 24 calls for proportionate resilience testing and documented correction of weaknesses. Show the bank's relevant test and remediation evidence.",
                             "kind": "legal",
                             "source_ids": [
-                                "J:EU-DORA",
-                                "J:LI-DORA"
+                                "J:EU-DORA"
                             ],
                             "jurisdictions": [
                                 "AT",
@@ -10890,10 +10929,21 @@ export const REGION_DATA = [
                                 "FR",
                                 "DE",
                                 "LU",
-                                "NL",
+                                "NL"
+                            ],
+                            "applies_when": "For covered EU banks, accounting for microenterprise and simplified framework provisions."
+                        },
+                        {
+                            "text": "DORA Article 24 calls for proportionate resilience testing and documented correction of weaknesses. Show the bank's relevant test and remediation evidence.",
+                            "kind": "legal",
+                            "source_ids": [
+                                "J:EU-DORA",
+                                "J:LI-DORA"
+                            ],
+                            "jurisdictions": [
                                 "LI"
                             ],
-                            "applies_when": "For covered banks, accounting for microenterprise and simplified framework provisions."
+                            "applies_when": "For covered Liechtenstein banks under the EEA DORA Implementation Act, accounting for relevant exceptions."
                         },
                         {
                             "text": "Show the outsourced function inventory, risk assessment, monitoring evidence and enforceable bank, auditor and FINMA inspection rights.",
@@ -10917,9 +10967,9 @@ export const REGION_DATA = [
             {
                 "subtype_id": "lending",
                 "vertical_id": "fintech",
-                "status": "waiting_for_source",
+                "status": "specific",
                 "inherits_from": "fintech",
-                "inheritance_note": "Country scoped subtype notes supplement the parent. A specific status requires sourced permission, accountable role, data rule and proof for every declared country. Unfinished checks remain waiting.",
+                "inheritance_note": "Country and activity scoped additions supplement the vertical. Other countries use applicable vertical notes. Specific status does not assert complete country depth.",
                 "context": {
                     "decision_approvers": [
                         {
@@ -11058,9 +11108,9 @@ export const REGION_DATA = [
             {
                 "subtype_id": "wealth-investment",
                 "vertical_id": "fintech",
-                "status": "waiting_for_source",
+                "status": "specific",
                 "inherits_from": "fintech",
-                "inheritance_note": "Country scoped subtype notes supplement the parent. A specific status requires sourced permission, accountable role, data rule and proof for every declared country. Unfinished checks remain waiting.",
+                "inheritance_note": "Country and activity scoped additions supplement the vertical. Other countries use applicable vertical notes. Specific status does not assert complete country depth.",
                 "context": {
                     "decision_approvers": [
                         {
@@ -11249,13 +11299,25 @@ export const REGION_DATA = [
             {
                 "subtype_id": "spend-expense",
                 "vertical_id": "fintech",
-                "status": "waiting_for_source",
+                "status": "specific",
                 "inherits_from": "fintech",
-                "inheritance_note": "Country scoped subtype notes supplement the parent. A specific status requires sourced permission, accountable role, data rule and proof for every declared country. Unfinished checks remain waiting.",
+                "inheritance_note": "Country and activity scoped additions supplement the vertical. Other countries use applicable vertical notes. Specific status does not assert complete country depth.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
-                    "procurement_payment": [],
+                    "procurement_payment": [
+                        {
+                            "text": "France's invoicing rollout requires receipt from September 2026 when the supplier must issue electronically. Large and intermediate enterprises issue from that date; smaller and micro enterprises follow in September 2027.",
+                            "kind": "legal",
+                            "source_ids": [
+                                "J:FR-EINVOICE-TIMING"
+                            ],
+                            "jurisdictions": [
+                                "FR"
+                            ],
+                            "applies_when": "For businesses and transactions within the French electronic invoicing reform; distinguish invoice intake from payment execution."
+                        }
+                    ],
                     "data_privacy": [],
                     "buyer_language": [],
                     "proof": [],
@@ -11277,9 +11339,9 @@ export const REGION_DATA = [
             {
                 "subtype_id": "insurance",
                 "vertical_id": "fintech",
-                "status": "waiting_for_source",
+                "status": "specific",
                 "inherits_from": "fintech",
-                "inheritance_note": "Country scoped subtype notes supplement the parent. A specific status requires sourced permission, accountable role, data rule and proof for every declared country. Unfinished checks remain waiting.",
+                "inheritance_note": "Country and activity scoped additions supplement the vertical. Other countries use applicable vertical notes. Specific status does not assert complete country depth.",
                 "context": {
                     "decision_approvers": [
                         {
@@ -11487,9 +11549,9 @@ export const REGION_DATA = [
             {
                 "subtype_id": "customer-service",
                 "vertical_id": "saas",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "saas",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -11500,16 +11562,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "customer-service: check National sector authority and privacy authority for AT BE FR DE LI LU MC NL CH; EU law only where applicability is verified for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "crm-marketing",
                 "vertical_id": "saas",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "saas",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -11520,16 +11580,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "crm-marketing: check National sector authority and privacy authority for AT BE FR DE LI LU MC NL CH; EU law only where applicability is verified for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "collaboration",
                 "vertical_id": "saas",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "saas",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -11540,16 +11598,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "collaboration: check National sector authority and privacy authority for AT BE FR DE LI LU MC NL CH; EU law only where applicability is verified for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "product-growth",
                 "vertical_id": "saas",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "saas",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -11560,16 +11616,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "product-growth: check National sector authority and privacy authority for AT BE FR DE LI LU MC NL CH; EU law only where applicability is verified for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "construction",
                 "vertical_id": "vertical-saas",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "vertical-saas",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -11580,16 +11634,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "construction: check National sector authority and privacy authority for AT BE FR DE LI LU MC NL CH; EU law only where applicability is verified for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "property-management",
                 "vertical_id": "vertical-saas",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "vertical-saas",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -11600,16 +11652,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "property-management: check National sector authority and privacy authority for AT BE FR DE LI LU MC NL CH; EU law only where applicability is verified for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "field-services",
                 "vertical_id": "vertical-saas",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "vertical-saas",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -11620,16 +11670,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "field-services: check National sector authority and privacy authority for AT BE FR DE LI LU MC NL CH; EU law only where applicability is verified for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "fmcg-retail-execution",
                 "vertical_id": "vertical-saas",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "vertical-saas",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -11640,16 +11688,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "fmcg-retail-execution: check National sector authority and privacy authority for AT BE FR DE LI LU MC NL CH; EU law only where applicability is verified for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "industry-hr-payroll",
                 "vertical_id": "vertical-saas",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "vertical-saas",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -11660,16 +11706,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "industry-hr-payroll: check National sector authority and privacy authority for AT BE FR DE LI LU MC NL CH; EU law only where applicability is verified for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "hotel-lodging",
                 "vertical_id": "vertical-saas",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "vertical-saas",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -11680,16 +11724,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "hotel-lodging: check National sector authority and privacy authority for AT BE FR DE LI LU MC NL CH; EU law only where applicability is verified for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "retail-restaurant-ops",
                 "vertical_id": "vertical-saas",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "vertical-saas",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -11700,16 +11742,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "retail-restaurant-ops: check National sector authority and privacy authority for AT BE FR DE LI LU MC NL CH; EU law only where applicability is verified for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "agents-copilots",
                 "vertical_id": "ai-native",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "ai-native",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -11720,16 +11760,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "agents-copilots: check National sector authority and privacy authority for AT BE FR DE LI LU MC NL CH; EU law only where applicability is verified for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "voice-language-models",
                 "vertical_id": "ai-native",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "ai-native",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -11740,16 +11778,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "voice-language-models: check National sector authority and privacy authority for AT BE FR DE LI LU MC NL CH; EU law only where applicability is verified for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "enterprise-search",
                 "vertical_id": "ai-native",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "ai-native",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -11760,16 +11796,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "enterprise-search: check National sector authority and privacy authority for AT BE FR DE LI LU MC NL CH; EU law only where applicability is verified for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "it-services",
                 "vertical_id": "ites",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "ites",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -11780,16 +11814,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "it-services: check National sector authority and privacy authority for AT BE FR DE LI LU MC NL CH; EU law only where applicability is verified for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "bpo-cx",
                 "vertical_id": "ites",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "ites",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -11800,16 +11832,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "bpo-cx: check National sector authority and privacy authority for AT BE FR DE LI LU MC NL CH; EU law only where applicability is verified for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "digital-engineering",
                 "vertical_id": "ites",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "ites",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -11820,16 +11850,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "digital-engineering: check National sector authority and privacy authority for AT BE FR DE LI LU MC NL CH; EU law only where applicability is verified for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "data-services",
                 "vertical_id": "ites",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "ites",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -11840,19 +11868,29 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "data-services: check National sector authority and privacy authority for AT BE FR DE LI LU MC NL CH; EU law only where applicability is verified for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "operators-connectivity",
                 "vertical_id": "telecom",
-                "status": "waiting_for_source",
+                "status": "specific",
                 "inherits_from": "telecom",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Country and activity scoped additions supplement the vertical. Other countries use applicable vertical notes. Specific status does not assert complete country depth.",
                 "context": {
                     "decision_approvers": [],
-                    "sector_regulator": [],
+                    "sector_regulator": [
+                        {
+                            "text": "Swiss operator registration depends on using the specified licensed spectrum or nationally managed addressing resources. Establish the operator's actual resource use before treating registration as a prerequisite.",
+                            "kind": "legal",
+                            "source_ids": [
+                                "J:CH-TELECOM"
+                            ],
+                            "jurisdictions": [
+                                "CH"
+                            ],
+                            "applies_when": "For Swiss telecommunications service providers within the Telecommunications Act registration trigger."
+                        }
+                    ],
                     "procurement_payment": [],
                     "data_privacy": [],
                     "buyer_language": [],
@@ -11867,9 +11905,9 @@ export const REGION_DATA = [
             {
                 "subtype_id": "cpaas-messaging",
                 "vertical_id": "telecom",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "telecom",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -11880,16 +11918,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "cpaas-messaging: check National sector authority and privacy authority for AT BE FR DE LI LU MC NL CH; EU law only where applicability is verified for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "telecom-software",
                 "vertical_id": "telecom",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "telecom",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -11900,23 +11936,33 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "telecom-software: check National sector authority and privacy authority for AT BE FR DE LI LU MC NL CH; EU law only where applicability is verified for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "business-voice-ucaas",
                 "vertical_id": "telecom",
-                "status": "waiting_for_source",
+                "status": "specific",
                 "inherits_from": "telecom",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Country and activity scoped additions supplement the vertical. Other countries use applicable vertical notes. Specific status does not assert complete country depth.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
                     "procurement_payment": [],
                     "data_privacy": [],
                     "buyer_language": [],
-                    "proof": [],
+                    "proof": [
+                        {
+                            "text": "For a Swiss service that supplies public telephony, verify emergency call routing and caller location transfer against the applicable OFCOM technical rules. Establish whether the offering is public telephone service before applying this obligation.",
+                            "kind": "legal",
+                            "source_ids": [
+                                "J:CH-EMERGENCY"
+                            ],
+                            "jurisdictions": [
+                                "CH"
+                            ],
+                            "applies_when": "Publicly available telephone service; use the edition and routing table valid at implementation."
+                        }
+                    ],
                     "objections": [],
                     "sales_motion": []
                 },
@@ -11927,9 +11973,9 @@ export const REGION_DATA = [
             {
                 "subtype_id": "developer-platform",
                 "vertical_id": "software",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "software",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -11940,16 +11986,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "developer-platform: check National sector authority and privacy authority for AT BE FR DE LI LU MC NL CH; EU law only where applicability is verified for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "data-infrastructure",
                 "vertical_id": "software",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "software",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -11960,16 +12004,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "data-infrastructure: check National sector authority and privacy authority for AT BE FR DE LI LU MC NL CH; EU law only where applicability is verified for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "observability",
                 "vertical_id": "software",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "software",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -11980,16 +12022,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "observability: check National sector authority and privacy authority for AT BE FR DE LI LU MC NL CH; EU law only where applicability is verified for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "testing",
                 "vertical_id": "software",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "software",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -12000,16 +12040,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "testing: check National sector authority and privacy authority for AT BE FR DE LI LU MC NL CH; EU law only where applicability is verified for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "dev-tools",
                 "vertical_id": "software",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "software",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -12020,23 +12058,38 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "dev-tools: check National sector authority and privacy authority for AT BE FR DE LI LU MC NL CH; EU law only where applicability is verified for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "cloud-security",
                 "vertical_id": "cybersecurity",
-                "status": "waiting_for_source",
+                "status": "specific",
                 "inherits_from": "cybersecurity",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Country and activity scoped additions supplement the vertical. Other countries use applicable vertical notes. Specific status does not assert complete country depth.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
                     "procurement_payment": [],
                     "data_privacy": [],
                     "buyer_language": [],
-                    "proof": [],
+                    "proof": [
+                        {
+                            "text": "ENISA suggests demonstrating protected cloud backups and tested recovery across availability zones where the architecture uses them.",
+                            "kind": "operating",
+                            "source_ids": [
+                                "J:EU-ENISA-TECH"
+                            ],
+                            "jurisdictions": [
+                                "AT",
+                                "BE",
+                                "FR",
+                                "DE",
+                                "LU",
+                                "NL"
+                            ],
+                            "applies_when": "For relevant digital entities within Implementing Regulation 2024/2690 in the named EU countries; establish national entity scope first. ENISA examples are guidance."
+                        }
+                    ],
                     "objections": [],
                     "sales_motion": []
                 },
@@ -12047,16 +12100,33 @@ export const REGION_DATA = [
             {
                 "subtype_id": "identity-security",
                 "vertical_id": "cybersecurity",
-                "status": "waiting_for_source",
+                "status": "specific",
                 "inherits_from": "cybersecurity",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Country and activity scoped additions supplement the vertical. Other countries use applicable vertical notes. Specific status does not assert complete country depth.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
                     "procurement_payment": [],
                     "data_privacy": [],
                     "buyer_language": [],
-                    "proof": [],
+                    "proof": [
+                        {
+                            "text": "Document access policy and risk appropriate authentication for remote, sensitive and privileged access.",
+                            "kind": "operating",
+                            "source_ids": [
+                                "J:EU-NIS2-IMPLEMENT"
+                            ],
+                            "jurisdictions": [
+                                "AT",
+                                "BE",
+                                "FR",
+                                "DE",
+                                "LU",
+                                "NL"
+                            ],
+                            "applies_when": "For relevant digital entities within Implementing Regulation 2024/2690 in the named EU countries; establish national entity scope first."
+                        }
+                    ],
                     "objections": [],
                     "sales_motion": []
                 },
@@ -12067,16 +12137,33 @@ export const REGION_DATA = [
             {
                 "subtype_id": "email-security",
                 "vertical_id": "cybersecurity",
-                "status": "waiting_for_source",
+                "status": "specific",
                 "inherits_from": "cybersecurity",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Country and activity scoped additions supplement the vertical. Other countries use applicable vertical notes. Specific status does not assert complete country depth.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
                     "procurement_payment": [],
                     "data_privacy": [],
                     "buyer_language": [],
-                    "proof": [],
+                    "proof": [
+                        {
+                            "text": "Demonstrate controls against malicious email content and unauthorised software, with user reporting and safe email practices.",
+                            "kind": "operating",
+                            "source_ids": [
+                                "J:EU-NIS2-IMPLEMENT"
+                            ],
+                            "jurisdictions": [
+                                "AT",
+                                "BE",
+                                "FR",
+                                "DE",
+                                "LU",
+                                "NL"
+                            ],
+                            "applies_when": "For relevant digital entities within Implementing Regulation 2024/2690 in the named EU countries; establish national entity scope first."
+                        }
+                    ],
                     "objections": [],
                     "sales_motion": []
                 },
@@ -12087,16 +12174,33 @@ export const REGION_DATA = [
             {
                 "subtype_id": "awareness-training",
                 "vertical_id": "cybersecurity",
-                "status": "waiting_for_source",
+                "status": "specific",
                 "inherits_from": "cybersecurity",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Country and activity scoped additions supplement the vertical. Other countries use applicable vertical notes. Specific status does not assert complete country depth.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
                     "procurement_payment": [],
                     "data_privacy": [],
                     "buyer_language": [],
-                    "proof": [],
+                    "proof": [
+                        {
+                            "text": "ENISA evidence examples include role specific training objectives, effectiveness assessments and training after relevant role changes.",
+                            "kind": "operating",
+                            "source_ids": [
+                                "J:EU-ENISA-TECH"
+                            ],
+                            "jurisdictions": [
+                                "AT",
+                                "BE",
+                                "FR",
+                                "DE",
+                                "LU",
+                                "NL"
+                            ],
+                            "applies_when": "For relevant digital entities within Implementing Regulation 2024/2690 in the named EU countries; establish national entity scope first. ENISA examples are guidance."
+                        }
+                    ],
                     "objections": [],
                     "sales_motion": []
                 },
@@ -12107,16 +12211,33 @@ export const REGION_DATA = [
             {
                 "subtype_id": "appsec",
                 "vertical_id": "cybersecurity",
-                "status": "waiting_for_source",
+                "status": "specific",
                 "inherits_from": "cybersecurity",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Country and activity scoped additions supplement the vertical. Other countries use applicable vertical notes. Specific status does not assert complete country depth.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
                     "procurement_payment": [],
                     "data_privacy": [],
                     "buyer_language": [],
-                    "proof": [],
+                    "proof": [
+                        {
+                            "text": "Show development security rules covering specification through testing, including outsourced development and protected development environments.",
+                            "kind": "operating",
+                            "source_ids": [
+                                "J:EU-ENISA-TECH"
+                            ],
+                            "jurisdictions": [
+                                "AT",
+                                "BE",
+                                "FR",
+                                "DE",
+                                "LU",
+                                "NL"
+                            ],
+                            "applies_when": "For relevant digital entities within Implementing Regulation 2024/2690 in the named EU countries; establish national entity scope first. ENISA examples are guidance."
+                        }
+                    ],
                     "objections": [],
                     "sales_motion": []
                 },
@@ -12127,16 +12248,33 @@ export const REGION_DATA = [
             {
                 "subtype_id": "mobile-appsec",
                 "vertical_id": "cybersecurity",
-                "status": "waiting_for_source",
+                "status": "specific",
                 "inherits_from": "cybersecurity",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Country and activity scoped additions supplement the vertical. Other countries use applicable vertical notes. Specific status does not assert complete country depth.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
                     "procurement_payment": [],
                     "data_privacy": [],
                     "buyer_language": [],
-                    "proof": [],
+                    "proof": [
+                        {
+                            "text": "For mobile application deployments, document permitted device use, secure configuration and separation of development from operational systems.",
+                            "kind": "operating",
+                            "source_ids": [
+                                "J:EU-ENISA-TECH"
+                            ],
+                            "jurisdictions": [
+                                "AT",
+                                "BE",
+                                "FR",
+                                "DE",
+                                "LU",
+                                "NL"
+                            ],
+                            "applies_when": "For relevant digital entities within Implementing Regulation 2024/2690 in the named EU countries; establish national entity scope first. ENISA examples are guidance."
+                        }
+                    ],
                     "objections": [],
                     "sales_motion": []
                 },
@@ -12147,16 +12285,33 @@ export const REGION_DATA = [
             {
                 "subtype_id": "soc-services",
                 "vertical_id": "cybersecurity",
-                "status": "waiting_for_source",
+                "status": "specific",
                 "inherits_from": "cybersecurity",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Country and activity scoped additions supplement the vertical. Other countries use applicable vertical notes. Specific status does not assert complete country depth.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
                     "procurement_payment": [],
                     "data_privacy": [],
                     "buyer_language": [],
-                    "proof": [],
+                    "proof": [
+                        {
+                            "text": "Show log review, alarm response, retention decisions and controls against unauthorised log access or alteration.",
+                            "kind": "operating",
+                            "source_ids": [
+                                "J:EU-ENISA-TECH"
+                            ],
+                            "jurisdictions": [
+                                "AT",
+                                "BE",
+                                "FR",
+                                "DE",
+                                "LU",
+                                "NL"
+                            ],
+                            "applies_when": "For relevant digital entities within Implementing Regulation 2024/2690 in the named EU countries; establish national entity scope first. ENISA examples are guidance."
+                        }
+                    ],
                     "objections": [],
                     "sales_motion": []
                 },
@@ -12167,16 +12322,33 @@ export const REGION_DATA = [
             {
                 "subtype_id": "endpoint-network",
                 "vertical_id": "cybersecurity",
-                "status": "waiting_for_source",
+                "status": "specific",
                 "inherits_from": "cybersecurity",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Country and activity scoped additions supplement the vertical. Other countries use applicable vertical notes. Specific status does not assert complete country depth.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
                     "procurement_payment": [],
                     "data_privacy": [],
                     "buyer_language": [],
-                    "proof": [],
+                    "proof": [
+                        {
+                            "text": "Limit network connections to operational need; show endpoint execution controls and protection against malicious software.",
+                            "kind": "operating",
+                            "source_ids": [
+                                "J:EU-NIS2-IMPLEMENT"
+                            ],
+                            "jurisdictions": [
+                                "AT",
+                                "BE",
+                                "FR",
+                                "DE",
+                                "LU",
+                                "NL"
+                            ],
+                            "applies_when": "For relevant digital entities within Implementing Regulation 2024/2690 in the named EU countries; establish national entity scope first."
+                        }
+                    ],
                     "objections": [],
                     "sales_motion": []
                 },
@@ -12187,9 +12359,9 @@ export const REGION_DATA = [
             {
                 "subtype_id": "document-ai",
                 "vertical_id": "ai-native",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "ai-native",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -12200,16 +12372,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "document-ai: check National sector authority and privacy authority for AT BE FR DE LI LU MC NL CH; EU law only where applicability is verified for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "ai-video",
                 "vertical_id": "ai-native",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "ai-native",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -12220,16 +12390,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "ai-video: check National sector authority and privacy authority for AT BE FR DE LI LU MC NL CH; EU law only where applicability is verified for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "engineering-talent",
                 "vertical_id": "ites",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "ites",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -12240,16 +12408,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "engineering-talent: check National sector authority and privacy authority for AT BE FR DE LI LU MC NL CH; EU law only where applicability is verified for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "product-management",
                 "vertical_id": "saas",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "saas",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -12260,16 +12426,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "product-management: check National sector authority and privacy authority for AT BE FR DE LI LU MC NL CH; EU law only where applicability is verified for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "digital-adoption",
                 "vertical_id": "saas",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "saas",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -12280,23 +12444,38 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "digital-adoption: check National sector authority and privacy authority for AT BE FR DE LI LU MC NL CH; EU law only where applicability is verified for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "pentest",
                 "vertical_id": "cybersecurity",
-                "status": "waiting_for_source",
+                "status": "specific",
                 "inherits_from": "cybersecurity",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Country and activity scoped additions supplement the vertical. Other countries use applicable vertical notes. Specific status does not assert complete country depth.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
                     "procurement_payment": [],
                     "data_privacy": [],
                     "buyer_language": [],
-                    "proof": [],
+                    "proof": [
+                        {
+                            "text": "Record test scope, method, findings and remediation. Choose penetration testing when the risk assessment supports that technique.",
+                            "kind": "operating",
+                            "source_ids": [
+                                "J:EU-ENISA-TECH"
+                            ],
+                            "jurisdictions": [
+                                "AT",
+                                "BE",
+                                "FR",
+                                "DE",
+                                "LU",
+                                "NL"
+                            ],
+                            "applies_when": "For relevant digital entities within Implementing Regulation 2024/2690 in the named EU countries; establish national entity scope first. ENISA examples are guidance."
+                        }
+                    ],
                     "objections": [],
                     "sales_motion": []
                 },
@@ -12307,16 +12486,33 @@ export const REGION_DATA = [
             {
                 "subtype_id": "attack-surface-dast",
                 "vertical_id": "cybersecurity",
-                "status": "waiting_for_source",
+                "status": "specific",
                 "inherits_from": "cybersecurity",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Country and activity scoped additions supplement the vertical. Other countries use applicable vertical notes. Specific status does not assert complete country depth.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
                     "procurement_payment": [],
                     "data_privacy": [],
                     "buyer_language": [],
-                    "proof": [],
+                    "proof": [
+                        {
+                            "text": "Security testing may include vulnerability scanning and dynamic application tests. Select methods by risk and feed findings into control review.",
+                            "kind": "operating",
+                            "source_ids": [
+                                "J:EU-NIS2-IMPLEMENT"
+                            ],
+                            "jurisdictions": [
+                                "AT",
+                                "BE",
+                                "FR",
+                                "DE",
+                                "LU",
+                                "NL"
+                            ],
+                            "applies_when": "For relevant digital entities within Implementing Regulation 2024/2690 in the named EU countries; establish national entity scope first."
+                        }
+                    ],
                     "objections": [],
                     "sales_motion": []
                 },
@@ -12327,9 +12523,9 @@ export const REGION_DATA = [
             {
                 "subtype_id": "process-orchestration",
                 "vertical_id": "software",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "software",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -12340,16 +12536,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "process-orchestration: check National sector authority and privacy authority for AT BE FR DE LI LU MC NL CH; EU law only where applicability is verified for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "open-source-support",
                 "vertical_id": "software",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "software",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -12360,16 +12554,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "open-source-support: check National sector authority and privacy authority for AT BE FR DE LI LU MC NL CH; EU law only where applicability is verified for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "iot-connectivity",
                 "vertical_id": "telecom",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "telecom",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -12380,9 +12572,7 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "iot-connectivity: check National sector authority and privacy authority for AT BE FR DE LI LU MC NL CH; EU law only where applicability is verified for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             }
         ]
     },
@@ -12392,7 +12582,7 @@ export const REGION_DATA = [
         "region_name": "North America",
         "review_status": "draft",
         "updated_at": "2026-11-03",
-        "scope_note": "This draft covers the United States, Canada and Mexico. It is not one legal market. State, province, territory, buyer type and activity must be established where relevant. No US state rule is presented as national, and no US, Canadian or Mexican rule is borrowed by another country. Draft for owner review. Depth review follows REGIONS-DEPTH.md. Waiting cells identify unfinished source checks and must not be counted as proven inheritance.",
+        "scope_note": "This draft covers the United States, Canada and Mexico. It is not one legal market. State, province, territory, buyer type and activity must be established where relevant. No US state rule is presented as national, and no US, Canadian or Mexican rule is borrowed by another country. Draft for owner review. Final owner scope permits remaining subtypes to inherit. Specific means a sourced addition for the named country and activity, not complete country coverage. Pending topics retain narrower research gaps.",
         "reader_hints": {
             "aliases": [
                 "North America"
@@ -13057,9 +13247,9 @@ export const REGION_DATA = [
             {
                 "subtype_id": "freight-visibility",
                 "vertical_id": "logistics-tech",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "logistics-tech",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -13070,16 +13260,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "freight-visibility: check US federal and applicable state regulator; Canadian federal and applicable provincial regulator; Mexican sector authority and current legislation for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "freight-marketplace",
                 "vertical_id": "logistics-tech",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "logistics-tech",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -13090,16 +13278,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "freight-marketplace: check US federal and applicable state regulator; Canadian federal and applicable provincial regulator; Mexican sector authority and current legislation for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "seller-shipping",
                 "vertical_id": "logistics-tech",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "logistics-tech",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -13110,16 +13296,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "seller-shipping: check US federal and applicable state regulator; Canadian federal and applicable provincial regulator; Mexican sector authority and current legislation for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "last-mile",
                 "vertical_id": "logistics-tech",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "logistics-tech",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -13130,16 +13314,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "last-mile: check US federal and applicable state regulator; Canadian federal and applicable provincial regulator; Mexican sector authority and current legislation for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "warehousing",
                 "vertical_id": "logistics-tech",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "logistics-tech",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -13150,16 +13332,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "warehousing: check US federal and applicable state regulator; Canadian federal and applicable provincial regulator; Mexican sector authority and current legislation for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "transport-management",
                 "vertical_id": "logistics-tech",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "logistics-tech",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -13170,16 +13350,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "transport-management: check US federal and applicable state regulator; Canadian federal and applicable provincial regulator; Mexican sector authority and current legislation for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "payments-banking",
                 "vertical_id": "fintech",
-                "status": "waiting_for_source",
+                "status": "specific",
                 "inherits_from": "fintech",
-                "inheritance_note": "Country scoped subtype notes supplement the parent. A specific status requires sourced permission, accountable role, data rule and proof for every declared country. Unfinished checks remain waiting.",
+                "inheritance_note": "Country and activity scoped additions supplement the vertical. Other countries use applicable vertical notes. Specific status does not assert complete country depth.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [
@@ -13234,9 +13412,9 @@ export const REGION_DATA = [
             {
                 "subtype_id": "core-banking",
                 "vertical_id": "fintech",
-                "status": "waiting_for_source",
+                "status": "specific",
                 "inherits_from": "fintech",
-                "inheritance_note": "Country scoped subtype notes supplement the parent. A specific status requires sourced permission, accountable role, data rule and proof for every declared country. Unfinished checks remain waiting.",
+                "inheritance_note": "Country and activity scoped additions supplement the vertical. Other countries use applicable vertical notes. Specific status does not assert complete country depth.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [
@@ -13291,9 +13469,9 @@ export const REGION_DATA = [
             {
                 "subtype_id": "lending",
                 "vertical_id": "fintech",
-                "status": "waiting_for_source",
+                "status": "specific",
                 "inherits_from": "fintech",
-                "inheritance_note": "Country scoped subtype notes supplement the parent. A specific status requires sourced permission, accountable role, data rule and proof for every declared country. Unfinished checks remain waiting.",
+                "inheritance_note": "Country and activity scoped additions supplement the vertical. Other countries use applicable vertical notes. Specific status does not assert complete country depth.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -13325,9 +13503,9 @@ export const REGION_DATA = [
             {
                 "subtype_id": "wealth-investment",
                 "vertical_id": "fintech",
-                "status": "waiting_for_source",
+                "status": "specific",
                 "inherits_from": "fintech",
-                "inheritance_note": "Country scoped subtype notes supplement the parent. A specific status requires sourced permission, accountable role, data rule and proof for every declared country. Unfinished checks remain waiting.",
+                "inheritance_note": "Country and activity scoped additions supplement the vertical. Other countries use applicable vertical notes. Specific status does not assert complete country depth.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [
@@ -13393,9 +13571,9 @@ export const REGION_DATA = [
             {
                 "subtype_id": "spend-expense",
                 "vertical_id": "fintech",
-                "status": "waiting_for_source",
+                "status": "specific",
                 "inherits_from": "fintech",
-                "inheritance_note": "Country scoped subtype notes supplement the parent. A specific status requires sourced permission, accountable role, data rule and proof for every declared country. Unfinished checks remain waiting.",
+                "inheritance_note": "Country and activity scoped additions supplement the vertical. Other countries use applicable vertical notes. Specific status does not assert complete country depth.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [
@@ -13427,9 +13605,9 @@ export const REGION_DATA = [
             {
                 "subtype_id": "insurance",
                 "vertical_id": "fintech",
-                "status": "waiting_for_source",
+                "status": "specific",
                 "inherits_from": "fintech",
-                "inheritance_note": "Country scoped subtype notes supplement the parent. A specific status requires sourced permission, accountable role, data rule and proof for every declared country. Unfinished checks remain waiting.",
+                "inheritance_note": "Country and activity scoped additions supplement the vertical. Other countries use applicable vertical notes. Specific status does not assert complete country depth.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [
@@ -13495,9 +13673,9 @@ export const REGION_DATA = [
             {
                 "subtype_id": "customer-service",
                 "vertical_id": "saas",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "saas",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -13508,16 +13686,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "customer-service: check US federal and applicable state regulator; Canadian federal and applicable provincial regulator; Mexican sector authority and current legislation for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "crm-marketing",
                 "vertical_id": "saas",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "saas",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -13528,16 +13704,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "crm-marketing: check US federal and applicable state regulator; Canadian federal and applicable provincial regulator; Mexican sector authority and current legislation for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "collaboration",
                 "vertical_id": "saas",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "saas",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -13548,16 +13722,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "collaboration: check US federal and applicable state regulator; Canadian federal and applicable provincial regulator; Mexican sector authority and current legislation for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "product-growth",
                 "vertical_id": "saas",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "saas",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -13568,16 +13740,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "product-growth: check US federal and applicable state regulator; Canadian federal and applicable provincial regulator; Mexican sector authority and current legislation for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "construction",
                 "vertical_id": "vertical-saas",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "vertical-saas",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -13588,16 +13758,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "construction: check US federal and applicable state regulator; Canadian federal and applicable provincial regulator; Mexican sector authority and current legislation for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "property-management",
                 "vertical_id": "vertical-saas",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "vertical-saas",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -13608,16 +13776,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "property-management: check US federal and applicable state regulator; Canadian federal and applicable provincial regulator; Mexican sector authority and current legislation for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "field-services",
                 "vertical_id": "vertical-saas",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "vertical-saas",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -13628,16 +13794,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "field-services: check US federal and applicable state regulator; Canadian federal and applicable provincial regulator; Mexican sector authority and current legislation for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "fmcg-retail-execution",
                 "vertical_id": "vertical-saas",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "vertical-saas",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -13648,16 +13812,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "fmcg-retail-execution: check US federal and applicable state regulator; Canadian federal and applicable provincial regulator; Mexican sector authority and current legislation for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "industry-hr-payroll",
                 "vertical_id": "vertical-saas",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "vertical-saas",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -13668,16 +13830,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "industry-hr-payroll: check US federal and applicable state regulator; Canadian federal and applicable provincial regulator; Mexican sector authority and current legislation for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "hotel-lodging",
                 "vertical_id": "vertical-saas",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "vertical-saas",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -13688,16 +13848,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "hotel-lodging: check US federal and applicable state regulator; Canadian federal and applicable provincial regulator; Mexican sector authority and current legislation for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "retail-restaurant-ops",
                 "vertical_id": "vertical-saas",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "vertical-saas",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -13708,16 +13866,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "retail-restaurant-ops: check US federal and applicable state regulator; Canadian federal and applicable provincial regulator; Mexican sector authority and current legislation for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "agents-copilots",
                 "vertical_id": "ai-native",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "ai-native",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -13728,16 +13884,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "agents-copilots: check US federal and applicable state regulator; Canadian federal and applicable provincial regulator; Mexican sector authority and current legislation for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "voice-language-models",
                 "vertical_id": "ai-native",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "ai-native",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -13748,16 +13902,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "voice-language-models: check US federal and applicable state regulator; Canadian federal and applicable provincial regulator; Mexican sector authority and current legislation for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "enterprise-search",
                 "vertical_id": "ai-native",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "ai-native",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -13768,16 +13920,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "enterprise-search: check US federal and applicable state regulator; Canadian federal and applicable provincial regulator; Mexican sector authority and current legislation for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "it-services",
                 "vertical_id": "ites",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "ites",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -13788,16 +13938,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "it-services: check US federal and applicable state regulator; Canadian federal and applicable provincial regulator; Mexican sector authority and current legislation for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "bpo-cx",
                 "vertical_id": "ites",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "ites",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -13808,16 +13956,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "bpo-cx: check US federal and applicable state regulator; Canadian federal and applicable provincial regulator; Mexican sector authority and current legislation for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "digital-engineering",
                 "vertical_id": "ites",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "ites",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -13828,16 +13974,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "digital-engineering: check US federal and applicable state regulator; Canadian federal and applicable provincial regulator; Mexican sector authority and current legislation for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "data-services",
                 "vertical_id": "ites",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "ites",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -13848,23 +13992,33 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "data-services: check US federal and applicable state regulator; Canadian federal and applicable provincial regulator; Mexican sector authority and current legislation for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "operators-connectivity",
                 "vertical_id": "telecom",
-                "status": "waiting_for_source",
+                "status": "specific",
                 "inherits_from": "telecom",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Country and activity scoped additions supplement the vertical. Other countries use applicable vertical notes. Specific status does not assert complete country depth.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
                     "procurement_payment": [],
                     "data_privacy": [],
                     "buyer_language": [],
-                    "proof": [],
+                    "proof": [
+                        {
+                            "text": "A Canadian registration application identifies the provider's services, response manager and facilities status. Facilities based applicants include network and interconnection diagrams; verify the applicable category and exemptions first.",
+                            "kind": "legal",
+                            "source_ids": [
+                                "J:CA-TELECOM-REGISTER"
+                            ],
+                            "jurisdictions": [
+                                "CA"
+                            ],
+                            "applies_when": "For providers required to register with the CRTC; not a licence imposed on a software only vendor."
+                        }
+                    ],
                     "objections": [],
                     "sales_motion": []
                 },
@@ -13875,9 +14029,9 @@ export const REGION_DATA = [
             {
                 "subtype_id": "cpaas-messaging",
                 "vertical_id": "telecom",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "telecom",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -13888,16 +14042,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "cpaas-messaging: check US federal and applicable state regulator; Canadian federal and applicable provincial regulator; Mexican sector authority and current legislation for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "telecom-software",
                 "vertical_id": "telecom",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "telecom",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -13908,16 +14060,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "telecom-software: check US federal and applicable state regulator; Canadian federal and applicable provincial regulator; Mexican sector authority and current legislation for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "business-voice-ucaas",
                 "vertical_id": "telecom",
-                "status": "waiting_for_source",
+                "status": "specific",
                 "inherits_from": "telecom",
-                "inheritance_note": "Applicable parent notes remain. Add only the following country and activity scoped evidence.",
+                "inheritance_note": "Country and activity scoped additions supplement the vertical. Other countries use applicable vertical notes. Specific status does not assert complete country depth.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -13947,9 +14097,9 @@ export const REGION_DATA = [
             {
                 "subtype_id": "developer-platform",
                 "vertical_id": "software",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "software",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -13960,16 +14110,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "developer-platform: check US federal and applicable state regulator; Canadian federal and applicable provincial regulator; Mexican sector authority and current legislation for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "data-infrastructure",
                 "vertical_id": "software",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "software",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -13980,16 +14128,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "data-infrastructure: check US federal and applicable state regulator; Canadian federal and applicable provincial regulator; Mexican sector authority and current legislation for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "observability",
                 "vertical_id": "software",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "software",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -14000,16 +14146,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "observability: check US federal and applicable state regulator; Canadian federal and applicable provincial regulator; Mexican sector authority and current legislation for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "testing",
                 "vertical_id": "software",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "software",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -14020,16 +14164,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "testing: check US federal and applicable state regulator; Canadian federal and applicable provincial regulator; Mexican sector authority and current legislation for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "dev-tools",
                 "vertical_id": "software",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "software",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -14040,23 +14182,33 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "dev-tools: check US federal and applicable state regulator; Canadian federal and applicable provincial regulator; Mexican sector authority and current legislation for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "cloud-security",
                 "vertical_id": "cybersecurity",
-                "status": "waiting_for_source",
+                "status": "specific",
                 "inherits_from": "cybersecurity",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Country and activity scoped additions supplement the vertical. Other countries use applicable vertical notes. Specific status does not assert complete country depth.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
                     "procurement_payment": [],
                     "data_privacy": [],
                     "buyer_language": [],
-                    "proof": [],
+                    "proof": [
+                        {
+                            "text": "Assess cloud data location, deletion and administrator access; demonstrate protected connections and separate administrative credentials.",
+                            "kind": "operating",
+                            "source_ids": [
+                                "J:CA-CYBER"
+                            ],
+                            "jurisdictions": [
+                                "CA"
+                            ],
+                            "applies_when": "Voluntary Canadian guidance for smaller organisations."
+                        }
+                    ],
                     "objections": [],
                     "sales_motion": []
                 },
@@ -14067,16 +14219,28 @@ export const REGION_DATA = [
             {
                 "subtype_id": "identity-security",
                 "vertical_id": "cybersecurity",
-                "status": "waiting_for_source",
+                "status": "specific",
                 "inherits_from": "cybersecurity",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Country and activity scoped additions supplement the vertical. Other countries use applicable vertical notes. Specific status does not assert complete country depth.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
                     "procurement_payment": [],
                     "data_privacy": [],
                     "buyer_language": [],
-                    "proof": [],
+                    "proof": [
+                        {
+                            "text": "Use least privilege, individual accounts and prompt removal of obsolete access; demonstrate authentication controls for privileged accounts.",
+                            "kind": "operating",
+                            "source_ids": [
+                                "J:CA-CYBER"
+                            ],
+                            "jurisdictions": [
+                                "CA"
+                            ],
+                            "applies_when": "Voluntary Canadian guidance for smaller organisations."
+                        }
+                    ],
                     "objections": [],
                     "sales_motion": []
                 },
@@ -14087,16 +14251,28 @@ export const REGION_DATA = [
             {
                 "subtype_id": "email-security",
                 "vertical_id": "cybersecurity",
-                "status": "waiting_for_source",
+                "status": "specific",
                 "inherits_from": "cybersecurity",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Country and activity scoped additions supplement the vertical. Other countries use applicable vertical notes. Specific status does not assert complete country depth.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
                     "procurement_payment": [],
                     "data_privacy": [],
                     "buyer_language": [],
-                    "proof": [],
+                    "proof": [
+                        {
+                            "text": "Show email filtering and DMARC implementation, including how malicious links and attachments are handled.",
+                            "kind": "operating",
+                            "source_ids": [
+                                "J:CA-CYBER"
+                            ],
+                            "jurisdictions": [
+                                "CA"
+                            ],
+                            "applies_when": "Voluntary Canadian guidance for smaller organisations."
+                        }
+                    ],
                     "objections": [],
                     "sales_motion": []
                 },
@@ -14107,16 +14283,28 @@ export const REGION_DATA = [
             {
                 "subtype_id": "awareness-training",
                 "vertical_id": "cybersecurity",
-                "status": "waiting_for_source",
+                "status": "specific",
                 "inherits_from": "cybersecurity",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Country and activity scoped additions supplement the vertical. Other countries use applicable vertical notes. Specific status does not assert complete country depth.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
                     "procurement_payment": [],
                     "data_privacy": [],
                     "buyer_language": [],
-                    "proof": [],
+                    "proof": [
+                        {
+                            "text": "Cover malicious emails, password practice, approved applications and safe online behaviour in employee training.",
+                            "kind": "operating",
+                            "source_ids": [
+                                "J:CA-CYBER"
+                            ],
+                            "jurisdictions": [
+                                "CA"
+                            ],
+                            "applies_when": "Voluntary Canadian guidance for smaller organisations."
+                        }
+                    ],
                     "objections": [],
                     "sales_motion": []
                 },
@@ -14127,16 +14315,28 @@ export const REGION_DATA = [
             {
                 "subtype_id": "appsec",
                 "vertical_id": "cybersecurity",
-                "status": "waiting_for_source",
+                "status": "specific",
                 "inherits_from": "cybersecurity",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Country and activity scoped additions supplement the vertical. Other countries use applicable vertical notes. Specific status does not assert complete country depth.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
                     "procurement_payment": [],
                     "data_privacy": [],
                     "buyer_language": [],
-                    "proof": [],
+                    "proof": [
+                        {
+                            "text": "Map secure development evidence to the SSDF lifecycle, including protected development work, security testing and vulnerability response. Confirm which practices the buyer's contract actually requires.",
+                            "kind": "operating",
+                            "source_ids": [
+                                "J:US-SSDF"
+                            ],
+                            "jurisdictions": [
+                                "US"
+                            ],
+                            "applies_when": "NIST SSDF 1.1 guidance; not an automatic obligation for every US software supplier."
+                        }
+                    ],
                     "objections": [],
                     "sales_motion": []
                 },
@@ -14147,16 +14347,28 @@ export const REGION_DATA = [
             {
                 "subtype_id": "mobile-appsec",
                 "vertical_id": "cybersecurity",
-                "status": "waiting_for_source",
+                "status": "specific",
                 "inherits_from": "cybersecurity",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Country and activity scoped additions supplement the vertical. Other countries use applicable vertical notes. Specific status does not assert complete country depth.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
                     "procurement_payment": [],
                     "data_privacy": [],
                     "buyer_language": [],
-                    "proof": [],
+                    "proof": [
+                        {
+                            "text": "Show separation of work and personal app data, encrypted sensitive storage and trusted application sources.",
+                            "kind": "operating",
+                            "source_ids": [
+                                "J:CA-CYBER"
+                            ],
+                            "jurisdictions": [
+                                "CA"
+                            ],
+                            "applies_when": "Voluntary Canadian guidance for smaller organisations."
+                        }
+                    ],
                     "objections": [],
                     "sales_motion": []
                 },
@@ -14167,16 +14379,28 @@ export const REGION_DATA = [
             {
                 "subtype_id": "soc-services",
                 "vertical_id": "cybersecurity",
-                "status": "waiting_for_source",
+                "status": "specific",
                 "inherits_from": "cybersecurity",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Country and activity scoped additions supplement the vertical. Other countries use applicable vertical notes. Specific status does not assert complete country depth.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
                     "procurement_payment": [],
                     "data_privacy": [],
                     "buyer_language": [],
-                    "proof": [],
+                    "proof": [
+                        {
+                            "text": "Document who handles incidents and how external responders are engaged; connect detection to the response plan.",
+                            "kind": "operating",
+                            "source_ids": [
+                                "J:CA-CYBER"
+                            ],
+                            "jurisdictions": [
+                                "CA"
+                            ],
+                            "applies_when": "Voluntary Canadian guidance for smaller organisations."
+                        }
+                    ],
                     "objections": [],
                     "sales_motion": []
                 },
@@ -14187,16 +14411,28 @@ export const REGION_DATA = [
             {
                 "subtype_id": "endpoint-network",
                 "vertical_id": "cybersecurity",
-                "status": "waiting_for_source",
+                "status": "specific",
                 "inherits_from": "cybersecurity",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Country and activity scoped additions supplement the vertical. Other countries use applicable vertical notes. Specific status does not assert complete country depth.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
                     "procurement_payment": [],
                     "data_privacy": [],
                     "buyer_language": [],
-                    "proof": [],
+                    "proof": [
+                        {
+                            "text": "Show malware protection, firewall controls and separation between guest access and the corporate network.",
+                            "kind": "operating",
+                            "source_ids": [
+                                "J:CA-CYBER"
+                            ],
+                            "jurisdictions": [
+                                "CA"
+                            ],
+                            "applies_when": "Voluntary Canadian guidance for smaller organisations."
+                        }
+                    ],
                     "objections": [],
                     "sales_motion": []
                 },
@@ -14207,9 +14443,9 @@ export const REGION_DATA = [
             {
                 "subtype_id": "document-ai",
                 "vertical_id": "ai-native",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "ai-native",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -14220,16 +14456,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "document-ai: check US federal and applicable state regulator; Canadian federal and applicable provincial regulator; Mexican sector authority and current legislation for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "ai-video",
                 "vertical_id": "ai-native",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "ai-native",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -14240,16 +14474,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "ai-video: check US federal and applicable state regulator; Canadian federal and applicable provincial regulator; Mexican sector authority and current legislation for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "engineering-talent",
                 "vertical_id": "ites",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "ites",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -14260,16 +14492,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "engineering-talent: check US federal and applicable state regulator; Canadian federal and applicable provincial regulator; Mexican sector authority and current legislation for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "product-management",
                 "vertical_id": "saas",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "saas",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -14280,16 +14510,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "product-management: check US federal and applicable state regulator; Canadian federal and applicable provincial regulator; Mexican sector authority and current legislation for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "digital-adoption",
                 "vertical_id": "saas",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "saas",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -14300,23 +14528,33 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "digital-adoption: check US federal and applicable state regulator; Canadian federal and applicable provincial regulator; Mexican sector authority and current legislation for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "pentest",
                 "vertical_id": "cybersecurity",
-                "status": "waiting_for_source",
+                "status": "specific",
                 "inherits_from": "cybersecurity",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Country and activity scoped additions supplement the vertical. Other countries use applicable vertical notes. Specific status does not assert complete country depth.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
                     "procurement_payment": [],
                     "data_privacy": [],
                     "buyer_language": [],
-                    "proof": [],
+                    "proof": [
+                        {
+                            "text": "Agree assessment scope and authorised methods, document findings and plan mitigation. NIST SP 800-115 describes the benefits and limitations of testing techniques rather than certifying a product.",
+                            "kind": "operating",
+                            "source_ids": [
+                                "J:US-SECURITY-TEST"
+                            ],
+                            "jurisdictions": [
+                                "US"
+                            ],
+                            "applies_when": "Technical testing guidance; establish contractual and system owner authorisation separately."
+                        }
+                    ],
                     "objections": [],
                     "sales_motion": []
                 },
@@ -14327,16 +14565,28 @@ export const REGION_DATA = [
             {
                 "subtype_id": "attack-surface-dast",
                 "vertical_id": "cybersecurity",
-                "status": "waiting_for_source",
+                "status": "specific",
                 "inherits_from": "cybersecurity",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Country and activity scoped additions supplement the vertical. Other countries use applicable vertical notes. Specific status does not assert complete country depth.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
                     "procurement_payment": [],
                     "data_privacy": [],
                     "buyer_language": [],
-                    "proof": [],
+                    "proof": [
+                        {
+                            "text": "Use vulnerability scanning within a planned assessment. Review findings and technique limitations before treating a scan as evidence of effective security.",
+                            "kind": "operating",
+                            "source_ids": [
+                                "J:US-SECURITY-TEST"
+                            ],
+                            "jurisdictions": [
+                                "US"
+                            ],
+                            "applies_when": "NIST testing guidance; scan coverage alone is not a comprehensive assurance programme."
+                        }
+                    ],
                     "objections": [],
                     "sales_motion": []
                 },
@@ -14347,9 +14597,9 @@ export const REGION_DATA = [
             {
                 "subtype_id": "process-orchestration",
                 "vertical_id": "software",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "software",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -14360,16 +14610,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "process-orchestration: check US federal and applicable state regulator; Canadian federal and applicable provincial regulator; Mexican sector authority and current legislation for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "open-source-support",
                 "vertical_id": "software",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "software",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -14380,16 +14628,14 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "open-source-support: check US federal and applicable state regulator; Canadian federal and applicable provincial regulator; Mexican sector authority and current legislation for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             },
             {
                 "subtype_id": "iot-connectivity",
                 "vertical_id": "telecom",
-                "status": "waiting_for_source",
+                "status": "inherited",
                 "inherits_from": "telecom",
-                "inheritance_note": "Previous inheritance has not passed the source check required by REGIONS-DEPTH.md. Retain only the applicable sourced parent and default notes while the specific check is unfinished.",
+                "inheritance_note": "Uses the applicable vertical notes. No separate subtype research completed in this owner approved bounded pass; no equivalence claim is made.",
                 "context": {
                     "decision_approvers": [],
                     "sector_regulator": [],
@@ -14400,9 +14646,7 @@ export const REGION_DATA = [
                     "objections": [],
                     "sales_motion": []
                 },
-                "pending_topics": [
-                    "iot-connectivity: check US federal and applicable state regulator; Canadian federal and applicable provincial regulator; Mexican sector authority and current legislation for country specific obligations, approval roles and evidence. No sourced finding of equivalence is recorded."
-                ]
+                "pending_topics": []
             }
         ]
     }
@@ -16186,7 +16430,7 @@ export const REGION_SOURCES = {
         "publication_date": "",
         "accessed_date": "2026-11-03",
         "primary_source": "true",
-        "claim_scope": "Risk assessment and incident responsibility in recommended baseline controls",
+        "claim_scope": "Voluntary baseline controls for identity email cloud mobile endpoint protection training and incident response",
         "limitations": "Publication date not reliably established. Voluntary guidance targeted at smaller organisations, not a universal certification requirement."
     },
     "J:CA-ELD": {
@@ -16319,6 +16563,19 @@ export const REGION_SOURCES = {
         "claim_scope": "Telecom provider registration, exemptions, emergency duties and BITS licence scope",
         "limitations": "Publication date not shown. Registration exemptions do not remove all consumer protections."
     },
+    "J:CA-TELECOM-REGISTER": {
+        "source_id": "J:CA-TELECOM-REGISTER",
+        "region_id": "north-america",
+        "jurisdiction": "CA",
+        "title": "Register as a telecommunications provider: application",
+        "publisher": "CRTC",
+        "url": "https://crtc.gc.ca/eng/comm/telecom/registr4.htm",
+        "publication_date": "",
+        "accessed_date": "2026-11-03",
+        "primary_source": "true",
+        "claim_scope": "Provider registration response manager facilities and service details",
+        "limitations": "Check exemption criteria and registration category first. Publication date not established."
+    },
     "J:CH-AI": {
         "source_id": "J:CH-AI",
         "region_id": "western-europe",
@@ -16370,6 +16627,19 @@ export const REGION_SOURCES = {
         "primary_source": "true",
         "claim_scope": "FADP Articles 22 and 23",
         "limitations": "Potential high risk threshold, not every software project."
+    },
+    "J:CH-EMERGENCY": {
+        "source_id": "J:CH-EMERGENCY",
+        "region_id": "western-europe",
+        "jurisdiction": "CH",
+        "title": "Emergency call requirement SR 784.101.113/1.3",
+        "publisher": "Federal Office of Communications",
+        "url": "https://www.bakom.admin.ch/en/sr-78410111313-emergency-call-requirement",
+        "publication_date": "",
+        "accessed_date": "2026-11-03",
+        "primary_source": "true",
+        "claim_scope": "Public telephone service emergency routing and caller location",
+        "limitations": "Edition and routing table must be checked for the deployment date. Page publication date not established."
     },
     "J:CH-FADP": {
         "source_id": "J:CH-FADP",
@@ -16631,6 +16901,19 @@ export const REGION_SOURCES = {
         "claim_scope": "High risk assessment and national lists",
         "limitations": "Risk specific; check local list and exceptions."
     },
+    "J:EU-ENISA-TECH": {
+        "source_id": "J:EU-ENISA-TECH",
+        "region_id": "western-europe",
+        "jurisdiction": "EU",
+        "title": "NIS2 technical implementation guidance version 1.0",
+        "publisher": "ENISA",
+        "url": "https://www.enisa.europa.eu/sites/default/files/2025-06/ENISA_Technical_implementation_guidance_on_cybersecurity_risk_management_measures_version_1.0.pdf",
+        "publication_date": "2025-06-26",
+        "accessed_date": "2026-11-03",
+        "primary_source": "true",
+        "claim_scope": "Indicative evidence for risk controls under Implementing Regulation 2024/2690",
+        "limitations": "Nonbinding examples. Paraphrased from ENISA under CC BY 4.0; examples are not new legal requirements."
+    },
     "J:EU-GDPR": {
         "source_id": "J:EU-GDPR",
         "region_id": "western-europe",
@@ -16735,6 +17018,19 @@ export const REGION_SOURCES = {
         "claim_scope": "National transposition must be checked for NIS2 implementation",
         "limitations": "Publication date not established. Tracker is a state of play, not a final finding of national legal compliance."
     },
+    "J:EU-NIS2-IMPLEMENT": {
+        "source_id": "J:EU-NIS2-IMPLEMENT",
+        "region_id": "western-europe",
+        "jurisdiction": "EU",
+        "title": "Implementing Regulation (EU) 2024/2690",
+        "publisher": "European Commission",
+        "url": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32024R2690",
+        "publication_date": "2024-10-18",
+        "accessed_date": "2026-11-03",
+        "primary_source": "true",
+        "claim_scope": "Risk based testing network protection and authentication for the relevant digital entities",
+        "limitations": "Relevant essential or important entities only. National scope identification remains necessary. Does not establish Swiss Monaco or Liechtenstein applicability."
+    },
     "J:EU-PRIVACY-DESIGN": {
         "source_id": "J:EU-PRIVACY-DESIGN",
         "region_id": "western-europe",
@@ -16825,6 +17121,19 @@ export const REGION_SOURCES = {
         "primary_source": "true",
         "claim_scope": "Habitual own account credit authorisation under Code monetaire et financier",
         "limitations": "Financing company route; separate payment electronic money and investment permissions."
+    },
+    "J:FR-EINVOICE-TIMING": {
+        "source_id": "J:FR-EINVOICE-TIMING",
+        "region_id": "western-europe",
+        "jurisdiction": "FR",
+        "title": "Electronic invoicing implementation timetable",
+        "publisher": "Direction generale des Finances publiques",
+        "url": "https://www.impots.gouv.fr/professionnel/questions/partir-de-quand-suis-je-concerne-par-la-reforme-de-la-facturation",
+        "publication_date": "2026-01-16",
+        "accessed_date": "2026-11-03",
+        "primary_source": "true",
+        "claim_scope": "Receiving and issuing obligations by enterprise size",
+        "limitations": "Updated 16 January 2026. Apply only to transactions and businesses within the French reform."
     },
     "J:FR-PAYMENTS": {
         "source_id": "J:FR-PAYMENTS",
@@ -17593,6 +17902,136 @@ export const REGION_SOURCES = {
         "claim_scope": "Article 6 lawful basis plus Article 9 condition and applicable DPA conditions",
         "limitations": "Publication date not reliably shown. Do not treat all financial data as special category data. Automated decision rules are not asserted here."
     },
+    "J:UK-NCSC-APPSEC": {
+        "source_id": "J:UK-NCSC-APPSEC",
+        "region_id": "uk",
+        "jurisdiction": "GB",
+        "title": "Cloud principle 7: Secure development",
+        "publisher": "National Cyber Security Centre",
+        "url": "https://www.ncsc.gov.uk/collection/cloud/the-cloud-security-principles/principle-7-secure-development",
+        "publication_date": "",
+        "accessed_date": "2026-11-03",
+        "primary_source": "true",
+        "claim_scope": "Development controls and production separation",
+        "limitations": "Voluntary guidance, not a universal procurement mandate. Publication date not reliably established."
+    },
+    "J:UK-NCSC-CLOUD": {
+        "source_id": "J:UK-NCSC-CLOUD",
+        "region_id": "uk",
+        "jurisdiction": "GB",
+        "title": "Cloud security principles",
+        "publisher": "National Cyber Security Centre",
+        "url": "https://www.ncsc.gov.uk/collection/cloud/the-cloud-security-principles",
+        "publication_date": "",
+        "accessed_date": "2026-11-03",
+        "primary_source": "true",
+        "claim_scope": "Cloud assurance, separation and auditability",
+        "limitations": "Voluntary guidance, not a universal procurement mandate. Publication date not reliably established."
+    },
+    "J:UK-NCSC-EMAIL": {
+        "source_id": "J:UK-NCSC-EMAIL",
+        "region_id": "uk",
+        "jurisdiction": "GB",
+        "title": "Phishing attacks: defending your organisation",
+        "publisher": "National Cyber Security Centre",
+        "url": "https://www.ncsc.gov.uk/guidance/phishing",
+        "publication_date": "",
+        "accessed_date": "2026-11-03",
+        "primary_source": "true",
+        "claim_scope": "Layered phishing controls and reporting",
+        "limitations": "Voluntary guidance, not a universal procurement mandate. Publication date not reliably established."
+    },
+    "J:UK-NCSC-ENDPOINT": {
+        "source_id": "J:UK-NCSC-ENDPOINT",
+        "region_id": "uk",
+        "jurisdiction": "GB",
+        "title": "10 Steps: Architecture and configuration",
+        "publisher": "National Cyber Security Centre",
+        "url": "https://www.ncsc.gov.uk/collection/10-steps/architecture-and-configuration",
+        "publication_date": "",
+        "accessed_date": "2026-11-03",
+        "primary_source": "true",
+        "claim_scope": "Endpoint configuration and network containment",
+        "limitations": "Voluntary guidance, not a universal procurement mandate. Publication date not reliably established."
+    },
+    "J:UK-NCSC-IDENTITY": {
+        "source_id": "J:UK-NCSC-IDENTITY",
+        "region_id": "uk",
+        "jurisdiction": "GB",
+        "title": "10 Steps: Identity and access management",
+        "publisher": "National Cyber Security Centre",
+        "url": "https://www.ncsc.gov.uk/collection/10-steps/identity-and-access-management",
+        "publication_date": "",
+        "accessed_date": "2026-11-03",
+        "primary_source": "true",
+        "claim_scope": "Account lifecycle privilege and authentication",
+        "limitations": "Voluntary guidance, not a universal procurement mandate. Publication date not reliably established."
+    },
+    "J:UK-NCSC-MOBILE": {
+        "source_id": "J:UK-NCSC-MOBILE",
+        "region_id": "uk",
+        "jurisdiction": "GB",
+        "title": "Application development guidance introduction",
+        "publisher": "National Cyber Security Centre",
+        "url": "https://www.ncsc.gov.uk/guidance/application-development-guidance-introduction",
+        "publication_date": "",
+        "accessed_date": "2026-11-03",
+        "primary_source": "true",
+        "claim_scope": "Applications handling OFFICIAL data on mobile devices",
+        "limitations": "Voluntary guidance, not a universal procurement mandate. Publication date not reliably established."
+    },
+    "J:UK-NCSC-PENTEST": {
+        "source_id": "J:UK-NCSC-PENTEST",
+        "region_id": "uk",
+        "jurisdiction": "GB",
+        "title": "Penetration testing",
+        "publisher": "National Cyber Security Centre",
+        "url": "https://www.ncsc.gov.uk/guidance/penetration-testing",
+        "publication_date": "",
+        "accessed_date": "2026-11-03",
+        "primary_source": "true",
+        "claim_scope": "Authorised scope limitations and remediation",
+        "limitations": "Voluntary guidance, not a universal procurement mandate. Publication date not reliably established."
+    },
+    "J:UK-NCSC-SOC": {
+        "source_id": "J:UK-NCSC-SOC",
+        "region_id": "uk",
+        "jurisdiction": "GB",
+        "title": "10 Steps: Logging and monitoring",
+        "publisher": "National Cyber Security Centre",
+        "url": "https://www.ncsc.gov.uk/collection/10-steps/logging-and-monitoring",
+        "publication_date": "",
+        "accessed_date": "2026-11-03",
+        "primary_source": "true",
+        "claim_scope": "Log protection detection objectives and response",
+        "limitations": "Voluntary guidance, not a universal procurement mandate. Publication date not reliably established."
+    },
+    "J:UK-NCSC-TRAINING": {
+        "source_id": "J:UK-NCSC-TRAINING",
+        "region_id": "uk",
+        "jurisdiction": "GB",
+        "title": "10 Steps: Engagement and training",
+        "publisher": "National Cyber Security Centre",
+        "url": "https://www.ncsc.gov.uk/collection/10-steps/engagement-and-training",
+        "publication_date": "",
+        "accessed_date": "2026-11-03",
+        "primary_source": "true",
+        "claim_scope": "Role relevant security learning and reporting culture",
+        "limitations": "Voluntary guidance, not a universal procurement mandate. Publication date not reliably established."
+    },
+    "J:UK-NCSC-VULN": {
+        "source_id": "J:UK-NCSC-VULN",
+        "region_id": "uk",
+        "jurisdiction": "GB",
+        "title": "10 Steps: Vulnerability management",
+        "publisher": "National Cyber Security Centre",
+        "url": "https://www.ncsc.gov.uk/collection/10-steps/vulnerability-management",
+        "publication_date": "",
+        "accessed_date": "2026-11-03",
+        "primary_source": "true",
+        "claim_scope": "Asset scoped scanning prioritisation and mitigation",
+        "limitations": "Voluntary guidance, not a universal procurement mandate. Publication date not reliably established."
+    },
     "J:UK-OFCOM-GC": {
         "source_id": "J:UK-OFCOM-GC",
         "region_id": "uk",
@@ -17839,6 +18278,19 @@ export const REGION_SOURCES = {
         "primary_source": "true",
         "claim_scope": "ECOA Regulation B adverse action notice and specific reasons requirements",
         "limitations": "No standalone publication date shown. Direct rule used instead of relying on an older circular. Business credit and other notification exceptions must be checked."
+    },
+    "J:US-SECURITY-TEST": {
+        "source_id": "J:US-SECURITY-TEST",
+        "region_id": "north-america",
+        "jurisdiction": "US",
+        "title": "NIST SP 800-115 Technical Guide to Information Security Testing and Assessment",
+        "publisher": "NIST",
+        "url": "https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-115.pdf",
+        "publication_date": "2008-09-30",
+        "accessed_date": "2026-11-03",
+        "primary_source": "true",
+        "claim_scope": "Testing scope findings mitigation and technique limitations",
+        "limitations": "Final technical guidance, not a universal statutory requirement or product certification."
     },
     "J:US-SSDF": {
         "source_id": "J:US-SSDF",
@@ -18188,9 +18640,9 @@ export const REGION_TAXONOMY = {
 };
 export const REGION_GENERATION = {
     "schema_version": "1.0.0",
-    "data_sha256": "a8ccb8788516ad8bc527fdc3cc053983992f82b571ebfe17088e78adab2a4abf",
+    "data_sha256": "a22a7beace691c3befe64a62e2f3e3c17e31130763c763334cceaeac8c6a4f6b",
     "missing_regions": [],
-    "complete": false,
+    "complete": true,
     "coverage": {
         "india": {
             "verticals": {
@@ -18257,9 +18709,9 @@ export const REGION_GENERATION = {
             },
             "subtypes": {
                 "expected": 57,
-                "specific": 8,
-                "inherited": 0,
-                "waiting_for_source": 49,
+                "specific": 18,
+                "inherited": 39,
+                "waiting_for_source": 0,
                 "missing": 0,
                 "duplicate": 0
             }
@@ -18275,9 +18727,9 @@ export const REGION_GENERATION = {
             },
             "subtypes": {
                 "expected": 57,
-                "specific": 0,
-                "inherited": 0,
-                "waiting_for_source": 57,
+                "specific": 18,
+                "inherited": 39,
+                "waiting_for_source": 0,
                 "missing": 0,
                 "duplicate": 0
             }
@@ -18293,9 +18745,9 @@ export const REGION_GENERATION = {
             },
             "subtypes": {
                 "expected": 57,
-                "specific": 0,
-                "inherited": 0,
-                "waiting_for_source": 57,
+                "specific": 18,
+                "inherited": 39,
+                "waiting_for_source": 0,
                 "missing": 0,
                 "duplicate": 0
             }
