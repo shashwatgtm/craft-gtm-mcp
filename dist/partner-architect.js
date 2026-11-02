@@ -113,13 +113,13 @@ export function generatePartnerArchitect(args) {
         program.tiers[1] = { ...program.tiers[1], benefits: ['Joint account planning for referred accounts', 'Invitations to customer and executive events', 'Priority referral processing'], support: 'Quarterly review with a partner manager, annual partner event' };
     }
     const pb = ctx.v ? playbookFor(ctx.v) : null;
-    const productText = `${args.company} ${args.product}`;
+    const productText = args.product;
     const { found: goalSegments, unknown: unknownSegments } = segmentsOfGoal(args.partner_goals, productText, partnerModel);
-    const prodKinds = productKinds(productText, productText);
+    const prodKinds = productKinds(productText, `${args.company} ${args.product}`);
     const goalClean = stripEnd(args.partner_goals.replace(/;?\s*no numeric target given\.?/i, ''));
     const goalInEmail = /^(?:find|recruit|sign|build|generate|reach|win|grow|create|qualify)\b/i.test(goalClean) ? `to ${lc(goalClean)}` : lc(goalClean);
     // a figure is a number that is not part of a word (3PL, 4G and CPaaS hold no target)
-    const goalHasFigure = /(?<![A-Za-z0-9])\d[\d,.]*(?![A-Za-z0-9])/.test(args.partner_goals.replace(/\bno numeric target given\b/gi, ''));
+    const goalHasFigure = /(?<![A-Za-z0-9])\d[\d,.]*(?![A-Za-z0-9])|\b(?:zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|twenty|fifty|hundred)\s+(?:(?:qualified|referral|new|active|paid|closed|sourced)\s+)*(?:partners?|deals?|accounts?|customers?|introductions?|referrals?)\b/i.test(args.partner_goals.replace(/\bno numeric target given\b/gi, ''));
     const exampleDeals = 10;
     const pm = partnerModel.replace(/_/g, ' ');
     const company = stripEnd(args.company);
@@ -181,7 +181,7 @@ ${supportAdjustments[args.partner_support_capacity ?? 'moderate'] ?? supportAdju
     const kindsKey = { referral: 'refer', affiliate: 'refer', reseller: 'resell', integration_tech: 'integrate', oem_white_label: 'integrate', agency_si: 'implement' };
     const lines = [];
     if (existingPartners.length)
-        lines.push(`Start with the partners you already have: ${listAnd(existingPartners.map((x) => q(x)))}. Check each partner's qualifying closed deals and period against the example tier requirements. Until that check, use the first tier (${program.tiers[0].name}) as a provisional planning position, not an earned status.`);
+        lines.push(`Start with the partners you already have: ${listAnd(existingPartners.map((x) => q(x)))}. Check each partner's qualifying activity and period against the example tier requirements${partnerModel === 'referral' ? ', including qualified referrals rather than only closed deals' : ''}. Until that check, use the first tier (${program.tiers[0].name}) as a provisional planning position, not an earned status.`);
     if (pb && ctx.v) {
         lines.push(`In ${ctx.v.name}, ${pm} partners are usually ${listAnd(pb.partners[kindsKey[partnerModel] ?? 'refer'])}. ${pb.partnerWhy}`);
         lines.push(`Between them they reach the people who decide: ${lcFirst(ctx.v.committee)}`);
@@ -189,7 +189,10 @@ ${supportAdjustments[args.partner_support_capacity ?? 'moderate'] ?? supportAdju
     if (!pb)
         lines.push(`${cap1(pm)} partners are usually ${MODEL_KINDS[partnerModel] ?? MODEL_KINDS.referral}.`);
     for (const k of prodKinds)
-        lines.push(k.fromName ? `The name suggests ${k.does}; if that is right, also look for ${k.partners}. Say what the product does in the product input to confirm it.` : `Your product works with ${k.does}, so also look for ${k.partners}.`);
+        lines.push(k.fromName ? k.does === 'AI'
+            ? `Name-based guidance, to use only after confirming the capability: Your product works with AI, so also look for ${k.partners}. The company name alone does not establish what the product does.`
+            : `The name suggests ${k.does}; if that is right, also look for ${k.partners}. Say what the product does in the product input to confirm it.`
+            : `Your product works with ${k.does}, so also look for ${k.partners}.`);
     if (goalSegments.length)
         lines.push(`To reach the segments in your goal (keep the kinds whose clients already buy a product like yours):\n${goalSegments.map((g) => `- **${cap1(g.name)}:** ${prodKinds.length ? `reach it through the kinds above that already work with these buyers, and through ${g.partners.split(', ')[0]}.` : `look for ${g.partners}.`}${g.buying ? ` ${g.buying}` : ''}`).join('\n')}`);
     if (unknownSegments.length)
@@ -243,7 +246,7 @@ Subject: ${cap1(pm)} partnership with ${company}
 
 Hello,
 
-${startsWithCompany && !label.rest ? `I am writing from ${company} to ask whether you would partner with us.` : `I am writing from ${company} about ${offerInEmail}.`}${goalClean && goalClean.length <= 240 ? ` Our goal is ${goalInEmail}.` : goalSegments.length ? ` We are looking for partners whose clients include ${listAnd(goalSegments.map((g) => g.name))}.` : ''}${goalSegments.length ? ` We are looking for partners such as ${listAnd(goalSegments[0].partners.split(', ').slice(0, 2))} that already serve clients in ${listAnd(goalSegments.map((g) => g.name.replace(/public sector/, 'public bodies')))}.${goalSegments.find((g) => g.risks) ? ` Clients in ${goalSegments.find((g) => g.risks).name} are often dealing with ${goalSegments.find((g) => g.risks).risks}.` : ''}` : ''}${prodKinds.some((k) => !k.fromName) ? ` ${cap1(startsWithCompany && !label.rest ? 'our product' : offerInEmail)} works with ${listAnd(prodKinds.filter((k) => !k.fromName).map((k) => k.does))}, which is the part your clients would use.` : pb && ctx.v && pb.pains[0] ? ` Many buyers in ${ctx.v.name} are dealing with ${lc(stripEnd(pb.pains[0]))}, and we think ${startsWithCompany && !label.rest ? 'our product' : offerInEmail} can help your clients with that.` : ''}${pb && ctx.v ? ` The people who decide on this are usually ${listAnd(ctx.v.buyerRoles.slice(0, 3))}.` : ''} ${{
+${startsWithCompany && !label.rest ? `I am writing from ${company} to ask whether you would partner with us.` : `I am writing from ${company} about ${offerInEmail}.`}${goalClean && goalClean.length <= 240 ? ` Our goal is ${goalInEmail}.` : goalSegments.length ? ` We are looking for partners whose clients include ${listAnd(goalSegments.map((g) => g.name))}.` : ''}${goalSegments.length ? ` We are looking for partners such as ${listAnd(goalSegments[0].partners.split(', ').slice(0, 2))} that already serve clients in ${listAnd(goalSegments.map((g) => g.name.replace(/public sector/, 'public bodies')))}.${goalSegments.find((g) => g.risks) ? ` Clients in ${goalSegments.find((g) => g.risks).name} are often dealing with ${goalSegments.find((g) => g.risks).risks}.` : ''}` : ''}${prodKinds.some((k) => !k.fromName) ? ` ${cap1(startsWithCompany && !label.rest ? 'our product' : offerInEmail)} works with ${listAnd(prodKinds.filter((k) => !k.fromName).map((k) => k.does))}, which is the part your clients would use.` : pb && ctx.v && pb.pains[0] ? ` Many buyers in ${ctx.v.name} are dealing with ${lc(stripEnd(pb.pains[0]))}, and we would like to check whether ${startsWithCompany && !label.rest ? 'our product' : offerInEmail} fits the work your clients need to do.` : ''}${pb && ctx.v ? ` The people who decide on this are usually ${listAnd(ctx.v.buyerRoles.slice(0, 3))}.` : ''} ${{
         reseller: 'As a partner you can grow your revenue by offering it alongside your own services.',
         referral: 'Our team would run the sale after an accepted introduction. Before any referral, we would agree qualification, attribution and any fee in writing.',
         integration_tech: 'A deeper integration would add to the value of both products for the customers we share.',
@@ -261,7 +264,7 @@ The ${company} partnerships team
     if (!args.partner_support_capacity)
         asks.push([`partner support capacity, which this plan assumes is ${capacity}`, 'the number of tiers and who supports partners']);
     if (!existingPartners.length)
-        asks.push(['existing partners, with the deals each has closed', 'which tier each partner starts in']);
+        asks.push([partnerModel === 'referral' ? 'existing partners, with qualified referrals, agreements and closed outcomes for the same period' : 'existing partners, with the qualifying activity and outcomes for the same period', 'which tier each partner starts in']);
     // one line each in both cases, so the layout does not depend on whether a figure was typed
     asks.push(goalHasFigure ? ['the period your partner target covers, such as the year or a quarter', `the pace of ${program.kpis[0].toLowerCase()}`] : ['a numeric partner target, such as deals or pipeline for the year', `the target of ${program.kpis[0].toLowerCase()}`]);
     if (!dealSizeMatch || !priceBasis)

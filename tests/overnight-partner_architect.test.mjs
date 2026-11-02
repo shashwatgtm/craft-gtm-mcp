@@ -34,3 +34,25 @@ test('worked deal value preserves billing period instead of assuming annual reve
  const mixed=generatePartnerArchitect({...partnerBase,your_deal_size:'$48,000 annual or monthly'});
  assert.match(mixed,/billing period still to confirm/);
 });
+
+test('partner kinds come from the product description, not an incidental company word',()=>{
+ for(const [company,product] of [['Workflow support provider','Workflow for dispatch exceptions used by depot supervisors'],['Billing Systems','Workflow support for release approval exceptions']]){
+  const s=generatePartnerArchitect({...partnerBase,company,product,your_sector:'software'});
+  assert.doesNotMatch(s,/Your product works with customer support|works with billing and revenue|works with customer support, which/);
+ }
+ const actual=generatePartnerArchitect({...partnerBase,product:'Customer support tickets and escalation review'});
+ assert.match(actual,/Your product works with customer support/);
+ const nameOnly=generatePartnerArchitect({...partnerBase,company:'Lingua AI',product:'Lingua'});
+ assert.match(nameOnly,/Name-based guidance, to use only after confirming the capability/);
+ assert.match(nameOnly,/The company name alone does not establish what the product does/);
+ assert.doesNotMatch(nameOnly.split('## Recruitment email')[1],/works with AI/);
+});
+test('a partner count written in words is not called missing and referral tiers use referrals',()=>{
+ for(const partner_goals of ['Qualify three partners able to introduce operations teams','Recruit 3 qualified referral partners']){
+  const s=generatePartnerArchitect({...partnerBase,partner_goals});
+  assert.match(s,/Your goal holds figures/);assert.doesNotMatch(s,/a numeric partner target, such as/);
+  assert.match(s,/qualified referrals rather than only closed deals/);
+ }
+ const noCount=generatePartnerArchitect({...partnerBase,partner_goals:'Find partners who advise 3PL businesses'});
+ assert.match(noCount,/a numeric partner target, such as/);
+});
