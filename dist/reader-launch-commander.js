@@ -11,14 +11,15 @@ export function case_launch_commander(args) {
     const date = /^(?:TBD|to be determined|unknown|not set|none)$/i.test(dateText) ? "an unset launch date" : fact(args, "launch_date", "an unset launch date");
     const audience = fact(args, "target_segments", "the intended buyers");
     const channels = fact(args, "available_channels", "the available channels");
-    const team = fact(args, "team_size", "the team size answer");
+    const sizes = { solo: 'one person', small_2_5: 'a team of 2 to 5', medium_6_15: 'a team of 6 to 15', large_15_plus: 'a team of 15 or more' };
+    const team = sizes[String(args.team_size)] || fact(args, "team_size", "the proposed team");
     const product = fact(args, "product_feature", "the proposed offer");
     return {
-        meaning: `Plan for ${goal} as a target. Capacity is unverified; reschedule overdue work.`,
+        meaning: `Plan for ${goal} as a target. Confirm capacity before dating work.`,
         change: `the date, capacity or buyer acceptance check changes`,
         roles: [
             `Founder: have the launch owner agree acceptance with ${audience} before counting commitments.`,
-            `CEO: have delivery check ${team} hours by ${date}; cut scope if capacity is short.`,
+            `CEO: have delivery confirm available hours for ${team} by ${date}; cut scope if short.`,
             `CMO: have owners of ${channels} verify each claim and destination before release.`,
             `CRO: have sales qualify ${audience} for ${goal}; confirm buyer acceptance.`,
             `Demand generation head: check reachable volume on ${channels} with sales against ${goal} before outreach.`,

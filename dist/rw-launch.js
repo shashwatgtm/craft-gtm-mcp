@@ -380,7 +380,7 @@ const DETAIL = {
     'feedback system': () => 'One place where feedback is collected, one owner and a weekly review',
     'review meeting schedule with the pilot accounts': () => 'Fixed review meetings with each pilot account, with a named owner on both sides',
     'communication plan': (c) => `What testers hear, when and from whom, from invitation to the end of the beta of ${c.N}`,
-    'success metrics': (c) => launchFollowup(c.goals, 'Name the measure that decides whether the beta worked'),
+    'success metrics': (c) => plannedGoalFollowup(c.goals, 'Name the measure that decides whether the beta worked'),
     'beta invitations': (c) => `Invite testers from ${c.segRef} with a short note on what ${c.N} does and what you need from them`,
     'invitations to selected accounts for a pilot': (c) => `Invite selected accounts in ${c.segRef} to a pilot, with scope, duration and the success measures stated`,
     'onboarding flow': (c) => `The steps a tester follows to start using ${c.N}, and who helps at each one`,
@@ -415,12 +415,12 @@ const DETAIL = {
     'support brief': () => 'A one-page brief for support with the questions to expect',
     'account-team and support briefing': () => 'A one-page brief for account teams and support with the questions to expect',
     // follow-up
-    'monitor metrics': (c) => launchFollowup(c.goals, `Watch ${c.adoption} each week`),
+    'monitor metrics': (c) => plannedGoalFollowup(c.goals, `Watch ${c.adoption} each week`),
     'gather feedback': () => 'Collect what customers and sales say, in one place, with the name of who said it',
     'address issues': () => 'Fix what blocks adoption first, and tell the people who reported it',
     'amplify wins': () => 'Share results customers have agreed to share, with the source and the date',
     'iterate messaging': (c) => `Change the messages for ${c.segRef} where the replies show they miss`,
-    'adoption tracking': (c) => launchFollowup(c.goals, `Track ${c.adoption} every week for the first two weeks`),
+    'adoption tracking': (c) => plannedGoalFollowup(c.goals, `Track ${c.adoption} every week for the first two weeks`),
     'feature tips': (c) => `Short how-to messages that show customers the parts of ${c.N} they have not tried`,
     'service review at the first live customers': (c) => `A service review at the first live customers, covering ${c.adoption}`,
     'success stories': () => 'Ask the first customers for a result you can show, with its source and date, before it is used anywhere',
@@ -486,12 +486,22 @@ function fitScore(segText, review, part) {
     return score;
 }
 // ---- what a goal needs, from the user's figure only ----
+function isPilotCommitmentGoal(text) {
+    return readSignal(text, /\b(?:qualified\s+)?pilot commitments?\b/i).state === 'affirmed';
+}
+function plannedGoalFollowup(goals, fallback) {
+    const commitments = goals.filter(isPilotCommitmentGoal);
+    const other = goals.filter(g => !isPilotCommitmentGoal(g));
+    return [commitments.length ? 'Check written pilot commitments against agreed scope, buyer approval and the next step; do not count them as active usage' : '', other.length ? launchFollowup(other, fallback) : ''].filter(Boolean).join('; ') || fallback;
+}
 function goalNeeds(goals, segs, ctxBuyer) {
     const lines = [];
     let deals = false;
     const k = segs.length;
     for (const g of goals) {
-        const reading = statedGoalCount(g);
+        let reading = statedGoalCount(g);
+        if (reading && /^pilots?$/i.test(reading.unit) && /\bpilots?\s+commitments?\b/i.test(g))
+            reading = { ...reading, phrase: `${reading.phrase} commitments`, unit: 'commitments' };
         if (!reading || reading.count < 2)
             continue;
         const n = reading.count, phrase = reading.phrase;
@@ -502,7 +512,7 @@ function goalNeeds(goals, segs, ctxBuyer) {
             lines.push(`${upper1(phrase)} need at least ${/dozen/i.test(phrase) ? n : phrase.split(/\s+/)[0]} buying conversations in all, ${where}. Your win rate decides how many more are needed: it was not given.`);
         }
         else
-            lines.push(`${upper1(phrase)} is ${where}.`);
+            lines.push(`The target is ${lcFirst(phrase)}, ${where}.`);
     }
     void ctxBuyer;
     return { lines, deals };
@@ -695,10 +705,10 @@ export function writeLaunchPlan(args) {
         out.push(`${c.NS} is the launch. No description was given, so the messages below are built from the sector and the segments.`);
     out.push('');
     // ---- goals ----
-    const kindOf = (g) => launchGoalReading(g).kind;
+    const kindOf = (g) => isPilotCommitmentGoal(g) ? 'Pilot commitments' : launchGoalReading(g).kind;
     const trackedBy = {
         Pipeline: 'CRM; inspect qualified opportunities, exclude closed revenue', Revenue: 'CRM; check signed deals', Engagement: 'CRM; assign meeting follow-up',
-        Awareness: 'CRM or analytics; inspect audience reach', Adoption: pb ? `${pb.adoption.source}, counting ${pb.adoption.measure}` : 'Product or service usage data', Other: 'The source you name for this goal',
+        Awareness: 'CRM or analytics; inspect audience reach', Adoption: pb ? `${pb.adoption.source}, counting ${pb.adoption.measure}` : 'Product or service usage data', 'Pilot commitments': 'CRM or written buyer acceptance; confirm scope, approver and next step before counting', Other: 'The source you name for this goal',
     };
     out.push('## Goals and how each is measured');
     out.push('');
@@ -825,7 +835,7 @@ export function writeLaunchPlan(args) {
         well_funded: ['multi-channel paid campaigns', 'large events', 'a PR agency', 'account-based programmes'],
     };
     const tacticList = channelsGiven.length ? channelsGiven.map(ch => `prepare and verify the message for ${ch}`) : (tactics[budgetLevel] || tactics.moderate);
-    out.push(`${channelsGiven.length ? `You can use ${andList(channelsGiven)}.` : `The channels are the usual ones for ${ctx.v ? `${ctx.v.name} buyers` : 'this kind of buyer'}: ${andList(shownChannels)}.`} At a ${readableChoice(budgetLevel)} budget the plan spends on ${andList(tacticList)}.`);
+    out.push(`${channelsGiven.length ? `You can use ${andList(channelsGiven)}.` : `The channels are the usual ones for ${ctx.v ? `${ctx.v.name} buyers` : 'this kind of buyer'}: ${andList(shownChannels)}.`} At a ${readableChoice(budgetLevel)} budget, ${channelsGiven.length ? andList(tacticList) : `prioritise ${andList(tacticList)}`}.`);
     out.push('');
     // ---- timeline ----
     if (dated || taskCapacity > 0) {
@@ -915,7 +925,7 @@ export function writeLaunchPlan(args) {
     if (needs.deals)
         missing.push(['your win rate from buying conversation to signed deal', 'the number of conversations to book, which is now the number of deals as a minimum']);
     const kindsOfGoals = new Set(goals.map(kindOf));
-    if (!kindsOfGoals.has('Adoption') && !kindsOfGoals.has('Revenue'))
+    if (!kindsOfGoals.has('Adoption') && !kindsOfGoals.has('Revenue') && !kindsOfGoals.has('Pilot commitments'))
         missing.push(['a pipeline or adoption target', 'follow up tracking']);
     missing.push(['a sourced, dated customer result in these segments', 'the proof to use']);
     out.push(sharpenBlock(missing));
