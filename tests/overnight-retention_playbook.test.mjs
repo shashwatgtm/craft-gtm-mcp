@@ -33,3 +33,17 @@ test('deduplication preserves owner and complete draft when two reasons use the 
  assert.match(s,/0 through 30 as red, above 30 through 70 as yellow/);
  assert.match(s,/Missing signals do not establish a healthy account/);
 });
+
+test('counts, fractions, denied rates and missing periods do not become churn forecasts',()=>{
+ for(const current_churn_rate of ['3 customers left this month','0.03 per month','Churn is not 3% monthly','3% monthly and 6% monthly','3%','3 percentage points monthly','Maybe 3% monthly','-3% monthly']){
+  const s=generateRetentionPlaybook({...retentionBase,current_churn_rate});
+  assert.match(s,/no severity is shown/);
+  assert.doesNotMatch(s,/It reads (?:LOW|HIGH|MODERATE|CRITICAL)|lost in a year, compounded|read as a monthly rate/);
+ }
+});
+test('explicit equivalent percentages preserve the same compounding calculation',()=>{
+ for(const current_churn_rate of ['3% monthly','3 percent monthly','3 per cent monthly','3% monthly, not annual']){
+  const s=generateRetentionPlaybook({...retentionBase,current_churn_rate});
+  assert.match(s,/30\.6% of customers lost in a year/);assert.match(s,/It reads LOW/);
+ }
+});

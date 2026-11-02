@@ -1105,10 +1105,15 @@ const INTERVENTION_HELPS = [
 ];
 function parseChurn(text) {
     const empty = { n: null, period: 'unstated', monthly: 0, annual: 0 };
-    const m = text.match(/(-?\d+(?:\.\d+)?)/);
-    if (!m)
+    // A count, fraction or denied figure is not a percentage. Keep one explicit
+    // rate and one period before converting or applying illustrative thresholds.
+    const rate = readSignal(text, /[-+]?\d+(?:\.\d+)?\s*(?:%|percent\b|per cent\b)/gi);
+    if (rate.state !== 'affirmed' || /percent(?:age)? points?|per cent points?/i.test(text))
         return empty;
-    const n = parseFloat(m[1]);
+    const values = [...new Set(rate.matched.map(x => parseFloat(x)))];
+    if (values.length !== 1)
+        return empty;
+    const n = values[0];
     if (n < 0 || n > 100)
         return empty;
     const periods = [
@@ -1117,7 +1122,7 @@ function parseChurn(text) {
         ['month', readSignal(text, /\b(?:month(?:ly)?|per month|a month|each month|\/\s?mo)\b/i, SIGNALS.monthly_period)],
     ];
     const affirmed = periods.filter(([, r]) => r.state === 'affirmed');
-    if (affirmed.length > 1 || periods.some(([, r]) => r.state === 'unclear'))
+    if (affirmed.length !== 1 || periods.some(([, r]) => r.state === 'unclear'))
         return empty;
     const period = affirmed[0]?.[0] || 'unstated';
     // 28 Oct 2026 (owner): churn compounds. Each month's loss applies only to the customers still left, so a monthly rate m
@@ -1196,7 +1201,7 @@ export function writeRetentionPlaybook(args) {
     if (headSeg === null)
         stand.push(`The segment, as you described it: ${quoted(segment)}.`);
     if (churn.n === null)
-        stand.push(`You gave a churn rate of ${quoted(typedRate)}, which could not be read as one valid rate and period (0 to 100 percent, with no conflicting periods), so no severity is shown.`);
+        stand.push(`You gave a churn rate of ${quoted(typedRate)}, which could not be read as one explicit percentage and period (0 to 100 percent, with no denied or conflicting rates or periods), so no severity is shown.`);
     else {
         stand.push(`You report churn of ${typedRate}${churn.period === 'unstated' ? ', which is read as a monthly rate' : ''}.`);
         if (churn.period === 'year')
