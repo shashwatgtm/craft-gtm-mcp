@@ -1103,11 +1103,19 @@ const REASON_KINDS = [
     ['competitor', /\b(competitors?|switch\w*|alternatives?|rivals?|incumbents?)\b/],
     ['adoption', /\b(adopt\w*|usage|engagement|unused|not using|low use|(?:do|does|did|will|would) not use|won't use|logging in|log in|logins?|stopped using)\b/],
 ];
-const kindOfReason = (text) => (REASON_KINDS.find(([kind, re]) => {
-    // An unrun pricing experiment limits causal evidence; it does not deny a separate price complaint.
-    const input = kind === 'price' ? text.replace(/\bNo\s+price(?: change| reduction)?\s+(?:experiment|test|trial)\b[^.;\n]*/gi, '') : text;
-    return hasSignal(input, re, kind === 'person' ? 'departed' : kind === 'competitor' ? 'incumbent' : kind);
-}) ?? ['other'])[0];
+const kindOfReason = (text) => {
+    if (readSignal(text, /\bbypass(?:es|ed|ing)?\b/i).state === 'affirmed')
+        return 'bypass';
+    if (readSignal(text, /\b(?:withdrew|withdrawn|removed|ended|stopped)\s+(?:local\s+)?support\b/i).state === 'affirmed')
+        return 'support';
+    return (REASON_KINDS.find(([kind, re]) => {
+        // An unrun experiment limits causal evidence; it does not deny a separate price complaint.
+        const input = kind === 'price' ? text
+            .replace(/\bNo\s+price(?: change| reduction)?\s+(?:experiment|test|trial)\b[^.;\n]*/gi, '')
+            .replace(/\b(?:a |the )?price effect\s+(?:has |had |is |was )?(?:not |never |not yet )(?:been )?(?:tested|measured|established|confirmed)\b[^.;\n]*/gi, '') : text;
+        return hasSignal(input, re, kind === 'person' ? 'departed' : kind === 'competitor' ? 'incumbent' : kind);
+    }) ?? ['other'])[0];
+};
 /** What each current intervention can help with, by what it is called. */
 const INTERVENTION_HELPS = [
     [/business review|\bqbr\b|\bebr\b|service review|steering|executive (?:check|review|sponsor)|account review/i, ['price', 'competitor', 'person', 'service', 'bundle']],
@@ -1256,6 +1264,13 @@ export function writeRetentionPlaybook(args) {
                 owner: 'Account owner with the workflow owner, subject to capacity confirmation', timing: 'Agree a review date with the affected team',
                 email: `Subject: Reviewing a recent workflow\n\nHello,\n\nCould you walk us through one recent busy period, including which steps you used and which you worked around, if any? We would like to compare that with the records before proposing a change.\n\nWho owns this workflow, and when would a short review suit them?\n\n${sign}`
             };
+        if (readSignal(reason, /\b(?:withdrew|withdrawn|removed|ended|stopped)\s+(?:local\s+)?support\b/i).state === 'affirmed')
+            return {
+                trigger: 'Reported withdrawal of support, to verify against the agreed coverage and customer records',
+                action: 'Confirm which support was withdrawn and the effect on the customer; have the support owner check whether restoration is feasible before offering a recovery plan',
+                owner: 'Account owner and support owner', timing: 'Agree the next review date after checking coverage and capacity',
+                email: `Subject: Reviewing support coverage\n\nHello,\n\nCould we compare the support your team needs with the coverage available now and what was agreed? Please include any recent task that could not be completed.\n\nWe will check what can be restored and who can own it before proposing a plan. When would a review suit your team?\n\n${sign}`
+            };
         switch (kindOfReason(reason)) {
             case 'bundle': return { trigger: 'Another vendor offers a bundled or consolidated package to the account', action: `Compare the outcome each option delivers, not the feature lists.${sector ? ` ${sector}` : ''}`, owner: hi ? 'CSM with the account executive' : 'CS team, with the account executive', timing: 'Within a week of the signal',
                 email: `Subject: Comparing the outcome, not the bundle\n\nHello,\n\nAre you considering a bundled package from another vendor? If so, which parts matter to your team?\n\nBefore you decide, I would like to compare what each option delivers for the results you care about, and what the bundle leaves to manual work.\n\nWould a short comparison with your team help?\n\n${sign}` };
@@ -1395,7 +1410,7 @@ export function writeRetentionPlaybook(args) {
     // ---- measures ----
     out.push('## Measures to watch');
     out.push('');
-    out.push('| Measure | Now | Where to read it |', '|---------|-----|------------------|', `| Churn | ${churn.n === null ? 'not readable' : typedRate} | ${volumeModel ? 'Billing and volume records' : 'Billing system'} |`, '| Health score coverage | not measured yet | CS platform |', '| Response to outreach | not measured yet | Email and call tracking |', '| Save rate (at risk to retained) | not measured yet | CS platform |', `| ${subscription ? 'Time to first value' : 'Time to go-live'} | not measured yet | ${subscription ? 'Product analytics' : 'Project plan'} |`);
+    out.push('| Measure | Now | Where to read it |', '|---------|-----|------------------|', `| Churn | ${churn.n === null ? 'not readable' : typedRate} | ${volumeModel ? 'Billing and volume records' : 'Billing system'} |`, '| Health score coverage | not supplied | CS platform |', '| Response to outreach | not supplied | Email and call tracking |', '| Save rate (at risk to retained) | not supplied | CS platform |', `| ${subscription ? 'Time to first value' : 'Time to go-live'} | not supplied | ${subscription ? 'Product analytics' : 'Project plan'} |`);
     out.push('');
     out.push('Set your own target for each measure once you have a first reading.');
     out.push('');
@@ -1415,15 +1430,15 @@ export function writeRetentionPlaybook(args) {
     // ---- what was not given ----
     const missing = [];
     if (!reasons.length)
-        missing.push(['the churn reasons (why customers leave), in the churn reasons input', 'this kit, which would become a playbook with a signal, a step, an owner and a draft message for each reason']);
+        missing.push(['the churn reasons, in the customers’ own words', 'this kit, which would become a playbook with a signal, a step, an owner and a draft message for each reason']);
     if (!dataSignals.length)
-        missing.push(['the data signals you can track, in the available data signals input', 'the health score table, where every signal is now marked "to add"']);
+        missing.push(['the account signals you can track and their sources', 'the health score table, where every signal is now marked "to add"']);
     if (!current.length)
-        missing.push(['what you already do to keep customers, in the current interventions input', 'the comparison with each reason, which shows what is covered and what is not']);
+        missing.push(['what you already do to keep customers', 'the comparison with each reason, which shows what is covered and what is not']);
     if (!product)
-        missing.push(['the product or company name, in the product input', 'the title and the drafts, which now say "our service"']);
+        missing.push(['the product or company name', 'the title and the drafts, which now say "our service"']);
     if (!args.cs_team_size)
-        missing.push(['the customer success team size and available hours, in the cs team size input; no capacity has been assumed', 'the split between personal, one-to-many and automated contact']);
+        missing.push(['the customer success team size and available hours; no capacity has been assumed', 'the split between personal, one-to-many and automated contact']);
     if (churn.n === null || churn.period === 'unstated')
         missing.push(['the churn rate as a number with its period, such as 5% a month', 'the severity, the annual figure and the sizing of the plan']);
     if (!args.industry && !ctx.v)
@@ -1519,7 +1534,7 @@ export function writeRetentionPlaybook(args) {
         list.forEach((r, i) => { k.push(`### ${i + 1}. ${r}`); k.push(''); k.push(`**Signal:** ${stripEnd(signalOf(r))}.`); k.push(`**First step if true:** ${stripEnd(stepOf(r))}.`); k.push(''); });
         k.push('## After the first answers');
         k.push('');
-        k.push('Come back with the three to five reasons you hear most, in the churn reasons input (one per line or separated by semicolons), and this becomes a playbook with a signal, an owner, a timing and a draft message for each one.');
+        k.push('Return with the reasons you heard, keeping each customer’s words and source separate, and this becomes a playbook with a signal, an owner, a timing and a draft message for each one.');
         k.push('');
         return k;
     }
