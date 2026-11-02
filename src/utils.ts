@@ -671,6 +671,6 @@ export function analyzeCRAFTDimensions(content: string): CRAFTAnalysis {
  * a piece that holds a digit but none of the metric words the parser knows is returned, so the answer can name it as not scored.
  */
 export function unscoredFigures(metricsText: string): string[] {
-  const known = /\b(mrr|arr|acv|annual contract value|average contract value|churn|nps|cac|ltv|retention|nrr|net revenue retention|activation|referral|growth|dau|mau|trial|expansion)\b/i;
+  const known = /\b(mrr|monthly recurring revenue|arr|annual recurring revenue|acv|annual contract value|average contract value|churn|nps|net promoter score|cac|customer acquisition cost|ltv|lifetime value|retention|nrr|net revenue retention|activation|referral|growth|dau|mau|trial|expansion)\b/i;
   return metricsText.split(/\n|;|,(?!\d{3}(?!\d))/).map((x) => x.trim()).filter((x) => /\d/.test(x) && !known.test(x)).map((x) => escapePiece(x));
 }
