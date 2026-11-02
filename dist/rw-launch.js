@@ -1122,7 +1122,7 @@ function parseChurn(text) {
         ['month', readSignal(text, /\b(?:month(?:ly)?|per month|a month|each month|\/\s?mo)\b/i, SIGNALS.monthly_period)],
     ];
     const affirmed = periods.filter(([, r]) => r.state === 'affirmed');
-    if (affirmed.length !== 1 || periods.some(([, r]) => r.state === 'unclear'))
+    if (affirmed.length > 1 || periods.some(([, r]) => r.state === 'unclear'))
         return empty;
     const period = affirmed[0]?.[0] || 'unstated';
     // 28 Oct 2026 (owner): churn compounds. Each month's loss applies only to the customers still left, so a monthly rate m
@@ -1203,8 +1203,11 @@ export function writeRetentionPlaybook(args) {
         stand.push(`The segment, as you described it: ${quoted(segment)}.`);
     if (churn.n === null)
         stand.push(`You gave a churn rate of ${quoted(typedRate)}, which could not be read as one explicit percentage and period (0 to 100 percent, with no denied or conflicting rates or periods), so no severity is shown.`);
+    else if (churn.period === 'unstated') {
+        stand.push(`You report ${typedRate}, but no period is established, so no severity is shown. Confirm the period before using an annual figure. Illustration only: if this were a monthly rate, it would imply about ${pct(churn.annual)}% of ${lossUnit} lost in a year if that monthly rate persisted. This conditional example is not your annual churn or a forecast.`);
+    }
     else {
-        stand.push(`You report churn of ${typedRate}${churn.period === 'unstated' ? ', which is read as a monthly rate' : ''}.`);
+        stand.push(`You report churn of ${typedRate}.`);
         if (churn.period === 'year')
             stand.push(`That is about ${pct(churn.monthly)}% a month, compounded (the monthly rate that, applied each month to the customers still left, adds up to your annual rate).`);
         else if (churn.period === 'quarter')
@@ -1406,10 +1409,8 @@ export function writeRetentionPlaybook(args) {
         missing.push(['the product or company name, in the product input', 'the title and the drafts, which now say "our service"']);
     if (!args.cs_team_size)
         missing.push(['the customer success team size and available hours, in the cs team size input; no capacity has been assumed', 'the split between personal, one-to-many and automated contact']);
-    if (churn.n === null)
+    if (churn.n === null || churn.period === 'unstated')
         missing.push(['the churn rate as a number with its period, such as 5% a month', 'the severity, the annual figure and the sizing of the plan']);
-    else if (churn.period === 'unstated')
-        missing.push(['whether the churn rate is monthly, quarterly or yearly', `the annual figure, which now reads ${typedRate} as monthly`]);
     if (!args.industry && !ctx.v)
         missing.push(['your industry', 'the sector measures, objections and renewal habits, which are now left out']);
     const kinds = kindsWithLines(ctx, ['churnReasons', 'renewal']);

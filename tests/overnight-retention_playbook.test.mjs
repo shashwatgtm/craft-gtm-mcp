@@ -63,3 +63,11 @@ test('a revenue churn percentage is not described as lost customers',()=>{
  const s=generateRetentionPlaybook({...retentionBase,current_churn_rate:'3% monthly gross revenue churn'});
  assert.match(s,/30\.6% of revenue lost in a year/);assert.doesNotMatch(s,/30\.6% of customers/);
 });
+
+test('a missing churn period offers only an explicitly conditional illustration',()=>{
+ const s=generateRetentionPlaybook({...retentionBase,current_churn_rate:'3%'});
+ assert.match(s,/no period is established, so no severity is shown/);
+ assert.match(s,/Illustration only: if this were a monthly rate/);
+ assert.match(s,/not your annual churn or a forecast/);
+ assert.doesNotMatch(s,/You report churn of 3%|It reads LOW|which is read as a monthly rate/);
+});
