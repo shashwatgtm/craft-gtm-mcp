@@ -202,9 +202,8 @@ export function generateCustomerInterviewKit(args: {
         `How much time or money does this cost you currently, and where is that written down?`
       ],
       closing: [
-        `If you could wave a magic wand, what would change?`,
-        `What would make you excited to try a new solution?`,
-        `Is there anything I should have asked but didn't?`
+        `Which step, if any, would you change first, and which would you leave alone?`,
+        `What evidence would make you keep the current approach rather than try a new one?`
       ]
     },
     validation: {
@@ -214,10 +213,10 @@ export function generateCustomerInterviewKit(args: {
       ],
       core: [
         `Show the ${subscription ? 'solution' : 'offer'}, then ask: What's your initial reaction?`,
-        `How excited would you be to try this (scale 1 to 10)? Why that number?`,
-        `What would need to change for that to be a 10?`,
+        `Where, if anywhere, would this fit a recent task you actually completed?`,
+        `What would show that this is a poor fit or not worth changing for?`,
         `How does this compare to what you're using today?`,
-        `Would this solve the problem you mentioned earlier?`
+        `Which part of the task would it change, and what would remain unresolved?`
       ],
       probing: [
         `When I showed the main feature, what was your first reaction? What did you expect to see instead?`,
@@ -234,7 +233,7 @@ export function generateCustomerInterviewKit(args: {
     },
     feedback: {
       opening: [
-        `Thanks for being a customer! How has your experience been overall?`,
+        `Thank you for sharing your experience. How has it been overall?`,
         `What initially made you decide to use ${product}?`,
         `How long have you been using it?`
       ],
@@ -249,7 +248,7 @@ export function generateCustomerInterviewKit(args: {
         `Pick a feature they mentioned and ask: "What specifically about it works or doesn't work?"`,
         `If you could add one thing, what would it be?`,
         `Have you recommended us to others? Why/why not?`,
-        `What would make you a raving fan?`,
+        `What, if anything, would need to change for you to recommend it?`,
         `How does our support compare to other vendors?`
       ],
       closing: [
@@ -267,7 +266,7 @@ export function generateCustomerInterviewKit(args: {
       core: [
         `What was the primary reason you decided to ${leave}?`,
         `Were there any secondary reasons?`,
-        `What did you switch to? What made that option better?`,
+        `What did you switch to, if anything? Which tradeoffs influenced that choice?`,
         `Was there anything we could have done to keep you?`,
         `Did you feel you got value from ${product}?`
       ],
@@ -292,7 +291,7 @@ export function generateCustomerInterviewKit(args: {
       ],
       core: [
         `What were your top criteria when evaluating options?`,
-        `Which vendors did you consider? For a win: why did you choose us? For a loss: why did you choose the other vendor?`,
+        `Which options did you consider, including keeping the current approach? Which did you choose, and why?`,
         `What was the deciding factor?`,
         `How did pricing factor into the decision?`,
         `What did you think of our sales process?`
@@ -300,7 +299,7 @@ export function generateCustomerInterviewKit(args: {
       probing: [
         `Which criterion mattered most, and why was it so important?`,
         `How did we compare on that criterion?`,
-        `What did the vendor you chose do well that we didn't?`,
+        `Where did each option meet or miss your criteria? What record could confirm that comparison?`,
         `What could our sales team have done better?`,
         `Were there any surprises during the evaluation?`
       ],
