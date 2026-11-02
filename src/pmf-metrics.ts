@@ -1,6 +1,6 @@
 import { readSignal } from './text-signals.js';
 /** Deterministic metric reader. Never score a target, negation or conflicting pair as an observed fact. */
-export interface MetricReading { values: Record<string, number>; evidence: string[]; issues: string[]; retentionIsNet: boolean; churnMonths?: number }
+export interface MetricReading { values: Record<string, number>; evidence: string[]; issues: string[]; retentionIsNet: boolean; retentionBasis?: 'logo' | 'gross_revenue' | 'net_revenue' | 'unspecified'; churnMonths?: number }
 export function readPMFMetrics(raw: string): MetricReading {
   const result: MetricReading = { values: {}, evidence: [], issues: [], retentionIsNet: false };
   const definitions: [string, string, number, number][] = [
@@ -52,7 +52,11 @@ export function readPMFMetrics(raw: string): MetricReading {
         result.churnMonths = found[0];
       }
       result.values[key]=value;
-      if (key==='retentionRate')result.retentionIsNet=net;
+      if (key==='retentionRate') {
+        const basis = net ? 'net_revenue' : /\b(?:logo|customer)\b/i.test(match[1]) ? 'logo' : /\bgross\b/i.test(match[1]) ? 'gross_revenue' : 'unspecified';
+        if (result.retentionBasis && result.retentionBasis !== basis) result.issues.push('retentionRate: different retention bases were supplied; choose one confirmed measure for this comparison.');
+        result.retentionIsNet=net; result.retentionBasis=basis;
+      }
       result.evidence.push(`${match[1]}: "${match[0]}"`);
     }
   }

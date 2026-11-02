@@ -102,6 +102,7 @@ export function generatePMFScorecard(args: {
     : metrics.churn !== undefined && months && months > 1 ? `Your ${months === 12 ? 'annual' : 'quarterly'} churn remains ${pct(metrics.churn)}%. Monthly equivalent: (1 − (1 − ${pct(metrics.churn)} / 100)^(1/${months})) × 100 = ${monthlyShown}%. This assumes a constant monthly loss rate. The monthly equivalent is compared with the existing monthly example range: healthy up to ${pct(churnRange.medium)}%, excellent up to ${pct(churnRange.low)}%.` : '';
   const npsScore = scoreMetric(metrics.nps, b.nps, true);
   const ltvCacScore = scoreMetric(metrics.ltvCacRatio, b.ltvCac, true, metrics.ltvCacRatio?.toFixed(1), 'x');
+  const retentionLabel = reading.retentionBasis === 'logo' ? 'Logo Retention' : reading.retentionBasis === 'gross_revenue' ? 'Gross Revenue Retention' : metrics.retentionIsNet ? 'Net Revenue Retention' : 'Retention Rate';
   const retentionScore = scoreMetric(metrics.retentionRate, b.retention, true, undefined, '%');
   const activationScore = scoreMetric(metrics.activationRate, b.activation, true, undefined, '%');
   
@@ -301,12 +302,14 @@ ${dimensionHeader}
 
 ---
 
-### 4. Revenue Retention
+### 4. ${retentionLabel}
 ${dimensionHeader}
 |--------|-----------|-------|-----------|--------|
-| ${metrics.retentionIsNet ? 'Net Revenue Retention' : 'Retention Rate'} | ${metrics.retentionRate !== undefined ? pct(metrics.retentionRate) + '%' : 'NOT PROVIDED'} | ${retentionScore.score}/10 | healthy from ${b.retention.medium}%, excellent from ${b.retention.high}% | ${retentionScore.label} |
+| ${retentionLabel} | ${metrics.retentionRate !== undefined ? pct(metrics.retentionRate) + '%' : 'NOT PROVIDED'} | ${retentionScore.score}/10 | healthy from ${b.retention.medium}%, excellent from ${b.retention.high}% | ${retentionScore.label} |
 
 **Analysis:** ${retentionScore.analysis}
+
+This comparison uses the selected market's example retention ranges. Confirm a matching cohort, measurement period and ${reading.retentionBasis === 'logo' ? 'logo' : reading.retentionBasis === 'gross_revenue' ? 'gross revenue' : reading.retentionBasis === 'net_revenue' ? 'net revenue' : 'retention'} basis before treating the comparison as decision evidence.
 
 ---
 

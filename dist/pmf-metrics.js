@@ -58,8 +58,13 @@ export function readPMFMetrics(raw) {
                 result.churnMonths = found[0];
             }
             result.values[key] = value;
-            if (key === 'retentionRate')
+            if (key === 'retentionRate') {
+                const basis = net ? 'net_revenue' : /\b(?:logo|customer)\b/i.test(match[1]) ? 'logo' : /\bgross\b/i.test(match[1]) ? 'gross_revenue' : 'unspecified';
+                if (result.retentionBasis && result.retentionBasis !== basis)
+                    result.issues.push('retentionRate: different retention bases were supplied; choose one confirmed measure for this comparison.');
                 result.retentionIsNet = net;
+                result.retentionBasis = basis;
+            }
             result.evidence.push(`${match[1]}: "${match[0]}"`);
         }
     }
