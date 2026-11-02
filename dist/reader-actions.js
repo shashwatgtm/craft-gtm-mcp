@@ -1,3 +1,4 @@
+import { case_pmf_scorecard } from './reader-pmf-scorecard.js';
 import { case_partner_architect } from './reader-partner-architect.js';
 import { case_retention_playbook } from './reader-retention-playbook.js';
 import { case_customer_interview_kit } from './reader-customer-interview-kit.js';
@@ -97,6 +98,8 @@ export function readingGuide(name, result, args = {}) {
         return renderCase(case_retention_playbook(args), held);
     if (name === 'partner_architect')
         return renderCase(case_partner_architect(args), held);
+    if (name === 'pmf_scorecard')
+        return renderCase(case_pmf_scorecard(args), held);
     const status = held ? ' Keep the stated hold in place; this guidance does not override it.' : '';
     let roles = kind === 'publish' ? [
         `Founder: check the central claim against the supplied evidence before endorsing ${decision}.`,
