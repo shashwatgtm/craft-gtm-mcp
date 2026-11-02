@@ -1,3 +1,5 @@
+import { nonRecurringBilling } from './verticals.js';
+import { readSignal } from './text-signals.js';
 import { clearanceAdvice } from './text-signals.js';
 import { sellerSectorLabel } from './text-signals.js';
 import { hasSignal, signal } from './text-signals.js';
@@ -185,10 +187,10 @@ const CHARGE_WORDS: Array<[BusinessModel, RegExp]> = [
   ['services', /\b(?:per fte|per ticket|per hour|time and materials|retainers?|statements? of work)\b/i],
   ['marketplace', /\b(?:take rate|(?:charges?|takes?) an? (?:commission|cut|percentage)|commission on (?:each|every) (?:sale|order|booking|trade))\b/i],
   ['investment', /\b(?:performance fees?|assets under management|aum)\b/i],
-  ['saas', /\b(?:saas|subscriptions?|per[- ]seat|per[- ]user|per[- ]month|annual licen[cs]es?)\b/i],
+  ['saas', /\b(?:saas|subscriptions?|per[- ]seat|per[- ]user|per[- ]month|annual licen[cs]es?|recurring monthly fee)\b/i],
 ];
 export function statedCharge(text: string): BusinessModel | null {
-  for (const [m, re] of CHARGE_WORDS) if (re.test(text)) return m;
+  for (const [m, re] of CHARGE_WORDS) if (readSignal(text, re).state === 'affirmed') return m;
   return null;
 }
 
@@ -245,6 +247,7 @@ export function readContext(opts: { model?: unknown; hintModel?: BusinessModel |
     }
   }
   // No sector of the seller's own is known (the sector read from the buyer's industry is not used), so there is no usual model to assume either.
+  if (!explicit && nonRecurringBilling(sellerTexts.join(' . '))) { model = null; how = 'unknown'; }
   if (!v && how === 'sector') { model = null; how = 'unknown'; }
   const buyerSide = buyerV ? ` (name it with the industry input for sector notes)` : '';
   // A seller that manages money (the investment model) is not sold to like the sector the shared reader named (support-automation buyers for "AI native",

@@ -767,11 +767,7 @@ export function writeLaunchPlan(args) {
         lines.push(lead.length
             ? (fits ? `For ${seg}, lead with ${andList(lead.map((x) => quoted(x)))}.` : `Nothing in your description points to ${seg} more than to another segment, so open with ${andList(lead.map((x) => quoted(x)))}, the first part you list, and move to the part their answers point to.`)
             : `For ${seg}, say in the words that segment uses what ${c.N} changes for its work.`);
-        if (notes && reviewGroups.get(notes.review)[0] === seg) {
-            const grp = reviewGroups.get(notes.review);
-            const rv = grp.some((g) => /e-?commerce|online|d2c|marketplace/i.test(g)) ? notes.review.replace('many stores or outlets', 'many storefronts and sales channels') : notes.review;
-            lines.push(`For ${andList(grp)} a purchase usually involves ${rv}; have those answers ready before they are asked.`);
-        }
+        lines.push('Confirm the buyer roles and approval steps with a named contact before planning the launch; the segment label does not establish them.');
         // a question or a measure of the sector goes to a segment only when it fits it
         const q2 = discovery.slice(3).filter((d) => !usedAsks.has(d)).map((d) => ({ d, score: fitScore(segText, notes?.review ?? '', d) })).sort((x, y) => y.score - x.score)[0];
         if (q2 && q2.score >= 3) {
@@ -1130,9 +1126,12 @@ export function writeRetentionPlaybook(args) {
     const model = choice === 'enterprise_contract' && ((model0 === 'services' && ctx.v?.id !== 'ites') || (model0 === 'connectivity' && ctx.v?.id !== 'telecom')) ? null : model0;
     const contractModel = model === 'services' || model === 'connectivity' || model === 'investment' ? model : null;
     const subscription = !contractModel && (['saas_subscription', 'usage_based', 'freemium', 'marketplace', 'transactional'].includes(choice) || (choice === 'enterprise_contract' && model === 'saas'));
-    const ctxLine = choice === 'enterprise_contract' && (!ctx.model || model !== ctx.model)
-        ? ctx.line.replace(/Business model: [^]*$/, 'Business model: enterprise contract (from your business_model input; name your offer in the product input and a services, connectivity or investment contract is read from it).*')
-        : ctx.line;
+    // The explicit contract selection is authoritative. Billing text adds detail, never replaces it.
+    const billingNotes = [args.customer_segment, args.product, args.churn_reasons, args.available_data_signals, args.current_interventions]
+        .filter((x) => !!x).flatMap(x => x.split(/(?<=[.!?])\s+|[;\n]/))
+        .filter(x => /\b(?:bill(?:ing|ed)?|licen[cs]e|true[ -]up|per seat|per transaction|retainer|management fee)\b/i.test(x));
+    const ctxLine = ctx.line.replace(/Business model: [^]*$/, `Business model: ${readableChoice(choice)} (from your business_model input).*`)
+        + (billingNotes.length ? `\nBilling details you supplied: ${[...new Set(billingNotes)].map(quoted).join('; ')}.` : '\nBilling cadence: not supplied.');
     // AI native without a kind read is written for case-by-case decision AI (cost per case, human review); other AI products get the reasons as questions
     const caseAI = ctx.v?.id === 'ai-native' && !ctx.v.subtype && !/investment/i.test(ctx.v.name);
     const churn = parseChurn(args.current_churn_rate);
@@ -1186,8 +1185,8 @@ export function writeRetentionPlaybook(args) {
     out.push(stand.join(' '));
     out.push('');
     const sectorParas = [];
-    if (notes && enterpriseLike)
-        sectorParas.push(`In this segment a ${subscription ? 'purchase' : 'renewal'} usually involves ${notes.review}, so check each reason for leaving against those steps as well as the product and the price.`);
+    if (enterpriseLike)
+        sectorParas.push('Confirm which buyer roles, approval steps and billing terms actually apply to this account before choosing a renewal intervention. They were not established by the segment label.');
     if (ctx.v && pb && enterpriseLike && !caseAI)
         sectorParas.push(`In ${ctx.v.name}: ${pb.renewal}`);
     if (sectorParas.length) {
@@ -1368,7 +1367,7 @@ export function writeRetentionPlaybook(args) {
     if (!product)
         missing.push(['the product or company name, in the product input', 'the title and the drafts, which now say "our service"']);
     if (!args.cs_team_size)
-        missing.push(['the customer success team size, in the cs team size input; the plan assumes small (1 to 3)', 'the split between personal, one-to-many and automated contact']);
+        missing.push(['the customer success team size and available hours, in the cs team size input; no capacity has been assumed', 'the split between personal, one-to-many and automated contact']);
     if (churn.n === null)
         missing.push(['the churn rate as a number with its period, such as 5% a month', 'the severity, the annual figure and the sizing of the plan']);
     else if (churn.period === 'unstated')
@@ -1656,7 +1655,9 @@ ${audiences([['Client service owner', 'A call from the account owner', 'What hap
     const isBreachKind = (c) => { const l = c.toLowerCase(); return !/vulnerab|data[ _]exposure|customer_data|\bsla\b|sla_|service[ _]level|regulat|fraud|ai_wrong|wrong[ _]action|ai[ _]error|hallucinat/.test(l) && securityIncident(c).state === 'affirmed'; };
     // a data breach and a customer data exposure asked together are one playbook, so that two lists of nearly the same steps do not sit side by side
     const breachC = crises.find((c) => /breach|hack/i.test(c) && isBreachKind(c));
-    const exposureC = crises.find((c) => /data[ _]exposure|customer_data/i.test(c));
+    const exposurePattern = /\b(?:customer data(?: exposure)?|data exposure|data (?:was |is )?exposed)\b/i;
+    const exposureState = (c) => readSignal(unescapeMd(c).replace(/_/g, ' '), exposurePattern).state;
+    const exposureC = crises.find((c) => exposureState(c) === 'affirmed');
     const mergedExposure = !!breachC && !!exposureC && breachC !== exposureC;
     if (mergedExposure)
         crises = crises.filter((c) => c !== exposureC);
@@ -1664,12 +1665,15 @@ ${audiences([['Client service owner', 'A call from the account owner', 'What hap
     const playbook = (crisis, wasTyped) => {
         const lower = crisis.toLowerCase();
         const name = spaced(crisis);
+        const exposure = exposureState(crisis);
+        if (exposure === 'negated' && !hasSignal(unescapeMd(crisis).replace(/_/g, ' '), /\b(?:outage|downtime|service failure|sla breach|security vulnerability|fraud|regulatory action)\b/i))
+            return `### Not treated as a confirmed incident: ${name}\n\nYour note denies data exposure. No exposure response or notification duty is inferred from it. Confirm any separate incident before selecting its playbook.\n`;
         if (securityIncident(crisis).state === 'unclear')
             return `### Incident needs clarification: ${name}\n\nThe security fact is not clear. Confirm what occurred and preserve the evidence before choosing an incident playbook.\n`;
         const t = stems(crisis);
         // a crisis of the sector's own (by its key, or by its words when the text names no known kind of crisis), used once
         const knownKind = securityIncident(crisis).state === 'affirmed' || /vulnerab|data[ _]exposure|customer_data|\bsla\b|sla_|service[ _]level|regulat|fraud|ai_wrong|wrong[ _]action|ai[ _]error|hallucinat|breach|security|hack|exposure|outage|downtime|\bdown\b|(^|[^a-z])pr([^a-z]|$)|reputation|media|social|executive|departure|fired|resign|competitor|attack|market/.test(lower);
-        const byKey = pb ? pb.crises.find((c) => lower.includes(c.key) || lower.includes(c.key.replace(/_/g, ' '))) : undefined;
+        const byKey = pb ? pb.crises.find((c) => (lower.includes(c.key) || lower.includes(c.key.replace(/_/g, ' '))) && (!/exposure|customer_data/.test(c.key) || exposure === 'affirmed')) : undefined;
         const byWords = pb && !knownKind && t.length > 0 ? pb.crises.find((c) => t.some((st) => stems(`${c.title} ${c.what}`).includes(st))) : undefined;
         const found = byKey ?? byWords;
         const own = found && !usedOwn.has(found.key) ? found : undefined;
@@ -1704,7 +1708,7 @@ ${audiences(own.tell.map((x) => [x.who, x.how, x.focus, acct]))}${absorbed.has(o
 3. ${notice('notice of a vulnerability or a fix')}.
 
 ${audiences([['Reporter, if a researcher found it', 'Direct reply', 'Receipt, one owner, the timing of the fix', 'Security lead'], ['Affected customers', enterprise ? 'A call from the account owner, then the advisory' : 'Email and the advisory', 'What is affected, the fix, how to check', acct]])}`;
-        if (/data[ _]exposure|customer_data/.test(lower))
+        if (exposure === 'affirmed')
             return `### ${heading('Customer data exposure', name)}
 
 ${pb ? `**What could be exposed here:** ${pb.breach}.\n\n` : ''}**First four hours**
