@@ -12,7 +12,7 @@ export function case_partner_architect(args) {
             `Founder: ask the partnership owner to show one credible introduction route for ${goal}; qualify access before adding partners to a target count.`,
             `CEO: check ${capacity} with the support owner against the pilot workload; approve capacity and terms before promising partner service levels.`,
             `CMO: verify ${history} with the partnership owner before describing the motion as successful; keep introductions and paid accounts separate.`,
-            `CRO: review the stalled introductions in ${history} with the account owner; agree a buyer qualification check before requesting the next introduction.`,
+            `CRO: trace the outcome of each introduction in ${history} with the account owner; agree a buyer qualification check before requesting the next introduction.`,
             `Demand generation head: test partner invitations around ${product}; have sales confirm the buyer need and ${amount} before counting a sourced opportunity.`,
         ],
     };
