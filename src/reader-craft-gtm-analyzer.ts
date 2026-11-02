@@ -1,4 +1,5 @@
 import { fact, type ReaderCase } from './reader-case.js';
+import { capacityCheck } from './plan-capacity.js';
 export function case_craft_gtm_analyzer(args: Record<string,unknown>): ReaderCase {
   const goal = fact(args, "desired_outcome", "the proposed decision");
   const target = fact(args, "document_content", "the customer target in the plan", new RegExp("paid customers|customer target", 'i'));
@@ -6,7 +7,7 @@ export function case_craft_gtm_analyzer(args: Record<string,unknown>): ReaderCas
   const conversion = fact(args, "document_content", "the conversion evidence in the plan", new RegExp("conversion|demo to sale", 'i'));
   const budget = fact(args, "document_content", "the budget in the plan", new RegExp("budget|\\$.*(?:events|outreach)", 'i'));
   return {
-    meaning: `This review supports a list of planning gaps, not approval of the growth target. Compare sales throughput and onboarding capacity over the same agreed period before choosing ${goal}.`,
+    meaning: `This review supports a list of planning gaps, not approval of the growth target. Compare sales throughput and onboarding capacity over the same agreed period before choosing ${goal}. ${capacityCheck(String(args.document_content || ''))}`.trim(),
     change: `the observed conversion, available selling weeks, delivery capacity or pilot acceptance condition changes`,
     roles: [
       `Founder: resolve ${goal} by asking the plan owner to show which assumption makes the customer target feasible; keep approval open until that calculation is reviewed.`,
