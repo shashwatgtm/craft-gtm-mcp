@@ -1,1 +1,1 @@
-{"version":3,"file":"reader-pmf-scorecard.d.ts","sourceRoot":"","sources":["../src/reader-pmf-scorecard.ts"],"names":[],"mappings":"AAAA,OAAO,EAAQ,KAAK,UAAU,EAAE,MAAM,kBAAkB,CAAC;AACzD,wBAAgB,kBAAkB,CAAC,IAAI,EAAE,MAAM,CAAC,MAAM,EAAC,OAAO,CAAC,GAAG,UAAU,CAiB3E"}
+{"version":3,"file":"reader-pmf-scorecard.d.ts","sourceRoot":"","sources":["../src/reader-pmf-scorecard.ts"],"names":[],"mappings":"AACA,OAAO,EAAQ,KAAK,UAAU,EAAE,MAAM,kBAAkB,CAAC;AACzD,wBAAgB,kBAAkB,CAAC,IAAI,EAAE,MAAM,CAAC,MAAM,EAAC,OAAO,CAAC,GAAG,UAAU,CAmB3E"}

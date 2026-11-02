@@ -1,3 +1,4 @@
+import { readPMFMetrics } from './pmf-metrics.js';
 import { fact, type ReaderCase } from './reader-case.js';
 export function case_pmf_scorecard(args: Record<string,unknown>): ReaderCase {
   const metrics = fact(args, "current_metrics", "the supplied metrics");
@@ -5,8 +6,10 @@ export function case_pmf_scorecard(args: Record<string,unknown>): ReaderCase {
   const product = fact(args, "product", "the product");
   const market = fact(args, "target_market", "the selected market");
   const model = fact(args, "business_model", "the charging model");
+  const reading = readPMFMetrics(String(args.current_metrics || ''));
+  const canCompare = !reading.issues.length && (['nps','retentionRate','activationRate'].some(key=>reading.values[key] !== undefined) || reading.values.churn !== undefined && !!reading.churnMonths || reading.values.ltv !== undefined && reading.values.cac > 0);
   return {
-    meaning: `This score supports a comparison of ${metrics} with example benchmark rules. It does not establish fit beyond the sample. Any assumed time in market is not evidence of product maturity.`,
+    meaning: `${canCompare ? `This score supports a comparison of ${metrics} with example benchmark rules.` : `These inputs do not yet support a score. Resolve conflicting values or missing measures and periods in ${metrics} before comparing them with example benchmark rules.`} It does not establish fit beyond the sample. Any assumed time in market is not evidence of product maturity.`,
     change: `verified cohort size, retention period, acquisition cost or a more comparable benchmark changes the comparison`,
     roles: [
       `Founder: ask the research owner which observation would contradict fit for ${product}; check losses and nonusers before treating a favourable score as validation.`,

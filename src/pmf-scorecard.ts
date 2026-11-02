@@ -19,7 +19,8 @@ export function generatePMFScorecard(args: {
   const metrics = parseMetrics(args.current_metrics);
   const reading = readPMFMetrics(args.current_metrics);
   const scoringEvidence = reading.evidence.filter(line => !/^(?:mrr|monthly recurring revenue|arr|annual recurring revenue|acv|annual contract value|average contract value):/i.test(line));
-  if (reading.issues.length) return benchmarkNotice + '# Cannot score these metrics\n\n' + reading.issues.map(x => '- ' + x).join('\n') + '\n\nConfirm the observed figures and their periods before a fit decision.';
+  const metricNames: Record<string,string> = {churn:'Churn',nps:'NPS',ltv:'Lifetime value',cac:'Customer acquisition cost',mrr:'Monthly recurring revenue',arr:'Annual recurring revenue',acv:'Annual contract value',retentionRate:'Retention',activationRate:'Activation',ltvCacRatio:'Lifetime value to acquisition cost ratio'};
+  if (reading.issues.length) return benchmarkNotice + '# Cannot score these metrics\n\n' + reading.issues.map(x => '- ' + x.replace(/^([A-Za-z]+):/, (_match,key:string) => `${metricNames[key] || key}:`)).join('\n') + '\n\nConfirm the observed figures and their periods before a fit decision.';
   for (const key of ['churn','nps','ltv','cac','mrr','arr','acv','retentionRate','activationRate','ltvCacRatio'] as const) delete metrics[key];
   Object.assign(metrics, reading.values);
   metrics.retentionIsNet = reading.retentionIsNet;

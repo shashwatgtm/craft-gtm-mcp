@@ -39,3 +39,16 @@ test('Overnight PMF: a following word is not a currency multiplier',()=>{
  const scaled=generatePMFScorecard({...pmfArgs,current_metrics:'MRR: $50k; CAC: $18k; LTV: $54k'});
  assert.match(scaled,/\| LTV:CAC Ratio \| 3.0x/);assert.match(scaled,/\| MRR \| \$50,000/);
 });
+
+
+import {call} from './overnight-reader-helper.mjs';
+test('unscorable PMF inputs use readable metric names and retain the score hold in the reader',async()=>{
+ for(const current_metrics of ['Retention: 89%; GRR: 92%; NRR: 108%','Activation: 40%; Activation: 60%','MRR: $50000','Churn: 2%']){
+ const r=await call('pmf_scorecard',{...pmfArgs,current_metrics});const s=r.content.map(c=>c.text||'').join('\n');
+ const reading=s.split('## Reading the answer')[1];
+ assert.match(reading,/These inputs do not yet support a score/);assert.doesNotMatch(reading,/This score supports a comparison/);
+ assert.doesNotMatch(s,/retentionRate:|activationRate:|ltvCacRatio:/);
+ if(current_metrics.startsWith('Retention'))assert.match(s,/- Retention: conflicting values or bases/);
+ if(current_metrics.startsWith('Activation'))assert.match(s,/- Activation: conflicting values or bases/);
+ }
+});
