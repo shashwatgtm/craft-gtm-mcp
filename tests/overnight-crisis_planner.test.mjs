@@ -27,3 +27,13 @@ test('restoration starts verification while denied incidents remain unconfirmed'
  const notRestored=await text('Service has not been restored. An outage continues. There is no evidence of data exposure.');
  assert.match(notRestored,/### Service outage/);assert.doesNotMatch(notRestored,/Recovery verification/);
 });
+
+test('unconfirmed and restored incidents use neutral customer checks and no company placeholder in status copy',async()=>{
+ for(const potential_crises of ['No outage has been confirmed. There is no evidence of data exposure.','Service has been restored. There is no evidence of data exposure.','An outage prevents two customers from finishing their work. There is no evidence of data exposure.']){
+ const r=await call('crisis_planner',{company:'Workflow for dispatch exceptions used by the depot supervisor',industry:'logistics_tech',customer_base:'b2b_enterprise',data_sensitivity:'high_pii_financial',potential_crises});
+ const s=r.content.map(c=>c.text||'').join('\n');
+ assert.match(s,/verify whether any customer is still unable.*or has recovered/);
+ assert.match(s,/B2B enterprise customers/);assert.doesNotMatch(s,/service of your company|customers in “b2b enterprise”/);
+ if(potential_crises.startsWith('No outage'))assert.match(s,/check availability logs/);
+ }
+});

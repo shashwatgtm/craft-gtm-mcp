@@ -1744,7 +1744,7 @@ ${audiences([['Client service owner', 'A call from the account owner', 'What hap
 Your note reports restored service. Ask the incident lead and affected customer owners to verify the critical workflow, record the recovery time and check the backlog before closing the incident. Monitor for recurrence and retain a named escalation owner. Publish only the recovery scope confirmed by those checks. A restoration statement does not establish whether data was exposed.
 `;
         if (exposure === 'negated' && outage.state !== 'affirmed' && !hasSignal(incidentText, /\b(?:sla breach|security vulnerability|fraud|regulatory action)\b/i))
-            return `### Not treated as a confirmed incident: ${name}\n\nYour note does not establish data exposure. No exposure response or notification duty is inferred from it. Confirm any separate incident before selecting its playbook.\n`;
+            return `### Not treated as a confirmed incident: ${name}\n\nYour note does not establish data exposure. No exposure response or notification duty is inferred from it. Ask the incident lead to check availability logs and ask account owners whether customers can complete the critical workflow. Record confirmed impact, recovery and unknowns before selecting a separate incident playbook.\n`;
         if (securityIncident(crisis).state === 'unclear')
             return `### Incident needs clarification: ${name}\n\nThe security fact is not clear. Confirm what occurred and preserve the evidence before choosing an incident playbook.\n`;
         const t = stems(crisis);
@@ -1879,7 +1879,7 @@ ${audiences([['Regulators', 'A formal filing', 'The notification counsel has app
 
 ${pb ? `**Possible impact to verify:** ${outageText}.\n\n` : ''}${severityTable()}
 **First fifteen minutes**
-1. Acknowledge on the status page, or to your customers' service owners: "Investigating reports of a problem with the service of ${N}".
+1. Acknowledge on the status page, or to your customers' service owners: "Investigating reports of a problem with ${N === 'your company' ? 'the service' : `the service of ${N}`}".
 2. Assemble the incident room: ${kindModel === 'connectivity' ? 'network operations, field engineering and account owners' : kindModel === 'services' ? 'delivery, support and account owners' : 'engineering, support and account owners'}.
 3. Start the diagnosis and name the owner of the fix.
 4. Brief the support and account teams, so they are ready for the volume.${aiCrisis ? '\n5. If the cause is a model or hosting provider, use a fallback model or provider only after the incident lead confirms it is approved and tested for this workload; tell customers which features are degraded.' : ''}
