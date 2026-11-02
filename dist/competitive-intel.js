@@ -383,6 +383,15 @@ export function generateCompetitiveIntel(args) {
         said.add(v1); return v1; };
     const handleObjection = (objection) => {
         const o = objection.toLowerCase();
+        const continuityConstraint = /\b(?:cannot|can't|must not|mustn't)\s+(?:afford to\s+)?(?:interrupt|disrupt)\b|\b(?:zero|no)\s+downtime\b|\b(?:migration|switch|cutover|cut-over)\b[^.!?;]{0,70}\b(?:interrupt|disrupt)\w*\b/i.test(objection)
+            && !/\b(?:not worried|not concerned|no concern|does not|will not|won't)\b[^.!?;]{0,60}\b(?:interrupt|disrupt|downtime)\w*\b/i.test(objection);
+        if (continuityConstraint)
+            return {
+                approach: 'Confirm the work that must continue, its owner and the acceptable interruption limit. Test migration with a read-only copy or isolated simulation first; agree stop conditions and rollback before any live change.',
+                say: `On ${q(stripEnd(objection))}, we need to verify continuity before promising it. Let us record which work must continue, who approves the test and what evidence would permit a live change. We can first compare a read-only copy or isolated simulation with the current workflow, including failed transfers and recovery. No live switch is agreed until the owner accepts the results and rollback plan.`,
+                need: 'the continuity requirement, test results, approving owner and verified rollback procedure',
+                hasEvidence: false,
+            };
         // a named alternative is found by its name; a described one only when the objection compares ("better than legacy tools") and shares two words with it
         const cmpWords = /\b(differ\w*|different|versus|vs|compared? (?:to|with)|instead of|why (?:\w+ ){0,3}over|better than|competitors?|alternatives?|other (?:vendors?|options?|tools?)|rivals?)\b/.test(o);
         const named = comps.find((c) => !c.desc && o.includes(c.name.toLowerCase())) ?? (cmpWords ? comps.find((c) => c.desc && overlapN(toks(noName(objection)), toks(c.text)) >= 2) : undefined);

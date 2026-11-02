@@ -20,3 +20,15 @@ test('a card without its own evidence still offers a fair comparison conversatio
  assert.doesNotMatch(s,/Which of that|On "Our TMS/);
  assert.match(s,/Time saved is not measured/);
 });
+
+test('migration continuity objections require their own test instead of a related-word capability claim',async()=>{
+ for(const common_objections of ['We cannot interrupt dispatch exceptions during migration','Migration will disrupt the dispatch workflow','We require zero downtime during the switch']){
+  const r=await call('competitive_intel',{your_product:'Dispatch workflow',competitors:'Current internal workflow; spreadsheets',your_strengths:'The workflow can operate offline during dispatch exceptions. No time reduction was measured.',common_objections,your_sector:'logistics_tech'});
+  const s=r.content.map(c=>c.text||'').join('\n').split('## Objection handlers')[1].split('### Objections')[0];
+  assert.match(s,/read-only copy or isolated simulation/);assert.match(s,/stop conditions and rollback/);
+  assert.match(s,/No live switch is agreed until the owner accepts/);
+  assert.doesNotMatch(s,/What I can tell you today is: the workflow can operate offline/);
+ }
+ const r=await call('competitive_intel',{your_product:'Dispatch workflow',competitors:'Current workflow',common_objections:'We are not concerned that migration will disrupt dispatch work'});
+ assert.doesNotMatch(r.content.map(c=>c.text||'').join('\n'),/No live switch is agreed until the owner accepts/);
+});
