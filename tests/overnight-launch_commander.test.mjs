@@ -22,3 +22,27 @@ test('pilot commitments retain acceptance evidence and are not labelled active a
  assert.match(r,/available hours for a team of 2 to 5/);
  assert.doesNotMatch(r,/small 2 5.*hours|reschedule overdue work/);
 });
+
+test('an explicit acquisition pause produces a readiness review and no outreach schedule',()=>{
+ const args={product_feature:'Exception review workflow',target_segments:'Operations teams',launch_type:'major_release',launch_date:'2026-12-01',available_channels:'Founder outreach',goals:'Zero qualified pilot commitments; pause acquisition until delivery is ready'};
+ const s=generateLaunchCommander(args);
+ assert.match(s,/Launch acquisition on hold/);assert.match(s,/No new pilot commitment or outreach task is assigned/);
+ assert.doesNotMatch(s,/### Launch Week|Early-access list|Customer and peer advocate outreach/);
+ const r=readingGuide('launch_commander',s,args);
+ assert.match(r,/Acquisition is paused/);assert.match(r,/scheduled acquisition messages respect the pause/);
+ assert.doesNotMatch(r,/qualify.*for 0|reachable volume.*against 0/);
+ const live=generateLaunchCommander({...args,goals:'Five qualified pilot commitments; do not pause acquisition'});
+ assert.doesNotMatch(live,/Launch acquisition on hold/);assert.match(live,/## Timeline/);
+});
+test('an undecided launch outcome is a decision to resolve and known sector is not requested again',()=>{
+ const args={product_feature:'Workflow for hotel booking exceptions',target_segments:'Hotel operations teams',launch_type:'major_release',your_sector:'vertical_saas',goals:'We do not need five qualified pilot commitments; the launch outcome is still undecided'};
+ const s=generateLaunchCommander(args);const r=readingGuide('launch_commander',s,args);
+ assert.doesNotMatch(s,/\n- your industry|\.\?/);
+ assert.doesNotMatch(r,/Plan for the launch outcome still to confirm as a target|qualify.*outcome still to confirm/);
+ assert.match(r,/agree an observable outcome/);
+ for(const work of ['hotel booking exceptions','contract review exceptions']){
+  const denied=generateLaunchCommander({...args,goals:`We do not need five qualified pilot commitments for ${work}; the launch outcome is still undecided`});
+  assert.doesNotMatch(denied,/\| Revenue \||\| Awareness \||Inspect reach within|Check signed contracts/);
+  assert.match(denied,/Agree the launch outcome and its evidence source/);
+ }
+});

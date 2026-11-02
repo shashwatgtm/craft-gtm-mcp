@@ -1,5 +1,5 @@
 import { suppliedAssessmentDate } from './supplied-date.js';
-import { sizeReading, hasSignal, readSignal, SIGNALS, launchGoalReading, securityIncident, statedGoalCount, launchFollowup } from './text-signals.js';
+import { sizeReading, hasSignal, readSignal, SIGNALS, launchGoalReading, securityIncident, statedGoalCount, launchFollowup, launchAcquisitionPaused } from './text-signals.js';
 // Run 22 (writer cg-w2): the rewritten launch_commander, retention_playbook and crisis_planner.
 // Each tool writes a finished draft from the user's own inputs: every input is used where it matters, in clean sentences, nothing is invented
 // (no figure, customer, date or promise that was not given), and what was not given is named once at the end ("To sharpen this, give: ...").
@@ -260,8 +260,8 @@ const PHASES: Record<string, Phase[]> = {
 /** What each task means for this launch, in a sentence built from the user's inputs. Keys are the task titles in lower case (after the swap for a sales-led launch). */
 const DETAIL: Record<string, (c: LaunchCtx) => string> = {
   // planning
-  'positioning': (c) => `Write one paragraph on who ${c.N} is for (${c.segRef}), the problem it removes and why it beats what they use today${c.buyer ? `; check it with someone in the ${c.buyer} role` : ''}`,
-  'finalize positioning': (c) => `Settle who ${c.N} is for (${c.segRef}), the problem it removes and why it beats what they use today${c.buyer ? `; check it with someone in the ${c.buyer} role` : ''}`,
+  'positioning': (c) => `Write one paragraph on who ${c.N} is for (${c.segRef}), the problem it addresses and how to compare it with what they use today${c.buyer ? `; check it with someone in the ${c.buyer} role` : ''}`,
+  'finalize positioning': (c) => `Settle who ${c.N} is for (${c.segRef}), the problem it addresses and how to compare it with what they use today${c.buyer ? `; check it with someone in the ${c.buyer} role` : ''}`,
   'key messages': (c) => `One message for ${c.segEach}, in the words that buyer uses, with a proof point behind each`,
   'messaging framework': (c) => `One message for ${c.segEach}, in the words that buyer uses, with a proof point behind each`,
   'content brief': (c) => `Decide what to publish for ${c.segRef} on ${c.channelList}, and tie each piece to one of the goals`,
@@ -494,6 +494,20 @@ export function writeLaunchPlan(args: {
   const segs = splitTopLevel(args.target_segments, false).map(upper1);
   const segList = listOf(segs);
   const goalText = args.goals.split('\n').filter(l=>! /^(?:Confirmed capacity|Delivery capacity|Assessment date):/i.test(l.trim())).join('\n');
+  if (launchAcquisitionPaused(goalText)) return `# Launch acquisition on hold
+
+The supplied goal pauses acquisition: ${q(goalText)}.
+
+For ${q(args.product_feature)}, keep outreach to ${q(args.target_segments)} on hold. ${args.launch_date ? `The proposed launch date ${q(args.launch_date)} does not override this instruction.` : 'A launch date still needs confirmation after readiness is established.'}
+
+| Decision | Proposed owner | Check before changing the hold |
+| --- | --- | --- |
+| Confirm what is paused and what preparation may continue | Launch lead | Record the scope and the owner's instruction |
+| Establish delivery readiness | Delivery owner | Record available capacity, unresolved blockers and acceptance criteria |
+| Keep acquisition activity paused | Sales and channel owners | Check ${args.available_channels ? q(args.available_channels) : 'the planned channels'} for scheduled invitations or commitments |
+| Decide whether to resume | Launch lead and delivery owner | Approve a dated readiness record, then agree the target and remaining schedule |
+
+This is a readiness review, not an acquisition schedule. No new pilot commitment or outreach task is assigned by this plan.`;
   const goals = splitPhrases(goalText).length ? splitPhrases(goalText) : [goalText.trim()];
   const capacityClause = args.goals.split(/[;\n]/).find(l=>/^(?:Confirmed capacity|Delivery capacity):\s*\d+\s*tasks?\s*(?:per day|\/day)\s*$/i.test(l.trim()));
   const taskCapacity = capacityClause ? Number(capacityClause.match(/:\s*(\d+)/)?.[1]) : 0;
@@ -660,7 +674,7 @@ export function writeLaunchPlan(args: {
   const general = discovery.slice(0, 3);
   if (general.length || pains.length) {
     out.push(`${pains.length ? `Problems to test in the first conversations: ${pains.join('; ')}. ` : ''}${general.length ? 'Questions to ask in any segment:' : ''}`.trim());
-    if (general.length) { out.push(''); out.push(general.map((x) => `- ${x.replace(/\?*$/, '?')}`).join('\n')); }
+    if (general.length) { out.push(''); out.push(general.map((x) => `- ${x.replace(/[.?!]*$/, '?')}`).join('\n')); }
     out.push('');
   }
   const segChan = (seg: string) => (channelsGiven.length ? null : segmentNotes(seg)?.channels?.slice(0, 2) ?? null);
@@ -699,7 +713,7 @@ export function writeLaunchPlan(args: {
     lines.push(`The launch lead should confirm who approves a purchase in ${seg} before briefing the segment, then record the named contact and the evidence they require.`);
     // a question or a measure of the sector goes to a segment only when it fits it
     const q2 = discovery.slice(3).filter((d) => !usedAsks.has(d)).map((d) => ({ d, score: fitScore(segText, notes?.review ?? '', d) })).sort((x, y) => y.score - x.score)[0];
-    if (q2 && q2.score >= 3) { usedAsks.add(q2.d); lines.push(`Ask: ${q2.d.replace(/\?*$/, '?')}`); }
+    if (q2 && q2.score >= 3) { usedAsks.add(q2.d); lines.push(`Ask: ${q2.d.replace(/[.?!]*$/, '?')}`); }
     const m2 = metrics.filter((mm) => !usedAsks.has(mm)).map((mm) => ({ mm, score: fitScore(segText, notes?.review ?? '', mm) })).sort((x, y) => y.score - x.score)[0];
     if (layer && lead.length) lines.push(`Measure the result by how many of the buyer's flows use ${lead[0]}.`);
     else if (m2 && m2.score >= 3) { usedAsks.add(m2.mm); lines.push(`Measure the result by ${m2.mm}.`); }
@@ -708,7 +722,7 @@ export function writeLaunchPlan(args: {
     const asked = lines.some((l) => l.startsWith('Ask:'));
     if (sentencesIn() < 3 && lead.length && fits) lines.push(asked ? `Also find out what ${seg} uses today for ${quoted(lead[0])}, and who owns it.` : `Ask: what does ${seg} use today for ${quoted(lead[0])}, and who owns it?`);
     else if (sentencesIn() < 3 && lead.length) lines.push(asked ? `Also find out which of your parts ${seg} uses today, and who owns it.` : `Ask: which of your parts does ${seg} use today, and who owns it?`);
-    if (sentencesIn() < 3) lines.push(`Bring a result from one ${seg} customer, with its source and date, before you ask for the next step.`);
+    if (sentencesIn() < 3) lines.push(`Bring a result from one customer in this segment (${seg}), with its source and date, before you ask for the next step.`);
     const ch = segChan(seg);
     if (ch && ch.length && channelGroups.get(andList(ch))![0] === seg) lines.push(`Reach ${listOf(channelGroups.get(andList(ch))!)} through ${andList(ch)}.`);
     out.push(`### ${seg}`);
@@ -796,7 +810,7 @@ export function writeLaunchPlan(args: {
   if (!when.date) missing.push(['a launch date (YYYY-MM-DD)', 'calendar dates instead of relative weeks']);
   else if (!when.exact) missing.push(['an exact launch date (YYYY-MM-DD)', `the schedule, which now counts in weeks before launch because only ${when.label} was given`]);
   if (!args.industry && !ctx.v) missing.push(['your industry', 'the buyer roles, proof, objections and channels, which now come from your segments only']);
-  else if (!args.industry && ctx.v) missing.push(['your industry', 'buyer roles, proof and channels']);
+  else if (!args.industry && !args.your_sector && ctx.v) missing.push(['your industry', 'buyer roles, proof and channels']);
   if (!args.business_model) missing.push(['your charging model', 'delivery and adoption tasks']);
   if (!buyer) missing.push(['the buyer approver', 'the buyer briefing']);
   if (!channelsGiven.length) missing.push(['available channels', 'tasks and destinations']);
