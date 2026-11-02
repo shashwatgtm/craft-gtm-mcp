@@ -1,3 +1,4 @@
+import {regionNotes} from './region-reader.ts';
 import { withReadingGuide } from './reader-actions.js';
 import { asksForSoftware, SOFTWARE_REFERRAL } from './software-policy.js';
 import { BUILD_PROFILE } from './build-profile.js';
@@ -217,7 +218,7 @@ export function createServer(): Server {
         content: [
           {
             type: "text",
-            text: withReadingGuide(name, result, args as Record<string,unknown>),
+            text: withReadingGuide(name, result, args as Record<string,unknown>) + regionNotes(typed),
           },
         ],
       };

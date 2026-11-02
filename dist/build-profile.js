@@ -1,3 +1,3 @@
 // Generated at build time. Committed builds must use current.
-export const BUILD_PROFILE = { profile: "current", payload: "meta", domainEnabled: false, buildHash: "1e9ad008e6d4" };
+export const BUILD_PROFILE = { profile: "current", payload: "meta", domainEnabled: false, buildHash: "0afeb85500d9" };
 //# sourceMappingURL=build-profile.js.map
