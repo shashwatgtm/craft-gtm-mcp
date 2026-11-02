@@ -1,17 +1,20 @@
 import { readSignal } from './text-signals.js';
 /** Deterministic metric reader. Never score a target, negation or conflicting pair as an observed fact. */
-export interface MetricReading { values: Record<string, number>; evidence: string[]; issues: string[]; retentionIsNet: boolean; churnMonths?: number }
+export interface MetricReading { values: Record<string, number>; evidence: string[]; issues: string[]; retentionIsNet: boolean; retentionBasis?: 'logo' | 'gross_revenue' | 'net_revenue' | 'unspecified'; churnMonths?: number }
 export function readPMFMetrics(raw: string): MetricReading {
   const result: MetricReading = { values: {}, evidence: [], issues: [], retentionIsNet: false };
   const definitions: [string, string, number, number][] = [
     ['churn', '(?:(?:monthly|annual|yearly|quarterly)\\s+)?(?:logo\\s+)?churn(?:\\s+rates?)?', 0, 100],
     ['nps', '(?:nps|net promoter score)', -100, 100],
-    ['ltv', 'ltv', 0, Infinity], ['cac', 'cac', 0, Infinity],
+    ['ltv', '(?:ltv|(?:customer )?lifetime value)', 0, Infinity], ['cac', '(?:cac|customer acquisition cost)', 0, Infinity],
+    ['mrr', '(?:mrr|monthly recurring revenue)', 0, Infinity],
+    ['arr', '(?:arr|annual recurring revenue)', 0, Infinity],
+    ['acv', '(?:acv|annual contract value|average contract value)', 0, Infinity],
     ['retentionRate', '(?:(?:net revenue|gross revenue|net|gross|customer|logo)\\s+)?retention(?:\\s+rates?)?|nrr', 0, Infinity],
     ['activationRate', 'activation(?:\\s+rates?)?', 0, 100],
   ];
   for (const [key, label, min, max] of definitions) {
-    const pattern = new RegExp('\\b(' + label + ')\\b\\s*(?::|=|is|of|was)?\\s*\\$?\\s*([+-]?\\d[\\d,]*(?:\\.\\d+)?)\\s*([kmb])?\\s*(%)?', 'gi');
+    const pattern = new RegExp('\\b(' + label + ')\\b\\s*(?::|=|is|of|was)?\\s*\\$?\\s*([+-]?\\d[\\d,]*(?:\\.\\d+)?)\\s*(?:([kmb])\\b)?\\s*(%)?', 'gi');
     const matches = [...raw.matchAll(pattern)];
     // Common percentage-first forms remain scoped to the named measure.
     if (!matches.length && ['churn','retentionRate','activationRate'].includes(key)) {
@@ -52,7 +55,11 @@ export function readPMFMetrics(raw: string): MetricReading {
         result.churnMonths = found[0];
       }
       result.values[key]=value;
-      if (key==='retentionRate')result.retentionIsNet=net;
+      if (key==='retentionRate') {
+        const basis = net ? 'net_revenue' : /\b(?:logo|customer)\b/i.test(match[1]) ? 'logo' : /\bgross\b/i.test(match[1]) ? 'gross_revenue' : 'unspecified';
+        if (result.retentionBasis && result.retentionBasis !== basis) result.issues.push('retentionRate: different retention bases were supplied; choose one confirmed measure for this comparison.');
+        result.retentionIsNet=net; result.retentionBasis=basis;
+      }
       result.evidence.push(`${match[1]}: "${match[0]}"`);
     }
   }

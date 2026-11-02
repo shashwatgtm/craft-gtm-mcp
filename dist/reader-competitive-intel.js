@@ -1,7 +1,7 @@
 import { fact } from './reader-case.js';
 export function case_competitive_intel(args) {
     const alternatives = fact(args, "competitors", "the buyer's current alternatives");
-    const strength = fact(args, "your_strengths", "the proposed strength");
+    const strength = /\bpage claims?\b/i.test(String(args.your_strengths || "")) ? "the supplied page claims, which need primary evidence" : fact(args, "your_strengths", "the proposed strength");
     const objection = fact(args, "common_objections", "the buyer's objection");
     const product = fact(args, "your_product", "the proposed product");
     return {

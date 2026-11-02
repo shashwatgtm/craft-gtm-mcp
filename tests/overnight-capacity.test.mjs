@@ -33,3 +33,29 @@ test('the supplied overnight launch plan produces the capacity calculation',()=>
  const args=JSON.parse(readFileSync(new URL('./fixtures/round5-reader-cases.json',import.meta.url))).find(x=>x.tool==='craft_gtm_analyzer').args;
  const s=capacityCheck(args.document_content);assert.match(s,/120 completed demos/);assert.match(s,/20 selling weeks/);assert.match(s,/4 onboarding months/);
 });
+
+test('the core analyzer and capacity reading agree on quantified customer targets', async()=>{
+ const {analyzeCRAFTDimensions,isMarketLine}=await import('../dist/utils.js');
+ const {generateCRAFTAnalyzer}=await import('../dist/craft-analyzer.js');
+ for(const line of ['Customer target: 12 paid customers.','Customer acquisition goal: twelve paying clients.','Customer target: 6 new accounts.']){
+  assert.equal(isMarketLine(line),false);
+  assert.ok(analyzeCRAFTDimensions(line).result.groupsFound.includes('a target with a number'));
+  const output=generateCRAFTAnalyzer({document_content:line,document_type:'launch plan'});
+  assert.match(output,/Counted toward the dimension they name: "Customer (?:target|acquisition goal)"/);
+  assert.match(output,/\*\*Meant to drive:\*\*/);
+  assert.doesNotMatch(output,/No measurable (?:goals|outcomes)/);
+ }
+});
+test('customer descriptions and customer-owned goals remain market context',async()=>{
+ const {analyzeCRAFTDimensions,isMarketLine}=await import('../dist/utils.js');
+ for(const line of ['Customer target: enterprise operations directors at companies with 200 employees.','Customer goals: improve retention by 10 percent.','Buyer roles: 12 account managers.','Customer quote: We need 12 paid customers.']){
+  assert.equal(isMarketLine(line),true);
+  assert.equal(analyzeCRAFTDimensions(line).result.score,0);
+ }
+});
+test('denied customer counts do not earn a numeric target score',async()=>{
+ const {analyzeCRAFTDimensions}=await import('../dist/utils.js');
+ for(const line of ['Customer target: not 12 paid customers.','Customer target: 12 paid customers is not our goal.','Customer target unknown.']){
+  assert.ok(!analyzeCRAFTDimensions(line).result.groupsFound.includes('a target with a number'));
+ }
+});

@@ -4,7 +4,7 @@ import {writeFileSync} from 'node:fs';
 import {pathToFileURL} from 'node:url';
 import {resolve} from 'node:path';
 import {seedCases,verticalCases,rpc,caseArgs} from '../tests/p1-regions-cases.mjs';
-const baseline=process.argv[2];if(!baseline)throw new Error('Pass an extracted checkout of commit 3b83e55d232084c8e98da67c999abc08e12a3b9d');
+const baseline=process.argv[2];const baselineCommit=process.argv[3]||'3b83e55d232084c8e98da67c999abc08e12a3b9d';if(!baseline)throw new Error('Pass an extracted checkout of commit 3b83e55d232084c8e98da67c999abc08e12a3b9d');
 const {default:handler}=await import(pathToFileURL(resolve(baseline,'netlify/functions/mcp.mjs')));
 const hash=value=>createHash('sha256').update(JSON.stringify(value)).digest('hex');
 const rows=[];
@@ -14,5 +14,5 @@ for(const c of seedCases)for(const [vertical,product]of verticalCases){
  for(let i=0;i<2;i++){if(hash(result)!==hash(await rpc(handler,'tools/call',{name:c.tool,arguments:args})))throw new Error('Baseline is not repeatable');}
  rows.push({tool:c.tool,vertical,args,sha256:hash(result)});
 }
-writeFileSync(new URL('../tests/fixtures/p1-regions-no-region-baseline.json',import.meta.url),JSON.stringify({base_commit:'3b83e55d232084c8e98da67c999abc08e12a3b9d',profile:'current',tool_list:await rpc(handler,'tools/list'),rows},null,2)+'\n');
+writeFileSync(new URL('../tests/fixtures/p1-regions-no-region-baseline.json',import.meta.url),JSON.stringify({base_commit:baselineCommit,profile:'current',tool_list:await rpc(handler,'tools/list'),rows},null,2)+'\n');
 console.log('Captured '+rows.length+' baseline outputs, each identical across three runs.');

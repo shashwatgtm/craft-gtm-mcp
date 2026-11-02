@@ -191,10 +191,11 @@ const PRODUCT_CUES: Array<{ re: RegExp; does: string; partners: string }> = [
   { re: /\b(?:ci\/cd|devops|pipelines?|source code|developer tools?|apis?|sdks?)\b/i, does: 'developer workflows', partners: 'DevOps and platform engineering consultancies, cloud marketplaces, and software houses that build for clients' },
   { re: /\b(?:crm|sales automation|field sales|distributor|retail execution)\b/i, does: 'sales operations', partners: 'CRM and ERP integrators, route to market consultancies, and trade marketing agencies' },
   { re: /\b(?:ai|a\.i\.|llms?|machine learning|language models?|ai agents?|copilots?|generative)\b/i, does: 'AI', partners: 'AI and data consultancies, systems integrators that deploy AI for enterprises, and cloud marketplaces and model platforms that list AI products' },
-  { re: /\b(?:support|ticket\w*|help ?desk|customer service)\b/i, does: 'customer support', partners: 'customer experience consultancies, helpdesk and CRM integrators, and outsourcing providers that run support for brands' },
+  { re: /\b(?:(?:customer|technical) support|support (?:tickets?|cases?|escalations?|agents?|teams?)|ticket\w*|help ?desk|customer service)\b/i, does: 'customer support', partners: 'customer experience consultancies, helpdesk and CRM integrators, and outsourcing providers that run support for brands' },
 ];
 // Stems that a company or product NAME may hold ("Lokalize" is "localize" with a k, "Cargotrail" holds "cargo"); read only from the names, and said to be read from the name.
 const NAME_STEMS: Array<[RegExp, string]> = [
+  [/\bai\b|\ba i\b/, 'AI'],
   [/locali[sz]|translat|lingu/, 'languages and localisation'], [/cargo|freight|shipp|logist|fleet|parcel|haul/, 'shipments and supply chains'], [/phish|cyber|secur|threat|shield/, 'security'],
   [/voice|speech|speak|\bvox/, 'voice and conversations'], [/payment|payroll|wallet|checkout/, 'payments'], [/billing|invoic|ledger/, 'billing and revenue'],
 ];

@@ -1,5 +1,5 @@
 {
-  "base_commit": "3b83e55d232084c8e98da67c999abc08e12a3b9d",
+  "base_commit": "a62bf7e7fb439d595a61fc3b55d2dc503790f34b",
   "profile": "current",
   "tool_list": {
     "tools": [
@@ -823,7 +823,7 @@
         "current_metrics": "MRR: $50000; ACV: $24000; monthly logo churn: 2%; NPS: 35 from 12 replies; CAC: $18000; LTV: unknown; activation: 60%; annual logo retention: 78%",
         "business_model": "saas"
       },
-      "sha256": "55b47c772019490e35a9127521f240b59cb2aed8a0a2706d50e7ee5ec986ef95"
+      "sha256": "38769c3a6960e53fbafe0d929028761ed4d9ee804998126758c9cdc4a663013d"
     },
     {
       "tool": "pmf_scorecard",
@@ -834,7 +834,7 @@
         "current_metrics": "MRR: $50000; ACV: $24000; monthly logo churn: 2%; NPS: 35 from 12 replies; CAC: $18000; LTV: unknown; activation: 60%; annual logo retention: 78%",
         "business_model": "saas"
       },
-      "sha256": "64bfb3ef43581dd5ba159969cc1bbe162ac7004fca247dd7de665538d6256be4"
+      "sha256": "72694fc1920973a90511966a4075caa34c991284e72e73c267a0c4aa6caed02c"
     },
     {
       "tool": "pmf_scorecard",
@@ -845,7 +845,7 @@
         "current_metrics": "MRR: $50000; ACV: $24000; monthly logo churn: 2%; NPS: 35 from 12 replies; CAC: $18000; LTV: unknown; activation: 60%; annual logo retention: 78%",
         "business_model": "saas"
       },
-      "sha256": "a52dbc34b5c10f6f7eea6c0ebb064629562a96f7dcaaa6ec6548793cf4534a29"
+      "sha256": "6f67b494b2d553ecbf827ea5c6bc5d821f9da2e3a2faadeea74b2510ec2f3c28"
     },
     {
       "tool": "pmf_scorecard",
@@ -856,7 +856,7 @@
         "current_metrics": "MRR: $50000; ACV: $24000; monthly logo churn: 2%; NPS: 35 from 12 replies; CAC: $18000; LTV: unknown; activation: 60%; annual logo retention: 78%",
         "business_model": "saas"
       },
-      "sha256": "db15c9096402e96a00c06b6850c4be7a6abb194298df95991fecacac2d3a2129"
+      "sha256": "c64f02cea940e1f6211370da5338572ee00c8569dd0a7c9dbff267f4d18205d3"
     },
     {
       "tool": "pmf_scorecard",
@@ -867,7 +867,7 @@
         "current_metrics": "MRR: $50000; ACV: $24000; monthly logo churn: 2%; NPS: 35 from 12 replies; CAC: $18000; LTV: unknown; activation: 60%; annual logo retention: 78%",
         "business_model": "saas"
       },
-      "sha256": "1310df32538d2e8a4100bf619793586c01f3b1a6868403e5e2716ebd1f9b0309"
+      "sha256": "c8a6d018c3351543ccb8fce55c82174fd6e4e372b6dc1589fe90a4e576934674"
     },
     {
       "tool": "pmf_scorecard",
@@ -878,7 +878,7 @@
         "current_metrics": "MRR: $50000; ACV: $24000; monthly logo churn: 2%; NPS: 35 from 12 replies; CAC: $18000; LTV: unknown; activation: 60%; annual logo retention: 78%",
         "business_model": "saas"
       },
-      "sha256": "b0449eeea02d53395a107978883e48b0082a5d7a67fd1ea255725dd90e6ae66c"
+      "sha256": "cccadc116fd5f401a7c7c8f836f9dd18f07bd31f3e08e7596273d3ebab0eb604"
     },
     {
       "tool": "pmf_scorecard",
@@ -889,7 +889,7 @@
         "current_metrics": "MRR: $50000; ACV: $24000; monthly logo churn: 2%; NPS: 35 from 12 replies; CAC: $18000; LTV: unknown; activation: 60%; annual logo retention: 78%",
         "business_model": "saas"
       },
-      "sha256": "41e72da2bcd2b419ec47e5ae2aeedb48ba4d2e15f5afd8ee1d0bb5d76edd9c33"
+      "sha256": "535de8b54c508e039c0112f00d61e147e495464600eed33b672887dacc463f9e"
     },
     {
       "tool": "pmf_scorecard",
@@ -900,7 +900,7 @@
         "current_metrics": "MRR: $50000; ACV: $24000; monthly logo churn: 2%; NPS: 35 from 12 replies; CAC: $18000; LTV: unknown; activation: 60%; annual logo retention: 78%",
         "business_model": "saas"
       },
-      "sha256": "638fa78fcc3ec35e9bcc5cf319a0f89d36c7aefa62177517b70a5aff469c84d9"
+      "sha256": "0cc43d394aa539624499a952eefa704476f0d4d631a16a61946895f9b7ed8de6"
     },
     {
       "tool": "pmf_scorecard",
@@ -911,7 +911,7 @@
         "current_metrics": "MRR: $50000; ACV: $24000; monthly logo churn: 2%; NPS: 35 from 12 replies; CAC: $18000; LTV: unknown; activation: 60%; annual logo retention: 78%",
         "business_model": "saas"
       },
-      "sha256": "197a6f57f7b76e4756ccaf1f15e82f4f09eed7752b113338cc27d26a4ea8cd4f"
+      "sha256": "7df40221e603e78b27f70d3cf7ec68ab07619d558427c7097bc589a1b7b1350f"
     },
     {
       "tool": "launch_commander",
@@ -927,7 +927,7 @@
         "budget_level": "bootstrap",
         "business_model": "services"
       },
-      "sha256": "f3fa78248ce6e6836d126eee619d4fcb135c64db938a2f841b8ed220d5c6bdb8"
+      "sha256": "fcce78b95f8939f3d840511801c2adc8f491393b8046ceb79920ab147e1de73d"
     },
     {
       "tool": "launch_commander",
@@ -943,7 +943,7 @@
         "budget_level": "bootstrap",
         "business_model": "services"
       },
-      "sha256": "7ad01e91b6811a50b87fd3e9f1b2075df58386e1f9430f758783de550ab5e5ba"
+      "sha256": "e7a08de2eaa73b85f78368ddbc3731a235ba64c376b7a10caeda75be1d557553"
     },
     {
       "tool": "launch_commander",
@@ -959,7 +959,7 @@
         "budget_level": "bootstrap",
         "business_model": "services"
       },
-      "sha256": "ce20ec7f57f48f1d27d3b2da4614bdfb2fb33489b1dac3ed0311a904b57ce478"
+      "sha256": "0b2d8b65463a0dcd813712c3f8043db70d06dbf26cd3f5c00b65562020019bb3"
     },
     {
       "tool": "launch_commander",
@@ -975,7 +975,7 @@
         "budget_level": "bootstrap",
         "business_model": "services"
       },
-      "sha256": "bb14c0458c0534ce2c8606501400410c1f37265150bf5f71447a9d9aa21b2a8e"
+      "sha256": "97e5e01f5b66dbba0d0ad2bfb91e9b04478e9116afd43203cb86187f4a10a614"
     },
     {
       "tool": "launch_commander",
@@ -991,7 +991,7 @@
         "budget_level": "bootstrap",
         "business_model": "services"
       },
-      "sha256": "fc36e2cfbc09a38916adabb84b71f6df3a80aec20cd20839370eb54eb7d00c81"
+      "sha256": "038a2deea762af76fa19b36177ca56f23c4c15a617ca947d5f1e3026f0fd2f9a"
     },
     {
       "tool": "launch_commander",
@@ -1007,7 +1007,7 @@
         "budget_level": "bootstrap",
         "business_model": "services"
       },
-      "sha256": "8404c611a43e363ea8b94907668c3bd436257b71b5610f51fcd95bec8b070e7a"
+      "sha256": "27ec337aa321bab44bc372a46e8d327d34bae8cbba20914688460107a5f183fe"
     },
     {
       "tool": "launch_commander",
@@ -1023,7 +1023,7 @@
         "budget_level": "bootstrap",
         "business_model": "services"
       },
-      "sha256": "1bf8ca008e6dea1472cd0da71ee7fac1184186cd5aceb3542252223898e1c818"
+      "sha256": "358df552f7edf76b0c2898a5fad273bbf6b428aa2a70781caa6561ac5b2d7ea0"
     },
     {
       "tool": "launch_commander",
@@ -1039,7 +1039,7 @@
         "budget_level": "bootstrap",
         "business_model": "services"
       },
-      "sha256": "953e9e8e14d5802c551cb94a56e22ace2a204e6279a2239ec07880b5df6dfe54"
+      "sha256": "ae37d6a2a4fb7326ebf8f82cecb8f59656fe7dc825d0aab7887d3c5739de5f87"
     },
     {
       "tool": "launch_commander",
@@ -1055,7 +1055,7 @@
         "budget_level": "bootstrap",
         "business_model": "services"
       },
-      "sha256": "d5d40e4b5435f9620232a189650eb13659d01481c4c82d05e2a95223c1db553a"
+      "sha256": "3c74139c0483399b0648644d8117ace3bbf60f86aab1264c9c4d74f79acba265"
     },
     {
       "tool": "customer_interview_kit",
@@ -1065,7 +1065,7 @@
         "product_context": "Logistics dispatch planning software",
         "target_persona": "Accounts payable head"
       },
-      "sha256": "1803b1fbca1179473707d49e50cef2824c61cb816ed51945788a28cd230b4f9e"
+      "sha256": "0f5a5f9fd769082801fc21b8a7e6f8438292e1d40af87fc296055826de7d9f74"
     },
     {
       "tool": "customer_interview_kit",
@@ -1075,7 +1075,7 @@
         "product_context": "Fintech payment reconciliation",
         "target_persona": "Accounts payable head"
       },
-      "sha256": "10d0cc4bd138686b439c81d185b8d040dc31a9d97df35f51247ea79492d3245b"
+      "sha256": "d3a297b1544d65496954c300e7faed5a141762a8d7df01179e4669baf9b7628f"
     },
     {
       "tool": "customer_interview_kit",
@@ -1085,7 +1085,7 @@
         "product_context": "SaaS subscription management platform",
         "target_persona": "Accounts payable head"
       },
-      "sha256": "81e9a180207f25325802f7bc57fcfd471ef7c3382e889f94c96a1d4c4a57f8af"
+      "sha256": "b45f39e0db3f23d3d70e542b75dd1ff05583aac5a9b8576373ea0e03fc970685"
     },
     {
       "tool": "customer_interview_kit",
@@ -1095,7 +1095,7 @@
         "product_context": "Vertical SaaS retail execution software",
         "target_persona": "Accounts payable head"
       },
-      "sha256": "d9836ec3fc3997edc9a88a1e1fee5630bbb7d33059dc8fa596e36480138735d9"
+      "sha256": "f26eeab1b665a22b8a4963a34a54562ea6f4878335505a9d750397634a9a2ae2"
     },
     {
       "tool": "customer_interview_kit",
@@ -1105,7 +1105,7 @@
         "product_context": "AI native document review agents",
         "target_persona": "Accounts payable head"
       },
-      "sha256": "8b98038e0e8769966da48a847e09ff51ff44ed35604d7ae876b4a8b8468e6a9e"
+      "sha256": "bcbc815a55446f2dc66b9103367086b7ee0ce3b1fb0727ec6d5744ba82e85ad2"
     },
     {
       "tool": "customer_interview_kit",
@@ -1115,7 +1115,7 @@
         "product_context": "ITeS business process outsourcing services",
         "target_persona": "Accounts payable head"
       },
-      "sha256": "b568c352cfd68b98bdd00f7fbed5782937ce068b6d73c3081372b62861ca691b"
+      "sha256": "f456805a2b760c5767c10bbd9598b9a876d6bca0b8585d84e02ff7b48f3107ea"
     },
     {
       "tool": "customer_interview_kit",
@@ -1125,7 +1125,7 @@
         "product_context": "Telecom network connectivity services",
         "target_persona": "Accounts payable head"
       },
-      "sha256": "98b3a54080432c5381882c1185458ef9107269b148406f73a9b49bbe2c3bd88d"
+      "sha256": "755e61b82fde323cc5785ef192f763f9456fe0acc8ef61492ad9c25d40311372"
     },
     {
       "tool": "customer_interview_kit",
@@ -1135,7 +1135,7 @@
         "product_context": "API testing and monitoring tool for backend developers",
         "target_persona": "Accounts payable head"
       },
-      "sha256": "350c7f9cae11985490c669abb54cdc2a0feaea0bebf73a4683f32ebef77b3cac"
+      "sha256": "e4c6ed92ab3ce3ebfaea502318faa70d92522ad02d27bfbd33ebd060ed49580c"
     },
     {
       "tool": "customer_interview_kit",
@@ -1145,7 +1145,7 @@
         "product_context": "Cybersecurity threat detection software",
         "target_persona": "Accounts payable head"
       },
-      "sha256": "94b5ce43764fbb39087251be6f6b42790719da3f0e2e6ac7a78a2f5488a7efd6"
+      "sha256": "695bdf0faaff9eddf70feebd7962959834194abdf16a446f719d0e11788bb4bd"
     },
     {
       "tool": "retention_playbook",
@@ -1157,7 +1157,7 @@
         "product": "Logistics dispatch planning software",
         "churn_reasons": "Two customers said dispatchers bypass the tool during peak hours; another said the price is too high. No price change experiment has run."
       },
-      "sha256": "663b2851f3e85fe6ab42efa56c2cf3f84cc51ceb48fc6b51030f335cf311da4f"
+      "sha256": "1e71e164885c7cd0971a5d4dcd839d200c1f15127ede6f320d4c72da89ca2d32"
     },
     {
       "tool": "retention_playbook",
@@ -1169,7 +1169,7 @@
         "product": "Fintech payment reconciliation",
         "churn_reasons": "Two customers said dispatchers bypass the tool during peak hours; another said the price is too high. No price change experiment has run."
       },
-      "sha256": "ae70f6617a1464adfb064afce8d6f1aaef800a243589455aeebebac35995ffd4"
+      "sha256": "3d6d1902fb3626e946f0b059d4f4716e2216e3eb41d8e5d255807fa948b83b6c"
     },
     {
       "tool": "retention_playbook",
@@ -1181,7 +1181,7 @@
         "product": "SaaS subscription management platform",
         "churn_reasons": "Two customers said dispatchers bypass the tool during peak hours; another said the price is too high. No price change experiment has run."
       },
-      "sha256": "72e79eb1e6a15642c4df6a7c5786eec716637ac8e602642594d7eaff1a841b75"
+      "sha256": "99853c8f9e118deff67a0081b2f216399bd734deadfef6b809f5ced6382ba6dc"
     },
     {
       "tool": "retention_playbook",
@@ -1193,7 +1193,7 @@
         "product": "Vertical SaaS retail execution software",
         "churn_reasons": "Two customers said dispatchers bypass the tool during peak hours; another said the price is too high. No price change experiment has run."
       },
-      "sha256": "9e39ad05b741601fa615fbb3003b13a90341bb4f42d85490e3be5894a1a9a000"
+      "sha256": "fea1b5b3cca8899d93942245cc2c2a21f26f7479ca7783d945e11633e5aa062b"
     },
     {
       "tool": "retention_playbook",
@@ -1205,7 +1205,7 @@
         "product": "AI native document review agents",
         "churn_reasons": "Two customers said dispatchers bypass the tool during peak hours; another said the price is too high. No price change experiment has run."
       },
-      "sha256": "a5d69d7ffbe23584ec6485bca16ec6215090e4237cf60adaa5fae3b7b55f9118"
+      "sha256": "e644d5a6a0142d7dade2d839b25436e0e24afe2a0c88dfc1e05cf5112e0a115d"
     },
     {
       "tool": "retention_playbook",
@@ -1217,7 +1217,7 @@
         "product": "ITeS business process outsourcing services",
         "churn_reasons": "Two customers said dispatchers bypass the tool during peak hours; another said the price is too high. No price change experiment has run."
       },
-      "sha256": "a1c0d778a9dcf343549b32e5d07721eee00be26d17a08755257c35d7ee6761c8"
+      "sha256": "2c755a4f6f05e76a2fd85d4d23445aa5101d6e90b7b30425fe2e5f9b5b33d86a"
     },
     {
       "tool": "retention_playbook",
@@ -1229,7 +1229,7 @@
         "product": "Telecom network connectivity services",
         "churn_reasons": "Two customers said dispatchers bypass the tool during peak hours; another said the price is too high. No price change experiment has run."
       },
-      "sha256": "9e606ab29159140afd549c9d90a62a09f868c96b125872ec04104a221f4b406d"
+      "sha256": "60140e2c749e05e04d0466ed5d4f43a68c45b9030afea9142c4f49a00307971a"
     },
     {
       "tool": "retention_playbook",
@@ -1241,7 +1241,7 @@
         "product": "API testing and monitoring tool for backend developers",
         "churn_reasons": "Two customers said dispatchers bypass the tool during peak hours; another said the price is too high. No price change experiment has run."
       },
-      "sha256": "eda2ba8fa489e8d5d34f76a4def2621905b9775d7ab0fc17f66e2703658f5a34"
+      "sha256": "e32eaed5a899e95fbc0184ada219f56b34b8d253f6b905b89f927b9dee90edf1"
     },
     {
       "tool": "retention_playbook",
@@ -1253,7 +1253,7 @@
         "product": "Cybersecurity threat detection software",
         "churn_reasons": "Two customers said dispatchers bypass the tool during peak hours; another said the price is too high. No price change experiment has run."
       },
-      "sha256": "680e4488a3a192a1ee63a45aaef4663cecfc00b06ba7b9146e5bc4a5cc97c979"
+      "sha256": "f91a7a06fd860aecdeba1fe24754d14e61b3d775ae29de12b5bcd3a77bbe9b15"
     },
     {
       "tool": "partner_architect",
@@ -1268,7 +1268,7 @@
         "existing_partners": "One integrator made two introductions but neither became a paid account.",
         "business_model": "saas"
       },
-      "sha256": "52664d7bafcc59a279ed8b1f5e9fd284c3e45eaa9d7e49b9ed06d8a2c7c845c4"
+      "sha256": "6f5b79a49cbc79cf2d9a1802ca28cadf31e43b9d3f6c1164b24790fd50cd56c4"
     },
     {
       "tool": "partner_architect",
@@ -1283,7 +1283,7 @@
         "existing_partners": "One integrator made two introductions but neither became a paid account.",
         "business_model": "saas"
       },
-      "sha256": "ab320b10f9e19334ea0b96188d13e0a4b61731d7b5f3f9936ef049c35fbdda1c"
+      "sha256": "0d7b19111875307543ad1b1b610e6caa9330cf116409babe1762fd0b81313c1a"
     },
     {
       "tool": "partner_architect",
@@ -1298,7 +1298,7 @@
         "existing_partners": "One integrator made two introductions but neither became a paid account.",
         "business_model": "saas"
       },
-      "sha256": "abd93a98d916ea9a43726a388f39806100883e450d1ee705ebb746abe671c09c"
+      "sha256": "486794d1a9e0a125688309644220d353944aa7353b702d4b34864a06ff7971ce"
     },
     {
       "tool": "partner_architect",
@@ -1313,7 +1313,7 @@
         "existing_partners": "One integrator made two introductions but neither became a paid account.",
         "business_model": "saas"
       },
-      "sha256": "9b5d448c34639ac034541f78458713c58ffcbc2878f54924597bb2a645908de3"
+      "sha256": "95d564e1adf2d7f3950f8b598097a7a2a0a7e834d4f4fc22307bceaa703fc04f"
     },
     {
       "tool": "partner_architect",
@@ -1328,7 +1328,7 @@
         "existing_partners": "One integrator made two introductions but neither became a paid account.",
         "business_model": "saas"
       },
-      "sha256": "13d2800a28493252ffe189b5fe40d6b4b3be865a2829d8d20236cadb58885da4"
+      "sha256": "eb846e89eae443fd8a4c8b1bec5765015df1d51291dd45327e183babeee44667"
     },
     {
       "tool": "partner_architect",
@@ -1343,7 +1343,7 @@
         "existing_partners": "One integrator made two introductions but neither became a paid account.",
         "business_model": "saas"
       },
-      "sha256": "5380d125bc51f9eb3beb0959c7af26b79c944111d1692dce7a42024980cbfdf0"
+      "sha256": "e2fe4de61f2c0b49a5ad71c562cf49f488df1c31ea4e4741bc6e5b08868a50cd"
     },
     {
       "tool": "partner_architect",
@@ -1358,7 +1358,7 @@
         "existing_partners": "One integrator made two introductions but neither became a paid account.",
         "business_model": "saas"
       },
-      "sha256": "71bf4a79a48a8713bcb6ff2c7e9e2e7aeb6cb9e23d173722b228853bc7f752c7"
+      "sha256": "6dbab305fae3087a65556efcd96b30c875f91d2e43a89ee7d2fc77972351bba3"
     },
     {
       "tool": "partner_architect",
@@ -1373,7 +1373,7 @@
         "existing_partners": "One integrator made two introductions but neither became a paid account.",
         "business_model": "saas"
       },
-      "sha256": "2c2996b062563d9293dee01ca0766c4cc133886a234f15767ec21eb0df620f12"
+      "sha256": "acf3ad65991683096775dcb0fbe687dba462930fda46486dee429e93839e56e0"
     },
     {
       "tool": "partner_architect",
@@ -1388,7 +1388,7 @@
         "existing_partners": "One integrator made two introductions but neither became a paid account.",
         "business_model": "saas"
       },
-      "sha256": "855c44365fca805b4b891b75bc3e1b60cbeb508bb58a55139bbaf183b53282d8"
+      "sha256": "e71285e075478421e9764a02cd588ec8576d3d83668057def44b18494b7679f9"
     },
     {
       "tool": "crisis_planner",
@@ -1400,7 +1400,7 @@
         "data_sensitivity": "high_pii_financial",
         "potential_crises": "Our product is Logistics dispatch planning software. A service outage prevents two business customers from completing their daily work. No evidence of data exposure."
       },
-      "sha256": "a297acdbeb663c114b5e4e666f3db6d80cac320eb1cb1bdf596fea932cb9294b"
+      "sha256": "9369b3b69af5e6f3f095054357587201cd81cf8e1bbc473ad5b95e46d356936d"
     },
     {
       "tool": "crisis_planner",
@@ -1412,7 +1412,7 @@
         "data_sensitivity": "high_pii_financial",
         "potential_crises": "Our product is Fintech payment reconciliation. A service outage prevents two business customers from completing their daily work. No evidence of data exposure."
       },
-      "sha256": "390621dfe378bc443237ffd895bf0f88f90a25874f1a9dcb384d622f8fd3dc9b"
+      "sha256": "ef26b6199d5eaaaff09729ff5f9ca9faef6be7976e9e9cb79820e573a6c7d37b"
     },
     {
       "tool": "crisis_planner",
@@ -1424,7 +1424,7 @@
         "data_sensitivity": "high_pii_financial",
         "potential_crises": "Our product is SaaS subscription management platform. A service outage prevents two business customers from completing their daily work. No evidence of data exposure."
       },
-      "sha256": "f30df1dad24ea65096872ea43362842f19eba03bcbae3da1966fcb0bebfdf1bf"
+      "sha256": "3e171aad986a56c8b7be9d0e412d42f750c9d38e84c7202f5af578aa00780541"
     },
     {
       "tool": "crisis_planner",
@@ -1436,7 +1436,7 @@
         "data_sensitivity": "high_pii_financial",
         "potential_crises": "Our product is Vertical SaaS retail execution software. A service outage prevents two business customers from completing their daily work. No evidence of data exposure."
       },
-      "sha256": "52ce305ace7d6c059a22d7eed20fb864d0fe791977a3a09505e9806f43658958"
+      "sha256": "179d7a20d6b3556f071ae3db54def11bd9150310eba4db9bf38d5519f16eaec0"
     },
     {
       "tool": "crisis_planner",
@@ -1448,7 +1448,7 @@
         "data_sensitivity": "high_pii_financial",
         "potential_crises": "Our product is AI native document review agents. A service outage prevents two business customers from completing their daily work. No evidence of data exposure."
       },
-      "sha256": "076f2b993ba02f4f4ba95d190b2aa8bb2f999332e0e1772f35da8a14686f337d"
+      "sha256": "44710b9046ab9d9c80934e25cc7799bc238eee44742dadd57bb8f38d6a5d04ed"
     },
     {
       "tool": "crisis_planner",
@@ -1460,7 +1460,7 @@
         "data_sensitivity": "high_pii_financial",
         "potential_crises": "Our product is ITeS business process outsourcing services. A service outage prevents two business customers from completing their daily work. No evidence of data exposure."
       },
-      "sha256": "60dc916a18f653849277d7406d37ac56dc7aa33412dfea679bf10a085432570c"
+      "sha256": "429f68e22447f415986c6ee183c0da2c1375e198064da9e82deec97bc2fcfbc7"
     },
     {
       "tool": "crisis_planner",
@@ -1472,7 +1472,7 @@
         "data_sensitivity": "high_pii_financial",
         "potential_crises": "Our product is Telecom network connectivity services. A service outage prevents two business customers from completing their daily work. No evidence of data exposure."
       },
-      "sha256": "1d76f320d28b764de328b1b77c095006a369949fdf9df7663b531f50e43efb55"
+      "sha256": "ba0eeff37252fed81660c59aed3688da69c3978d5571e497b14ae98fce115747"
     },
     {
       "tool": "crisis_planner",
@@ -1484,7 +1484,7 @@
         "data_sensitivity": "high_pii_financial",
         "potential_crises": "Our product is API testing and monitoring tool for backend developers. A service outage prevents two business customers from completing their daily work. No evidence of data exposure."
       },
-      "sha256": "7a66660e3e39271fdc55dca458c09a05f42fb4466808853502a300b8e5c14ab8"
+      "sha256": "da59cfbddfd02f636fe2eb0a86c648f381a3c2acc2af63d6a8d85b7836d81d04"
     },
     {
       "tool": "crisis_planner",
@@ -1496,7 +1496,7 @@
         "data_sensitivity": "high_pii_financial",
         "potential_crises": "Our product is Cybersecurity threat detection software. A service outage prevents two business customers from completing their daily work. No evidence of data exposure."
       },
-      "sha256": "dbdfb779f246a975571747f0a2120634881aa534d2f07ffb7581e86aa11ca8c5"
+      "sha256": "8b6a854fbce8ad41df9c1455420eee0faa17b24ed48da0edd38b70f3ffb5caca"
     },
     {
       "tool": "competitive_intel",
@@ -1507,7 +1507,7 @@
         "common_objections": "Our TMS already assigns routes. Switching will disrupt peak season.",
         "your_strengths": "Dispatcher can reassign a failed delivery and notify the depot in one view. Time saved is not measured."
       },
-      "sha256": "801581873888ea8116be593b9767aacf74fc22e58b395ab4a579bdb32903a93a"
+      "sha256": "dde36460368081eb17b7392bc287043137a7947e5bfd57f07fe07591834f2da8"
     },
     {
       "tool": "competitive_intel",
@@ -1518,7 +1518,7 @@
         "common_objections": "Our TMS already assigns routes. Switching will disrupt peak season.",
         "your_strengths": "Dispatcher can reassign a failed delivery and notify the depot in one view. Time saved is not measured."
       },
-      "sha256": "acd272df490f3eedd0c5cf18a5b58649fcd992d0bfa795d2afa3aff373fa1069"
+      "sha256": "90fa158d830a337e4ffc311721c24f72390464fccd7b57d397d7b4c74ae109c8"
     },
     {
       "tool": "competitive_intel",
@@ -1529,7 +1529,7 @@
         "common_objections": "Our TMS already assigns routes. Switching will disrupt peak season.",
         "your_strengths": "Dispatcher can reassign a failed delivery and notify the depot in one view. Time saved is not measured."
       },
-      "sha256": "e363f21394f6d1f29ccdc2a88aa8f7c928378e0890a4d91e59c8b07e2cc1b000"
+      "sha256": "233ed29aafb91662c87bb859836575fe4027faeba5616016edaffa32a09fe06f"
     },
     {
       "tool": "competitive_intel",
@@ -1540,7 +1540,7 @@
         "common_objections": "Our TMS already assigns routes. Switching will disrupt peak season.",
         "your_strengths": "Dispatcher can reassign a failed delivery and notify the depot in one view. Time saved is not measured."
       },
-      "sha256": "e4e15957183e9fed70dc77afa6965aff9a62873841ed953ac86fce7344e9d608"
+      "sha256": "d8336deb8778c196de26382366d9d5bd9e0b5273e6c38e4a4239018e400a20c3"
     },
     {
       "tool": "competitive_intel",
@@ -1551,7 +1551,7 @@
         "common_objections": "Our TMS already assigns routes. Switching will disrupt peak season.",
         "your_strengths": "Dispatcher can reassign a failed delivery and notify the depot in one view. Time saved is not measured."
       },
-      "sha256": "18f8eade588858e64a47107d55e7692ec28ae553f5dc6ebf7518f57dc93e8172"
+      "sha256": "06005a43d6910b432df484f2c89a805289084d2f613805559db291a3e20ffb17"
     },
     {
       "tool": "competitive_intel",
@@ -1562,7 +1562,7 @@
         "common_objections": "Our TMS already assigns routes. Switching will disrupt peak season.",
         "your_strengths": "Dispatcher can reassign a failed delivery and notify the depot in one view. Time saved is not measured."
       },
-      "sha256": "981f7b436068893703e2bbf97cd1df47ada064b6acb1ed8b4192ebddcf1e72e8"
+      "sha256": "ef6b9e645fcb2f4e8cfa2bb12f854c7e5b0ba21083d1cd360c86c1807faadc34"
     },
     {
       "tool": "competitive_intel",
@@ -1573,7 +1573,7 @@
         "common_objections": "Our TMS already assigns routes. Switching will disrupt peak season.",
         "your_strengths": "Dispatcher can reassign a failed delivery and notify the depot in one view. Time saved is not measured."
       },
-      "sha256": "e4b6182c9e680bf50fcc23cfc2eeb11398b71ee13916be715809bed4e1ad9c82"
+      "sha256": "9830aea66cf366fde8cfe903dc0c90b86599a7809df7b6114fd3e227d14876fa"
     },
     {
       "tool": "competitive_intel",
@@ -1584,7 +1584,7 @@
         "common_objections": "Our TMS already assigns routes. Switching will disrupt peak season.",
         "your_strengths": "Dispatcher can reassign a failed delivery and notify the depot in one view. Time saved is not measured."
       },
-      "sha256": "5717d7cd3d4f70c068bb72aa2b995e621d3032f64c07354b9146004c00391557"
+      "sha256": "4f2fd1613aba7803575a90b2e99088421809bf4c72fb97947c1d604bf9246a8c"
     },
     {
       "tool": "competitive_intel",
@@ -1595,7 +1595,7 @@
         "common_objections": "Our TMS already assigns routes. Switching will disrupt peak season.",
         "your_strengths": "Dispatcher can reassign a failed delivery and notify the depot in one view. Time saved is not measured."
       },
-      "sha256": "2dd1c6337fe1a7bb90c2ced14ae3000f57fda203f52b77bedd3541c6aa0e5894"
+      "sha256": "ebb0a197a42e6437c9da97fe15149535c47e3b5492a762ebd65e18bc2ab94bc4"
     },
     {
       "tool": "craft_gtm_analyzer",
@@ -1606,7 +1606,7 @@
         "intended_audience": "CEO and CRO of a pre Series A logistics software business",
         "desired_outcome": "Decide whether to keep the 12 customer target or reduce launch scope"
       },
-      "sha256": "2d2f8605ea5d9c5a08781e0727b4cfc39fc515246900c0a20aa38d10bc5fe630"
+      "sha256": "44063a6b120bd3d6734009e5469d13947f138db7baefe388162f19d67b812c7d"
     },
     {
       "tool": "craft_gtm_analyzer",
@@ -1617,7 +1617,7 @@
         "intended_audience": "CEO and CRO of a pre Series A logistics software business",
         "desired_outcome": "Decide whether to keep the 12 customer target or reduce launch scope"
       },
-      "sha256": "27e2955ca7cd44fa84e0cd9c862b204dc4dd705a25b7d33d3da425bec3c76e55"
+      "sha256": "0b0f0d16b7fdbd07f1024225e4848e4aa6d7b3d455b2b97e35744d489cb608f1"
     },
     {
       "tool": "craft_gtm_analyzer",
@@ -1628,7 +1628,7 @@
         "intended_audience": "CEO and CRO of a pre Series A logistics software business",
         "desired_outcome": "Decide whether to keep the 12 customer target or reduce launch scope"
       },
-      "sha256": "f343806bf5c461acf48a416b983eb93e807de453308e9156c8125e0fd52aae16"
+      "sha256": "c324855088d32a8bb19c46955b530105c37bce9fdec58753aca978f54e04dc12"
     },
     {
       "tool": "craft_gtm_analyzer",
@@ -1639,7 +1639,7 @@
         "intended_audience": "CEO and CRO of a pre Series A logistics software business",
         "desired_outcome": "Decide whether to keep the 12 customer target or reduce launch scope"
       },
-      "sha256": "f71bc9d9cd1b296d5d32a11e10d9529b9aa287133cbe8bb7fe4c44715a1c5228"
+      "sha256": "2b8f60072acafe6fcfa7b2c83c67eeb63dd5e40133bb6ddb3e8ee3ff270c0588"
     },
     {
       "tool": "craft_gtm_analyzer",
@@ -1650,7 +1650,7 @@
         "intended_audience": "CEO and CRO of a pre Series A logistics software business",
         "desired_outcome": "Decide whether to keep the 12 customer target or reduce launch scope"
       },
-      "sha256": "554a9b62a6bbb758f74e4b6277b79151b010c25d1d17f9d4376b2e5b6abb72c0"
+      "sha256": "9ef5be8d4bea34dc9a5dffd1da6d50a59c0a7de7029708326bc64afb68c8443a"
     },
     {
       "tool": "craft_gtm_analyzer",
@@ -1661,7 +1661,7 @@
         "intended_audience": "CEO and CRO of a pre Series A logistics software business",
         "desired_outcome": "Decide whether to keep the 12 customer target or reduce launch scope"
       },
-      "sha256": "4e95b36d7ac2b16b08fb298a604b226cf3f46311c9759276f0765df5d38adc72"
+      "sha256": "793b963a60fb4e3cb5b0813f4d740aa6a2efac71ca908b842be7b6ee5c5fab75"
     },
     {
       "tool": "craft_gtm_analyzer",
@@ -1672,7 +1672,7 @@
         "intended_audience": "CEO and CRO of a pre Series A logistics software business",
         "desired_outcome": "Decide whether to keep the 12 customer target or reduce launch scope"
       },
-      "sha256": "34c59ea144a41462f9436f81eac6e8ccb76ac35422599e8657475bcea47aaec6"
+      "sha256": "4fb854bbd299567e7867c551bd6d906d7fe60d7c235b5adf17ec2276c6e46262"
     },
     {
       "tool": "craft_gtm_analyzer",
@@ -1683,7 +1683,7 @@
         "intended_audience": "CEO and CRO of a pre Series A logistics software business",
         "desired_outcome": "Decide whether to keep the 12 customer target or reduce launch scope"
       },
-      "sha256": "450ddee5519c724cd9b6c0492727e9df4b70bde5172d5260eeaf48b698301b69"
+      "sha256": "9414b05443e222e4c5818be05e8f9c03a61407c70b18c47ffa3dbf671b36cd3f"
     },
     {
       "tool": "craft_gtm_analyzer",
@@ -1694,7 +1694,7 @@
         "intended_audience": "CEO and CRO of a pre Series A logistics software business",
         "desired_outcome": "Decide whether to keep the 12 customer target or reduce launch scope"
       },
-      "sha256": "985442055dca7a5331982b56acdd5b5558dadbbda7f55f81825576f22a67a519"
+      "sha256": "17f27ac686455e053c0be6a062f80d474dffe3474a23958f4cb48cf2ee4c2746"
     }
   ]
 }

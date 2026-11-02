@@ -302,11 +302,14 @@ export function claimOwnerConflict(text, alternatives, ownProduct) {
 }
 /** These labels classify stated goals, not achieved business results. */
 export function launchGoalReading(text) {
+    const countPhrase = /\b(?:\d+|zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)\s+(?:(?:qualified|paid|pilot|customer|buyer)\s+){0,3}(?:commitments?|meetings?|customers?|trials?|accounts?|approvals?|pilots?|demos?|signups?)\b/i;
+    if (!/[;\n]|\bbut\b/i.test(text) && readSignal(text, countPhrase).state === 'negated')
+        return { kind: 'Other', evidence: text, state: 'negated' };
     const groups = [
         ['Pipeline', /\bpipeline\b|qualified (?:opportunities|deals)[^.;]{0,35}(?:worth|value)|potential contract value/i],
         ['Revenue', /\brevenue\b|\bclosed\b|\barr\b|\bmrr\b|bookings?|deal value|signed (?:contracts|deals)|money collected/i],
         ['Engagement', /meeting|demo|sign-?up|trial|\bleads?\b|registr|attend|click|\bctr\b|opportunit|\bcalls?\b|inquir|enquir|workshop|survey|assessment|buying conversations/i],
-        ['Awareness', /view|impression|visit|traffic|reach|download|follower|aware|become known/i],
+        ['Awareness', /\b(?:views?|pageviews?|impressions?|visits?|traffic|reach|downloads?|followers?|awareness|aware|become known)\b/i],
         ['Adoption', /activat|usage|active user|adopt|conversion|retention|rollout|renew|reference|go-?live|live sites?|pilot|people using it/i]
     ];
     const readings = groups.map(([kind, re]) => ({ kind, reading: readSignal(text, re) }));
@@ -365,6 +368,8 @@ export function objectionKind(text, named = false) {
 export function quotedPassages(text) { return text.match(/"[^"\n]+"|“[^”\n]+”/g) || []; }
 export function launchFollowup(goals, fallback) {
     const tasks = { Pipeline: 'Inspect qualified opportunities separately from signed revenue', Revenue: 'Check signed contracts and the revenue period with finance', Engagement: 'Assign invitations and review completed qualified meetings', Awareness: 'Inspect reach within the intended audience', Adoption: 'Review activation against agreed completion criteria' };
+    if (goals.length && goals.every(g => launchGoalReading(g).kind === 'Other'))
+        return 'Agree the launch outcome and its evidence source before assigning follow-up metrics';
     return [...new Set(goals.map(g => tasks[launchGoalReading(g).kind]).filter(Boolean))].join('; ') || fallback;
 }
 /** Approval is a positive clearance; its negation is a blocker, not the absence of one.
@@ -447,5 +452,9 @@ export function frictionReading(text) {
             all[i - 1] = { ...all[i - 1], state: 'negated' };
     const states = all.map(r => r.state);
     return { state: states.includes('affirmed') ? 'affirmed' : states.includes('unclear') ? 'unclear' : states.includes('negated') ? 'negated' : 'absent', evidence: all.filter(r => r.state !== 'absent').flatMap(r => r.evidence), matched: all.flatMap(r => r.matched) };
+}
+/** An explicit instruction to pause acquisition is not an instruction to schedule outreach. */
+export function launchAcquisitionPaused(text) {
+    return readSignal(text, /\b(?:pause|hold|stop|suspend|defer)\s+(?:new\s+)?(?:acquisition|outreach|recruitment|sales|pilots|launch)\b/i).state === 'affirmed';
 }
 //# sourceMappingURL=text-signals.js.map

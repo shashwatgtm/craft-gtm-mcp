@@ -1,6 +1,6 @@
 import { sellerSectorLabel } from './text-signals.js';
 import { escapePiece } from './escape-inputs.js';
-import { analyzeCRAFTDimensions, isMarketLine, isAudienceTarget, planSegments } from './utils.js';
+import { analyzeCRAFTDimensions, isMarketLine, isCustomerCountGoal, isAudienceTarget, planSegments } from './utils.js';
 import { subIndustryFor } from './sub-industry.js';
 import { VERTICALS, SUBTYPES, AI_SUPPORT_PROFILE, BUYER_CONTEXTS, profileFor, buyerContextFor } from './verticals.js';
 import { andList, readContext, q, splitPhrases } from './context.js';
@@ -18,7 +18,7 @@ export function generateCRAFTAnalyzer(args) {
     const parts = planSegments(content);
     const labelled = parts.map((l) => { const m = l.match(/^\s*([A-Za-z][A-Za-z /&'-]{1,40}):\s*(.+)$/); return m ? { label: m[1].trim(), text: m[2].trim() } : null; }).filter((x) => !!x);
     const planAudience = labelled.find((x) => /^(?:target )?audience$|^icp$|^segments?$/i.test(x.label) || isAudienceTarget(x.label, x.text));
-    const planGoal = labelled.find((x) => /^(?:goals?|objectives?|targets?|outcomes?|success(?: criteria| metrics?)?)$/i.test(x.label) && !isAudienceTarget(x.label, x.text));
+    const planGoal = labelled.find((x) => (/^(?:goals?|objectives?|targets?|outcomes?|success(?: criteria| metrics?)?)$/i.test(x.label) || isCustomerCountGoal(x.label, x.text)) && !isAudienceTarget(x.label, x.text));
     // The plan is read in its parts when it is labelled (Message and How we differ are the seller's words; Buyer roles are job titles; Audience is the buyer);
     // a plan with no such lines is read whole, as deal text. Its Goal line is not read: it often lists the segments, which are the buyer's sector, not yours.
     const byLabel = (re) => labelled.filter((x) => re.test(x.label)).map((x) => x.text);
@@ -52,7 +52,7 @@ export function generateCRAFTAnalyzer(args) {
     const countsFor = (label, text) => {
         if (isMarketLine(`${label}: ${text}`))
             return /^(?:message|messaging|positioning|how we differ|differentiat\w+|proof|references?|testimonials?|quotes?|case stud)/i.test(label) ? 'Not scored (describes your product or your customers)' : 'Frame only (describes your customers and market, not who runs the plan)';
-        if (/^(?:goals?|objectives?|targets?|outcomes?|success|kpis?|okrs?)/i.test(label))
+        if (isCustomerCountGoal(label, text) || /^(?:goals?|objectives?|targets?|outcomes?|success|kpis?|okrs?)/i.test(label))
             return 'Result';
         if (/^(?:owner|owners|responsible|accountable|lead|team|raci)/i.test(label))
             return 'Character';

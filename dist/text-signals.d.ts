@@ -84,4 +84,6 @@ export declare function blockerReading(text: string): SignalReading;
 export declare function clearanceAdvice(text: string): string | null;
 /** Feedback difficulty is a predicate with polarity, not the presence of a contrast word. */
 export declare function frictionReading(text: string): SignalReading;
+/** An explicit instruction to pause acquisition is not an instruction to schedule outreach. */
+export declare function launchAcquisitionPaused(text: string): boolean;
 //# sourceMappingURL=text-signals.d.ts.map

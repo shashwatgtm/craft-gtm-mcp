@@ -383,6 +383,15 @@ export function generateCompetitiveIntel(args) {
         said.add(v1); return v1; };
     const handleObjection = (objection) => {
         const o = objection.toLowerCase();
+        const continuityConstraint = /\b(?:cannot|can't|must not|mustn't)\s+(?:afford to\s+)?(?:interrupt|disrupt)\b|\b(?:zero|no)\s+downtime\b|\b(?:migration|switch|cutover|cut-over)\b[^.!?;]{0,70}\b(?:interrupt|disrupt)\w*\b/i.test(objection)
+            && !/\b(?:not worried|not concerned|no concern|does not|will not|won't)\b[^.!?;]{0,60}\b(?:interrupt|disrupt|downtime)\w*\b/i.test(objection);
+        if (continuityConstraint)
+            return {
+                approach: 'Confirm the work that must continue, its owner and the acceptable interruption limit. Test migration with a read-only copy or isolated simulation first; agree stop conditions and rollback before any live change.',
+                say: `On ${q(stripEnd(objection))}, we need to verify continuity before promising it. Let us record which work must continue, who approves the test and what evidence would permit a live change. We can first compare a read-only copy or isolated simulation with the current workflow, including failed transfers and recovery. No live switch is agreed until the owner accepts the results and rollback plan.`,
+                need: 'the continuity requirement, test results, approving owner and verified rollback procedure',
+                hasEvidence: false,
+            };
         // a named alternative is found by its name; a described one only when the objection compares ("better than legacy tools") and shares two words with it
         const cmpWords = /\b(differ\w*|different|versus|vs|compared? (?:to|with)|instead of|why (?:\w+ ){0,3}over|better than|competitors?|alternatives?|other (?:vendors?|options?|tools?)|rivals?)\b/.test(o);
         const named = comps.find((c) => !c.desc && o.includes(c.name.toLowerCase())) ?? (cmpWords ? comps.find((c) => c.desc && overlapN(toks(noName(objection)), toks(c.text)) >= 2) : undefined);
@@ -557,7 +566,10 @@ ${comps.length === 1 && comps[0].ref === 'the current approach you described' ? 
         out += `**Questions to ask the buyer about ${c.ref}:**\n${qs.slice(0, 3).map((x, n) => `${n + 1}. ${x}`).join('\n')}\n\n`;
         if (lead.length || c.weak.length) {
             const claims = claimOnly(lead);
-            out += `**${c.desc ? 'Why not stay with the current approach?' : `Why not ${c.name}?`} What to say:**\n\n> "Comparing us with ${c.ref} is fair, and I would rather answer it than dodge it.${lead.length ? ` Against ${c.ref}, ${'our unverified seller claim is'}: ${sayList(lead.slice(0, 2))}.` : ''}${c.weak.length && !PAGE_NOTE.test(noteParts(c.weak[0]).core) ? (() => { const np = noteParts(c.weak[0]); return np.who ? ` And on ${c.ref}, in ${np.who}: ${np.core}.` : ` And on ${c.ref}, the supplied, unverified note says: ${np.core}.`; })() : ''} Which of that would you want to check first against ${c.ref}?"\n\n`;
+            out += `**${c.desc ? 'Why not stay with the current approach?' : `Why not ${c.name}?`} What to say:**\n\n> "Comparing us with ${c.ref} is fair, and I would rather answer it than dodge it.${lead.length ? ` Against ${c.ref}, ${'our unverified seller claim is'}: ${sayList(lead.slice(0, 2))}.` : ''}${c.weak.length && !PAGE_NOTE.test(noteParts(c.weak[0]).core) ? (() => { const np = noteParts(c.weak[0]); return np.who ? ` And on ${c.ref}, in ${np.who}: ${np.core}.` : ` And on ${c.ref}, the supplied, unverified note says: ${np.core}.`; })() : ''} Which point would you want to check first against ${c.ref}?"\n\n`;
+        }
+        else {
+            out += `**Comparison conversation:**\n\n> "We have not established an advantage over ${c.ref}. Which task should we compare using the same inputs and acceptance measure? Let us record where ${c.ref} works well, what remains unresolved and whether a change would justify its disruption."\n\n`;
         }
     });
     out += `## Objection handlers\n\n`;
@@ -578,7 +590,7 @@ ${comps.length === 1 && comps[0].ref === 'the current approach you described' ? 
         out += `### "${stripEnd(obj)}"\n\n`;
         if (h.approach)
             out += `**Approach:** ${h.approach}\n\n`;
-        out += `**What to say:**\n\n> "${h.say}"\n\n`;
+        out += `**What to say:**\n\n> "${h.say.replace(/"/g, "'")}"\n\n`;
         if (!h.hasEvidence)
             needs.push([`a fact that answers "${stripEnd(obj)}": ${h.need}`, 'this answer, which now gives a pattern of answer instead of a fact']);
     });

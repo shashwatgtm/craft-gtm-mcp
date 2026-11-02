@@ -1,10 +1,11 @@
-import { sizeReading, hasSignal, readSignal, SIGNALS, launchGoalReading, securityIncident, statedGoalCount, launchFollowup } from './text-signals.js';
+import { suppliedAssessmentDate } from './supplied-date.js';
+import { sizeReading, hasSignal, readSignal, SIGNALS, launchGoalReading, securityIncident, statedGoalCount, launchFollowup, launchAcquisitionPaused } from './text-signals.js';
 // Run 22 (writer cg-w2): the rewritten launch_commander, retention_playbook and crisis_planner.
 // Each tool writes a finished draft from the user's own inputs: every input is used where it matters, in clean sentences, nothing is invented
 // (no figure, customer, date or promise that was not given), and what was not given is named once at the end ("To sharpen this, give: ...").
 // The business model decides the wording (a services firm has no free trial, a connectivity seller has no per seat price).
 // Sector knowledge comes only from the shared data files (src/verticals.ts and src/sector-playbooks.ts); this file adds none.
-import { formatDate, addDays, calculateDaysUntil, readableChoice, pct, roundTypedPercents, EXAMPLE_FIGURE, EXAMPLE_FIGURES } from './utils.js';
+import { formatDate, addDays, readableChoice, pct, roundTypedPercents, EXAMPLE_FIGURE, EXAMPLE_FIGURES } from './utils.js';
 import { readContext, q, andList, splitTopLevel, splitPhrases, isOnePhrase, lcFirst, cleanCompanyName, answerFor, type Context, type BusinessModel } from './context.js';
 import { playbookFor, MODEL_LANGUAGE, segmentNotes, segmentKinds, SUBTYPE_PLAYBOOKS, type PlaybookOverlay } from './sector-playbooks.js';
 import { SUBTYPES, SECTOR_MODEL, MODEL_NAME } from './verticals.js';
@@ -35,10 +36,13 @@ function sharpenBlock(items: Array<[string, string]>): string {
 }
 
 /** A second copy of a line that is long enough to be a sentence is dropped: the safety net behind the careful writing. */
-function dropRepeatedLines(text: string): string {
+function dropRepeatedLines(text: string, preserveActionBlocks = false): string {
   const seen = new Set<string>();
+  let inCode = false;
   return text.split('\n').filter((line) => {
     const key = line.trim().toLowerCase();
+    if (preserveActionBlocks && /^```/.test(key)) { inCode = !inCode; return true; }
+    if (preserveActionBlocks && (inCode || /^\*\*(?:first step|owner and timing):/.test(key))) return true;
     if (key.length < 50 || /^\|[-: |]+\|$/.test(key) || /^#/.test(key)) return true;
     // a line that quotes typed text is an item the caller listed: items typed twice stay, by position (layout never depends on the words)
     if (/["“]/.test(key)) return true;
@@ -256,8 +260,8 @@ const PHASES: Record<string, Phase[]> = {
 /** What each task means for this launch, in a sentence built from the user's inputs. Keys are the task titles in lower case (after the swap for a sales-led launch). */
 const DETAIL: Record<string, (c: LaunchCtx) => string> = {
   // planning
-  'positioning': (c) => `Write one paragraph on who ${c.N} is for (${c.segRef}), the problem it removes and why it beats what they use today${c.buyer ? `; check it with someone in the ${c.buyer} role` : ''}`,
-  'finalize positioning': (c) => `Settle who ${c.N} is for (${c.segRef}), the problem it removes and why it beats what they use today${c.buyer ? `; check it with someone in the ${c.buyer} role` : ''}`,
+  'positioning': (c) => `Write one paragraph on who ${c.N} is for (${c.segRef}), the problem it addresses and how to compare it with what they use today${c.buyer ? `; check it with someone in the ${c.buyer} role` : ''}`,
+  'finalize positioning': (c) => `Settle who ${c.N} is for (${c.segRef}), the problem it addresses and how to compare it with what they use today${c.buyer ? `; check it with someone in the ${c.buyer} role` : ''}`,
   'key messages': (c) => `One message for ${c.segEach}, in the words that buyer uses, with a proof point behind each`,
   'messaging framework': (c) => `One message for ${c.segEach}, in the words that buyer uses, with a proof point behind each`,
   'content brief': (c) => `Decide what to publish for ${c.segRef} on ${c.channelList}, and tie each piece to one of the goals`,
@@ -327,7 +331,7 @@ const DETAIL: Record<string, (c: LaunchCtx) => string> = {
   'feedback system': () => 'One place where feedback is collected, one owner and a weekly review',
   'review meeting schedule with the pilot accounts': () => 'Fixed review meetings with each pilot account, with a named owner on both sides',
   'communication plan': (c) => `What testers hear, when and from whom, from invitation to the end of the beta of ${c.N}`,
-  'success metrics': (c) => launchFollowup(c.goals, 'Name the measure that decides whether the beta worked'),
+  'success metrics': (c) => plannedGoalFollowup(c.goals, 'Name the measure that decides whether the beta worked'),
   'beta invitations': (c) => `Invite testers from ${c.segRef} with a short note on what ${c.N} does and what you need from them`,
   'invitations to selected accounts for a pilot': (c) => `Invite selected accounts in ${c.segRef} to a pilot, with scope, duration and the success measures stated`,
   'onboarding flow': (c) => `The steps a tester follows to start using ${c.N}, and who helps at each one`,
@@ -362,12 +366,12 @@ const DETAIL: Record<string, (c: LaunchCtx) => string> = {
   'support brief': () => 'A one-page brief for support with the questions to expect',
   'account-team and support briefing': () => 'A one-page brief for account teams and support with the questions to expect',
   // follow-up
-  'monitor metrics': (c) => launchFollowup(c.goals, `Watch ${c.adoption} each week`),
+  'monitor metrics': (c) => plannedGoalFollowup(c.goals, `Watch ${c.adoption} each week`),
   'gather feedback': () => 'Collect what customers and sales say, in one place, with the name of who said it',
   'address issues': () => 'Fix what blocks adoption first, and tell the people who reported it',
   'amplify wins': () => 'Share results customers have agreed to share, with the source and the date',
   'iterate messaging': (c) => `Change the messages for ${c.segRef} where the replies show they miss`,
-  'adoption tracking': (c) => launchFollowup(c.goals, `Track ${c.adoption} every week for the first two weeks`),
+  'adoption tracking': (c) => plannedGoalFollowup(c.goals, `Track ${c.adoption} every week for the first two weeks`),
   'feature tips': (c) => `Short how-to messages that show customers the parts of ${c.N} they have not tried`,
   'service review at the first live customers': (c) => `A service review at the first live customers, covering ${c.adoption}`,
   'success stories': () => 'Ask the first customers for a result you can show, with its source and date, before it is used anywhere',
@@ -427,11 +431,20 @@ function fitScore(segText: string, review: string, part: string): number {
 }
 
 // ---- what a goal needs, from the user's figure only ----
+function isPilotCommitmentGoal(text: string): boolean {
+  return readSignal(text, /\b(?:qualified\s+)?pilot commitments?\b/i).state === 'affirmed';
+}
+function plannedGoalFollowup(goals: string[], fallback: string): string {
+  const commitments = goals.filter(isPilotCommitmentGoal);
+  const other = goals.filter(g => !isPilotCommitmentGoal(g));
+  return [commitments.length ? 'Check written pilot commitments against agreed scope, buyer approval and the next step; do not count them as active usage' : '', other.length ? launchFollowup(other, fallback) : ''].filter(Boolean).join('; ') || fallback;
+}
 function goalNeeds(goals: string[], segs: string[], ctxBuyer: string | null): { lines: string[]; deals: boolean } {
   const lines: string[] = []; let deals = false;
   const k = segs.length;
   for (const g of goals) {
-    const reading = statedGoalCount(g);
+    let reading = statedGoalCount(g);
+    if (reading && /^pilots?$/i.test(reading.unit) && /\bpilots?\s+commitments?\b/i.test(g)) reading = {...reading, phrase: `${reading.phrase} commitments`, unit: 'commitments'};
     if (!reading || reading.count < 2) continue;
     const n=reading.count, phrase=reading.phrase;
     const share = Math.ceil(n / Math.max(k, 1));
@@ -439,7 +452,7 @@ function goalNeeds(goals: string[], segs: string[], ctxBuyer: string | null): { 
     if (/^deals?$/i.test(reading.unit)) {
       deals = true;
       lines.push(`${upper1(phrase)} need at least ${/dozen/i.test(phrase) ? n : phrase.split(/\s+/)[0]} buying conversations in all, ${where}. Your win rate decides how many more are needed: it was not given.`);
-    } else lines.push(`${upper1(phrase)} is ${where}.`);
+    } else lines.push(`The target is ${lcFirst(phrase)}, ${where}.`);
   }
   void ctxBuyer;
   return { lines, deals };
@@ -448,16 +461,18 @@ function goalNeeds(goals: string[], segs: string[], ctxBuyer: string | null): { 
 function parseLaunchDate(input?: string): { date: Date | null; exact: boolean; label: string } {
   const text = (input ?? '').trim();
   if (!text || text.toLowerCase() === 'tbd') return { date: null, exact: false, label: '' };
-  const quarter = text.match(/Q([1-4])\s*(\d{4})/i);
-  if (quarter) return { date: new Date(parseInt(quarter[2]), [0, 3, 6, 9][parseInt(quarter[1]) - 1] + 1, 15), exact: false, label: `Q${quarter[1]} ${quarter[2]}` };
-  const month = text.match(/([A-Za-z]+)\s*(\d{4})/);
+  const quarter = text.match(/^Q([1-4])\s*(\d{4})$/i);
+  if (quarter) return { date: new Date(Date.UTC(parseInt(quarter[2]), [0, 3, 6, 9][parseInt(quarter[1]) - 1] + 1, 15)), exact: false, label: `Q${quarter[1]} ${quarter[2]}` };
+  const month = text.match(/^([A-Za-z]+)\s+(\d{4})$/);
   if (month) {
     const names = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
     const i = names.findIndex((m) => month[1].toLowerCase().startsWith(m));
-    if (i !== -1) return { date: new Date(parseInt(month[2]), i, 15), exact: false, label: `${month[1]} ${month[2]}` };
+    if (i !== -1) return { date: new Date(Date.UTC(parseInt(month[2]), i, 15)), exact: false, label: `${month[1]} ${month[2]}` };
   }
-  const d = new Date(text);
-  if (!isNaN(d.getTime())) return { date: d, exact: true, label: formatDate(d) };
+  if (/^\d{4}-\d{2}-\d{2}$/.test(text)) {
+    const d = new Date(text + 'T00:00:00Z');
+    if (Number.isFinite(+d) && formatDate(d) === text) return { date: d, exact: true, label: text };
+  }
   return { date: null, exact: false, label: text };
 }
 
@@ -478,11 +493,25 @@ export function writeLaunchPlan(args: {
   // the segments are comma separated, as the input says: a semicolon stays inside a segment
   const segs = splitTopLevel(args.target_segments, false).map(upper1);
   const segList = listOf(segs);
-  const goalText = args.goals.split('\n').filter(l=>! /^(?:Confirmed capacity|Delivery capacity):/i.test(l.trim())).join('\n');
+  const goalText = args.goals.split('\n').filter(l=>! /^(?:Confirmed capacity|Delivery capacity|Assessment date):/i.test(l.trim())).join('\n');
+  if (launchAcquisitionPaused(goalText)) return `# Launch acquisition on hold
+
+The supplied goal pauses acquisition: ${q(goalText)}.
+
+For ${q(args.product_feature)}, keep outreach to ${q(args.target_segments)} on hold. ${args.launch_date ? `The proposed launch date ${q(args.launch_date)} does not override this instruction.` : 'A launch date still needs confirmation after readiness is established.'}
+
+| Decision | Proposed owner | Check before changing the hold |
+| --- | --- | --- |
+| Confirm what is paused and what preparation may continue | Launch lead | Record the scope and the owner's instruction |
+| Establish delivery readiness | Delivery owner | Record available capacity, unresolved blockers and acceptance criteria |
+| Keep acquisition activity paused | Sales and channel owners | Check ${args.available_channels ? q(args.available_channels) : 'the planned channels'} for scheduled invitations or commitments |
+| Decide whether to resume | Launch lead and delivery owner | Approve a dated readiness record, then agree the target and remaining schedule |
+
+This is a readiness review, not an acquisition schedule. No new pilot commitment or outreach task is assigned by this plan.`;
   const goals = splitPhrases(goalText).length ? splitPhrases(goalText) : [goalText.trim()];
   const capacityClause = args.goals.split(/[;\n]/).find(l=>/^(?:Confirmed capacity|Delivery capacity):\s*\d+\s*tasks?\s*(?:per day|\/day)\s*$/i.test(l.trim()));
   const taskCapacity = capacityClause ? Number(capacityClause.match(/:\s*(\d+)/)?.[1]) : 0;
-  const assessed = new Date(new Date().toISOString().slice(0,10)+'T00:00:00Z');
+  const assessed = suppliedAssessmentDate(args.goals);
   let remainingIndex = 0;
   const ctx = readContext({ model: args.business_model, vertical: args.industry, sector: args.your_sector }, { seller: [args.product_feature], context: [args.goals], buyer: [args.target_segments] });
   const pb = ctx.v ? playbookFor(ctx.v) : null;
@@ -577,8 +606,9 @@ export function writeLaunchPlan(args: {
   ] : [];
 
   const dated = when.date !== null && when.exact;
-  const reference = when.date ?? new Date();
-  const days = when.date ? calculateDaysUntil(when.date.toISOString()) : null;
+  // The anchor for relative weeks is internal and is never printed.
+  const reference = when.date ?? new Date('2000-01-01T00:00:00Z');
+  const days = when.date && assessed ? Math.ceil((+when.date - +assessed) / 86400000) : null;
 
   // ---- header and brief ----
   const out: string[] = [];
@@ -595,7 +625,8 @@ export function writeLaunchPlan(args: {
     if (days <= 0) briefParts.push(`The date you gave, ${when.label}, has already passed, so the dates below are in the past.`);
     else if (dated) briefParts.push(`The launch date is ${when.label}, ${days} ${plural(days, 'day', 'days')} away.`);
     else briefParts.push(`${when.label} is about ${days} days away, counted to an assumed date in the middle of the period ${EXAMPLE_FIGURE}; the schedule below therefore counts in weeks before launch.`);
-  } else briefParts.push('No fixed launch date is set, so the schedule below counts in weeks before launch.');
+  } else if (dated) briefParts.push(`The launch date is ${when.label}. No confirmed assessment date was supplied, so overdue status is unknown.`);
+  else briefParts.push('No fixed launch date is set, so the schedule below counts in weeks before launch.');
   if (pb && ctx.v) briefParts.push(`In ${ctx.v.name} a group decides (${lcFirst(committeeText.split(';')[0])}), so the plan ${contractSale ? `relies on ${lang.pilot}, account-based outreach and reference calls rather than broad campaigns` : 'adds a committee briefing, a proof point and answers to the usual objections to the usual launch tasks'}.`);
   if (buyer) briefParts.push(`You named the ${buyer} as the buyer, so the briefing and the messages are written for that role.`);
   out.push(briefParts.join(' '));
@@ -613,10 +644,10 @@ export function writeLaunchPlan(args: {
   out.push('');
 
   // ---- goals ----
-  const kindOf = (g: string): string => launchGoalReading(g).kind;
+  const kindOf = (g: string): string => isPilotCommitmentGoal(g) ? 'Pilot commitments' : launchGoalReading(g).kind;
   const trackedBy: Record<string, string> = {
     Pipeline: 'CRM; inspect qualified opportunities, exclude closed revenue', Revenue: 'CRM; check signed deals', Engagement: 'CRM; assign meeting follow-up',
-    Awareness: 'CRM or analytics; inspect audience reach', Adoption: pb ? `${pb.adoption.source}, counting ${pb.adoption.measure}` : 'Product or service usage data', Other: 'The source you name for this goal',
+    Awareness: 'CRM or analytics; inspect audience reach', Adoption: pb ? `${pb.adoption.source}, counting ${pb.adoption.measure}` : 'Product or service usage data', 'Pilot commitments': 'CRM or written buyer acceptance; confirm scope, approver and next step before counting', Other: 'The source you name for this goal',
   };
   out.push('## Goals and how each is measured');
   out.push('');
@@ -643,7 +674,7 @@ export function writeLaunchPlan(args: {
   const general = discovery.slice(0, 3);
   if (general.length || pains.length) {
     out.push(`${pains.length ? `Problems to test in the first conversations: ${pains.join('; ')}. ` : ''}${general.length ? 'Questions to ask in any segment:' : ''}`.trim());
-    if (general.length) { out.push(''); out.push(general.map((x) => `- ${x.replace(/\?*$/, '?')}`).join('\n')); }
+    if (general.length) { out.push(''); out.push(general.map((x) => `- ${x.replace(/[.?!]*$/, '?')}`).join('\n')); }
     out.push('');
   }
   const segChan = (seg: string) => (channelsGiven.length ? null : segmentNotes(seg)?.channels?.slice(0, 2) ?? null);
@@ -682,7 +713,7 @@ export function writeLaunchPlan(args: {
     lines.push(`The launch lead should confirm who approves a purchase in ${seg} before briefing the segment, then record the named contact and the evidence they require.`);
     // a question or a measure of the sector goes to a segment only when it fits it
     const q2 = discovery.slice(3).filter((d) => !usedAsks.has(d)).map((d) => ({ d, score: fitScore(segText, notes?.review ?? '', d) })).sort((x, y) => y.score - x.score)[0];
-    if (q2 && q2.score >= 3) { usedAsks.add(q2.d); lines.push(`Ask: ${q2.d.replace(/\?*$/, '?')}`); }
+    if (q2 && q2.score >= 3) { usedAsks.add(q2.d); lines.push(`Ask: ${q2.d.replace(/[.?!]*$/, '?')}`); }
     const m2 = metrics.filter((mm) => !usedAsks.has(mm)).map((mm) => ({ mm, score: fitScore(segText, notes?.review ?? '', mm) })).sort((x, y) => y.score - x.score)[0];
     if (layer && lead.length) lines.push(`Measure the result by how many of the buyer's flows use ${lead[0]}.`);
     else if (m2 && m2.score >= 3) { usedAsks.add(m2.mm); lines.push(`Measure the result by ${m2.mm}.`); }
@@ -691,7 +722,7 @@ export function writeLaunchPlan(args: {
     const asked = lines.some((l) => l.startsWith('Ask:'));
     if (sentencesIn() < 3 && lead.length && fits) lines.push(asked ? `Also find out what ${seg} uses today for ${quoted(lead[0])}, and who owns it.` : `Ask: what does ${seg} use today for ${quoted(lead[0])}, and who owns it?`);
     else if (sentencesIn() < 3 && lead.length) lines.push(asked ? `Also find out which of your parts ${seg} uses today, and who owns it.` : `Ask: which of your parts does ${seg} use today, and who owns it?`);
-    if (sentencesIn() < 3) lines.push(`Bring a result from one ${seg} customer, with its source and date, before you ask for the next step.`);
+    if (sentencesIn() < 3) lines.push(`Bring a result from one customer in this segment (${seg}), with its source and date, before you ask for the next step.`);
     const ch = segChan(seg);
     if (ch && ch.length && channelGroups.get(andList(ch))![0] === seg) lines.push(`Reach ${listOf(channelGroups.get(andList(ch))!)} through ${andList(ch)}.`);
     out.push(`### ${seg}`);
@@ -713,13 +744,13 @@ export function writeLaunchPlan(args: {
     well_funded: ['multi-channel paid campaigns', 'large events', 'a PR agency', 'account-based programmes'],
   };
   const tacticList = channelsGiven.length ? channelsGiven.map(ch=>`prepare and verify the message for ${ch}`) : (tactics[budgetLevel] || tactics.moderate);
-  out.push(`${channelsGiven.length ? `You can use ${andList(channelsGiven)}.` : `The channels are the usual ones for ${ctx.v ? `${ctx.v.name} buyers` : 'this kind of buyer'}: ${andList(shownChannels)}.`} At a ${readableChoice(budgetLevel)} budget the plan spends on ${andList(tacticList)}.`);
+  out.push(`${channelsGiven.length ? `You can use ${andList(channelsGiven)}.` : `The channels are the usual ones for ${ctx.v ? `${ctx.v.name} buyers` : 'this kind of buyer'}: ${andList(shownChannels)}.`} At a ${readableChoice(budgetLevel)} budget, ${channelsGiven.length ? andList(tacticList) : `prioritise ${andList(tacticList)}`}.`);
   out.push('');
 
   // ---- timeline ----
   if (dated || taskCapacity>0) {
   out.push('## Confirm remaining delivery capacity');
-  out.push(dated ? `Assessment date: ${assessed.toISOString().slice(0,10)}. Launch date stays ${when.label} unless you explicitly change it.` : 'Confirm a launch date; relative weeks are a reference only.');
+  out.push(assessed ? `Assessment date: ${assessed.toISOString().slice(0,10)}. ${dated ? `Launch date stays ${when.label} unless you explicitly change it.` : 'Confirm a launch date; relative weeks are a reference only.'}` : 'Assessment date not supplied or not confirmed. Add an Assessment date line in the goal notes to assess overdue work or date the remaining work.');
   out.push(taskCapacity > 0 ? `Confirmed delivery capacity: ${taskCapacity} tasks per day. The remaining dates below are conditional on confirming which tasks are still open; confirm estimates and dependencies before committing.` : 'Capacity unknown. Confirm completed tasks, owners and available tasks per day. The reference schedule does not establish feasibility.');
   } else out.push('Confirm capacity and completed tasks before dating this plan.');
   out.push('## Timeline');
@@ -728,7 +759,7 @@ export function writeLaunchPlan(args: {
   out.push('');
   for (const [pi, phase] of phases.entries()) {
     const start = addDays(reference, phase.startOffset); const end = addDays(reference, phase.endOffset);
-    const current = dated && new Date() >= start && new Date() <= end;
+    const current = dated && assessed && assessed >= start && assessed <= end;
     const base = phase.tasks.map(adaptTask).filter(keepTask).map((title) => ({ title, detail: (DETAIL[title.toLowerCase()] ?? (() => GENERIC_DETAIL(phase.focus)))(c), owner: ownerKind(title) }));
     const extra = sectorTasks.filter((t) => Math.min(t.phase, phases.length - 1) === pi).map((t) => ({ title: t.task, detail: t.detail, owner: t.owner }));
     const rows = [...base, ...extra].filter(row=>keepTask(row.title+' '+row.detail));
@@ -739,8 +770,8 @@ export function writeLaunchPlan(args: {
       const offset = phase.startOffset + Math.floor((i / rows.length) * (phase.endOffset - phase.startOffset));
       const dueDate = addDays(reference, offset);
       const due = dated ? formatDate(dueDate) : weeksLabel(offset);
-      const elapsed = dated && dueDate < assessed;
-      const proposed = taskCapacity > 0 ? addDays(assessed, Math.floor(remainingIndex++ / taskCapacity)) : null;
+      const elapsed = dated && assessed && dueDate < assessed;
+      const proposed = taskCapacity > 0 && assessed ? addDays(assessed, Math.floor(remainingIndex++ / taskCapacity)) : null;
       const capacityStatus = proposed ? ` If still open, proposed remaining date: ${formatDate(proposed)}.${dated && offset <= 0 && proposed > reference ? ' Capacity conflict: this falls after the fixed launch date; reduce scope or confirm more capacity.' : ''}` : '';
       const status = !dated ? '' : elapsed ? ' Overdue if unfinished; completion unknown' : ' Completion unknown';
       out.push(`- **${stripEnd(row.title)}** (${ownerOf(row.owner)}, ${dated ? 'due ' : ''}${due})${row.detail ? `: ${stripEnd(row.detail)}.` : '.'}${status}${capacityStatus}`);
@@ -776,22 +807,22 @@ export function writeLaunchPlan(args: {
 
   // ---- what was not given ----
   const missing: Array<[string, string]> = [];
-  if (!when.date) missing.push(['a launch date (YYYY-MM-DD)', 'the schedule, which would then show calendar dates instead of weeks before launch']);
+  if (!when.date) missing.push(['a launch date (YYYY-MM-DD)', 'calendar dates instead of relative weeks']);
   else if (!when.exact) missing.push(['an exact launch date (YYYY-MM-DD)', `the schedule, which now counts in weeks before launch because only ${when.label} was given`]);
   if (!args.industry && !ctx.v) missing.push(['your industry', 'the buyer roles, proof, objections and channels, which now come from your segments only']);
-  else if (!args.industry && ctx.v) missing.push(['your industry, to confirm the sector reading', 'the buyer roles, proof, objections and channels if the read is wrong']);
-  if (!args.business_model) missing.push(['your business model and how you charge', `the launch tasks and words, which now ${model ? `follow ${MODEL_WORDS[model]} as read from your text` : 'use neutral B2B wording, because no business model could be read from your text'}`]);
-  if (!buyer) missing.push(['the buyer who approves this launch', 'the buyer briefing and message']);
-  if (!channelsGiven.length) missing.push(['available channels', 'which tasks stay in the plan and where the messages go']);
+  else if (!args.industry && !args.your_sector && ctx.v) missing.push(['your industry', 'buyer roles, proof and channels']);
+  if (!args.business_model) missing.push(['your charging model', 'delivery and adoption tasks']);
+  if (!buyer) missing.push(['the buyer approver', 'the buyer briefing']);
+  if (!channelsGiven.length) missing.push(['available channels', 'tasks and destinations']);
   if (!args.team_size) missing.push(['team size; currently assumed small (2 to 5)', 'who owns each task']);
-  if (!args.budget_level) missing.push(['budget level; currently assumed moderate', 'the tactics in Channels and budget']);
+  if (!args.budget_level) missing.push(['budget level; currently assumed moderate', 'channel tactics']);
   // a product described in some detail is not asked for again; a bare name or a short phrase is
   const kinds = kindsWithLines(ctx, ['pains', 'cta', 'launchTasks', 'channels', 'adoption', 'checklist']);
   if (kinds.length && prod.desc.split(/\s+/).filter(Boolean).length < 8) missing.push([`what ${prod.name ?? 'the solution'} sells`, 'the pilot, integration and adoption tasks, which now fit any company in the sector']);
   if (needs.deals) missing.push(['your win rate from buying conversation to signed deal', 'the number of conversations to book, which is now the number of deals as a minimum']);
   const kindsOfGoals = new Set(goals.map(kindOf));
-  if (!kindsOfGoals.has('Adoption') && !kindsOfGoals.has('Revenue')) missing.push(['a target for pipeline or adoption in the goals', 'the Follow-up phase, which has no adoption target to track']);
-  missing.push(['a result you already hold from a customer in these segments, with its source and date', 'the proof line, which now describes the kind of proof to collect']);
+  if (!kindsOfGoals.has('Adoption') && !kindsOfGoals.has('Revenue') && !kindsOfGoals.has('Pilot commitments')) missing.push(['a pipeline or adoption target', 'follow up tracking']);
+  missing.push(['a sourced, dated customer result in these segments', 'the proof to use']);
   out.push(sharpenBlock(missing));
   return dropRepeatedLines(out.join('\n')).replace(/\n{3,}/g, '\n\n').trimEnd() + '\n';
 }
@@ -955,7 +986,11 @@ const REASON_KINDS: Array<[ReasonKind, RegExp]> = [
   ['competitor', /\b(competitors?|switch\w*|alternatives?|rivals?|incumbents?)\b/],
   ['adoption', /\b(adopt\w*|usage|engagement|unused|not using|low use|(?:do|does|did|will|would) not use|won't use|logging in|log in|logins?|stopped using)\b/],
 ];
-const kindOfReason = (text: string): ReasonKind => (REASON_KINDS.find(([kind, re]) => hasSignal(text, re, kind === 'person' ? 'departed' : kind === 'competitor' ? 'incumbent' : kind)) ?? ['other'])[0];
+const kindOfReason = (text: string): ReasonKind => (REASON_KINDS.find(([kind, re]) => {
+  // An unrun pricing experiment limits causal evidence; it does not deny a separate price complaint.
+  const input = kind === 'price' ? text.replace(/\bNo\s+price(?: change| reduction)?\s+(?:experiment|test|trial)\b[^.;\n]*/gi, '') : text;
+  return hasSignal(input, re, kind === 'person' ? 'departed' : kind === 'competitor' ? 'incumbent' : kind);
+}) ?? ['other'])[0];
 
 /** What each current intervention can help with, by what it is called. */
 const INTERVENTION_HELPS: Array<[RegExp, ReasonKind[]]> = [
@@ -970,9 +1005,13 @@ const INTERVENTION_HELPS: Array<[RegExp, ReasonKind[]]> = [
 
 function parseChurn(text: string): { n: number | null; period: 'month' | 'year' | 'quarter' | 'unstated'; monthly: number; annual: number } {
   const empty = { n: null, period: 'unstated' as const, monthly: 0, annual: 0 };
-  const m = text.match(/(-?\d+(?:\.\d+)?)/);
-  if (!m) return empty;
-  const n = parseFloat(m[1]);
+  // A count, fraction or denied figure is not a percentage. Keep one explicit
+  // rate and one period before converting or applying illustrative thresholds.
+  const rate = readSignal(text, /[-+]?\d+(?:\.\d+)?\s*(?:%|percent\b|per cent\b)/gi);
+  if (rate.state !== 'affirmed' || /percent(?:age)? points?|per cent points?/i.test(text)) return empty;
+  const values = [...new Set(rate.matched.map(x => parseFloat(x)))];
+  if (values.length !== 1) return empty;
+  const n = values[0];
   if (n < 0 || n > 100) return empty;
   const periods = [
     ['year', readSignal(text, /\b(?:annual(?:ly)?|yearly|per year|a year|per annum|p\.?a\.?|each year)\b|\/\s?(?:yr|year)\b/i, SIGNALS.annual_period)],
@@ -1032,6 +1071,7 @@ export function writeRetentionPlaybook(args: {
   const notes = segmentNotes(segment);
   const smallCustomers = sizeReading(segment, /\b(smb|small|sellers?|merchants?|d2c|startups?|freelanc\w+|individuals?|consumers?|shops?|stores?|retailers?|businesses)\b/i).state === 'affirmed' && sizeReading(segment, /\b(enterprise|large|corporate|institution\w*)\b/i).state !== 'affirmed';
   const volumeModel = choice === 'transactional' || choice === 'usage_based' || choice === 'marketplace' || choice === 'freemium';
+  const lossUnit = hasSignal(args.current_churn_rate, /\b(?:revenue|mrr|arr)\b/i) ? 'revenue' : volumeModel ? 'volume' : 'customers';
   const enterpriseLike = !volumeModel && !smallCustomers;
   // how leaving is worded for this model: "customers who ___" (past) and "you decided to ___" (infinitive)
   const LEAVE: Record<string, [string, string]> = {
@@ -1054,19 +1094,21 @@ export function writeRetentionPlaybook(args: {
   out.push('## First evidence and capacity decisions');
   out.push(`Reported observations: ${reasons.length ? reasons.map(quoted).join('; ') : 'None confirmed in the supplied notes'}.`);
   out.push(`Unestablished causes: ${unresolved.length ? unresolved.map(quoted).join('; ') : 'No additional cause evidence supplied; do not extrapolate observations to other departures'}.`);
-  out.push(trainingObserved ? 'First task: validate the reported training gaps with the interviewed customers. Reconstruct the last dispatcher task, record the failure point and test whether training changes it. Owner and review date: confirm.' : 'First task: validate one reported cause with the affected customer before choosing an intervention. Owner and review date: confirm.');
+  out.push(trainingObserved ? 'First task: validate the reported training gaps with the interviewed customers. Reconstruct the last dispatcher task, record the failure point and test whether training changes it. Owner and review date: confirm.' : reasons.length ? 'First task: validate one reported cause with the affected customer before choosing an intervention. Owner and review date: confirm.' : 'First task: reconstruct one recent departure with the customer and account records; no cause is established yet. Owner and review date: confirm.');
   out.push('Second task: investigate each departure whose cause is unknown; compare interview notes and service history, including evidence that contradicts the reported cause. Keep unknown cases separate. Owner and review date: confirm.');
   out.push(args.cs_team_size ? 'Team size was supplied; confirm hours available before allocating personal, scaled or automated coverage.' : 'Capacity: unknown. Confirm the responsible people and available time before allocating personal, scaled or automated coverage.');
   out.push('## Where you stand');
   const stand: string[] = [];
   stand.push(`This is written for ${headSeg ? segment : 'the segment you described'}${product && !segment.toLowerCase().includes(product.toLowerCase()) && !/customers of/i.test(segment) ? ` (customers of ${product})` : ''}, on ${aAn(modelName)} ${modelName} model, with ${args.cs_team_size ? readableChoice(csTeamSize)+' customer success team size (supplied; confirm available time)' : 'unknown customer success capacity'}.`);
   if (headSeg === null) stand.push(`The segment, as you described it: ${quoted(segment)}.`);
-  if (churn.n === null) stand.push(`You gave a churn rate of ${quoted(typedRate)}, which could not be read as one valid rate and period (0 to 100 percent, with no conflicting periods), so no severity is shown.`);
-  else {
-    stand.push(`You report churn of ${typedRate}${churn.period === 'unstated' ? ', which is read as a monthly rate' : ''}.`);
+  if (churn.n === null) stand.push(`You gave a churn rate of ${quoted(typedRate)}, which could not be read as one explicit percentage and period (0 to 100 percent, with no denied or conflicting rates or periods), so no severity is shown.`);
+  else if (churn.period === 'unstated') {
+    stand.push(`You report ${typedRate}, but no period is established, so no severity is shown. Confirm the period before using an annual figure. Illustration only: if this were a monthly rate, it would imply about ${pct(churn.annual)}% of ${lossUnit} lost in a year if that monthly rate persisted. This conditional example is not your annual churn or a forecast.`);
+  } else {
+    stand.push(`You report churn of ${typedRate}.`);
     if (churn.period === 'year') stand.push(`That is about ${pct(churn.monthly)}% a month, compounded (the monthly rate that, applied each month to the customers still left, adds up to your annual rate).`);
     else if (churn.period === 'quarter') stand.push(`That is about ${pct(churn.monthly)}% a month and about ${pct(churn.annual)}% a year, compounded (each period's loss applies only to the customers still left).`);
-    else stand.push(`If it holds, that is about ${pct(churn.annual)}% of ${volumeModel ? 'volume' : 'customers'} lost in a year, compounded (each month's loss applies only to the ${volumeModel ? 'volume' : 'customers'} still left, so it is lower than the monthly rate times twelve, ${pct(churn.monthly * 12)}%).`);
+    else stand.push(`If it holds, that is about ${pct(churn.annual)}% of ${lossUnit} lost in a year, compounded (each month's loss applies only to the ${lossUnit} still left, so it is lower than the monthly rate times twelve, ${pct(churn.monthly * 12)}%).`);
     stand.push(`It reads ${severity} against the example thresholds of this tool (above 8% a month is critical, above 5% high, above 3% moderate). The thresholds are illustrations, so judge the rate against your own history.`);
   }
   out.push(stand.join(' '));
@@ -1083,26 +1125,32 @@ export function writeRetentionPlaybook(args: {
     const found = answerFor(reason, ctx.v);
     const sector = found === generic ? '' : found;
     const hi = capacity.highTouch > 30;
+    if (readSignal(reason, /\bbypass(?:es|ed|ing)?\b/i).state === 'affirmed') return {
+      trigger: 'Reported workflow bypass, to verify with the affected users and records',
+      action: 'Observe one recent task with the user, compare the recorded handoffs with the actual route, and test one correction with an agreed owner; do not assume training or price is the cause',
+      owner: 'Account owner with the workflow owner, subject to capacity confirmation', timing: 'Agree a review date with the affected team',
+      email: `Subject: Reviewing a recent workflow\n\nHello,\n\nCould you walk us through one recent busy period, including which steps you used and which you worked around, if any? We would like to compare that with the records before proposing a change.\n\nWho owns this workflow, and when would a short review suit them?\n\n${sign}`
+    };
     switch (kindOfReason(reason)) {
       case 'bundle': return { trigger: 'Another vendor offers a bundled or consolidated package to the account', action: `Compare the outcome each option delivers, not the feature lists.${sector ? ` ${sector}` : ''}`, owner: hi ? 'CSM with the account executive' : 'CS team, with the account executive', timing: 'Within a week of the signal',
-        email: `Subject: Comparing the outcome, not the bundle\n\nHello,\n\nI understand another vendor has offered a bundled package. That can look simpler on paper.\n\nBefore you decide, I would like to compare what each option delivers for the results you care about, and what the bundle leaves to manual work.\n\nWould a short comparison with your team help?\n\n${sign}` };
-      case 'price': return { trigger: 'A price objection in a survey, a support ticket or a cancellation reason', action: 'A value review: what the account gets for what it pays, in its own measures, before any discount is discussed', owner: hi ? 'CSM' : 'CS team, after an automated email', timing: 'Within a day of the signal',
-        email: `Subject: What ${productRef} delivers for what you pay\n\nHello,\n\nYou raised the cost of ${productRef}. I would like to go through what it delivers for your team and what it costs, so the comparison is fair.\n\nWould you be open to a short call this week?\n\n${sign}` };
+        email: `Subject: Comparing the outcome, not the bundle\n\nHello,\n\nAre you considering a bundled package from another vendor? If so, which parts matter to your team?\n\nBefore you decide, I would like to compare what each option delivers for the results you care about, and what the bundle leaves to manual work.\n\nWould a short comparison with your team help?\n\n${sign}` };
+      case 'price': return { trigger: 'A price objection in a survey, a support ticket or a cancellation reason', action: 'A value review: what the account gets for what it pays, in its own measures, before any discount is discussed', owner: hi ? 'CSM' : 'Account owner, with capacity confirmed', timing: 'Within a day of the signal',
+        email: `Subject: What ${productRef} delivers for what you pay\n\nHello,\n\nWould it help to review the cost of ${productRef} against what your team actually uses and receives? We can check the account records before discussing any change in terms.\n\nWould you be open to a short call this week?\n\n${sign}` };
       case 'feature': return { trigger: 'A missing capability mentioned in support, feedback or a survey', action: 'Log the request with the customer, show what the product does today for the need, and agree a workaround; promise no date you cannot keep', owner: hi ? 'CSM with product input' : 'Support, with escalation to product', timing: 'Within two days',
-        email: `Subject: About what you told us was missing\n\nHello,\n\nThank you for telling us what ${productRef} is missing. I wanted to follow up personally.\n\nI cannot promise timelines, but I can walk you through what ${productRef} does today for this need and the options we have.\n\nWould it help to go through it together?\n\n${sign}` };
+        email: `Subject: About what you told us was missing\n\nHello,\n\nWhich capability, if any, is missing from ${productRef} for the work you need to complete?\n\nI cannot promise timelines, but I can walk you through what ${productRef} does today for this need and the options we have.\n\nWould it help to go through it together?\n\n${sign}` };
       case 'service': return { trigger: 'Service levels missed, credits claimed or disputed, or the same incident again', action: `A service recovery review: the cause, a recovery plan with dates and a report the customer can check.${sector ? ` ${sector}` : ''}`, owner: 'Service owner and CSM', timing: 'Within two days of the signal, then at the next review',
-        email: `Subject: Service levels for ${accountRef}\n\nHello,\n\nI saw that service levels have not met what we agreed. I would like to walk you through the cause and a recovery plan with dates.\n\nCould we find half an hour this week with your service owner?\n\n${sign}` };
+        email: `Subject: Service levels for ${accountRef}\n\nHello,\n\nCould we review the service records against what we agreed? If a commitment was missed, we should confirm the impact and cause before agreeing a recovery plan with dates.\n\nCould we find half an hour this week with your service owner?\n\n${sign}` };
       case 'person': return { trigger: 'A key person on either side leaves or changes role', action: `Name a backup for each key role, show how knowledge is handed over, and find the new champion.${sector ? ` ${sector}` : ''}`, owner: hi ? 'CSM with the account executive' : 'CS team, with the account executive', timing: 'Within a week of the change',
-        email: `Subject: Continuity for ${accountRef}\n\nHello,\n\nI know there has been a change in the team. I would like to confirm who covers each key role and how knowledge is being passed on, so nothing slips.\n\nCould we meet this week to go through it?\n\n${sign}` };
+        email: `Subject: Continuity for ${accountRef}\n\nHello,\n\nCould you confirm who covers each key role today and whether any responsibility has changed? We would like to check the handover and backup arrangements with you.\n\nCould we meet this week to go through it?\n\n${sign}` };
       case 'support': return { trigger: 'Several support tickets, or low satisfaction after a support contact', action: 'An executive escalation, a named support contact and a recovery step the customer can see', owner: 'Support manager and CSM', timing: 'The same day',
-        email: `Subject: Making things right\n\nHello,\n\nI saw that your recent support experience did not meet our standard, and I am sorry. I have reviewed your case myself and would like to set up a direct escalation path for you.\n\nCan we schedule a call to go through it?\n\n${sign}` };
+        email: `Subject: Making things right\n\nHello,\n\nCould we review your recent support experience, including anything that remains unresolved? I would like to check the case records with you and agree who will own any follow up.\n\nCan we schedule a call to go through it?\n\n${sign}` };
       case 'competitor': return { trigger: 'A competitor named in any customer contact', action: `A differentiation call, with the comparison based on the customer's own results.${sector ? ` ${sector}` : ''}`, owner: hi ? 'CSM or account executive' : 'CS team, with comparison content', timing: 'Within four hours of the mention',
-        email: `Subject: Before you decide\n\nHello,\n\nI understand you are looking at other options. That is sensible: you should look at what is best for your team.\n\nBefore you decide, I would like to share what ${productRef} has delivered for you so far, next to what you would be moving to.\n\nIs there a good time this week?\n\n${sign}` };
+        email: `Subject: Before you decide\n\nHello,\n\nAre you considering other options, and what would you need to compare?\n\nWe can review what ${productRef} has delivered, if anything, against your account records and the requirements you would use to assess an alternative.\n\nIs there a good time this week?\n\n${sign}` };
       case 'adoption': return { trigger: subscription ? 'Low logins or few features used for several weeks' : contractModel === 'connectivity' ? 'Sites not live in the planned wave, or the same incident again and again' : contractModel === 'investment' ? 'Falling attendance at reviews, or fewer reports opened' : 'Fewer requests raised, fewer service reviews attended, or reports unread',
-        action: subscription ? 'An onboarding reset, a use case discovery call and one quick win with a date' : 'A service review, a use case discovery call and one quick win with a date', owner: hi ? 'CSM' : 'CS team, after an automated nurture', timing: subscription ? 'As soon as the pattern shows, then again two weeks later' : 'At the next service review, or within two weeks of the signal',
-        email: `Subject: Getting more out of ${accountRef}\n\nHello,\n\nI noticed your team has not been using ${productRef} as much recently. Sometimes that means we did not get the first setup right.\n\nI would like to understand your goals and show you one quick win.\n\nCould we take fifteen minutes this week?\n\n${sign}` };
-      default: return { trigger: `${quoted(capEchoSafe(reason, 120))} raised by a customer`, action: `Personal outreach and a root cause review.${sector ? ` ${sector}` : ''}`, owner: hi ? 'CSM' : 'CS team, after an automated check-in', timing: 'Within two days of the signal',
-        email: `Subject: A quick check-in\n\nHello,\n\nI wanted to reach out personally because your feedback matters to us.\n\nYou told us: ${quoted(capEchoSafe(reason, 200))}. I would like to understand this better and see what we can do.\n\nDo you have ten minutes this week?\n\n${sign}` };
+        action: subscription ? 'An onboarding reset, a use case discovery call and one quick win with a date' : 'A service review, a use case discovery call and one quick win with a date', owner: hi ? 'CSM' : 'Account owner, with capacity confirmed', timing: subscription ? 'As soon as the pattern shows, then again two weeks later' : 'At the next service review, or within two weeks of the signal',
+        email: `Subject: Getting more out of ${accountRef}\n\nHello,\n\nCould you walk us through a recent task and show where ${productRef} was useful, unused or difficult to use?\n\nI would like to understand what happened before proposing one small change to test.\n\nCould we take fifteen minutes this week?\n\n${sign}` };
+      default: return { trigger: `${quoted(capEchoSafe(reason, 120))} raised by a customer`, action: `Personal outreach and a root cause review.${sector ? ` ${sector}` : ''}`, owner: hi ? 'CSM' : 'Account owner, with capacity confirmed', timing: 'Within two days of the signal',
+        email: `Subject: A quick check-in\n\nHello,\n\nI wanted to reach out personally because your feedback matters to us.\n\nCould you describe a recent experience with ${productRef}, including anything that worked well or remained unresolved? We would like to check the records with you before proposing a next step.\n\nDo you have ten minutes this week?\n\n${sign}` };
     }
   };
 
@@ -1191,7 +1239,7 @@ export function writeRetentionPlaybook(args: {
   if (dataSignals.length) out.push(`You said you can track ${andList(dataSignals.map((d) => quoted(d)))}.${unused.length ? ` ${andList(unused.map((d) => quoted(d)))} ${unused.length === 1 ? 'is' : 'are'} not matched to a signal above: add ${unused.length === 1 ? 'it' : 'them'} as signals, or use ${unused.length === 1 ? 'it' : 'them'} in your reviews.` : ' Every one is matched to a signal above.'}`);
   else out.push('Every signal above is marked "to add", because no data signals were named.');
   out.push('');
-  out.push(`The score is the sum of each signal scaled 0 to 100 and multiplied by its weight. Read it as below 30 red, 30 to 70 yellow and above 70 green: critical up to 30 (act at once), at risk from 31 to 50 (reach out), monitor from 51 to 70 (nurture), healthy above 70 (expand and ask for advocacy). These bands are illustrations.`);
+  out.push(`The score is the sum of each signal scaled 0 to 100 and multiplied by its weight. Read scores from 0 through 30 as red, above 30 through 70 as yellow and above 70 through 100 as green. Within those example bands: critical at 30 or below, at risk above 30 through 50, monitor above 50 through 70, and healthy above 70. Confirm the signal definitions and account evidence before selecting an intervention. Missing signals do not establish a healthy account. These bands are illustrations.`);
   out.push('');
 
   // ---- team time ----
@@ -1208,7 +1256,7 @@ export function writeRetentionPlaybook(args: {
   if (choice === 'saas_subscription' || choice === 'freemium' || (choice === 'enterprise_contract' && subscription)) {
     const sponsor = sponsorRole;
     out.push('| Touchpoint | When | What happens | Goal |', '|------------|------|--------------|------|',
-      `| Onboarding check | Day 7 | Check that the first users are active${m0 ? `, take a first reading of ${m0}` : ''}, and deliver one quick win | Activate |`, `| First value review | Day 30 | Review ${m0 ? `${m0}${m1 ? ` and ${m1}` : ''}` : 'the success measures'} against the baseline agreed at the start | Confirm value |`,
+      `| Onboarding check | Day 7 | Check that the first users are active${m0 ? `, take a first reading of ${m0}` : ''}, and agree one verifiable first task | Activate |`, `| First value review | Day 30 | Review ${m0 ? `${m0}${m1 ? ` and ${m1}` : ''}` : 'the success measures'} against the baseline agreed at the start | Confirm value |`,
       `| Expansion probe | Day 60 | Look for a second ${ctx.v?.id === 'vertical-saas' ? 'team or site' : 'use case'} | Deepen |`, `| Business review | Day 90 | Review results with ${sponsor} | Renew signal |`,
       `| Pre-renewal | 60 days before renewal | Renewal conversation with ${sponsor}${m0 ? `, with ${m0} before and after` : ''} | Retain |`, '| At risk | When the health score or an alert triggers | A step from the list above | Save |');
     out.push('', 'The days are illustrations: set your own.');
@@ -1257,13 +1305,12 @@ export function writeRetentionPlaybook(args: {
   if (!current.length) missing.push(['what you already do to keep customers, in the current interventions input', 'the comparison with each reason, which shows what is covered and what is not']);
   if (!product) missing.push(['the product or company name, in the product input', 'the title and the drafts, which now say "our service"']);
   if (!args.cs_team_size) missing.push(['the customer success team size and available hours, in the cs team size input; no capacity has been assumed', 'the split between personal, one-to-many and automated contact']);
-  if (churn.n === null) missing.push(['the churn rate as a number with its period, such as 5% a month', 'the severity, the annual figure and the sizing of the plan']);
-  else if (churn.period === 'unstated') missing.push(['whether the churn rate is monthly, quarterly or yearly', `the annual figure, which now reads ${typedRate} as monthly`]);
+  if (churn.n === null || churn.period === 'unstated') missing.push(['the churn rate as a number with its period, such as 5% a month', 'the severity, the annual figure and the sizing of the plan']);
   if (!args.industry && !ctx.v) missing.push(['your industry', 'the sector measures, objections and renewal habits, which are now left out']);
   const kinds = kindsWithLines(ctx, ['churnReasons', 'renewal']);
   if (kinds.length && !described) missing.push([`what ${productShort || 'your product'} sells, said in a few words after its name in the product input`, 'the reasons and steps, which now fit any company in the sector']);
   out.push(sharpenBlock(missing));
-  return dropRepeatedLines(out.join('\n')).replace(/\n{3,}/g, '\n\n').trimEnd() + '\n';
+  return dropRepeatedLines(out.join('\n'), true).replace(/\n{3,}/g, '\n\n').trimEnd() + '\n';
 
   // ---------------- the churn discovery kit (no reasons given) ----------------
   function discoveryKit(): string[] {
@@ -1292,27 +1339,27 @@ export function writeRetentionPlaybook(args: {
     const stepOf = (r: string): string => unitize(extra.find((x) => x.reason === original(r))?.action ?? STEP_FOR[original(r)] ?? 'Reach out personally to understand the concern and answer it');
     k.push('## What to find out first');
     k.push('');
-    k.push(`No churn reasons were given, so this kit is a short plan to find them: ask the ${cust}s who ${leftPast}, look at your own data for the pattern, then treat the likely reasons below as questions to test, not as findings. Start with the most recent departures and the largest ones.`);
+    k.push(`${unresolved.length ? 'The supplied notes do not establish a cause, so this kit is a short plan to investigate' : 'No churn reasons were given, so this kit is a short plan to find them'}: ask the ${cust}s who ${leftPast}, look at your own data for the pattern, then treat the likely reasons below as questions to test, not as findings. Start with the most recent departures and the largest ones.`);
     k.push('');
     k.push('## Step 1: ask the customers who left');
     k.push('');
     k.push('Send this within a week of the departure. The options are the likely reasons listed further down; they are hypotheses to test, so keep "Other" open.');
     k.push('');
     k.push('```');
-    k.push(`Subject: ${subscription && volumeModel === false ? 'A short question about your decision' : 'A short request: what should we have done differently?'}\n\nHello,\n\nThank you for the time you spent with ${productRef}. To help us improve, would you tell us the main reason you decided to ${leaveInf}?\n\nPlease pick the one that fits best:\n${list.map((r) => `- ${r}`).join('\n')}\n- Other (please say what)\n\nAny further feedback is welcome.\n\nThank you,\n${sign}`);
+    k.push(`Subject: ${subscription && volumeModel === false ? 'A short question about your decision' : 'A short request: what should we have done differently?'}\n\nHello,\n\nThank you for the time you spent with ${productRef}. To help us improve, would you tell us the main reason you decided to ${leaveInf}?\n\nPlease describe the reason in your own words first. If helpful, you can then select any options that fit:\n${list.map((r) => `- ${r}`).join('\n')}\n- Other (please say what)\n\nAny further feedback is welcome.\n\nThank you,\n${sign}`);
     k.push('```');
     k.push('');
     k.push('## Step 2: a short interview for the larger losses');
     k.push('');
-    const metricAsk = ctx.v && ctx.v.metrics.length >= 2 && !caseAI ? `While you used ${productRef}, how did ${ctx.v.metrics[0]} and ${ctx.v.metrics[1]} change for you?` : `While you used ${productRef}, what changed for you, and by how much?`;
+    const metricAsk = ctx.v && ctx.v.metrics.length >= 2 && !caseAI ? `While you used ${productRef}, how did ${ctx.v.metrics[0]} and ${ctx.v.metrics[1]} change for you, if at all? What records support that?` : `While you used ${productRef}, what changed or stayed the same, and what records support that?`;
     const qs = [
       'Thank you for the time. I am trying to understand what we could have done better.',
       `Walk me through how you came to the decision to ${leaveInf}: when did you first start thinking about it?`,
       'What was the final trigger?',
       metricAsk,
       'If you could change one thing about us, what would it be?',
-      'Did you look at alternatives, and what did they offer that we did not?',
-      'Was there a moment when you felt most frustrated with us?',
+      'Which alternatives, if any, did you consider? What tradeoffs mattered, including reasons to stay?',
+      'Which parts of the experience worked well or poorly? Can you describe a specific example?',
       ...(subscription && !volumeModel ? [] : ['Who else took part in the decision, and what did they need to see?']),
       'Is there anything that would bring you back?',
       `What would you tell someone considering ${productShort || 'our service'}?`,
@@ -1478,8 +1525,8 @@ ${rows.map((l) => `| ${l.join(' | ')} |`).join('\n')}
 
 | After | Update | Channel |
 |-------|--------|---------|
-| 15 minutes | "Identified", with a one-line plain description of the cause | ${enterprise ? 'Status page, and a direct update from the account owner' : 'Status page'} |
-| 30 minutes | "Working on a fix", with the time of the next update | ${consumers ? 'Status page and social channels' : 'Status page, and a direct update from the account owner'} |
+| 15 minutes | Share confirmed impact and unknowns. Use "Identified" only after the incident lead verifies the cause | ${enterprise ? 'Status page, and a direct update from the account owner' : 'Status page'} |
+| 30 minutes | Say what is being investigated or fixed and when the next update is due. Do not imply a fix has started unless it has | ${consumers ? 'Status page and social channels' : 'Status page, and a direct update from the account owner'} |
 | 60 minutes | Progress, or a revised time | Status page and an email to the affected |
 | Every 30 minutes | A further update until it is resolved | Status page |
 `;
@@ -1504,7 +1551,7 @@ ${audiences([['Client service owner', 'A call from the account owner', 'What hap
 `;
   // overlapping playbooks are merged: a sector outage takes the generic severity levels and updates, a delivery failure takes the SLA recovery, a wrong model output takes the correction steps
   const absorbs: Array<{ own: RegExp; generic: RegExp; add: () => string }> = [
-    { own: /outage|message_delivery|payment_failure/, generic: /outage|downtime|\bdown\b/, add: () => `${severityTable()}${aiCrisis ? `\nIf the cause is a model or hosting provider, switch to a fallback model or provider if you have one, and tell customers which features are degraded.\n` : ''}\n${updateCadence()}` },
+    { own: /outage|message_delivery|payment_failure/, generic: /outage|downtime|\bdown\b/, add: () => `${severityTable()}${aiCrisis ? `\nIf the cause is a model or hosting provider, use a fallback model or provider only after the incident lead confirms it is approved and tested for this workload; tell customers which features are degraded.\n` : ''}\n${updateCadence()}` },
     { own: /delivery_failure/, generic: /\bsla\b|sla_|service[ _]level/, add: slaRecovery },
     { own: /model_error/, generic: /ai_wrong|wrong[ _]action|ai[ _]error|hallucinat/, add: () => `${aiFirst()}\n${aiCorrection()}` },
   ];
@@ -1532,11 +1579,18 @@ ${audiences([['Client service owner', 'A call from the account owner', 'What hap
     const lower = crisis.toLowerCase();
     const name = spaced(crisis);
     const exposure = exposureState(crisis);
-    if (exposure === 'negated' && !hasSignal(unescapeMd(crisis).replace(/_/g, ' '), /\b(?:outage|downtime|service failure|sla breach|security vulnerability|fraud|regulatory action)\b/i)) return `### Not treated as a confirmed incident: ${name}\n\nYour note denies data exposure. No exposure response or notification duty is inferred from it. Confirm any separate incident before selecting its playbook.\n`;
+    const incidentText = unescapeMd(crisis).replace(/_/g, ' ');
+    const outage = readSignal(incidentText.replace(/\bbecause\b/gi, '.'), /\b(?:outage|downtime|service failure|service (?:is |remains )?unavailable|service unavailability|service (?:is |remains )?down)\b/i);
+    const recovered = readSignal(incidentText, /\b(?:service (?:has been |is )?restored|outage (?:has been |is )?resolved)\b/i).state === 'affirmed';
+    if (recovered && exposure !== 'affirmed' && securityIncident(crisis).state !== 'affirmed') return `### Recovery verification: ${name}
+
+Your note reports restored service. Ask the incident lead and affected customer owners to verify the critical workflow, record the recovery time and check the backlog before closing the incident. Monitor for recurrence and retain a named escalation owner. Publish only the recovery scope confirmed by those checks. A restoration statement does not establish whether data was exposed.
+`;
+    if (exposure === 'negated' && outage.state !== 'affirmed' && !hasSignal(incidentText, /\b(?:sla breach|security vulnerability|fraud|regulatory action)\b/i)) return `### Not treated as a confirmed incident: ${name}\n\nYour note does not establish data exposure. No exposure response or notification duty is inferred from it. Confirm any separate incident before selecting its playbook.\n`;
     if (securityIncident(crisis).state === 'unclear') return `### Incident needs clarification: ${name}\n\nThe security fact is not clear. Confirm what occurred and preserve the evidence before choosing an incident playbook.\n`;
     const t = stems(crisis);
     // a crisis of the sector's own (by its key, or by its words when the text names no known kind of crisis), used once
-    const knownKind = securityIncident(crisis).state === 'affirmed' || /vulnerab|data[ _]exposure|customer_data|\bsla\b|sla_|service[ _]level|regulat|fraud|ai_wrong|wrong[ _]action|ai[ _]error|hallucinat|breach|security|hack|exposure|outage|downtime|\bdown\b|(^|[^a-z])pr([^a-z]|$)|reputation|media|social|executive|departure|fired|resign|competitor|attack|market/.test(lower);
+    const knownKind = outage.state === 'affirmed' || securityIncident(crisis).state === 'affirmed' || /vulnerab|data[ _]exposure|customer_data|\bsla\b|sla_|service[ _]level|regulat|fraud|ai_wrong|wrong[ _]action|ai[ _]error|hallucinat|breach|security|hack|exposure|outage|downtime|\bdown\b|(^|[^a-z])pr([^a-z]|$)|reputation|media|social|executive|departure|fired|resign|competitor|attack|market/.test(lower);
     const byKey = pb ? pb.crises.find((c) => (lower.includes(c.key) || lower.includes(c.key.replace(/_/g, ' '))) && (!/exposure|customer_data/.test(c.key) || exposure === 'affirmed')) : undefined;
     const byWords = pb && !knownKind && t.length > 0 ? pb.crises.find((c) => t.some((st) => stems(`${c.title} ${c.what}`).includes(st))) : undefined;
     const found = byKey ?? byWords;
@@ -1654,15 +1708,15 @@ ${pb ? `**What could be exposed here:** ${pb.breach}.\n\n` : ''}**How to rate it
 
 ${audiences([['Regulators', 'A formal filing', 'The notification counsel has approved', legalLead], [enterprise ? 'Enterprise accounts' : 'Customers', enterprise ? 'A call from the account owner, then a written note' : 'Email', 'What happened, what you are doing, what they should do', acct], ['Media, if needed', 'A short statement', 'The facts only', 'Communications lead']])}`;
     }
-    if (/outage|downtime|\bdown\b/.test(lower)) {
+    if (outage.state === 'affirmed') {
       return `### ${heading('Service outage', name)}
 
-${pb ? `**What it looks like here:** ${outageText}.\n\n` : ''}${severityTable()}
+${pb ? `**Possible impact to verify:** ${outageText}.\n\n` : ''}${severityTable()}
 **First fifteen minutes**
 1. Acknowledge on the status page, or to your customers' service owners: "Investigating reports of a problem with the service of ${N}".
 2. Assemble the incident room: ${kindModel === 'connectivity' ? 'network operations, field engineering and account owners' : kindModel === 'services' ? 'delivery, support and account owners' : 'engineering, support and account owners'}.
 3. Start the diagnosis and name the owner of the fix.
-4. Brief the support and account teams, so they are ready for the volume.${aiCrisis ? '\n5. If the cause is a model or hosting provider, switch to a fallback model or provider if you have one, and tell customers which features are degraded.' : ''}
+4. Brief the support and account teams, so they are ready for the volume.${aiCrisis ? '\n5. If the cause is a model or hosting provider, use a fallback model or provider only after the incident lead confirms it is approved and tested for this workload; tell customers which features are degraded.' : ''}
 ${measureText && !measureShown ? `\n${measureOnce().trim()}\n` : ''}
 ${updateCadence()}
 ${audiences([[enterprise ? 'Technology or service owners at customers' : 'Customers', enterprise ? 'A call from the account owner, then the status page' : 'The status page and an email', 'Which functions are affected, the workaround if there is one, and the time of the next update', acct], ['The customers\' own support teams', 'A note through the channel agreed in advance', 'What their users will see and what to tell them', acct]])}`;

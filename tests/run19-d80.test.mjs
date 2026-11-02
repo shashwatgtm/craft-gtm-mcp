@@ -378,6 +378,8 @@ test("a 3,000 character product text is capped in the heading and the table, and
     else assert.equal(r.text.split(long).length - 1, 1, `${tool}: the full text appears once`);
     // Run 20 round 1: the plan itself grew (sector tasks, a filled messaging matrix), so the bound is three times the text plus 3,000 characters
     // for that content. The text is still printed in full only once (checked above).
-    assert.ok(r.text.length < args[field].length * 3 + 3000, `${tool}: the answer does not repeat the text`);
+    const regionQuestion = '\n\nRegion context: Which region applies: India, Southeast Asia, Middle East, UK, Western Europe or North America? Add it to your description and rerun.';
+    const originalLength = r.text.endsWith(regionQuestion) ? r.text.length - regionQuestion.length : r.text.length;
+    assert.ok(originalLength < args[field].length * 3 + 3000, `${tool}: the answer does not repeat the text`);
   }
 });

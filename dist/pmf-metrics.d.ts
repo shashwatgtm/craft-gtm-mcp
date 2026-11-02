@@ -4,6 +4,7 @@ export interface MetricReading {
     evidence: string[];
     issues: string[];
     retentionIsNet: boolean;
+    retentionBasis?: 'logo' | 'gross_revenue' | 'net_revenue' | 'unspecified';
     churnMonths?: number;
 }
 export declare function readPMFMetrics(raw: string): MetricReading;

@@ -70,6 +70,7 @@ export interface CRAFTAnalysis {
     }>;
 }
 export declare function isAudienceTarget(label: string, text: string): boolean;
+export declare function isCustomerCountGoal(label: string, text: string): boolean;
 export declare function isMarketLine(line: string): boolean;
 export declare function planSegments(content: string): string[];
 export declare function analyzeCRAFTDimensions(content: string): CRAFTAnalysis;

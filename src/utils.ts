@@ -431,7 +431,7 @@ export function formatDate(date: Date): string {
 
 export function addDays(date: Date, days: number): Date {
   const result = new Date(date);
-  result.setDate(result.getDate() + days);
+  result.setUTCDate(result.getUTCDate() + days);
   return result;
 }
 
@@ -495,13 +495,14 @@ const RESULT_GROUPS: Group[] = [
   { label: 'a KPI, metric or goal', patterns: [/\b(kpi|metric|goal|target|objective|outcome|okr|success\s*criteria)\b/gi, /\bwe (?:need|aim for|plan to win) \d+[\d,]*(?: [a-z]+){0,3} (?:customers|deals|meetings|accounts|pilots)\b/gi] },
   { label: 'a target with a number', patterns: [
     /\bwe (?:need|aim for|plan to win) \d+[\d,]*(?: [a-z]+){0,3} (?:customers|deals|meetings|accounts|pilots)\b/gi,
+    /(?<=^\s*(?:customer(?: acquisition)? )?(?:goals?|targets?)\s*:\s*)(?:zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)(?:\s+(?:new|paid|paying|qualified|additional))?\s+(?:customers?|accounts?|clients?)\b/gim,
     /\b(increase|decrease|improve|reduce|achieve|reach|hit)\s+\d+/gi,
     /\d+%?\s*(increase|decrease|improvement|reduction|growth)\b/gi,
     /\b(roi|conversion|retention|churn|nps|csat)\b\s*[:\s]*\d+/gi,
     // Run 20: a goal line that holds a figure ("Goal: a pipeline of $1,500,000, ten deals ...") states a target with a number.
     /(?<=\b(?:goal|target|objective|kpi|okr|metric)s?\b[^\n]{0,80}?)\$\d+(?:,\d{3})*(?:\.\d+)?[kmb]?\b/gi,
     // Host review 29 Oct 2026: a labelled goal or outcome that starts with a count ("Outcome: 20 discovery meetings") is a target with a number.
-    /(?<=^\s*(?:goal|target|objective|outcome|kpi|okr)s?\s*:\s*)\d[\d,]*(?:\.\d+)?%?(?:\s+[A-Za-z-]+){1,2}/gim] },
+    /(?<=^\s*(?:(?:customer(?: acquisition)? )?(?:goal|target)|objective|outcome|kpi|okr)s?\s*:\s*)\d[\d,]*(?:\.\d+)?%?(?:\s+[A-Za-z-]+){1,2}/gim] },
   { label: 'a money target', optional: true, patterns: [/\$[\d,]+\s*(revenue|arr|mrr|pipeline|savings)\b/gi, /\bpipeline of \$\d+(?:,\d{3})*(?:\.\d+)?[kmb]?\b/gi] },
 ];
 const ARTIFACT_GROUPS: Group[] = [
@@ -583,9 +584,15 @@ const AUDIENCE_HEAD = /^\s*(?:[A-Za-z&-]+\s+){0,3}(?:directors?|managers?|leader
 export function isAudienceTarget(label: string, text: string): boolean {
   return /^targets?$/i.test(label.trim()) && AUDIENCE_HEAD.test(text);
 }
+// A quantified customer acquisition target belongs to the seller's plan. A customer
+// description or a buyer's own target remains market context.
+export function isCustomerCountGoal(label: string, text: string): boolean {
+  return /^(?:customer|customer acquisition) (?:targets?|goals?)$/i.test(label.trim())
+    && /\b(?:\d[\d,]*|zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)(?:\s+(?:new|paid|paying|qualified|additional))?\s+(?:customers?|accounts?|clients?)\b/i.test(text);
+}
 export function isMarketLine(line: string): boolean {
   const m = line.match(/^\s*([^:\n]{1,60}):(.*)/);
-  return !!m && (MARKET_LABEL.test(m[1].trim()) || isAudienceTarget(m[1], m[2]));
+  return !!m && !isCustomerCountGoal(m[1], m[2]) && (MARKET_LABEL.test(m[1].trim()) || isAudienceTarget(m[1], m[2]));
 }
 
 // Host review 29 Oct 2026: a plan pasted as one paragraph ("... exercise. Target: ... Outcome: ... Owner: ...") is read in its labelled parts,
@@ -664,6 +671,6 @@ export function analyzeCRAFTDimensions(content: string): CRAFTAnalysis {
  * a piece that holds a digit but none of the metric words the parser knows is returned, so the answer can name it as not scored.
  */
 export function unscoredFigures(metricsText: string): string[] {
-  const known = /\b(mrr|arr|acv|annual contract value|average contract value|churn|nps|cac|ltv|retention|nrr|net revenue retention|activation|referral|growth|dau|mau|trial|expansion)\b/i;
+  const known = /\b(mrr|monthly recurring revenue|arr|annual recurring revenue|acv|annual contract value|average contract value|churn|nps|net promoter score|cac|customer acquisition cost|ltv|lifetime value|retention|nrr|net revenue retention|activation|referral|growth|dau|mau|trial|expansion)\b/i;
   return metricsText.split(/\n|;|,(?!\d{3}(?!\d))/).map((x) => x.trim()).filter((x) => /\d/.test(x) && !known.test(x)).map((x) => escapePiece(x));
 }

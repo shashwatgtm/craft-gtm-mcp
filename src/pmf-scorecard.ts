@@ -1,3 +1,4 @@
+import { suppliedAssessmentDate } from './supplied-date.js';
 import { explainSector } from './verticals.js';
 import { pmfBenchmarkNotice, frictionReading, readSignal } from './text-signals.js';
 import { readPMFMetrics } from './pmf-metrics.js';
@@ -18,7 +19,7 @@ export function generatePMFScorecard(args: {
   const metrics = parseMetrics(args.current_metrics);
   const reading = readPMFMetrics(args.current_metrics);
   if (reading.issues.length) return benchmarkNotice + '# Cannot score these metrics\n\n' + reading.issues.map(x => '- ' + x).join('\n') + '\n\nConfirm the observed figures and their periods before a fit decision.';
-  for (const key of ['churn','nps','ltv','cac','retentionRate','activationRate','ltvCacRatio'] as const) delete metrics[key];
+  for (const key of ['churn','nps','ltv','cac','mrr','arr','acv','retentionRate','activationRate','ltvCacRatio'] as const) delete metrics[key];
   Object.assign(metrics, reading.values);
   metrics.retentionIsNet = reading.retentionIsNet;
   if (metrics.ltv !== undefined && metrics.cac !== undefined && metrics.cac > 0) metrics.ltvCacRatio = metrics.ltv / metrics.cac;
@@ -101,6 +102,7 @@ export function generatePMFScorecard(args: {
     : metrics.churn !== undefined && months && months > 1 ? `Your ${months === 12 ? 'annual' : 'quarterly'} churn remains ${pct(metrics.churn)}%. Monthly equivalent: (1 − (1 − ${pct(metrics.churn)} / 100)^(1/${months})) × 100 = ${monthlyShown}%. This assumes a constant monthly loss rate. The monthly equivalent is compared with the existing monthly example range: healthy up to ${pct(churnRange.medium)}%, excellent up to ${pct(churnRange.low)}%.` : '';
   const npsScore = scoreMetric(metrics.nps, b.nps, true);
   const ltvCacScore = scoreMetric(metrics.ltvCacRatio, b.ltvCac, true, metrics.ltvCacRatio?.toFixed(1), 'x');
+  const retentionLabel = reading.retentionBasis === 'logo' ? 'Logo Retention' : reading.retentionBasis === 'gross_revenue' ? 'Gross Revenue Retention' : metrics.retentionIsNet ? 'Net Revenue Retention' : 'Retention Rate';
   const retentionScore = scoreMetric(metrics.retentionRate, b.retention, true, undefined, '%');
   const activationScore = scoreMetric(metrics.activationRate, b.activation, true, undefined, '%');
   
@@ -246,7 +248,7 @@ export function generatePMFScorecard(args: {
 
 ${productHead.capped ? `**Product (as you wrote it):** ${args.product.trim()}\n\n` : ''}**Market Segment:** ${cap(readableChoice(marketType))}
 **Time in Market:** ${describeChoice(args.time_in_market, maturity)}
-**Analysis Date:** ${new Date().toISOString().split('T')[0]}
+**Analysis Date:** ${suppliedAssessmentDate(args.current_metrics)?.toISOString().slice(0,10) || 'Not supplied; confirm when the metric snapshot was taken.'}
 
 ${ctx.line}
 
@@ -263,7 +265,7 @@ ${pmfAnalysis}
 The score is the average of the dimensions scored below (missing data is left out), each judged against an example benchmark.
 It is a rule score from the figures you supplied, not proof of product-market fit.
 
-**Figures read for the scores:** ${reading.evidence.join('; ')}.
+**Figures read from your metrics:** ${reading.evidence.length ? reading.evidence.join('; ') + '.' : 'No confirmed values were read for the scoring dimensions or revenue reference fields.'}
 
 ---
 
@@ -300,12 +302,14 @@ ${dimensionHeader}
 
 ---
 
-### 4. Revenue Retention
+### 4. ${retentionLabel}
 ${dimensionHeader}
 |--------|-----------|-------|-----------|--------|
-| ${metrics.retentionIsNet ? 'Net Revenue Retention' : 'Retention Rate'} | ${metrics.retentionRate !== undefined ? pct(metrics.retentionRate) + '%' : 'NOT PROVIDED'} | ${retentionScore.score}/10 | healthy from ${b.retention.medium}%, excellent from ${b.retention.high}% | ${retentionScore.label} |
+| ${retentionLabel} | ${metrics.retentionRate !== undefined ? pct(metrics.retentionRate) + '%' : 'NOT PROVIDED'} | ${retentionScore.score}/10 | healthy from ${b.retention.medium}%, excellent from ${b.retention.high}% | ${retentionScore.label} |
 
 **Analysis:** ${retentionScore.analysis}
+
+This comparison uses the selected market's example retention ranges. Confirm a matching cohort, measurement period and ${reading.retentionBasis === 'logo' ? 'logo' : reading.retentionBasis === 'gross_revenue' ? 'gross revenue' : reading.retentionBasis === 'net_revenue' ? 'net revenue' : 'retention'} basis before treating the comparison as decision evidence.
 
 ---
 
