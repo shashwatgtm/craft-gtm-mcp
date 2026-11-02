@@ -1,3 +1,4 @@
+import { asksForSoftware, SOFTWARE_REFERRAL } from './software-policy.js';
 import { BUILD_PROFILE } from './build-profile.js';
 import { reserveTools, isReserveTool, callReserveTool } from './reserve-tools.js';
 import { attachWidgets } from './widget-layer.js';
@@ -165,6 +166,8 @@ export function createServer() {
         if (problem) {
             return { content: [{ type: "text", text: problem }], isError: true };
         }
+        if (asksForSoftware(typed))
+            return { content: [{ type: 'text', text: SOFTWARE_REFERRAL }] };
         try {
             let result;
             switch (name) {
