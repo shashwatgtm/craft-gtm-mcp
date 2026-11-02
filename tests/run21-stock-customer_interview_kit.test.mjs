@@ -57,7 +57,8 @@ test("telecom and vertical SaaS: sites and links, beat plans and distributors co
 
 test("a product with no kind named is told which kinds have questions of their own; a named kind is not", async () => {
   const neutral = await kit("Brightline, tools for operations teams", "vertical_saas", "Head of Operations");
-  assert.match(neutral, /Lines written for one kind of company exist for these kinds: FMCG retail execution\. Say what it sells in the product_context input to get them\./);
+  assert.match(neutral, /Lines written for one kind of company exist for these kinds: FMCG retail execution\. Say what it sells in the product description input to get them\./);
+  assert.doesNotMatch(neutral, /product_context/);
   const named = await kit("field sales automation and distributor management software for consumer brands", "vertical_saas", "National Sales Head");
   assert.doesNotMatch(named, /Lines written for one kind of company exist for/);
 });

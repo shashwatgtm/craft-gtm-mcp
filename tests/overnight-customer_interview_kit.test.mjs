@@ -19,3 +19,22 @@ test('full discovery and validation guides seek counterevidence without coaching
   if(interview_type==='discovery')assert.match(s,/keep the current approach/);
  }
 });
+
+test('equivalent interview hypotheses retain their source and uncertainty',async()=>{
+ const cases=['Workflow support for approvals. We suspect approval delays are the bottleneck based on two interviews, but have no timing study.','Two interviews suggest that approval delays constrain the workflow. No timing study has tested this hypothesis.','Two interviews suggest approvals are prompt and missing source records cause delays. No timing study has been run.'];
+ for(const product_context of cases){
+  const r=await call('customer_interview_kit',{interview_type:'discovery',product_context,target_persona:'Operations head'});
+  const s=r.content.map(c=>c.text||'').join('\n');const lead=s.split('## Optional full interview guide')[0];
+  assert.match(lead,/Hypothesis to test, not a fact:/);assert.doesNotMatch(lead,/No hypothesis supplied/);
+  assert.match(lead,/two interviews|Two interviews/);assert.match(lead,/no timing study|No timing study/);
+ }
+});
+test('missing or denied evidence begins discovery instead of pretending a hypothesis exists',async()=>{
+ for(const args of [{product_context:'Workflow support for approvals.'},{product_context:'The two interviews do not establish approval delays as the bottleneck. No timing study has been run.'},{product_context:'Workflow support for approvals.',key_hypotheses:'No hypothesis supplied'}]){
+  const r=await call('customer_interview_kit',{interview_type:'discovery',target_persona:'Operations head',...args});
+  const s=r.content.map(c=>c.text||'').join('\n');const lead=s.split('## Optional full interview guide')[0];
+  assert.match(lead,/Five questions to discover the current work/);assert.match(lead,/No hypothesis supplied/);
+  assert.doesNotMatch(lead,/Hypothesis to test, not a fact:|does not fit this hypothesis|Supports the hypothesis/);
+  assert.match(lead,/comparable case that went differently/);assert.match(s,/permits recording and how notes may be used/);
+ }
+});

@@ -15,7 +15,7 @@ const ROLE_FOCUS = [
     { re: /\b(cfo|finance|controller|treasur\w*|accounts? (?:payable|receivable)|accounting|audit)\b/i, label: 'finance leader', questions: [
             'Walk me through the last month-end close: which steps took longest, and which were done by hand?',
             'Where do policy breaches or errors in spend, claims or invoices show up first, and who finds them?',
-            'What did your last audit ask for that took days to produce?',
+            'What did your last audit ask for, how long did it take to produce, and which records show that?',
             'Which systems must anything new post into, and who owns that integration?'
         ] },
     { re: /\b(ciso|security|soc\b|risk and compliance|compliance)\b/i, label: 'security role', questions: [
@@ -31,15 +31,15 @@ const ROLE_FOCUS = [
             'What does a change or a migration need from your team, and when are the windows you can use?'
         ] },
     { re: /\b(coo|operations|last-?mile|supply chain|logistics|fleet|dispatch|transport|warehouse|hub)\b/i, label: 'operations leader', questions: [
-            'Walk me through a normal day, and then a bad one: what breaks first when volumes or plans change?',
+            'Walk me through a normal day and a day when volumes or plans changed. What, if anything, became harder or stopped working?',
             'Which numbers do you look at every morning, and who produces them?',
-            'Where does work get done twice, or by hand, because two systems do not agree?',
-            'What would your team have to give up or learn for a new tool to work, and what would they push back on?'
+            'Where, if anywhere, is work repeated or done by hand? What caused that in the last example?',
+            'What would your team need to change or learn to use a new tool, if anything? What would make the change worthwhile or unacceptable?'
         ] },
     { re: /\b(sales|revenue|cro|commercial|distribution|trade marketing|go-to-market)\b/i, label: 'sales and revenue leader', questions: [
             'Walk me through how an order or an opportunity moves from the field or the first call to the system, and where it gets stuck.',
-            'Which numbers do you review weekly, how late are they, and who has to chase them?',
-            'What made your reps or partners drop the last tool you introduced?',
+            'Which numbers do you review weekly, when do they arrive, and how do you check them?',
+            'What happened after the last tool was introduced? Did people keep using it, change how they used it, or stop, and why?',
             'Who else must agree before you change how the team sells?'
         ] },
     { re: /\b(engineer\w*|developer|platform|devops|qa\b|architect|product (?:manager|head|lead)|head of product|vp product)\b/i, label: 'engineering or product leader', questions: [
@@ -398,7 +398,7 @@ ${(() => {
     }
     // Questions in the sector's own language (from the data file), else the generic set
     const sectorQuestions = v || investing
-        ? [...(investing ? INVEST.discovery : v.discovery), `How do ${andList(otherRoles)} take part in this decision, and who has the final say?`]
+        ? [...(investing ? INVEST.discovery : v.discovery), `Who takes part in this decision, and who has the final say? Check whether any of these roles are involved: ${andList(otherRoles)}.`]
         : [
             `How do you currently handle ${generic.terms[0]}?`,
             `What's your process for ${generic.terms[1]}?`,
@@ -432,26 +432,33 @@ ${(() => {
         roleList.splice(0, roleList.length, 'Which exception decisions can you make yourself, and which need another approver?', 'Who should confirm the timestamps and the outcome before we use this example?');
     }
     const incident = /\boutages?\b/i.test(args.key_hypotheses || '') && readSignal(args.key_hypotheses || '', /\boutages?\b/i).state !== 'negated' ? 'outage' : 'incident or task';
-    const statedHypothesis = /\b(?:we think|we suspect|our hypothesis is)\s+([^.!?]+)/i.exec(args.product_context || '')?.[1];
-    const hypothesisFocus = args.key_hypotheses?.trim() || statedHypothesis || 'No hypothesis supplied; first agree what decision this interview should inform';
+    // Keep the whole supplied context and its uncertainty. An interview suggestion
+    // is a hypothesis to test, never an observed or representative finding.
+    const explicitHypothesis = args.key_hypotheses?.trim() || '';
+    const absentHypothesis = /^(?:no (?:hypothesis|hypotheses)(?: supplied| stated| yet)?|none|unknown|not (?:supplied|stated|known)|tbd|n\/a)[.\s]*$/i;
+    const hypothesisCue = /\b(?:(?:we|our team) (?:think|suspect|believe)|(?:our |the )?hypothesis (?:is|that)|(?:interviews?|observations?|feedback|accounts?)\b[^.!?]{0,50}\b(?:suggest|indicate))\b/i;
+    const hypothesisFocus = explicitHypothesis && !absentHypothesis.test(explicitHypothesis)
+        ? explicitHypothesis
+        : hypothesisCue.test(args.product_context) ? args.product_context.trim() : '';
+    const hasHypothesis = !!hypothesisFocus;
     return `# Customer Interview Kit
 
-## Five questions to test the supplied hypothesis
-Hypothesis to test, not a fact: ${q(hypothesisFocus)}.
+## ${hasHypothesis ? 'Five questions to test the supplied hypothesis' : 'Five questions to discover the current work'}
+${hasHypothesis ? `Hypothesis to test, not a fact: ${q(hypothesisFocus)}.` : 'No hypothesis supplied; first agree what decision this interview should inform. The questions below collect observations before proposing an explanation.'}
 1. Walk me through the last ${incident}, if any, from the first signal until it ended. What happened, and what record could we look at?
 2. At each handoff, who sent what to whom, and what happened next?
 3. How did people decide who owned the next action? Describe what you observed, including where ownership was clear.
 4. How did you handle a similar situation before this process or product? What was different, if anything?
-5. Tell me about a case that does not fit this hypothesis. What happened differently, and what would make you reject the hypothesis?
+5. ${hasHypothesis ? 'Tell me about a case that does not fit this hypothesis. What happened differently, and what would make you reject the hypothesis?' : 'Tell me about a comparable case that went differently. Which observations would help explain the difference, and what remains unknown?'}
 
 | Evidence record | Exact quote | Source and date | What it changes |
 | --- | --- | --- | --- |
-| Supports the hypothesis | Not collected | Unknown | Keep the observation separate from the interpretation |
-| Contradicts the hypothesis | Not collected | Unknown | Revise or reject the hypothesis when warranted |
+| ${hasHypothesis ? 'Supports the hypothesis' : 'Observed pattern'} | Not collected | Unknown | Keep the observation separate from the interpretation |
+| ${hasHypothesis ? 'Contradicts the hypothesis' : 'Different experience'} | Not collected | Unknown | ${hasHypothesis ? 'Revise or reject the hypothesis when warranted' : 'Check what differs before choosing an explanation'} |
 | Unresolved | Not collected | Unknown | Name the next observation needed |
 
 ## Optional full interview guide
-Select follow ups only after the five neutral questions. Do not treat the hypothesis as established.
+Select follow ups only after the five neutral questions. ${hasHypothesis ? 'Do not treat the hypothesis as established.' : 'Do not turn an isolated observation into an established explanation.'}
 ## ${typeName.toUpperCase()} Interview
 
 **Target Persona:** ${P || 'not named (name the role to get questions for it)'}
@@ -459,14 +466,15 @@ Select follow ups only after the five neutral questions. Do not treat the hypoth
 **Industry:** ${industryName}
 **Complexity Level:** ${describeChoice(args.product_complexity, complexity)}
 
-${ctx.line}${kindsNote(v, product, 'product_context')}
+${ctx.line}${kindsNote(v, product, 'product description')}
 
 ---
 
 ## Pre-Interview Checklist
 
 - [ ] Reviewed persona's LinkedIn/background${measures.length ? `\n- [ ] Know the measures this person is judged on (${andList(measures.slice(0, 3))}) and use them as the buyer does` : ''}
-- [ ] Tested recording equipment
+- [ ] Agreed whether the participant permits recording and how notes may be used
+- [ ] Tested recording equipment if recording is permitted
 - [ ] Prepared note-taking template
 - [ ] Sent calendar invite with clear agenda
 - [ ] Confirmed interview timing (45-60 min recommended)
