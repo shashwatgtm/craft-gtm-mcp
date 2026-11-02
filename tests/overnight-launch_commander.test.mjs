@@ -46,3 +46,12 @@ test('an undecided launch outcome is a decision to resolve and known sector is n
   assert.match(denied,/Agree the launch outcome and its evidence source/);
  }
 });
+
+
+test('reference customer targets retain the whole counted unit',()=>{
+ for(const unit of ['reference customers','reference clients','reference calls']){
+ const s=generateLaunchCommander({product_feature:'Workflow support',launch_type:'market_expansion',target_segments:'Banks, Insurers',goals:'3 '+unit,industry:'software'});
+ assert.match(s,new RegExp('The target is 3 '+unit+', about 2 in each of 2 segments'));
+ assert.doesNotMatch(s,/The target is 3 reference,/);
+ }
+});

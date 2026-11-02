@@ -445,6 +445,8 @@ function goalNeeds(goals: string[], segs: string[], ctxBuyer: string | null): { 
   for (const g of goals) {
     let reading = statedGoalCount(g);
     if (reading && /^pilots?$/i.test(reading.unit) && /\bpilots?\s+commitments?\b/i.test(g)) reading = {...reading, phrase: `${reading.phrase} commitments`, unit: 'commitments'};
+    const referenceKind = g.match(/\breferences?\s+(customers?|clients?|accounts?|calls?)\b/i);
+    if (reading && /^references?$/i.test(reading.unit) && referenceKind) reading = {...reading, phrase:`${reading.phrase} ${referenceKind[1]}`, unit:referenceKind[1]};
     if (!reading || reading.count < 2) continue;
     const n=reading.count, phrase=reading.phrase;
     const share = Math.ceil(n / Math.max(k, 1));
