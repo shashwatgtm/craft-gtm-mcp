@@ -47,3 +47,19 @@ test('explicit equivalent percentages preserve the same compounding calculation'
   assert.match(s,/30\.6% of customers lost in a year/);assert.match(s,/It reads LOW/);
  }
 });
+
+test('unknown causes receive discovery work and neutral questions, not an invented workflow dispute',()=>{
+ const args={...retentionBase,churn_reasons:'Users do not bypass the tool. The reason for departure is unknown.'};
+ const s=generateRetentionPlaybook(args);
+ assert.match(s,/reconstruct one recent departure/);assert.match(s,/supplied notes do not establish a cause/);
+ assert.doesNotMatch(s,/validate one reported cause|No churn reasons were given|most frustrated|what did they offer that we did not/);
+ assert.match(s,/your own words first/);
+ const r=readingGuide('retention_playbook','Report',args);
+ assert.match(r,/reconstruct one departure/);assert.doesNotMatch(r,/disputed workflow/);
+ const support=readingGuide('retention_playbook','Report',{...args,churn_reasons:'Users consistently used the tool. They left because the supplier withdrew local support.'});
+ assert.match(support,/verify the reported loss of support/);assert.match(support,/whether restoration is feasible/);
+});
+test('a revenue churn percentage is not described as lost customers',()=>{
+ const s=generateRetentionPlaybook({...retentionBase,current_churn_rate:'3% monthly gross revenue churn'});
+ assert.match(s,/30\.6% of revenue lost in a year/);assert.doesNotMatch(s,/30\.6% of customers/);
+});

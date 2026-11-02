@@ -1057,6 +1057,7 @@ export function writeRetentionPlaybook(args: {
   const notes = segmentNotes(segment);
   const smallCustomers = sizeReading(segment, /\b(smb|small|sellers?|merchants?|d2c|startups?|freelanc\w+|individuals?|consumers?|shops?|stores?|retailers?|businesses)\b/i).state === 'affirmed' && sizeReading(segment, /\b(enterprise|large|corporate|institution\w*)\b/i).state !== 'affirmed';
   const volumeModel = choice === 'transactional' || choice === 'usage_based' || choice === 'marketplace' || choice === 'freemium';
+  const lossUnit = hasSignal(args.current_churn_rate, /\b(?:revenue|mrr|arr)\b/i) ? 'revenue' : volumeModel ? 'volume' : 'customers';
   const enterpriseLike = !volumeModel && !smallCustomers;
   // how leaving is worded for this model: "customers who ___" (past) and "you decided to ___" (infinitive)
   const LEAVE: Record<string, [string, string]> = {
@@ -1079,7 +1080,7 @@ export function writeRetentionPlaybook(args: {
   out.push('## First evidence and capacity decisions');
   out.push(`Reported observations: ${reasons.length ? reasons.map(quoted).join('; ') : 'None confirmed in the supplied notes'}.`);
   out.push(`Unestablished causes: ${unresolved.length ? unresolved.map(quoted).join('; ') : 'No additional cause evidence supplied; do not extrapolate observations to other departures'}.`);
-  out.push(trainingObserved ? 'First task: validate the reported training gaps with the interviewed customers. Reconstruct the last dispatcher task, record the failure point and test whether training changes it. Owner and review date: confirm.' : 'First task: validate one reported cause with the affected customer before choosing an intervention. Owner and review date: confirm.');
+  out.push(trainingObserved ? 'First task: validate the reported training gaps with the interviewed customers. Reconstruct the last dispatcher task, record the failure point and test whether training changes it. Owner and review date: confirm.' : reasons.length ? 'First task: validate one reported cause with the affected customer before choosing an intervention. Owner and review date: confirm.' : 'First task: reconstruct one recent departure with the customer and account records; no cause is established yet. Owner and review date: confirm.');
   out.push('Second task: investigate each departure whose cause is unknown; compare interview notes and service history, including evidence that contradicts the reported cause. Keep unknown cases separate. Owner and review date: confirm.');
   out.push(args.cs_team_size ? 'Team size was supplied; confirm hours available before allocating personal, scaled or automated coverage.' : 'Capacity: unknown. Confirm the responsible people and available time before allocating personal, scaled or automated coverage.');
   out.push('## Where you stand');
@@ -1091,7 +1092,7 @@ export function writeRetentionPlaybook(args: {
     stand.push(`You report churn of ${typedRate}${churn.period === 'unstated' ? ', which is read as a monthly rate' : ''}.`);
     if (churn.period === 'year') stand.push(`That is about ${pct(churn.monthly)}% a month, compounded (the monthly rate that, applied each month to the customers still left, adds up to your annual rate).`);
     else if (churn.period === 'quarter') stand.push(`That is about ${pct(churn.monthly)}% a month and about ${pct(churn.annual)}% a year, compounded (each period's loss applies only to the customers still left).`);
-    else stand.push(`If it holds, that is about ${pct(churn.annual)}% of ${volumeModel ? 'volume' : 'customers'} lost in a year, compounded (each month's loss applies only to the ${volumeModel ? 'volume' : 'customers'} still left, so it is lower than the monthly rate times twelve, ${pct(churn.monthly * 12)}%).`);
+    else stand.push(`If it holds, that is about ${pct(churn.annual)}% of ${lossUnit} lost in a year, compounded (each month's loss applies only to the ${lossUnit} still left, so it is lower than the monthly rate times twelve, ${pct(churn.monthly * 12)}%).`);
     stand.push(`It reads ${severity} against the example thresholds of this tool (above 8% a month is critical, above 5% high, above 3% moderate). The thresholds are illustrations, so judge the rate against your own history.`);
   }
   out.push(stand.join(' '));
@@ -1239,7 +1240,7 @@ export function writeRetentionPlaybook(args: {
   if (choice === 'saas_subscription' || choice === 'freemium' || (choice === 'enterprise_contract' && subscription)) {
     const sponsor = sponsorRole;
     out.push('| Touchpoint | When | What happens | Goal |', '|------------|------|--------------|------|',
-      `| Onboarding check | Day 7 | Check that the first users are active${m0 ? `, take a first reading of ${m0}` : ''}, and deliver one quick win | Activate |`, `| First value review | Day 30 | Review ${m0 ? `${m0}${m1 ? ` and ${m1}` : ''}` : 'the success measures'} against the baseline agreed at the start | Confirm value |`,
+      `| Onboarding check | Day 7 | Check that the first users are active${m0 ? `, take a first reading of ${m0}` : ''}, and agree one verifiable first task | Activate |`, `| First value review | Day 30 | Review ${m0 ? `${m0}${m1 ? ` and ${m1}` : ''}` : 'the success measures'} against the baseline agreed at the start | Confirm value |`,
       `| Expansion probe | Day 60 | Look for a second ${ctx.v?.id === 'vertical-saas' ? 'team or site' : 'use case'} | Deepen |`, `| Business review | Day 90 | Review results with ${sponsor} | Renew signal |`,
       `| Pre-renewal | 60 days before renewal | Renewal conversation with ${sponsor}${m0 ? `, with ${m0} before and after` : ''} | Retain |`, '| At risk | When the health score or an alert triggers | A step from the list above | Save |');
     out.push('', 'The days are illustrations: set your own.');
@@ -1323,27 +1324,27 @@ export function writeRetentionPlaybook(args: {
     const stepOf = (r: string): string => unitize(extra.find((x) => x.reason === original(r))?.action ?? STEP_FOR[original(r)] ?? 'Reach out personally to understand the concern and answer it');
     k.push('## What to find out first');
     k.push('');
-    k.push(`No churn reasons were given, so this kit is a short plan to find them: ask the ${cust}s who ${leftPast}, look at your own data for the pattern, then treat the likely reasons below as questions to test, not as findings. Start with the most recent departures and the largest ones.`);
+    k.push(`${unresolved.length ? 'The supplied notes do not establish a cause, so this kit is a short plan to investigate' : 'No churn reasons were given, so this kit is a short plan to find them'}: ask the ${cust}s who ${leftPast}, look at your own data for the pattern, then treat the likely reasons below as questions to test, not as findings. Start with the most recent departures and the largest ones.`);
     k.push('');
     k.push('## Step 1: ask the customers who left');
     k.push('');
     k.push('Send this within a week of the departure. The options are the likely reasons listed further down; they are hypotheses to test, so keep "Other" open.');
     k.push('');
     k.push('```');
-    k.push(`Subject: ${subscription && volumeModel === false ? 'A short question about your decision' : 'A short request: what should we have done differently?'}\n\nHello,\n\nThank you for the time you spent with ${productRef}. To help us improve, would you tell us the main reason you decided to ${leaveInf}?\n\nPlease pick the one that fits best:\n${list.map((r) => `- ${r}`).join('\n')}\n- Other (please say what)\n\nAny further feedback is welcome.\n\nThank you,\n${sign}`);
+    k.push(`Subject: ${subscription && volumeModel === false ? 'A short question about your decision' : 'A short request: what should we have done differently?'}\n\nHello,\n\nThank you for the time you spent with ${productRef}. To help us improve, would you tell us the main reason you decided to ${leaveInf}?\n\nPlease describe the reason in your own words first. If helpful, you can then select any options that fit:\n${list.map((r) => `- ${r}`).join('\n')}\n- Other (please say what)\n\nAny further feedback is welcome.\n\nThank you,\n${sign}`);
     k.push('```');
     k.push('');
     k.push('## Step 2: a short interview for the larger losses');
     k.push('');
-    const metricAsk = ctx.v && ctx.v.metrics.length >= 2 && !caseAI ? `While you used ${productRef}, how did ${ctx.v.metrics[0]} and ${ctx.v.metrics[1]} change for you?` : `While you used ${productRef}, what changed for you, and by how much?`;
+    const metricAsk = ctx.v && ctx.v.metrics.length >= 2 && !caseAI ? `While you used ${productRef}, how did ${ctx.v.metrics[0]} and ${ctx.v.metrics[1]} change for you, if at all? What records support that?` : `While you used ${productRef}, what changed or stayed the same, and what records support that?`;
     const qs = [
       'Thank you for the time. I am trying to understand what we could have done better.',
       `Walk me through how you came to the decision to ${leaveInf}: when did you first start thinking about it?`,
       'What was the final trigger?',
       metricAsk,
       'If you could change one thing about us, what would it be?',
-      'Did you look at alternatives, and what did they offer that we did not?',
-      'Was there a moment when you felt most frustrated with us?',
+      'Which alternatives, if any, did you consider? What tradeoffs mattered, including reasons to stay?',
+      'Which parts of the experience worked well or poorly? Can you describe a specific example?',
       ...(subscription && !volumeModel ? [] : ['Who else took part in the decision, and what did they need to see?']),
       'Is there anything that would bring you back?',
       `What would you tell someone considering ${productShort || 'our service'}?`,
