@@ -1,10 +1,11 @@
+import { suppliedAssessmentDate } from './supplied-date.js';
 import { sizeReading, hasSignal, readSignal, SIGNALS, launchGoalReading, securityIncident, statedGoalCount, launchFollowup } from './text-signals.js';
 // Run 22 (writer cg-w2): the rewritten launch_commander, retention_playbook and crisis_planner.
 // Each tool writes a finished draft from the user's own inputs: every input is used where it matters, in clean sentences, nothing is invented
 // (no figure, customer, date or promise that was not given), and what was not given is named once at the end ("To sharpen this, give: ...").
 // The business model decides the wording (a services firm has no free trial, a connectivity seller has no per seat price).
 // Sector knowledge comes only from the shared data files (src/verticals.ts and src/sector-playbooks.ts); this file adds none.
-import { formatDate, addDays, calculateDaysUntil, readableChoice, pct, roundTypedPercents, EXAMPLE_FIGURE } from './utils.js';
+import { formatDate, addDays, readableChoice, pct, roundTypedPercents, EXAMPLE_FIGURE } from './utils.js';
 import { readContext, q, andList, splitTopLevel, splitPhrases, isOnePhrase, lcFirst, cleanCompanyName, answerFor } from './context.js';
 import { playbookFor, MODEL_LANGUAGE, segmentNotes, segmentKinds, SUBTYPE_PLAYBOOKS } from './sector-playbooks.js';
 import { SUBTYPES, SECTOR_MODEL } from './verticals.js';
@@ -503,19 +504,21 @@ function parseLaunchDate(input) {
     const text = (input ?? '').trim();
     if (!text || text.toLowerCase() === 'tbd')
         return { date: null, exact: false, label: '' };
-    const quarter = text.match(/Q([1-4])\s*(\d{4})/i);
+    const quarter = text.match(/^Q([1-4])\s*(\d{4})$/i);
     if (quarter)
-        return { date: new Date(parseInt(quarter[2]), [0, 3, 6, 9][parseInt(quarter[1]) - 1] + 1, 15), exact: false, label: `Q${quarter[1]} ${quarter[2]}` };
-    const month = text.match(/([A-Za-z]+)\s*(\d{4})/);
+        return { date: new Date(Date.UTC(parseInt(quarter[2]), [0, 3, 6, 9][parseInt(quarter[1]) - 1] + 1, 15)), exact: false, label: `Q${quarter[1]} ${quarter[2]}` };
+    const month = text.match(/^([A-Za-z]+)\s+(\d{4})$/);
     if (month) {
         const names = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
         const i = names.findIndex((m) => month[1].toLowerCase().startsWith(m));
         if (i !== -1)
-            return { date: new Date(parseInt(month[2]), i, 15), exact: false, label: `${month[1]} ${month[2]}` };
+            return { date: new Date(Date.UTC(parseInt(month[2]), i, 15)), exact: false, label: `${month[1]} ${month[2]}` };
     }
-    const d = new Date(text);
-    if (!isNaN(d.getTime()))
-        return { date: d, exact: true, label: formatDate(d) };
+    if (/^\d{4}-\d{2}-\d{2}$/.test(text)) {
+        const d = new Date(text + 'T00:00:00Z');
+        if (Number.isFinite(+d) && formatDate(d) === text)
+            return { date: d, exact: true, label: text };
+    }
     return { date: null, exact: false, label: text };
 }
 const weeksLabel = (days) => {
@@ -532,11 +535,11 @@ export function writeLaunchPlan(args) {
     // the segments are comma separated, as the input says: a semicolon stays inside a segment
     const segs = splitTopLevel(args.target_segments, false).map(upper1);
     const segList = listOf(segs);
-    const goalText = args.goals.split('\n').filter(l => !/^(?:Confirmed capacity|Delivery capacity):/i.test(l.trim())).join('\n');
+    const goalText = args.goals.split('\n').filter(l => !/^(?:Confirmed capacity|Delivery capacity|Assessment date):/i.test(l.trim())).join('\n');
     const goals = splitPhrases(goalText).length ? splitPhrases(goalText) : [goalText.trim()];
     const capacityClause = args.goals.split(/[;\n]/).find(l => /^(?:Confirmed capacity|Delivery capacity):\s*\d+\s*tasks?\s*(?:per day|\/day)\s*$/i.test(l.trim()));
     const taskCapacity = capacityClause ? Number(capacityClause.match(/:\s*(\d+)/)?.[1]) : 0;
-    const assessed = new Date(new Date().toISOString().slice(0, 10) + 'T00:00:00Z');
+    const assessed = suppliedAssessmentDate(args.goals);
     let remainingIndex = 0;
     const ctx = readContext({ model: args.business_model, vertical: args.industry, sector: args.your_sector }, { seller: [args.product_feature], context: [args.goals], buyer: [args.target_segments] });
     const pb = ctx.v ? playbookFor(ctx.v) : null;
@@ -638,8 +641,9 @@ export function writeLaunchPlan(args) {
         { task: 'Prepare sales answers to the usual objections', detail: `Prepare answers to ${andList(ctx.v.objections.slice(0, 3).map((o) => q(stripEnd(o.objection).replace(/[?]$/, ''))))}, using the responses under Risks and how to meet them`, phase: 2, owner: 'sales' },
     ] : [];
     const dated = when.date !== null && when.exact;
-    const reference = when.date ?? new Date();
-    const days = when.date ? calculateDaysUntil(when.date.toISOString()) : null;
+    // The anchor for relative weeks is internal and is never printed.
+    const reference = when.date ?? new Date('2000-01-01T00:00:00Z');
+    const days = when.date && assessed ? Math.ceil((+when.date - +assessed) / 86400000) : null;
     // ---- header and brief ----
     const out = [];
     out.push(`# Launch plan${prod.name ? `: ${prod.name}` : ''}`);
@@ -659,6 +663,8 @@ export function writeLaunchPlan(args) {
         else
             briefParts.push(`${when.label} is about ${days} days away, counted to an assumed date in the middle of the period ${EXAMPLE_FIGURE}; the schedule below therefore counts in weeks before launch.`);
     }
+    else if (dated)
+        briefParts.push(`The launch date is ${when.label}. No confirmed assessment date was supplied, so overdue status is unknown.`);
     else
         briefParts.push('No fixed launch date is set, so the schedule below counts in weeks before launch.');
     if (pb && ctx.v)
@@ -817,7 +823,7 @@ export function writeLaunchPlan(args) {
     // ---- timeline ----
     if (dated || taskCapacity > 0) {
         out.push('## Confirm remaining delivery capacity');
-        out.push(dated ? `Assessment date: ${assessed.toISOString().slice(0, 10)}. Launch date stays ${when.label} unless you explicitly change it.` : 'Confirm a launch date; relative weeks are a reference only.');
+        out.push(assessed ? `Assessment date: ${assessed.toISOString().slice(0, 10)}. ${dated ? `Launch date stays ${when.label} unless you explicitly change it.` : 'Confirm a launch date; relative weeks are a reference only.'}` : 'Assessment date not supplied or not confirmed. Add an Assessment date line in the goal notes to assess overdue work or date the remaining work.');
         out.push(taskCapacity > 0 ? `Confirmed delivery capacity: ${taskCapacity} tasks per day. The remaining dates below are conditional on confirming which tasks are still open; confirm estimates and dependencies before committing.` : 'Capacity unknown. Confirm completed tasks, owners and available tasks per day. The reference schedule does not establish feasibility.');
     }
     else
@@ -829,7 +835,7 @@ export function writeLaunchPlan(args) {
     for (const [pi, phase] of phases.entries()) {
         const start = addDays(reference, phase.startOffset);
         const end = addDays(reference, phase.endOffset);
-        const current = dated && new Date() >= start && new Date() <= end;
+        const current = dated && assessed && assessed >= start && assessed <= end;
         const base = phase.tasks.map(adaptTask).filter(keepTask).map((title) => ({ title, detail: (DETAIL[title.toLowerCase()] ?? (() => GENERIC_DETAIL(phase.focus)))(c), owner: ownerKind(title) }));
         const extra = sectorTasks.filter((t) => Math.min(t.phase, phases.length - 1) === pi).map((t) => ({ title: t.task, detail: t.detail, owner: t.owner }));
         const rows = [...base, ...extra].filter(row => keepTask(row.title + ' ' + row.detail));
@@ -840,8 +846,8 @@ export function writeLaunchPlan(args) {
             const offset = phase.startOffset + Math.floor((i / rows.length) * (phase.endOffset - phase.startOffset));
             const dueDate = addDays(reference, offset);
             const due = dated ? formatDate(dueDate) : weeksLabel(offset);
-            const elapsed = dated && dueDate < assessed;
-            const proposed = taskCapacity > 0 ? addDays(assessed, Math.floor(remainingIndex++ / taskCapacity)) : null;
+            const elapsed = dated && assessed && dueDate < assessed;
+            const proposed = taskCapacity > 0 && assessed ? addDays(assessed, Math.floor(remainingIndex++ / taskCapacity)) : null;
             const capacityStatus = proposed ? ` If still open, proposed remaining date: ${formatDate(proposed)}.${dated && offset <= 0 && proposed > reference ? ' Capacity conflict: this falls after the fixed launch date; reduce scope or confirm more capacity.' : ''}` : '';
             const status = !dated ? '' : elapsed ? ' Overdue if unfinished; completion unknown' : ' Completion unknown';
             out.push(`- **${stripEnd(row.title)}** (${ownerOf(row.owner)}, ${dated ? 'due ' : ''}${due})${row.detail ? `: ${stripEnd(row.detail)}.` : '.'}${status}${capacityStatus}`);

@@ -1,3 +1,4 @@
+import { suppliedAssessmentDate } from './supplied-date.js';
 import { explainSector } from './verticals.js';
 import { pmfBenchmarkNotice, frictionReading, readSignal } from './text-signals.js';
 import { readPMFMetrics } from './pmf-metrics.js';
@@ -246,7 +247,7 @@ export function generatePMFScorecard(args: {
 
 ${productHead.capped ? `**Product (as you wrote it):** ${args.product.trim()}\n\n` : ''}**Market Segment:** ${cap(readableChoice(marketType))}
 **Time in Market:** ${describeChoice(args.time_in_market, maturity)}
-**Analysis Date:** ${new Date().toISOString().split('T')[0]}
+**Analysis Date:** ${suppliedAssessmentDate(args.current_metrics)?.toISOString().slice(0,10) || 'Not supplied; confirm when the metric snapshot was taken.'}
 
 ${ctx.line}
 
