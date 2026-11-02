@@ -195,7 +195,7 @@ export function generateCompetitiveIntel(args) {
         const out = [];
         let tail = false; // inside a description whose own comma list ("with fragmented teams, tools and data") is being joined back
         const namedAlternatives = args.competitors.split(/;|\n/).map(x => x.trim()).filter(Boolean);
-        const clearList = namedAlternatives.length > 1 && namedAlternatives.every(x => /^[A-Z][\w-]+(?:\s+[A-Z][\w-]+)*$/.test(x) || /^(?:an? |the )?(?:incumbent|internal|in.house|manual|legacy|current|managed provider)\b/i.test(x)) && !namedAlternatives.some(x => /\b(?:with|that|which)\b/.test(x));
+        const clearList = namedAlternatives.length > 1 && namedAlternatives.every(x => /^[A-Z][\w-]+(?:\s+[A-Z][\w-]+)*$/.test(x) || /^(?:an? |the )?(?:incumbent|existing|spreadsheets?|internal|in.house|manual|legacy|current|managed provider)\b/i.test(x)) && !namedAlternatives.some(x => /\b(?:with|that|which)\b/.test(x));
         const rawPieces = clearList ? namedAlternatives : splitTopLevel(args.competitors, false);
         // Run 42B (addendum 9): one typed phrase is one alternative. A single line (no semicolon or new line) whose first piece is a long description in lower case
         // ("the current way of handling X is hard across product, design, engineering ...") or that reads "<word>, <word> and <word> in one place" is not a list of competitors.

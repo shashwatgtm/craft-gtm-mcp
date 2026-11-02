@@ -1,3 +1,4 @@
+import { case_competitive_intel } from './reader-competitive-intel.js';
 import { case_crisis_planner } from './reader-crisis-planner.js';
 import { case_craft_gtm_analyzer } from './reader-craft-gtm-analyzer.js';
 import { renderCase } from './reader-case.js';
@@ -85,6 +86,8 @@ export function readingGuide(name, result, args = {}) {
         return renderCase(case_craft_gtm_analyzer(args), held);
     if (name === 'crisis_planner')
         return renderCase(case_crisis_planner(args), held);
+    if (name === 'competitive_intel')
+        return renderCase(case_competitive_intel(args), held);
     const status = held ? ' Keep the stated hold in place; this guidance does not override it.' : '';
     let roles = kind === 'publish' ? [
         `Founder: check the central claim against the supplied evidence before endorsing ${decision}.`,
