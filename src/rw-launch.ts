@@ -776,22 +776,22 @@ export function writeLaunchPlan(args: {
 
   // ---- what was not given ----
   const missing: Array<[string, string]> = [];
-  if (!when.date) missing.push(['a launch date (YYYY-MM-DD)', 'the schedule, which would then show calendar dates instead of weeks before launch']);
+  if (!when.date) missing.push(['a launch date (YYYY-MM-DD)', 'calendar dates instead of relative weeks']);
   else if (!when.exact) missing.push(['an exact launch date (YYYY-MM-DD)', `the schedule, which now counts in weeks before launch because only ${when.label} was given`]);
   if (!args.industry && !ctx.v) missing.push(['your industry', 'the buyer roles, proof, objections and channels, which now come from your segments only']);
-  else if (!args.industry && ctx.v) missing.push(['your industry, to confirm the sector reading', 'the buyer roles, proof, objections and channels if the read is wrong']);
-  if (!args.business_model) missing.push(['your business model and how you charge', `the launch tasks and words, which now ${model ? `follow ${MODEL_WORDS[model]} as read from your text` : 'use neutral B2B wording, because no business model could be read from your text'}`]);
-  if (!buyer) missing.push(['the buyer who approves this launch', 'the buyer briefing and message']);
-  if (!channelsGiven.length) missing.push(['available channels', 'which tasks stay in the plan and where the messages go']);
+  else if (!args.industry && ctx.v) missing.push(['your industry', 'buyer roles, proof and channels']);
+  if (!args.business_model) missing.push(['your charging model', 'delivery and adoption tasks']);
+  if (!buyer) missing.push(['the buyer approver', 'the buyer briefing']);
+  if (!channelsGiven.length) missing.push(['available channels', 'tasks and destinations']);
   if (!args.team_size) missing.push(['team size; currently assumed small (2 to 5)', 'who owns each task']);
-  if (!args.budget_level) missing.push(['budget level; currently assumed moderate', 'the tactics in Channels and budget']);
+  if (!args.budget_level) missing.push(['budget level; currently assumed moderate', 'channel tactics']);
   // a product described in some detail is not asked for again; a bare name or a short phrase is
   const kinds = kindsWithLines(ctx, ['pains', 'cta', 'launchTasks', 'channels', 'adoption', 'checklist']);
   if (kinds.length && prod.desc.split(/\s+/).filter(Boolean).length < 8) missing.push([`what ${prod.name ?? 'the solution'} sells`, 'the pilot, integration and adoption tasks, which now fit any company in the sector']);
   if (needs.deals) missing.push(['your win rate from buying conversation to signed deal', 'the number of conversations to book, which is now the number of deals as a minimum']);
   const kindsOfGoals = new Set(goals.map(kindOf));
-  if (!kindsOfGoals.has('Adoption') && !kindsOfGoals.has('Revenue')) missing.push(['a target for pipeline or adoption in the goals', 'the Follow-up phase, which has no adoption target to track']);
-  missing.push(['a result you already hold from a customer in these segments, with its source and date', 'the proof line, which now describes the kind of proof to collect']);
+  if (!kindsOfGoals.has('Adoption') && !kindsOfGoals.has('Revenue')) missing.push(['a pipeline or adoption target', 'follow up tracking']);
+  missing.push(['a sourced, dated customer result in these segments', 'the proof to use']);
   out.push(sharpenBlock(missing));
   return dropRepeatedLines(out.join('\n')).replace(/\n{3,}/g, '\n\n').trimEnd() + '\n';
 }
