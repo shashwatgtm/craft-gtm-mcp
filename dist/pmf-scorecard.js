@@ -9,6 +9,7 @@ export function generatePMFScorecard(args) {
     const benchmarkNotice = pmfBenchmarkNotice(args, text => { const r = explainSector({ seller: [text] }); return { id: r.vertical?.id, name: r.vertical?.name, source: r.source }; });
     const metrics = parseMetrics(args.current_metrics);
     const reading = readPMFMetrics(args.current_metrics);
+    const scoringEvidence = reading.evidence.filter(line => !/^(?:mrr|monthly recurring revenue|arr|annual recurring revenue|acv|annual contract value|average contract value):/i.test(line));
     if (reading.issues.length)
         return benchmarkNotice + '# Cannot score these metrics\n\n' + reading.issues.map(x => '- ' + x).join('\n') + '\n\nConfirm the observed figures and their periods before a fit decision.';
     for (const key of ['churn', 'nps', 'ltv', 'cac', 'mrr', 'arr', 'acv', 'retentionRate', 'activationRate', 'ltvCacRatio'])
@@ -268,7 +269,7 @@ ${pmfAnalysis}
 The score is the average of the dimensions scored below (missing data is left out), each judged against an example benchmark.
 It is a rule score from the figures you supplied, not proof of product-market fit.
 
-**Figures read from your metrics:** ${reading.evidence.length ? reading.evidence.join('; ') + '.' : 'No confirmed values were read for the scoring dimensions or revenue reference fields.'}
+**Figures read for the scores:** ${scoringEvidence.length ? scoringEvidence.join('; ') + '.' : 'No confirmed values were read for the scoring dimensions.'}
 
 ---
 
