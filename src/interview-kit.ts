@@ -400,7 +400,7 @@ ${(() => { let inObjections = false; return hypotheses.map((raw, i) => {
         `How do ${generic.stakeholders[0]} and ${generic.stakeholders[1]} collaborate on this?`,
         `What ${generic.terms[2]} challenges have you faced?`
       ];
-  const opener = measures.length
+  let opener = measures.length
     ? `How do you measure ${measures[0]} today, and how much does it vary?`
     : `How much of a challenge is ${generic.painPoints[0]} for you?`;
 
@@ -417,6 +417,28 @@ ${(() => { let inObjections = false; return hypotheses.map((raw, i) => {
     ? [focus.questions[0].replace('Which parts of your estate cause the most calls to your team: sites, links, applications or vendors?', 'Which of your systems or vendors cause the most calls to your team, and what is behind them?'), ...focus.questions.slice(1)]
     : focus ? focus.questions : [];
   const roleList = focus ? fresh(roleQs) : [];
+  // A stated approval hypothesis is narrower than the broad billing sector playbook.
+  if (/\binvoic\w*\b/i.test(topicText) && /\bexception\w*\b/i.test(topicText) && /\bapprov\w*\b/i.test(topicText)) {
+    opener = 'Walk me through the last invoice exception from discovery to its final decision. Where did it wait?';
+    coreList.splice(0, coreList.length,
+      'What made that invoice an exception, and who first noticed it?',
+      'Who received it next, and what information did they need to decide?',
+      'Which step took the longest, based on the timestamps or notes?',
+      'Tell me about a similar exception that moved quickly. What was different?',
+      'What happened to the payment when the exception remained unresolved?');
+    techList.splice(0, techList.length,
+      'Which record shows when the exception arrived, changed owner and was resolved?',
+      'Who can approve it, who can delegate approval, and where is that authority recorded?',
+      'What information was missing when the reviewer sent it back?');
+    sectorList.splice(0, sectorList.length,
+      'Compare this exception with an ordinary invoice in the same payment run. Where did the paths diverge?',
+      'Which observation would show that approval is not the bottleneck?',
+      'What could you verify in the next batch before changing the approval process?');
+    roleList.splice(0, roleList.length,
+      'Which exception decisions can you make yourself, and which need another approver?',
+      'Who should confirm the timestamps and the outcome before we use this example?');
+  }
+
 
   const incident = /\boutages?\b/i.test(args.key_hypotheses || '') && readSignal(args.key_hypotheses || '', /\boutages?\b/i).state !== 'negated' ? 'outage' : 'incident or task';
   const statedHypothesis = /\b(?:we think|we suspect|our hypothesis is)\s+([^.!?]+)/i.exec(args.product_context || '')?.[1];
