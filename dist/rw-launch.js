@@ -1666,7 +1666,7 @@ ${audiences([['Client service owner', 'A call from the account owner', 'What hap
 `;
     // overlapping playbooks are merged: a sector outage takes the generic severity levels and updates, a delivery failure takes the SLA recovery, a wrong model output takes the correction steps
     const absorbs = [
-        { own: /outage|message_delivery|payment_failure/, generic: /outage|downtime|\bdown\b/, add: () => `${severityTable()}${aiCrisis ? `\nIf the cause is a model or hosting provider, switch to a fallback model or provider if you have one, and tell customers which features are degraded.\n` : ''}\n${updateCadence()}` },
+        { own: /outage|message_delivery|payment_failure/, generic: /outage|downtime|\bdown\b/, add: () => `${severityTable()}${aiCrisis ? `\nIf the cause is a model or hosting provider, use a fallback model or provider only after the incident lead confirms it is approved and tested for this workload; tell customers which features are degraded.\n` : ''}\n${updateCadence()}` },
         { own: /delivery_failure/, generic: /\bsla\b|sla_|service[ _]level/, add: slaRecovery },
         { own: /model_error/, generic: /ai_wrong|wrong[ _]action|ai[ _]error|hallucinat/, add: () => `${aiFirst()}\n${aiCorrection()}` },
     ];
@@ -1698,13 +1698,21 @@ ${audiences([['Client service owner', 'A call from the account owner', 'What hap
         const lower = crisis.toLowerCase();
         const name = spaced(crisis);
         const exposure = exposureState(crisis);
-        if (exposure === 'negated' && !hasSignal(unescapeMd(crisis).replace(/_/g, ' '), /\b(?:outage|downtime|service failure|sla breach|security vulnerability|fraud|regulatory action)\b/i))
-            return `### Not treated as a confirmed incident: ${name}\n\nYour note denies data exposure. No exposure response or notification duty is inferred from it. Confirm any separate incident before selecting its playbook.\n`;
+        const incidentText = unescapeMd(crisis).replace(/_/g, ' ');
+        const outage = readSignal(incidentText.replace(/\bbecause\b/gi, '.'), /\b(?:outage|downtime|service failure|service (?:is |remains )?unavailable|service unavailability|service (?:is |remains )?down)\b/i);
+        const recovered = readSignal(incidentText, /\b(?:service (?:has been |is )?restored|outage (?:has been |is )?resolved)\b/i).state === 'affirmed';
+        if (recovered && exposure !== 'affirmed' && securityIncident(crisis).state !== 'affirmed')
+            return `### Recovery verification: ${name}
+
+Your note reports restored service. Ask the incident lead and affected customer owners to verify the critical workflow, record the recovery time and check the backlog before closing the incident. Monitor for recurrence and retain a named escalation owner. Publish only the recovery scope confirmed by those checks. A restoration statement does not establish whether data was exposed.
+`;
+        if (exposure === 'negated' && outage.state !== 'affirmed' && !hasSignal(incidentText, /\b(?:sla breach|security vulnerability|fraud|regulatory action)\b/i))
+            return `### Not treated as a confirmed incident: ${name}\n\nYour note does not establish data exposure. No exposure response or notification duty is inferred from it. Confirm any separate incident before selecting its playbook.\n`;
         if (securityIncident(crisis).state === 'unclear')
             return `### Incident needs clarification: ${name}\n\nThe security fact is not clear. Confirm what occurred and preserve the evidence before choosing an incident playbook.\n`;
         const t = stems(crisis);
         // a crisis of the sector's own (by its key, or by its words when the text names no known kind of crisis), used once
-        const knownKind = securityIncident(crisis).state === 'affirmed' || /vulnerab|data[ _]exposure|customer_data|\bsla\b|sla_|service[ _]level|regulat|fraud|ai_wrong|wrong[ _]action|ai[ _]error|hallucinat|breach|security|hack|exposure|outage|downtime|\bdown\b|(^|[^a-z])pr([^a-z]|$)|reputation|media|social|executive|departure|fired|resign|competitor|attack|market/.test(lower);
+        const knownKind = outage.state === 'affirmed' || securityIncident(crisis).state === 'affirmed' || /vulnerab|data[ _]exposure|customer_data|\bsla\b|sla_|service[ _]level|regulat|fraud|ai_wrong|wrong[ _]action|ai[ _]error|hallucinat|breach|security|hack|exposure|outage|downtime|\bdown\b|(^|[^a-z])pr([^a-z]|$)|reputation|media|social|executive|departure|fired|resign|competitor|attack|market/.test(lower);
         const byKey = pb ? pb.crises.find((c) => (lower.includes(c.key) || lower.includes(c.key.replace(/_/g, ' '))) && (!/exposure|customer_data/.test(c.key) || exposure === 'affirmed')) : undefined;
         const byWords = pb && !knownKind && t.length > 0 ? pb.crises.find((c) => t.some((st) => stems(`${c.title} ${c.what}`).includes(st))) : undefined;
         const found = byKey ?? byWords;
@@ -1829,15 +1837,15 @@ ${pb ? `**What could be exposed here:** ${pb.breach}.\n\n` : ''}**How to rate it
 
 ${audiences([['Regulators', 'A formal filing', 'The notification counsel has approved', legalLead], [enterprise ? 'Enterprise accounts' : 'Customers', enterprise ? 'A call from the account owner, then a written note' : 'Email', 'What happened, what you are doing, what they should do', acct], ['Media, if needed', 'A short statement', 'The facts only', 'Communications lead']])}`;
         }
-        if (/outage|downtime|\bdown\b/.test(lower)) {
+        if (outage.state === 'affirmed') {
             return `### ${heading('Service outage', name)}
 
-${pb ? `**What it looks like here:** ${outageText}.\n\n` : ''}${severityTable()}
+${pb ? `**Possible impact to verify:** ${outageText}.\n\n` : ''}${severityTable()}
 **First fifteen minutes**
 1. Acknowledge on the status page, or to your customers' service owners: "Investigating reports of a problem with the service of ${N}".
 2. Assemble the incident room: ${kindModel === 'connectivity' ? 'network operations, field engineering and account owners' : kindModel === 'services' ? 'delivery, support and account owners' : 'engineering, support and account owners'}.
 3. Start the diagnosis and name the owner of the fix.
-4. Brief the support and account teams, so they are ready for the volume.${aiCrisis ? '\n5. If the cause is a model or hosting provider, switch to a fallback model or provider if you have one, and tell customers which features are degraded.' : ''}
+4. Brief the support and account teams, so they are ready for the volume.${aiCrisis ? '\n5. If the cause is a model or hosting provider, use a fallback model or provider only after the incident lead confirms it is approved and tested for this workload; tell customers which features are degraded.' : ''}
 ${measureText && !measureShown ? `\n${measureOnce().trim()}\n` : ''}
 ${updateCadence()}
 ${audiences([[enterprise ? 'Technology or service owners at customers' : 'Customers', enterprise ? 'A call from the account owner, then the status page' : 'The status page and an email', 'Which functions are affected, the workaround if there is one, and the time of the next update', acct], ['The customers\' own support teams', 'A note through the channel agreed in advance', 'What their users will see and what to tell them', acct]])}`;
