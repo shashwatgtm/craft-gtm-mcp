@@ -28,6 +28,7 @@ export function generateCRAFTAnalyzer(args: {
   const labelled = parts.map((l) => { const m = l.match(/^\s*([A-Za-z][A-Za-z /&'-]{1,40}):\s*(.+)$/); return m ? { label: m[1].trim(), text: m[2].trim() } : null; }).filter((x): x is { label: string; text: string } => !!x);
   const planAudience = labelled.find((x) => /^(?:target )?audience$|^icp$|^segments?$/i.test(x.label) || isAudienceTarget(x.label, x.text));
   const planGoal = labelled.find((x) => (/^(?:goals?|objectives?|targets?|outcomes?|success(?: criteria| metrics?)?)$/i.test(x.label) || isCustomerCountGoal(x.label, x.text)) && !isAudienceTarget(x.label, x.text));
+  const planGoalSummary = planGoal?.text.split(/(?<=[.!?])\s+(?=[A-Z])/)[0];
   // The plan is read in its parts when it is labelled (Message and How we differ are the seller's words; Buyer roles are job titles; Audience is the buyer);
   // a plan with no such lines is read whole, as deal text. Its Goal line is not read: it often lists the segments, which are the buyer's sector, not yours.
   const byLabel = (re: RegExp): string[] => labelled.filter((x) => re.test(x.label)).map((x) => x.text);
@@ -66,12 +67,12 @@ export function generateCRAFTAnalyzer(args: {
   const ownText = parts.filter((l) => !isMarketLine(l)).join('\n');
   const buyerLine = labelled.find((x) => /^buyer(?:s| roles?)?$/i.test(x.label));
   const matters: Array<{ title: string; detail: string }> = [];
-  if (analysis.character.found.length === 0) matters.push({ title: 'Nobody on your side is named to run the plan', detail: `${buyerLine ? `The line ${qc(`${buyerLine.label}: ${buyerLine.text}`, 140)} names the customer's roles, which are not owners. ` : ''}Name who owns ${planGoal ? qc(planGoal.text, 110) : 'the goal'} and who does each piece of the work.` });
+  if (analysis.character.found.length === 0) matters.push({ title: 'Nobody on your side is named to run the plan', detail: `${buyerLine ? `The line ${qc(`${buyerLine.label}: ${buyerLine.text}`, 140)} names the customer's roles, which are not owners. ` : ''}Name who owns ${planGoal ? qc(planGoalSummary || planGoal.text, 110) : 'the goal'} and who does each piece of the work.` });
   if (!/\b(email|e-mail|linkedin|outbound|inbound|webinars?|events?|conferences?|roundtables?|partners?|referrals?|paid|ads|seo|abm|account-based|sdrs?|cold|calls?|social|community|press|field|direct|content|newsletter)\b/i.test(ownText)) matters.push({ title: 'No channel is named', detail: 'Say where the first conversations come from (outbound, events, partners, referrals, paid, content), and who is reached first.' });
   const hasNumberGoal = planGoal && /\d/.test(planGoal.text);
   if (hasNumberGoal && !/\b(meetings?|demos?|opportunit\w*|mqls?|sqls?)\b/i.test(planGoal!.text) && !/\b(win rate|close rate|conversion|meetings?|opportunit\w*|funnel|demos?|mqls?|sqls?|stage)\b/i.test(ownText.replace(planGoal!.text, ''))) matters.push({ title: 'The goal is not traced to activity', detail: `${qc(planGoal!.text, 150)} is a result, but no win rate, meeting count or stage conversion is stated, so it cannot be traced back to the work that would produce it. Work backwards from the goal: deals needed, opportunities needed, meetings needed.` });
   if (analysis.timeline.groupsFound.some(g => ['a review cadence','a month horizon'].includes(g)) && !analysis.timeline.groupsFound.includes('a date')) matters.push({ title: 'Dated milestone needed', detail: 'The plan includes a review cadence or month horizon. Agree one dated milestone and its accountable owner; the cadence does not establish that deadline.' });
-  if (analysis.timeline.found.length === 0) matters.push({ title: 'No dates', detail: `${/\bnext quarter\b/i.test(ownText) ? 'The plan says "next quarter" but gives no date or duration' : analysis.timelineWords.length ? `Only the words ${andList(analysis.timelineWords.slice(0, 3).map((w) => q(w)))} appear` : 'No period or date appears'}.${planGoal ? ` The goal ${qc(planGoal.text, 110)} has no end date: say by when it must be won, and put a date on the first meeting, the pilot or first delivery, and the review.` : ' Put a date on the first meeting, the pilot or first delivery, and the review.'}` });
+  if (analysis.timeline.found.length === 0) matters.push({ title: 'No dates', detail: `${/\bnext quarter\b/i.test(ownText) ? 'The plan says "next quarter" but gives no date or duration' : analysis.timelineWords.length ? `Only the words ${andList(analysis.timelineWords.slice(0, 3).map((w) => q(w)))} appear` : 'No period or date appears'}.${planGoal ? ` The goal ${qc(planGoalSummary || planGoal.text, 110)} has no end date: say by when it must be won, and put a date on the first meeting, the pilot or first delivery, and the review.` : ' Put a date on the first meeting, the pilot or first delivery, and the review.'}` });
   if (!analysis.frame.groupsFound.includes('a budget or resources')) matters.push({ title: 'No budget or headcount', detail: 'State what money and people the plan has, so the goal can be checked against what it costs.' });
   if (!/\b(weekly|monthly|fortnightly|review|check-?in|cadence|stand-?up|steering)\b/i.test(ownText)) matters.push({ title: 'No review rhythm', detail: 'Say when the plan is reviewed and by whom, and which number is looked at first.' });
   if (analysis.artifact.found.length === 0) matters.push({ title: 'No deliverables', detail: 'List what gets made (deck, one-pager, email sequence, event, case study) and who makes it.' });
@@ -165,7 +166,7 @@ ${verdict} The scores come from a keyword check of the lines that describe your 
   const countLines = countGroups.map(([title, test]) => { const xs = stated.filter((x) => test(x.counts)); return xs.length ? `${title}: ${andList(xs.map((x) => q(x.label)))}.` : ''; }).filter(Boolean);
 
   // ---- what to fix first: the gaps that matter, each once, ordered by the lowest dimension score ----
-  const dimOfMatter: Record<string, keyof typeof analysis> = { 'Nobody on your side is named to run the plan': 'character', 'No channel is named': 'frame', 'The goal is not traced to activity': 'result', 'No dates': 'timeline', 'No budget or headcount': 'frame', 'No review rhythm': 'timeline', 'No deliverables': 'artifact' };
+  const dimOfMatter: Record<string, keyof typeof analysis> = { 'Nobody on your side is named to run the plan': 'character', 'No channel is named': 'frame', 'The goal is not traced to activity': 'result', 'No dates': 'timeline', 'Dated milestone needed': 'timeline', 'No budget or headcount': 'frame', 'No review rhythm': 'timeline', 'No deliverables': 'artifact' };
   type Fix = { title: string; detail: string; score: number; dim: string };
   const fixes: Fix[] = matters.map((m) => ({ title: m.title, detail: m.detail, score: (analysis[dimOfMatter[m.title] ?? 'frame'] as CRAFTDimension).score, dim: DIM_NAME[dimOfMatter[m.title] ?? 'frame'] }));
   if (analysis.result.found.length === 0) fixes.push({ title: 'No measurable result', detail: 'State one goal with a number and a date, such as a count of meetings, a pipeline value or a number of deals.', score: analysis.result.score, dim: 'Result' });
@@ -228,11 +229,12 @@ ${verdict} The scores come from a keyword check of the lines that describe your 
 
   // ---- the sector check ----
   const planLower = content.toLowerCase();
+  const roleClauses = content.split(/\n|(?<=[.!?;])\s+(?=[A-Z])/);
   const roleNamed = (role: string): boolean => {
     const acronym = /^Chief .* Officer$/.test(role) ? role.split(' ').filter((w) => /^[A-Z]/.test(w) && w !== 'Officer').map((w) => w[0]).join('') + 'O' : '';
     // the same words in another order count ("IT Infrastructure Head" names the "Head of IT Infrastructure"), all in one line of the plan
     const roleWords = role.toLowerCase().split(/\s+/).filter((w) => !['of', 'and', 'the'].includes(w));
-    const sameWords = content.split('\n').some((line) => { const l = line.toLowerCase(); return roleWords.every((w) => new RegExp(`\\b${w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`).test(l)); });
+    const sameWords = roleClauses.some((line) => { const l = line.toLowerCase(); return roleWords.every((w) => new RegExp(`\\b${w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`).test(l)); });
     // plain titles that name the same decider (GM-IT and the IT head are the CIO's side; a platform leader is the platform engineering lead; IT / Security is the security lead)
     const ALIASES: Array<[RegExp, RegExp]> = [
       [/information officer|head of it|network manager|cio\b|cto\b|chief technology/i, /\b(gm[- ]it|it head|head of it|cio|cto|it manager|it director|it infrastructure|it \/ security|it and security)\b/i],
@@ -259,7 +261,7 @@ ${verdict} The scores come from a keyword check of the lines that describe your 
   }
   // "The plan names X" is only said when the plan's text holds X: a measure by its words (or its words without a tail such as "per site"), a role by its
   // function word on a line that lists roles (buyer roles, owners, champions) or holds a title.
-  const roleLines = (() => { const labelled = content.split('\n').filter((l) => /^\s*(?:buyers?|buyer roles?|personas?|roles?|stakeholders?|champions?|decision makers?|economic buyer|owners?|team)\b[^:]*:/i.test(l)); return labelled.length ? labelled : content.split('\n').filter((l) => /\b(?:head of|chief|vp|svp|evp|director|manager|officer|lead|cto|cfo|ciso|cio|coo|cmo|teams?)\b/i.test(l)); })();
+  const roleLines = (() => { const labelled = roleClauses.filter((l) => /^\s*(?:buyers?|buyer roles?|personas?|roles?|stakeholders?|champions?|decision makers?|economic buyer|owners?|team)\b[^:]*:/i.test(l)); return labelled.length ? labelled : roleClauses.filter((l) => /\b(?:head of|chief|vp|svp|evp|director|manager|officer|lead|cto|cfo|ciso|cio|coo|cmo|teams?)\b/i.test(l)); })();
   const FUNCTION_SKIP = new Set(['chief', 'head', 'of', 'officer', 'vp', 'svp', 'evp', 'director', 'manager', 'lead', 'senior', 'sr', 'the', 'and', 'or', 'group', 'general', 'global', 'vice', 'president', 'owner', 'business', 'unit', 'operations']);
   const roleFunctionNamed = (role: string): boolean => {
     const keys = role.toLowerCase().split(/[^a-z]+/).filter((w) => w.length >= 3 && !FUNCTION_SKIP.has(w));
@@ -268,7 +270,7 @@ ${verdict} The scores come from a keyword check of the lines that describe your 
   };
   // A measure counts as used when the plan holds its words (or the words without a tail such as "per site"), its distinctive last word (latency, satisfaction,
   // settlement) or a short form of it (CSAT, FCR, SLA): the check stays a look into the plan's own text.
-  const GENERIC_METRIC = new Set(['number', 'average', 'percent', 'request', 'requests', 'resolved', 'handled', 'minute', 'second', 'audio', 'buyer']);
+  const GENERIC_METRIC = new Set(['number', 'average', 'percent', 'request', 'requests', 'resolved', 'handled', 'minute', 'second', 'audio', 'buyer', 'target', 'team', 'teams', 'customer', 'customers', 'product', 'support', 'work', 'roles', 'users']);
   const SHORT_FORMS: Array<[RegExp, RegExp]> = [[/\bcsat\b/i, /customer satisfaction/i], [/\bfcr\b/i, /first contact resolution/i], [/\baht\b/i, /handle time/i], [/\bnps\b/i, /satisfaction|promoter/i], [/\bwer\b/i, /word error/i], [/\bsla\b/i, /service level/i], [/\bmttr\b/i, /time to (?:repair|recover|resolve)/i], [/\bmttd\b/i, /time to detect/i]];
   const metricWordsIn = (m: string): boolean => {
     if ([m, m.replace(/\s+(?:per|of|on|for|by|at|to)\s+.*$/i, '')].filter((x) => x.length >= 6).some((x) => planLower.includes(x.toLowerCase()))) return true;

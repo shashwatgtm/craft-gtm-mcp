@@ -71,3 +71,27 @@ test('a missing churn period offers only an explicitly conditional illustration'
  assert.match(s,/not your annual churn or a forecast/);
  assert.doesNotMatch(s,/You report churn of 3%|It reads LOW|which is read as a monthly rate/);
 });
+
+
+test('sector advice does not turn untested price effects into a departure reason',()=>{
+ for(const your_sector of ['logistics_tech','fintech','saas','vertical_saas','ai_native','ites','telecom','software','cybersecurity']){
+  for(const churn_reasons of ['Users bypass the workflow in busy periods. A price effect has not been tested.','During busy periods users bypassed the workflow. No price experiment has run.']){
+   const s=generateRetentionPlaybook({...retentionBase,your_sector,churn_reasons});
+   const reason=s.split('### Reason 1:')[1].split('## What you already do')[0].split('## Health score')[0];
+   assert.match(reason,/Observe one recent task/);assert.doesNotMatch(reason,/\*\*In [^*]+:\*\*|A value review/);
+  }
+ }
+ const onlyUnknown=generateRetentionPlaybook({...retentionBase,churn_reasons:'A price effect has not been tested.'});
+ assert.doesNotMatch(onlyUnknown,/A value review/);
+ const actual=generateRetentionPlaybook({...retentionBase,churn_reasons:'Customers said the price was too high. A price effect has not been tested.'});
+ assert.match(actual,/A value review/);
+});
+test('withdrawn support receives a feasibility check even when the work concerns incidents',()=>{
+ const s=generateRetentionPlaybook({...retentionBase,your_sector:'telecom',churn_reasons:'Users consistently used the workflow for network incident escalations. They left because the supplier withdrew local support.'});
+ const reason=s.split('### Reason 1:')[1].split('## Health score')[0];
+ assert.match(reason,/Confirm which support was withdrawn/);assert.match(reason,/whether restoration is feasible/);assert.match(reason,/Subject: Reviewing support coverage/);
+ assert.doesNotMatch(reason,/A service recovery review: the cause/);
+ assert.match(s,/Health score coverage \| not supplied/);assert.doesNotMatch(s,/not measured yet|in the (?:available data signals|current interventions|cs team size) input/);
+ const denied=generateRetentionPlaybook({...retentionBase,churn_reasons:'The supplier did not withdraw local support.'});
+ assert.doesNotMatch(denied,/Confirm which support was withdrawn/);
+});

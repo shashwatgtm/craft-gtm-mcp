@@ -1,5 +1,5 @@
 {
-  "base_commit": "a62bf7e7fb439d595a61fc3b55d2dc503790f34b",
+  "base_commit": "775a9f5ba31c7f708982f865c658f160c2476b0b",
   "profile": "current",
   "tool_list": {
     "tools": [
@@ -823,7 +823,7 @@
         "current_metrics": "MRR: $50000; ACV: $24000; monthly logo churn: 2%; NPS: 35 from 12 replies; CAC: $18000; LTV: unknown; activation: 60%; annual logo retention: 78%",
         "business_model": "saas"
       },
-      "sha256": "38769c3a6960e53fbafe0d929028761ed4d9ee804998126758c9cdc4a663013d"
+      "sha256": "bb83731c8d156ccf63fbf8eaeb180e39699c8a93868c20751a5f574d45a40703"
     },
     {
       "tool": "pmf_scorecard",
@@ -834,7 +834,7 @@
         "current_metrics": "MRR: $50000; ACV: $24000; monthly logo churn: 2%; NPS: 35 from 12 replies; CAC: $18000; LTV: unknown; activation: 60%; annual logo retention: 78%",
         "business_model": "saas"
       },
-      "sha256": "72694fc1920973a90511966a4075caa34c991284e72e73c267a0c4aa6caed02c"
+      "sha256": "b5754cfef76db174cc4ba5251915ff373408cfa647a98f32b86f681183d56f53"
     },
     {
       "tool": "pmf_scorecard",
@@ -845,7 +845,7 @@
         "current_metrics": "MRR: $50000; ACV: $24000; monthly logo churn: 2%; NPS: 35 from 12 replies; CAC: $18000; LTV: unknown; activation: 60%; annual logo retention: 78%",
         "business_model": "saas"
       },
-      "sha256": "6f67b494b2d553ecbf827ea5c6bc5d821f9da2e3a2faadeea74b2510ec2f3c28"
+      "sha256": "f6bfcb294a1ffc14fbd1447055e81b7c38fdc504682b32c4bc825b02cd254d5b"
     },
     {
       "tool": "pmf_scorecard",
@@ -856,7 +856,7 @@
         "current_metrics": "MRR: $50000; ACV: $24000; monthly logo churn: 2%; NPS: 35 from 12 replies; CAC: $18000; LTV: unknown; activation: 60%; annual logo retention: 78%",
         "business_model": "saas"
       },
-      "sha256": "c64f02cea940e1f6211370da5338572ee00c8569dd0a7c9dbff267f4d18205d3"
+      "sha256": "fbd1d5d14577975dfc1249000c61154294ef14f64eb6f56e0883c7a324e13f7b"
     },
     {
       "tool": "pmf_scorecard",
@@ -867,7 +867,7 @@
         "current_metrics": "MRR: $50000; ACV: $24000; monthly logo churn: 2%; NPS: 35 from 12 replies; CAC: $18000; LTV: unknown; activation: 60%; annual logo retention: 78%",
         "business_model": "saas"
       },
-      "sha256": "c8a6d018c3351543ccb8fce55c82174fd6e4e372b6dc1589fe90a4e576934674"
+      "sha256": "4481325f860ac169aadda8593d625c205e207761b20d40854876d298cbb7f683"
     },
     {
       "tool": "pmf_scorecard",
@@ -878,7 +878,7 @@
         "current_metrics": "MRR: $50000; ACV: $24000; monthly logo churn: 2%; NPS: 35 from 12 replies; CAC: $18000; LTV: unknown; activation: 60%; annual logo retention: 78%",
         "business_model": "saas"
       },
-      "sha256": "cccadc116fd5f401a7c7c8f836f9dd18f07bd31f3e08e7596273d3ebab0eb604"
+      "sha256": "34d000d9191da208730775d2df7395de0d9e46962998904bd5895f763c9f0308"
     },
     {
       "tool": "pmf_scorecard",
@@ -889,7 +889,7 @@
         "current_metrics": "MRR: $50000; ACV: $24000; monthly logo churn: 2%; NPS: 35 from 12 replies; CAC: $18000; LTV: unknown; activation: 60%; annual logo retention: 78%",
         "business_model": "saas"
       },
-      "sha256": "535de8b54c508e039c0112f00d61e147e495464600eed33b672887dacc463f9e"
+      "sha256": "8d32c1f510d31f33287606176d69578d2c1602117a4fe7344ea30be394d2108f"
     },
     {
       "tool": "pmf_scorecard",
@@ -900,7 +900,7 @@
         "current_metrics": "MRR: $50000; ACV: $24000; monthly logo churn: 2%; NPS: 35 from 12 replies; CAC: $18000; LTV: unknown; activation: 60%; annual logo retention: 78%",
         "business_model": "saas"
       },
-      "sha256": "0cc43d394aa539624499a952eefa704476f0d4d631a16a61946895f9b7ed8de6"
+      "sha256": "093d37feccf357a7ac19c225132777f9591831df0e0f6c86e213f22956cf1a30"
     },
     {
       "tool": "pmf_scorecard",
@@ -911,7 +911,7 @@
         "current_metrics": "MRR: $50000; ACV: $24000; monthly logo churn: 2%; NPS: 35 from 12 replies; CAC: $18000; LTV: unknown; activation: 60%; annual logo retention: 78%",
         "business_model": "saas"
       },
-      "sha256": "7df40221e603e78b27f70d3cf7ec68ab07619d558427c7097bc589a1b7b1350f"
+      "sha256": "5770d682c89595d456d8fe5c87398252a7bb6f9ab428b7cbbecbe9c099eaae8b"
     },
     {
       "tool": "launch_commander",
@@ -1065,7 +1065,7 @@
         "product_context": "Logistics dispatch planning software",
         "target_persona": "Accounts payable head"
       },
-      "sha256": "0f5a5f9fd769082801fc21b8a7e6f8438292e1d40af87fc296055826de7d9f74"
+      "sha256": "b8c82cdc030bd58d962a17fb9aa297975d72cec7a10a0f8f8df4e34f2cfe6517"
     },
     {
       "tool": "customer_interview_kit",
@@ -1075,7 +1075,7 @@
         "product_context": "Fintech payment reconciliation",
         "target_persona": "Accounts payable head"
       },
-      "sha256": "d3a297b1544d65496954c300e7faed5a141762a8d7df01179e4669baf9b7628f"
+      "sha256": "f332053c23194e7be507ef1e80e844ebd5f61777425c2b7e51a104bf9788ee23"
     },
     {
       "tool": "customer_interview_kit",
@@ -1085,7 +1085,7 @@
         "product_context": "SaaS subscription management platform",
         "target_persona": "Accounts payable head"
       },
-      "sha256": "b45f39e0db3f23d3d70e542b75dd1ff05583aac5a9b8576373ea0e03fc970685"
+      "sha256": "2feb6cbba6c4b6908c206908c64150b3f055de6f1802542d6557c2b3b631f787"
     },
     {
       "tool": "customer_interview_kit",
@@ -1095,7 +1095,7 @@
         "product_context": "Vertical SaaS retail execution software",
         "target_persona": "Accounts payable head"
       },
-      "sha256": "f26eeab1b665a22b8a4963a34a54562ea6f4878335505a9d750397634a9a2ae2"
+      "sha256": "8b7af79ced62683803ad8b344b5de971541b9304b5b76ab7ade7d534e8792da1"
     },
     {
       "tool": "customer_interview_kit",
@@ -1105,7 +1105,7 @@
         "product_context": "AI native document review agents",
         "target_persona": "Accounts payable head"
       },
-      "sha256": "bcbc815a55446f2dc66b9103367086b7ee0ce3b1fb0727ec6d5744ba82e85ad2"
+      "sha256": "4b1d825606b5b2a004dfe1e5f32794817e9984bc842f4fd4a53c3728a483f261"
     },
     {
       "tool": "customer_interview_kit",
@@ -1115,7 +1115,7 @@
         "product_context": "ITeS business process outsourcing services",
         "target_persona": "Accounts payable head"
       },
-      "sha256": "f456805a2b760c5767c10bbd9598b9a876d6bca0b8585d84e02ff7b48f3107ea"
+      "sha256": "e9608eb05d3efe8346a0f1aa9e7d4e508f14279c123d5b7e33e53629f5e292c6"
     },
     {
       "tool": "customer_interview_kit",
@@ -1125,7 +1125,7 @@
         "product_context": "Telecom network connectivity services",
         "target_persona": "Accounts payable head"
       },
-      "sha256": "755e61b82fde323cc5785ef192f763f9456fe0acc8ef61492ad9c25d40311372"
+      "sha256": "d25495fcec68230cbdb630e96184e149dc7e84c3aab84f258a86b44bfacdc81d"
     },
     {
       "tool": "customer_interview_kit",
@@ -1135,7 +1135,7 @@
         "product_context": "API testing and monitoring tool for backend developers",
         "target_persona": "Accounts payable head"
       },
-      "sha256": "e4c6ed92ab3ce3ebfaea502318faa70d92522ad02d27bfbd33ebd060ed49580c"
+      "sha256": "daa984707458f8693ad76f4d1d75155748553a6070095b11ac786982b0833761"
     },
     {
       "tool": "customer_interview_kit",
@@ -1145,7 +1145,7 @@
         "product_context": "Cybersecurity threat detection software",
         "target_persona": "Accounts payable head"
       },
-      "sha256": "695bdf0faaff9eddf70feebd7962959834194abdf16a446f719d0e11788bb4bd"
+      "sha256": "03e33bdab5183a9adccc009d2e305878fb1f927cf64a697738b055e6bed4e62d"
     },
     {
       "tool": "retention_playbook",
@@ -1157,7 +1157,7 @@
         "product": "Logistics dispatch planning software",
         "churn_reasons": "Two customers said dispatchers bypass the tool during peak hours; another said the price is too high. No price change experiment has run."
       },
-      "sha256": "1e71e164885c7cd0971a5d4dcd839d200c1f15127ede6f320d4c72da89ca2d32"
+      "sha256": "5fe56b915dcbdb1fa8cf25f00dac64097122a06950b398f0b2fe2091f7ec1f2a"
     },
     {
       "tool": "retention_playbook",
@@ -1169,7 +1169,7 @@
         "product": "Fintech payment reconciliation",
         "churn_reasons": "Two customers said dispatchers bypass the tool during peak hours; another said the price is too high. No price change experiment has run."
       },
-      "sha256": "3d6d1902fb3626e946f0b059d4f4716e2216e3eb41d8e5d255807fa948b83b6c"
+      "sha256": "52e917f18611c6f66646b159aebc119f375d95062aedec55e787a084545605a3"
     },
     {
       "tool": "retention_playbook",
@@ -1181,7 +1181,7 @@
         "product": "SaaS subscription management platform",
         "churn_reasons": "Two customers said dispatchers bypass the tool during peak hours; another said the price is too high. No price change experiment has run."
       },
-      "sha256": "99853c8f9e118deff67a0081b2f216399bd734deadfef6b809f5ced6382ba6dc"
+      "sha256": "31690eca1ac9488f854c3baa822b3001feb88cb43f3ba8f84a705ddc3c103ea1"
     },
     {
       "tool": "retention_playbook",
@@ -1193,7 +1193,7 @@
         "product": "Vertical SaaS retail execution software",
         "churn_reasons": "Two customers said dispatchers bypass the tool during peak hours; another said the price is too high. No price change experiment has run."
       },
-      "sha256": "fea1b5b3cca8899d93942245cc2c2a21f26f7479ca7783d945e11633e5aa062b"
+      "sha256": "961b0700f4c9999778390d9392983233ecd1ed9c4e010df239d82b956ce37eae"
     },
     {
       "tool": "retention_playbook",
@@ -1205,7 +1205,7 @@
         "product": "AI native document review agents",
         "churn_reasons": "Two customers said dispatchers bypass the tool during peak hours; another said the price is too high. No price change experiment has run."
       },
-      "sha256": "e644d5a6a0142d7dade2d839b25436e0e24afe2a0c88dfc1e05cf5112e0a115d"
+      "sha256": "eb1cb3f33d098c945d89be56abfd2c418493b172c6ac379b2cb830b8b9b160fb"
     },
     {
       "tool": "retention_playbook",
@@ -1217,7 +1217,7 @@
         "product": "ITeS business process outsourcing services",
         "churn_reasons": "Two customers said dispatchers bypass the tool during peak hours; another said the price is too high. No price change experiment has run."
       },
-      "sha256": "2c755a4f6f05e76a2fd85d4d23445aa5101d6e90b7b30425fe2e5f9b5b33d86a"
+      "sha256": "58d0506a013261934a97c4b42fea6041302ecf6e5f6feef5189d1a6014c37a64"
     },
     {
       "tool": "retention_playbook",
@@ -1229,7 +1229,7 @@
         "product": "Telecom network connectivity services",
         "churn_reasons": "Two customers said dispatchers bypass the tool during peak hours; another said the price is too high. No price change experiment has run."
       },
-      "sha256": "60140e2c749e05e04d0466ed5d4f43a68c45b9030afea9142c4f49a00307971a"
+      "sha256": "9f7032692e9edf4a957f1e2fa6e4bf40775312451d1624caa985731cc8bae108"
     },
     {
       "tool": "retention_playbook",
@@ -1241,7 +1241,7 @@
         "product": "API testing and monitoring tool for backend developers",
         "churn_reasons": "Two customers said dispatchers bypass the tool during peak hours; another said the price is too high. No price change experiment has run."
       },
-      "sha256": "e32eaed5a899e95fbc0184ada219f56b34b8d253f6b905b89f927b9dee90edf1"
+      "sha256": "6a48df60acaacc2fc4bb3c1390200c63d86c6f04aeac25ce770676cd3bbc9519"
     },
     {
       "tool": "retention_playbook",
@@ -1253,7 +1253,7 @@
         "product": "Cybersecurity threat detection software",
         "churn_reasons": "Two customers said dispatchers bypass the tool during peak hours; another said the price is too high. No price change experiment has run."
       },
-      "sha256": "f91a7a06fd860aecdeba1fe24754d14e61b3d775ae29de12b5bcd3a77bbe9b15"
+      "sha256": "429a0eda48b8c98f42e4170f05ccfdd1a1348d34ce7dbbf95c3a6477c8905e7a"
     },
     {
       "tool": "partner_architect",
@@ -1606,7 +1606,7 @@
         "intended_audience": "CEO and CRO of a pre Series A logistics software business",
         "desired_outcome": "Decide whether to keep the 12 customer target or reduce launch scope"
       },
-      "sha256": "44063a6b120bd3d6734009e5469d13947f138db7baefe388162f19d67b812c7d"
+      "sha256": "80e8265bfb369a88dbb14c69b78bbfc10cfb5350307ac64f0091c65cebab4130"
     },
     {
       "tool": "craft_gtm_analyzer",
@@ -1617,7 +1617,7 @@
         "intended_audience": "CEO and CRO of a pre Series A logistics software business",
         "desired_outcome": "Decide whether to keep the 12 customer target or reduce launch scope"
       },
-      "sha256": "0b0f0d16b7fdbd07f1024225e4848e4aa6d7b3d455b2b97e35744d489cb608f1"
+      "sha256": "d7a424b8c6dc978600641e49518de99f222fa779dfc2f0c3e5c03d5b226efa6b"
     },
     {
       "tool": "craft_gtm_analyzer",
@@ -1628,7 +1628,7 @@
         "intended_audience": "CEO and CRO of a pre Series A logistics software business",
         "desired_outcome": "Decide whether to keep the 12 customer target or reduce launch scope"
       },
-      "sha256": "c324855088d32a8bb19c46955b530105c37bce9fdec58753aca978f54e04dc12"
+      "sha256": "969c5ae34713d0e7ad4bd15818de0332020830b120ed8eb055ad1825d2635e4d"
     },
     {
       "tool": "craft_gtm_analyzer",
@@ -1639,7 +1639,7 @@
         "intended_audience": "CEO and CRO of a pre Series A logistics software business",
         "desired_outcome": "Decide whether to keep the 12 customer target or reduce launch scope"
       },
-      "sha256": "2b8f60072acafe6fcfa7b2c83c67eeb63dd5e40133bb6ddb3e8ee3ff270c0588"
+      "sha256": "e4d26647bffbd1c02efa1d4610387588a0bef33d508b98a3caa92de37f76e546"
     },
     {
       "tool": "craft_gtm_analyzer",
@@ -1650,7 +1650,7 @@
         "intended_audience": "CEO and CRO of a pre Series A logistics software business",
         "desired_outcome": "Decide whether to keep the 12 customer target or reduce launch scope"
       },
-      "sha256": "9ef5be8d4bea34dc9a5dffd1da6d50a59c0a7de7029708326bc64afb68c8443a"
+      "sha256": "7ab4727800d915514de43b9b4a65139b9378aeea1c4ef60113a654891923b791"
     },
     {
       "tool": "craft_gtm_analyzer",
@@ -1661,7 +1661,7 @@
         "intended_audience": "CEO and CRO of a pre Series A logistics software business",
         "desired_outcome": "Decide whether to keep the 12 customer target or reduce launch scope"
       },
-      "sha256": "793b963a60fb4e3cb5b0813f4d740aa6a2efac71ca908b842be7b6ee5c5fab75"
+      "sha256": "b399e69c19490c396f9852fa0017434949665f65d7357f1bb952f8e6b44905f7"
     },
     {
       "tool": "craft_gtm_analyzer",
@@ -1672,7 +1672,7 @@
         "intended_audience": "CEO and CRO of a pre Series A logistics software business",
         "desired_outcome": "Decide whether to keep the 12 customer target or reduce launch scope"
       },
-      "sha256": "4fb854bbd299567e7867c551bd6d906d7fe60d7c235b5adf17ec2276c6e46262"
+      "sha256": "188da66b5c2d74c2c6e279e8c163d38e551dddddfa0de95a6cf869102bd078ab"
     },
     {
       "tool": "craft_gtm_analyzer",
@@ -1683,7 +1683,7 @@
         "intended_audience": "CEO and CRO of a pre Series A logistics software business",
         "desired_outcome": "Decide whether to keep the 12 customer target or reduce launch scope"
       },
-      "sha256": "9414b05443e222e4c5818be05e8f9c03a61407c70b18c47ffa3dbf671b36cd3f"
+      "sha256": "02fb00edc10ed8109a345d10dc351bcae973eda7dd686f1d83599411ab97717a"
     },
     {
       "tool": "craft_gtm_analyzer",
@@ -1694,7 +1694,7 @@
         "intended_audience": "CEO and CRO of a pre Series A logistics software business",
         "desired_outcome": "Decide whether to keep the 12 customer target or reduce launch scope"
       },
-      "sha256": "17f27ac686455e053c0be6a062f80d474dffe3474a23958f4cb48cf2ee4c2746"
+      "sha256": "0bbc9af2799962748b18984d7de0416ddcb8bb93b2873009059323410fcfbb59"
     }
   ]
 }
