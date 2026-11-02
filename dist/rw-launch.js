@@ -33,10 +33,17 @@ function sharpenBlock(items) {
     return `\n---\n\n**To sharpen this, give:**\n${items.map(([what, change]) => `- ${what} (it would change ${change})`).join('\n')}\n`;
 }
 /** A second copy of a line that is long enough to be a sentence is dropped: the safety net behind the careful writing. */
-function dropRepeatedLines(text) {
+function dropRepeatedLines(text, preserveActionBlocks = false) {
     const seen = new Set();
+    let inCode = false;
     return text.split('\n').filter((line) => {
         const key = line.trim().toLowerCase();
+        if (preserveActionBlocks && /^```/.test(key)) {
+            inCode = !inCode;
+            return true;
+        }
+        if (preserveActionBlocks && (inCode || /^\*\*(?:first step|owner and timing):/.test(key)))
+            return true;
         if (key.length < 50 || /^\|[-: |]+\|$/.test(key) || /^#/.test(key))
             return true;
         // a line that quotes typed text is an item the caller listed: items typed twice stay, by position (layout never depends on the words)
@@ -1071,7 +1078,11 @@ const REASON_KINDS = [
     ['competitor', /\b(competitors?|switch\w*|alternatives?|rivals?|incumbents?)\b/],
     ['adoption', /\b(adopt\w*|usage|engagement|unused|not using|low use|(?:do|does|did|will|would) not use|won't use|logging in|log in|logins?|stopped using)\b/],
 ];
-const kindOfReason = (text) => (REASON_KINDS.find(([kind, re]) => hasSignal(text, re, kind === 'person' ? 'departed' : kind === 'competitor' ? 'incumbent' : kind)) ?? ['other'])[0];
+const kindOfReason = (text) => (REASON_KINDS.find(([kind, re]) => {
+    // An unrun pricing experiment limits causal evidence; it does not deny a separate price complaint.
+    const input = kind === 'price' ? text.replace(/\bNo\s+price(?: change| reduction)?\s+(?:experiment|test|trial)\b[^.;\n]*/gi, '') : text;
+    return hasSignal(input, re, kind === 'person' ? 'departed' : kind === 'competitor' ? 'incumbent' : kind);
+}) ?? ['other'])[0];
 /** What each current intervention can help with, by what it is called. */
 const INTERVENTION_HELPS = [
     [/business review|\bqbr\b|\bebr\b|service review|steering|executive (?:check|review|sponsor)|account review/i, ['price', 'competitor', 'person', 'service', 'bundle']],
@@ -1204,26 +1215,33 @@ export function writeRetentionPlaybook(args) {
         const found = answerFor(reason, ctx.v);
         const sector = found === generic ? '' : found;
         const hi = capacity.highTouch > 30;
+        if (readSignal(reason, /\bbypass(?:es|ed|ing)?\b/i).state === 'affirmed')
+            return {
+                trigger: 'Reported workflow bypass, to verify with the affected users and records',
+                action: 'Observe one recent task with the user, compare the recorded handoffs with the actual route, and test one correction with an agreed owner; do not assume training or price is the cause',
+                owner: 'Account owner with the workflow owner, subject to capacity confirmation', timing: 'Agree a review date with the affected team',
+                email: `Subject: Reviewing a recent workflow\n\nHello,\n\nCould you walk us through one recent busy period, including which steps you used and which you worked around, if any? We would like to compare that with the records before proposing a change.\n\nWho owns this workflow, and when would a short review suit them?\n\n${sign}`
+            };
         switch (kindOfReason(reason)) {
             case 'bundle': return { trigger: 'Another vendor offers a bundled or consolidated package to the account', action: `Compare the outcome each option delivers, not the feature lists.${sector ? ` ${sector}` : ''}`, owner: hi ? 'CSM with the account executive' : 'CS team, with the account executive', timing: 'Within a week of the signal',
-                email: `Subject: Comparing the outcome, not the bundle\n\nHello,\n\nI understand another vendor has offered a bundled package. That can look simpler on paper.\n\nBefore you decide, I would like to compare what each option delivers for the results you care about, and what the bundle leaves to manual work.\n\nWould a short comparison with your team help?\n\n${sign}` };
-            case 'price': return { trigger: 'A price objection in a survey, a support ticket or a cancellation reason', action: 'A value review: what the account gets for what it pays, in its own measures, before any discount is discussed', owner: hi ? 'CSM' : 'CS team, after an automated email', timing: 'Within a day of the signal',
-                email: `Subject: What ${productRef} delivers for what you pay\n\nHello,\n\nYou raised the cost of ${productRef}. I would like to go through what it delivers for your team and what it costs, so the comparison is fair.\n\nWould you be open to a short call this week?\n\n${sign}` };
+                email: `Subject: Comparing the outcome, not the bundle\n\nHello,\n\nAre you considering a bundled package from another vendor? If so, which parts matter to your team?\n\nBefore you decide, I would like to compare what each option delivers for the results you care about, and what the bundle leaves to manual work.\n\nWould a short comparison with your team help?\n\n${sign}` };
+            case 'price': return { trigger: 'A price objection in a survey, a support ticket or a cancellation reason', action: 'A value review: what the account gets for what it pays, in its own measures, before any discount is discussed', owner: hi ? 'CSM' : 'Account owner, with capacity confirmed', timing: 'Within a day of the signal',
+                email: `Subject: What ${productRef} delivers for what you pay\n\nHello,\n\nWould it help to review the cost of ${productRef} against what your team actually uses and receives? We can check the account records before discussing any change in terms.\n\nWould you be open to a short call this week?\n\n${sign}` };
             case 'feature': return { trigger: 'A missing capability mentioned in support, feedback or a survey', action: 'Log the request with the customer, show what the product does today for the need, and agree a workaround; promise no date you cannot keep', owner: hi ? 'CSM with product input' : 'Support, with escalation to product', timing: 'Within two days',
-                email: `Subject: About what you told us was missing\n\nHello,\n\nThank you for telling us what ${productRef} is missing. I wanted to follow up personally.\n\nI cannot promise timelines, but I can walk you through what ${productRef} does today for this need and the options we have.\n\nWould it help to go through it together?\n\n${sign}` };
+                email: `Subject: About what you told us was missing\n\nHello,\n\nWhich capability, if any, is missing from ${productRef} for the work you need to complete?\n\nI cannot promise timelines, but I can walk you through what ${productRef} does today for this need and the options we have.\n\nWould it help to go through it together?\n\n${sign}` };
             case 'service': return { trigger: 'Service levels missed, credits claimed or disputed, or the same incident again', action: `A service recovery review: the cause, a recovery plan with dates and a report the customer can check.${sector ? ` ${sector}` : ''}`, owner: 'Service owner and CSM', timing: 'Within two days of the signal, then at the next review',
-                email: `Subject: Service levels for ${accountRef}\n\nHello,\n\nI saw that service levels have not met what we agreed. I would like to walk you through the cause and a recovery plan with dates.\n\nCould we find half an hour this week with your service owner?\n\n${sign}` };
+                email: `Subject: Service levels for ${accountRef}\n\nHello,\n\nCould we review the service records against what we agreed? If a commitment was missed, we should confirm the impact and cause before agreeing a recovery plan with dates.\n\nCould we find half an hour this week with your service owner?\n\n${sign}` };
             case 'person': return { trigger: 'A key person on either side leaves or changes role', action: `Name a backup for each key role, show how knowledge is handed over, and find the new champion.${sector ? ` ${sector}` : ''}`, owner: hi ? 'CSM with the account executive' : 'CS team, with the account executive', timing: 'Within a week of the change',
-                email: `Subject: Continuity for ${accountRef}\n\nHello,\n\nI know there has been a change in the team. I would like to confirm who covers each key role and how knowledge is being passed on, so nothing slips.\n\nCould we meet this week to go through it?\n\n${sign}` };
+                email: `Subject: Continuity for ${accountRef}\n\nHello,\n\nCould you confirm who covers each key role today and whether any responsibility has changed? We would like to check the handover and backup arrangements with you.\n\nCould we meet this week to go through it?\n\n${sign}` };
             case 'support': return { trigger: 'Several support tickets, or low satisfaction after a support contact', action: 'An executive escalation, a named support contact and a recovery step the customer can see', owner: 'Support manager and CSM', timing: 'The same day',
-                email: `Subject: Making things right\n\nHello,\n\nI saw that your recent support experience did not meet our standard, and I am sorry. I have reviewed your case myself and would like to set up a direct escalation path for you.\n\nCan we schedule a call to go through it?\n\n${sign}` };
+                email: `Subject: Making things right\n\nHello,\n\nCould we review your recent support experience, including anything that remains unresolved? I would like to check the case records with you and agree who will own any follow up.\n\nCan we schedule a call to go through it?\n\n${sign}` };
             case 'competitor': return { trigger: 'A competitor named in any customer contact', action: `A differentiation call, with the comparison based on the customer's own results.${sector ? ` ${sector}` : ''}`, owner: hi ? 'CSM or account executive' : 'CS team, with comparison content', timing: 'Within four hours of the mention',
-                email: `Subject: Before you decide\n\nHello,\n\nI understand you are looking at other options. That is sensible: you should look at what is best for your team.\n\nBefore you decide, I would like to share what ${productRef} has delivered for you so far, next to what you would be moving to.\n\nIs there a good time this week?\n\n${sign}` };
+                email: `Subject: Before you decide\n\nHello,\n\nAre you considering other options, and what would you need to compare?\n\nWe can review what ${productRef} has delivered, if anything, against your account records and the requirements you would use to assess an alternative.\n\nIs there a good time this week?\n\n${sign}` };
             case 'adoption': return { trigger: subscription ? 'Low logins or few features used for several weeks' : contractModel === 'connectivity' ? 'Sites not live in the planned wave, or the same incident again and again' : contractModel === 'investment' ? 'Falling attendance at reviews, or fewer reports opened' : 'Fewer requests raised, fewer service reviews attended, or reports unread',
-                action: subscription ? 'An onboarding reset, a use case discovery call and one quick win with a date' : 'A service review, a use case discovery call and one quick win with a date', owner: hi ? 'CSM' : 'CS team, after an automated nurture', timing: subscription ? 'As soon as the pattern shows, then again two weeks later' : 'At the next service review, or within two weeks of the signal',
-                email: `Subject: Getting more out of ${accountRef}\n\nHello,\n\nI noticed your team has not been using ${productRef} as much recently. Sometimes that means we did not get the first setup right.\n\nI would like to understand your goals and show you one quick win.\n\nCould we take fifteen minutes this week?\n\n${sign}` };
-            default: return { trigger: `${quoted(capEchoSafe(reason, 120))} raised by a customer`, action: `Personal outreach and a root cause review.${sector ? ` ${sector}` : ''}`, owner: hi ? 'CSM' : 'CS team, after an automated check-in', timing: 'Within two days of the signal',
-                email: `Subject: A quick check-in\n\nHello,\n\nI wanted to reach out personally because your feedback matters to us.\n\nYou told us: ${quoted(capEchoSafe(reason, 200))}. I would like to understand this better and see what we can do.\n\nDo you have ten minutes this week?\n\n${sign}` };
+                action: subscription ? 'An onboarding reset, a use case discovery call and one quick win with a date' : 'A service review, a use case discovery call and one quick win with a date', owner: hi ? 'CSM' : 'Account owner, with capacity confirmed', timing: subscription ? 'As soon as the pattern shows, then again two weeks later' : 'At the next service review, or within two weeks of the signal',
+                email: `Subject: Getting more out of ${accountRef}\n\nHello,\n\nCould you walk us through a recent task and show where ${productRef} was useful, unused or difficult to use?\n\nI would like to understand what happened before proposing one small change to test.\n\nCould we take fifteen minutes this week?\n\n${sign}` };
+            default: return { trigger: `${quoted(capEchoSafe(reason, 120))} raised by a customer`, action: `Personal outreach and a root cause review.${sector ? ` ${sector}` : ''}`, owner: hi ? 'CSM' : 'Account owner, with capacity confirmed', timing: 'Within two days of the signal',
+                email: `Subject: A quick check-in\n\nHello,\n\nI wanted to reach out personally because your feedback matters to us.\n\nCould you describe a recent experience with ${productRef}, including anything that worked well or remained unresolved? We would like to check the records with you before proposing a next step.\n\nDo you have ten minutes this week?\n\n${sign}` };
         }
     };
     const reasonKinds = reasons.map(kindOfReason);
@@ -1315,7 +1333,7 @@ export function writeRetentionPlaybook(args) {
     else
         out.push('Every signal above is marked "to add", because no data signals were named.');
     out.push('');
-    out.push(`The score is the sum of each signal scaled 0 to 100 and multiplied by its weight. Read it as below 30 red, 30 to 70 yellow and above 70 green: critical up to 30 (act at once), at risk from 31 to 50 (reach out), monitor from 51 to 70 (nurture), healthy above 70 (expand and ask for advocacy). These bands are illustrations.`);
+    out.push(`The score is the sum of each signal scaled 0 to 100 and multiplied by its weight. Read scores from 0 through 30 as red, above 30 through 70 as yellow and above 70 through 100 as green. Within those example bands: critical at 30 or below, at risk above 30 through 50, monitor above 50 through 70, and healthy above 70. Confirm the signal definitions and account evidence before selecting an intervention. Missing signals do not establish a healthy account. These bands are illustrations.`);
     out.push('');
     // ---- team time ----
     out.push('## How the team\'s time is split');
@@ -1382,7 +1400,7 @@ export function writeRetentionPlaybook(args) {
     if (kinds.length && !described)
         missing.push([`what ${productShort || 'your product'} sells, said in a few words after its name in the product input`, 'the reasons and steps, which now fit any company in the sector']);
     out.push(sharpenBlock(missing));
-    return dropRepeatedLines(out.join('\n')).replace(/\n{3,}/g, '\n\n').trimEnd() + '\n';
+    return dropRepeatedLines(out.join('\n'), true).replace(/\n{3,}/g, '\n\n').trimEnd() + '\n';
     // ---------------- the churn discovery kit (no reasons given) ----------------
     function discoveryKit() {
         const k = [];
