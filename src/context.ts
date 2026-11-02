@@ -1,3 +1,4 @@
+import { billingLine } from './verticals.js';
 import { nonRecurringBilling } from './verticals.js';
 import { readSignal } from './text-signals.js';
 import { clearanceAdvice } from './text-signals.js';
@@ -248,6 +249,7 @@ export function readContext(opts: { model?: unknown; hintModel?: BusinessModel |
   }
   // No sector of the seller's own is known (the sector read from the buyer's industry is not used), so there is no usual model to assume either.
   if (!explicit && nonRecurringBilling(sellerTexts.join(' . '))) { model = null; how = 'unknown'; }
+  if (how === 'hint' && !given) { const offering = detectModel(undefined, input); if (offering.how === 'read') { model = offering.model; how = 'read'; } }
   if (how === 'sector' || how === 'hint') { model = null; how = 'unknown'; }
   const buyerSide = buyerV ? ` (name it with the industry input for sector notes)` : '';
   // A seller that manages money (the investment model) is not sold to like the sector the shared reader named (support-automation buyers for "AI native",
@@ -261,7 +263,7 @@ export function readContext(opts: { model?: unknown; hintModel?: BusinessModel |
   const mtxt = model
     ? `${MODEL_LABEL[model]} (${how === 'input' ? 'from your answer' : 'read from your inputs; confirm how you charge'})`
     : 'not stated. Tell us how you charge and the plan will adjust';
-  return { v: vAdj, model, how, sector, line: `*Sector: ${sector}. Business model: ${mtxt}.*${!model ? "\n\nBilling dependent steps are conditional: trials, seats and recurring renewals require a subscription; a statement of work requires a services contract; site or link commitments require connectivity billing. Confirm the applicable choice before using those steps." : ""}`, buyerV };
+  return { v: vAdj, model, how, sector, line: billingLine(explicit, input, `*Sector: ${sector}. Business model: ${mtxt}.*${!model ? "\n\nAny priced offer below requires a written quote and buyer agreement." : ""}`), buyerV };
 }
 
 /** Sector notes: the buying committee, what the sector measures and its usual objections (no figures, rule B82). */

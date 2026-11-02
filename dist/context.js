@@ -1,3 +1,4 @@
+import { billingLine } from './verticals.js';
 import { nonRecurringBilling } from './verticals.js';
 import { readSignal } from './text-signals.js';
 import { clearanceAdvice } from './text-signals.js';
@@ -306,6 +307,13 @@ export function readContext(opts, rawInput) {
         model = null;
         how = 'unknown';
     }
+    if (how === 'hint' && !given) {
+        const offering = detectModel(undefined, input);
+        if (offering.how === 'read') {
+            model = offering.model;
+            how = 'read';
+        }
+    }
     if (how === 'sector' || how === 'hint') {
         model = null;
         how = 'unknown';
@@ -322,7 +330,7 @@ export function readContext(opts, rawInput) {
     const mtxt = model
         ? `${MODEL_LABEL[model]} (${how === 'input' ? 'from your answer' : 'read from your inputs; confirm how you charge'})`
         : 'not stated. Tell us how you charge and the plan will adjust';
-    return { v: vAdj, model, how, sector, line: `*Sector: ${sector}. Business model: ${mtxt}.*${!model ? "\n\nBilling dependent steps are conditional: trials, seats and recurring renewals require a subscription; a statement of work requires a services contract; site or link commitments require connectivity billing. Confirm the applicable choice before using those steps." : ""}`, buyerV };
+    return { v: vAdj, model, how, sector, line: billingLine(explicit, input, `*Sector: ${sector}. Business model: ${mtxt}.*${!model ? "\n\nAny priced offer below requires a written quote and buyer agreement." : ""}`), buyerV };
 }
 /** Sector notes: the buying committee, what the sector measures and its usual objections (no figures, rule B82). */
 export function sectorNotes(v, what = 'all') {

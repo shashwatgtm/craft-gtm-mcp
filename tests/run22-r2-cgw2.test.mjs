@@ -140,7 +140,7 @@ test("retention and launch: the closing list does not name kinds of company that
 test("crisis: a telecom company with only a name is not told it sells per-site connectivity", async () => {
   const out = await call("crisis_planner", { company: "Nightowl", industry: "telecom", customer_base: "b2b_enterprise", data_sensitivity: "medium_business_data" });
   assert.doesNotMatch(out, /per site, per link or bandwidth/);
-  assert.match(out, /Business model: not given/);
+  assert.match(out, /Business model: not stated\. Tell us how you charge and the plan will adjust\./);
 });
 
 test("crisis: an AI product is not told that an outage stops scoring and review queues", async () => {

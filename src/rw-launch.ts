@@ -59,8 +59,7 @@ function wordingModel(ctx: Context, given: boolean): BusinessModel | null {
 
 /** The line that says how the sector and the model were read; when the wording model differs from the one read, the line says which one the plan follows. */
 function readLine(ctx: Context, model: BusinessModel | null, neutralConnectivity = false): string {
-  if (neutralConnectivity && ctx.how === 'sector' && model === 'connectivity') return `*Sector: ${ctx.sector}. Business model: not given, so the plan uses wording that fits any company in the sector (confirm how you charge).*`;
-  return model !== ctx.model && model ? `*Sector: ${ctx.sector}. Business model: ${MODEL_NAME[model]} (the usual model in this sector, assumed; confirm how you charge).*` : ctx.line;
+  return ctx.line; // Delivery wording does not establish a charging model.
 }
 
 /** The kinds of company in the sector that have lines of their own in the given fields, when the sector was read without a kind. */
@@ -639,7 +638,7 @@ export function writeLaunchPlan(args: {
   const discovery = ctx.v ? ctx.v.discovery : [];
   const proofLine = ctx.v ? `Proof to collect from one customer in each segment: ${lcFirst(ctx.v.proofShape).replace(/[.]$/, '')}.` : 'Proof to collect from one customer in each segment: a before and after on the goal you set, with its source and date.';
   const nextStep = pb ? `Next step to ask for: ${pb.cta}.` : `The next step to ask for: a working session on the buyer's own data or process.`;
-  out.push([roleLine, ctx.v ? `The buying group: ${lcFirst(committeeText)}` : '', proofLine, nextStep, metrics.length ? `Measures this sector watches, to use in the proof: ${andList(metrics.slice(0, 5))}.` : ''].filter(Boolean).join(' '));
+  out.push([buyer ? `Write to the ${buyer} first; ask who else approves this launch.` : 'The launch lead should confirm the buyer and approver before choosing whom to brief.', proofLine, nextStep].filter(Boolean).join(' '));
   out.push('');
   const general = discovery.slice(0, 3);
   if (general.length || pains.length) {
@@ -680,7 +679,7 @@ export function writeLaunchPlan(args: {
     lines.push(lead.length
       ? (fits ? `For ${seg}, lead with ${andList(lead.map((x) => quoted(x)))}.` : `Nothing in your description points to ${seg} more than to another segment, so open with ${andList(lead.map((x) => quoted(x)))}, the first part you list, and move to the part their answers point to.`)
       : `For ${seg}, say in the words that segment uses what ${c.N} changes for its work.`);
-    lines.push('Confirm the buyer roles and approval steps with a named contact before planning the launch; the segment label does not establish them.');
+    lines.push(`The launch lead should confirm who approves a purchase in ${seg} before briefing the segment, then record the named contact and the evidence they require.`);
     // a question or a measure of the sector goes to a segment only when it fits it
     const q2 = discovery.slice(3).filter((d) => !usedAsks.has(d)).map((d) => ({ d, score: fitScore(segText, notes?.review ?? '', d) })).sort((x, y) => y.score - x.score)[0];
     if (q2 && q2.score >= 3) { usedAsks.add(q2.d); lines.push(`Ask: ${q2.d.replace(/\?*$/, '?')}`); }

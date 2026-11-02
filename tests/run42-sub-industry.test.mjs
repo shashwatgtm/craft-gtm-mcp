@@ -37,7 +37,7 @@ test("a seller that names case work keeps the decision AI notes", () => {
 });
 test("a seller that names a telecom network provider as the customer's industry still gets the telecom segment note", async () => {
   const t = await call("launch_commander", { product_feature: "Acme: an AI content platform", launch_type: "feature_launch", target_segments: "telecom operators", goals: "ten deals", your_sector: "ai_native" });
-  assert.match(t, /network and platform teams/);
+  assert.match(t, /confirm who approves a purchase in Telecom operators/);
 });
 
 test("one typed phrase is one alternative, not a comma list (competitive_intel)", async () => {

@@ -58,7 +58,7 @@ test("launch_commander: a long product description is quoted whole at a word bou
 test("launch_commander: with no sector in the words, the matrix still has no bracket and names the segment's buying steps", async () => {
   const r = await call("launch_commander", { product_feature: "Quantara", launch_type: "feature_launch", launch_date: "TBD", target_segments: "Asset allocators (pensions; insurers), Investment banks", goals: "10 hypothetical meetings" });
   assert.doesNotMatch(r.text, BRACKET);
-  assert.match(r.text, /investment or risk committee/);
+  assert.match(r.text, /confirm who approves a purchase in Asset allocators/);
 });
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -217,7 +217,7 @@ test("retention_playbook: an enterprise contract with no reasons gets reasons th
   assert.doesNotMatch(r.text, /Check support tickets and usage data for mentions|Direct outreach to understand and address concern/);
   assert.doesNotMatch(r.text, BRACKET);
   assert.doesNotMatch(r.text, /Login frequency|We're sorry to see you go|Business model: software subscription/);
-  assert.match(r.text, /In this segment a renewal usually involves a vendor risk and security review/);
+  assert.match(r.text, /Confirm which buyer roles, approval steps and billing terms actually apply to this account/);
   const sig = [...r.text.matchAll(/\*\*Signal:\*\* (.*)/g)].map((m) => m[1]);
   assert.ok(sig.length >= 5);
   assert.equal(new Set(sig).size, sig.length, "no two reasons share a signal");
