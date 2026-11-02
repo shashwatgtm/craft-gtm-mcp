@@ -1,3 +1,4 @@
+import { case_partner_architect } from './reader-partner-architect.js';
 import { case_retention_playbook } from './reader-retention-playbook.js';
 import { case_customer_interview_kit } from './reader-customer-interview-kit.js';
 import { case_competitive_intel } from './reader-competitive-intel.js';
@@ -71,6 +72,7 @@ export function readingGuide(name: string, result: string, args: Record<string,u
   if (name === 'competitive_intel') return renderCase(case_competitive_intel(args), held);
   if (name === 'customer_interview_kit') return renderCase(case_customer_interview_kit(args), held);
   if (name === 'retention_playbook') return renderCase(case_retention_playbook(args), held);
+  if (name === 'partner_architect') return renderCase(case_partner_architect(args), held);
   const status = held ? ' Keep the stated hold in place; this guidance does not override it.' : '';
   let roles = kind === 'publish' ? [
     `Founder: check the central claim against the supplied evidence before endorsing ${decision}.`,
