@@ -419,7 +419,8 @@ ${(() => { let inObjections = false; return hypotheses.map((raw, i) => {
   const roleList = focus ? fresh(roleQs) : [];
 
   const incident = /\boutages?\b/i.test(args.key_hypotheses || '') && readSignal(args.key_hypotheses || '', /\boutages?\b/i).state !== 'negated' ? 'outage' : 'incident or task';
-  const hypothesisFocus = args.key_hypotheses?.trim() || 'No hypothesis supplied; first agree what decision this interview should inform';
+  const statedHypothesis = /\b(?:we think|we suspect|our hypothesis is)\s+([^.!?]+)/i.exec(args.product_context || '')?.[1];
+  const hypothesisFocus = args.key_hypotheses?.trim() || statedHypothesis || 'No hypothesis supplied; first agree what decision this interview should inform';
   return `# Customer Interview Kit
 
 ## Five questions to test the supplied hypothesis
@@ -498,7 +499,7 @@ ${techList.map((q, i) => `${i + 1}. ${q}`).join('\n')}
 
 ${sectorList.map((x, i) => `${i + 1}. ${x}`).join('\n')}
 ${focus && roleList.length ? `\n### Questions for ${/^[aeiou]/i.test(focus.label) ? 'an' : 'a'} ${focus.label} (${P})\n\n${roleList.map((x, i) => `${i + 1}. ${x}`).join('\n')}\n` : ''}
-${v && !investing ? `\n*Who usually decides in this sector: ${v.committee}*\n\n*Words this buyer uses: ${v.vocabulary.join(', ')}. Use them where they are true for the person you interview.*\n` : ''}
+${v && !investing ? `\n*Buying roles to check with the participant: ${v.buyerRoles.join(', ')}. The interviewer should record who actually owns the problem, approves spending and reviews a change; titles alone do not establish authority.*\n\n*Words this buyer uses: ${v.vocabulary.join(', ')}. Use them where they are true for the person you interview.*\n` : ''}
 ---
 
 ## Probing Questions (Use as needed)
@@ -521,40 +522,13 @@ ${hypothesisSection}
 
 ---
 
-## Note-Taking Template
+## Interview record to collect
 
-\`\`\`
-INTERVIEW: ${typeName.toUpperCase()} | ${P || 'role not named'}
-DATE: _______________
-DURATION: _______________
+The interviewer should record the date, duration and participant role for this ${typeName} interview with ${P || 'the participant'}. None of those records is created by this guide.
 
-CONTEXT:
-- Company/Role: 
-- Experience level:
-- Current solution:
+Keep each exact quote with its source and context. Separate what the person observed from your interpretation. Record both evidence for the hypothesis and observations that contradict it; a blank record is not confirmation.
 
-KEY QUOTES:
-1. "_______________" (re: ___)
-2. "_______________" (re: ___)
-3. "_______________" (re: ___)
-
-PAIN POINTS IDENTIFIED:
-- [ ] _______________
-- [ ] _______________
-- [ ] _______________
-
-NEEDS/WANTS:
-- Must have:
-- Nice to have:
-- Unexpected:
-
-${hypotheses.length > 0 ? `HYPOTHESIS VALIDATION:
-${hypotheses.map((h, i) => `- H${i + 1}: Confirmed / Rejected / Unclear`).join('\n')}` : ''}
-
-FOLLOW-UP ACTIONS:
-- [ ] _______________
-- [ ] _______________
-\`\`\`
+Before the next synthesis meeting, the research owner should check the notes against the recording, where permission allows. Give each follow up an owner, due date and specific observation to collect. The decision owner should state which finding would change the hypothesis before using the interview to justify a plan.
 
 ---
 
@@ -566,17 +540,17 @@ After conducting multiple interviews, map findings to:
 Tally the Count column as "interviews that said it, out of the interviews you ran".
 | Signal | Count | Implication |
 |--------|-------|-------------|
-| Most common pain point | | Include in messaging |
-| Most common objection | | Address proactively |
-| ${subscription ? 'Most requested feature' : 'Most requested change to the service'} | | ${subscription ? 'Product input' : 'Service design input'} |
+| Most common pain point | Not counted | Check the interview sample before using in messaging |
+| Most common objection | Not counted | Confirm the objection before drafting a response |
+| ${subscription ? 'Most requested feature' : 'Most requested change to the service'} | Not counted | ${subscription ? 'Product input to validate' : 'Service design input to validate'} |
 
 ### Persona Insights
 | Attribute | Pattern | Source Quotes |
 |-----------|---------|---------------|
-| Goals | | |
-| Challenges | | |
-| Decision criteria | | |
-| Information sources | | |
+| Goals | Not recorded | Confirm with the participant before drawing a conclusion |
+| Challenges | Not recorded | Confirm with the participant before drawing a conclusion |
+| Decision criteria | Not recorded | Confirm with the participant before drawing a conclusion |
+| Information sources | Not recorded | Confirm with the participant before drawing a conclusion |
 
 ---
 

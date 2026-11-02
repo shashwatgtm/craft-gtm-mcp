@@ -98,7 +98,7 @@ test("crisis_planner: a billing platform read from the company's product gets bi
 
 test("an AI native seller whose customers are asset allocators and pensions is read on the investment model, in retention and in the analyzer", async () => {
   const r = await call("retention_playbook", { customer_segment: "Asset allocators (pensions; endowments) (customers of Quantara)", business_model: "enterprise_contract", current_churn_rate: "0.3% monthly (hypothetical)", industry: "ai_native" });
-  assert.match(r.text, /Business model: enterprise contract \(from your business_model input\)/);
+  assert.match(r.text, /Business model: enterprise contract \(from your charging answer\)/);
   assert.doesNotMatch(r.text, /cost per resolved case/);
   const t = await A("Quantara plan.\nGoal: ten hypothetical deals.\nAudience: asset allocators, pensions.\nBuyer roles: CIO, portfolio manager.\nMessage: forecast ranges with explanations.");
   assert.match(t, /Sector: read from the buyers your plan names as AI native, investment management/);

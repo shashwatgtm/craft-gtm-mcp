@@ -882,23 +882,23 @@ export function writeLaunchPlan(args) {
     else if (!when.exact)
         missing.push(['an exact launch date (YYYY-MM-DD)', `the schedule, which now counts in weeks before launch because only ${when.label} was given`]);
     if (!args.industry && !ctx.v)
-        missing.push(['the industry, in the industry input', 'the buyer roles, proof, objections and channels, which now come from your segments only']);
+        missing.push(['your industry', 'the buyer roles, proof, objections and channels, which now come from your segments only']);
     else if (!args.industry && ctx.v)
-        missing.push(['the industry, in the industry input, to confirm the sector read from your text', 'the buyer roles, proof, objections and channels if the read is wrong']);
+        missing.push(['your industry, to confirm the sector reading', 'the buyer roles, proof, objections and channels if the read is wrong']);
     if (!args.business_model)
-        missing.push(['the business model, in the how you charge input', `the launch tasks and words, which now ${model ? `follow ${MODEL_WORDS[model]} as read from your text` : 'use neutral B2B wording, because no business model could be read from your text'}`]);
+        missing.push(['your business model and how you charge', `the launch tasks and words, which now ${model ? `follow ${MODEL_WORDS[model]} as read from your text` : 'use neutral B2B wording, because no business model could be read from your text'}`]);
     if (!buyer)
-        missing.push(['who the buyer is, for example "with the CIO as the buyer" in the goals', `the committee briefing and the tone of the messages${ctx.v ? `, which now address ${andList(ctx.v.buyerRoles.slice(0, 3))}` : ''}`]);
+        missing.push(['the buyer who approves this launch', 'the buyer briefing and message']);
     if (!channelsGiven.length)
-        missing.push(['the channels you can use, in the available channels input', 'which tasks stay in the plan and where the messages go']);
+        missing.push(['available channels', 'which tasks stay in the plan and where the messages go']);
     if (!args.team_size)
-        missing.push(['the team size, in the team size input; the plan assumes small (2 to 5)', 'who owns each task']);
+        missing.push(['team size; currently assumed small (2 to 5)', 'who owns each task']);
     if (!args.budget_level)
-        missing.push(['the budget level, in the budget level input; the plan assumes moderate', 'the tactics in Channels and budget']);
+        missing.push(['budget level; currently assumed moderate', 'the tactics in Channels and budget']);
     // a product described in some detail is not asked for again; a bare name or a short phrase is
     const kinds = kindsWithLines(ctx, ['pains', 'cta', 'launchTasks', 'channels', 'adoption', 'checklist']);
     if (kinds.length && prod.desc.split(/\s+/).filter(Boolean).length < 8)
-        missing.push([`what ${prod.name ?? 'the solution'} sells, in the product feature input`, 'the pilot, integration and adoption tasks, which now fit any company in the sector']);
+        missing.push([`what ${prod.name ?? 'the solution'} sells`, 'the pilot, integration and adoption tasks, which now fit any company in the sector']);
     if (needs.deals)
         missing.push(['your win rate from buying conversation to signed deal', 'the number of conversations to book, which is now the number of deals as a minimum']);
     const kindsOfGoals = new Set(goals.map(kindOf));
@@ -1128,7 +1128,7 @@ export function writeRetentionPlaybook(args) {
     const billingNotes = [args.customer_segment, args.product, args.churn_reasons, args.available_data_signals, args.current_interventions]
         .filter((x) => !!x).flatMap(x => x.split(/(?<=[.!?])\s+|[;\n]/))
         .filter(x => /\b(?:bill(?:ing|ed)?|licen[cs]e|true[ -]up|per seat|per transaction|retainer|management fee)\b/i.test(x));
-    const ctxLine = ctx.line.replace(/Business model: [^]*$/, `Business model: ${readableChoice(choice)} (from your business_model input).*`)
+    const ctxLine = ctx.line.replace(/Business model: [^]*$/, `Business model: ${readableChoice(choice)} (from your charging answer).*`)
         + (billingNotes.length ? `\nBilling details you supplied: ${[...new Set(billingNotes)].map(quoted).join('; ')}.` : '\nBilling cadence: not supplied.');
     // AI native without a kind read is written for case-by-case decision AI (cost per case, human review); other AI products get the reasons as questions
     const caseAI = ctx.v?.id === 'ai-native' && !ctx.v.subtype && !/investment/i.test(ctx.v.name);
@@ -1371,7 +1371,7 @@ export function writeRetentionPlaybook(args) {
     else if (churn.period === 'unstated')
         missing.push(['whether the churn rate is monthly, quarterly or yearly', `the annual figure, which now reads ${typedRate} as monthly`]);
     if (!args.industry && !ctx.v)
-        missing.push(['the industry, in the industry input', 'the sector measures, objections and renewal habits, which are now left out']);
+        missing.push(['your industry', 'the sector measures, objections and renewal habits, which are now left out']);
     const kinds = kindsWithLines(ctx, ['churnReasons', 'renewal']);
     if (kinds.length && !described)
         missing.push([`what ${productShort || 'your product'} sells, said in a few words after its name in the product input`, 'the reasons and steps, which now fit any company in the sector']);
@@ -1932,7 +1932,7 @@ ${audiences([[enterprise ? 'Technology or service owners at customers' : 'Custom
     if (!args.company_size)
         missing.push(['the company size, in the company size input; the plan assumes scale-up (50 to 200)', 'the response team']);
     if (!args.business_model)
-        missing.push(['the business model, in the how you charge input', 'the severity levels and the words used for credits and service levels']);
+        missing.push(['your business model and how you charge', 'the severity levels and the words used for credits and service levels']);
     out.push(sharpenBlock(missing));
     return dropRepeatedLines(out.join('\n')).replace(/\n{3,}/g, '\n\n').trimEnd() + '\n';
 }

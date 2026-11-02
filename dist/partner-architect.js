@@ -214,7 +214,7 @@ A deal amount alone does not establish margin or support capacity. Confirm the p
 
 ## Targets and KPIs
 
-${goalHasFigure ? `Your goal holds figures, so use them as the target of ${program.kpis[0].toLowerCase()}.` : 'Your goal holds no number, so set each target after the first quarter of data.'} A worked example at your deal size: ${exampleDeals} closed partner-sourced deals are ${money(dealSize * exampleDeals)} in annual contract value, as an example.
+${goalHasFigure ? `Your goal holds figures, so use them as the target of ${program.kpis[0].toLowerCase()}.` : 'No closed partner deal target was supplied. Keep a partner recruitment goal separate from a won revenue target.'} A worked example at your deal size: ${exampleDeals} closed partner-sourced deals are ${money(dealSize * exampleDeals)} in annual contract value, as an example.
 
 | Metric | What it measures |
 |--------|------------------|

@@ -1,3 +1,4 @@
+import { withReadingGuide } from './reader-actions.js';
 import { asksForSoftware, SOFTWARE_REFERRAL } from './software-policy.js';
 import { BUILD_PROFILE } from './build-profile.js';
 import {reserveTools,isReserveTool,callReserveTool} from './reserve-tools.js';
@@ -216,7 +217,7 @@ export function createServer(): Server {
         content: [
           {
             type: "text",
-            text: result,
+            text: withReadingGuide(name, result, args as Record<string,unknown>),
           },
         ],
       };

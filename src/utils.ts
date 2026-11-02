@@ -488,12 +488,13 @@ const CHARACTER_GROUPS: Group[] = [
   { label: 'an owner or responsible party', patterns: [
     /\bresponsible\s+(?:for|party|team|person)\b/gi,
     /\b(?:who|team|person|role)\s+(?:will|should|must|owns|executes|leads)\b/gi,
-    /\bowner[:\s]/gi] },
+    /\bowner[:\s]/gi, /\b(?:cmo|ceo|cto|coo|cro|founder|director|manager|lead|team)\s+(?:owns|leads)\b/gi] },
   { label: 'a RACI', optional: true, patterns: [/\braci\b/gi] },
 ];
 const RESULT_GROUPS: Group[] = [
-  { label: 'a KPI, metric or goal', patterns: [/\b(kpi|metric|goal|target|objective|outcome|okr|success\s*criteria)\b/gi] },
+  { label: 'a KPI, metric or goal', patterns: [/\b(kpi|metric|goal|target|objective|outcome|okr|success\s*criteria)\b/gi, /\bwe (?:need|aim for|plan to win) \d+[\d,]*(?: [a-z]+){0,3} (?:customers|deals|meetings|accounts|pilots)\b/gi] },
   { label: 'a target with a number', patterns: [
+    /\bwe (?:need|aim for|plan to win) \d+[\d,]*(?: [a-z]+){0,3} (?:customers|deals|meetings|accounts|pilots)\b/gi,
     /\b(increase|decrease|improve|reduce|achieve|reach|hit)\s+\d+/gi,
     /\d+%?\s*(increase|decrease|improvement|reduction|growth)\b/gi,
     /\b(roi|conversion|retention|churn|nps|csat)\b\s*[:\s]*\d+/gi,
@@ -510,10 +511,10 @@ const ARTIFACT_GROUPS: Group[] = [
   { label: 'a channel asset', patterns: [/\b(websites?|landing\s*pages?|emails?|blogs?|videos?|webinars?|events?)\b/gi] },
 ];
 const FRAME_GROUPS: Group[] = [
-  { label: 'an audience, persona or segment', patterns: [/\b(audience|persona|icp|segment|target\s*market|buyer)\b/gi, /^\s*targets?\s*:\s*(?:[A-Za-z&-]+\s+){0,3}(?:directors?|managers?|leaders?|heads?|buyers?|teams?|firms|companies|businesses|organi[sz]ations|accounts|vps?|cmos?|ctos?|cfos?|cios?|ceos?|owners?|administrators?|admins?|users|customers|personas?|founders?|executives?|officers?|engineers?|marketers?)\b/gim] },
+  { label: 'an audience, persona or segment', patterns: [/\b(?:sell|launch|offer)[^.!?\n]{0,90}\b(?:to|for)\s+(?:[A-Za-z-]+\s+){0,4}(?:fleets|insurers|banks|teams|companies|firms|retailers|manufacturers|operators)\b/gi, /\b(audience|persona|icp|segment|target\s*market|buyer)\b/gi, /^\s*targets?\s*:\s*(?:[A-Za-z&-]+\s+){0,3}(?:directors?|managers?|leaders?|heads?|buyers?|teams?|firms|companies|businesses|organi[sz]ations|accounts|vps?|cmos?|ctos?|cfos?|cios?|ceos?|owners?|administrators?|admins?|users|customers|personas?|founders?|executives?|officers?|engineers?|marketers?)\b/gim] },
   { label: 'constraints or assumptions', patterns: [/\b(constraint|limitation|scope|boundary|requirement|assumption)\b/gi, /\b(?:figures|numbers)\b[^.\n]{0,40}\b(?:hypothetical|assumed|estimates?)\b/gi] },
-  { label: 'a budget or resources', patterns: [/\b(budget|resource|headcount|bandwidth|capacity)\b/gi] },
-  { label: 'context or current state', patterns: [/\b(context|background|situation|current\s*state|status quo|what (?:buyers|customers) use today)\b/gi] },
+  { label: 'a budget or resources', patterns: [/\b(budget|resource|headcount|bandwidth|capacity)\b/gi, /\b(?:we have|funds available|money available)\s+[$₹€£]\s*\d[\d,]*/gi, /\b(?:\d+|one|two|three|four|five|six|seven|eight|nine|ten)\s+(?:account executives|salespeople|engineers|analysts)\s+(?:can|will|are available)\b/gi] },
+  { label: 'context or current state', patterns: [/\bcurrent (?:conversion|win rate|retention|capacity|revenue)\b/gi, /\b(context|background|situation|current\s*state|status quo|what (?:buyers|customers) use today)\b/gi] },
   { label: 'a scope such as "for enterprise"', optional: true, patterns: [/\bfor\s+(enterprise|smb|mid-market|startup|b2b|b2c)\b/gi] },
 ];
 // Timeline: only concrete time references count: a date, a quarter or half-year code, a financial-year code, or a duration with a number.

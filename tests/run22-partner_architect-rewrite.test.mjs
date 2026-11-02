@@ -36,7 +36,8 @@ test("each segment of the goal gets its own partner kinds; energy and utilities 
 test("the recruitment email names the company once per sentence, reads the product cleanly and has no placeholder", async () => {
   const out = await text("partner_architect", { company: "Meridian", product: "Meridian contact centre services for banks", partner_model: "referral", partner_goals: "Partner-sourced pipeline among banks; no numeric target given", your_deal_size: "$250,000 ACV" });
   assertClean(out, "Meridian");
-  const email = out.slice(out.indexOf("Subject:"));
+  const email = out.slice(out.indexOf("Subject:")).split("\n```")[0];
+  assert.match(out, /## Reading the answer/);
   assert.match(email, /contact centre services for banks/);
   assert.doesNotMatch(email, /Meridian[^.\n]*Meridian contact centre|offers "|see the tiers above|\[[^\]]+\]/);
   for (const s of email.split(/(?<=[.!?])\s+/)) assert.ok((s.match(/Meridian/g) || []).length <= 1 || /^Subject/.test(s), s);
@@ -80,7 +81,7 @@ test("a goal with a figure is used as the target of the first KPI; a goal withou
   const withFig = await P({ partner_goals: "20 partner-sourced deals in the first year among regional banks" });
   assert.match(withFig, /20 partner-sourced deals in the first year/);
   const none = await P();
-  assert.match(none, /first quarter of data/);
+  assert.match(none, /Keep a partner recruitment goal separate from a won revenue target/);
 });
 
 test("existing partners are placed, in one sentence, not pasted as a list of quotes", async () => {
@@ -129,7 +130,8 @@ test("round 2: a segment with no known kinds is named once, with the question th
 });
 test("round 2: the recruitment email names what the product does for the partner's customers, and the 25 percent row is not called a tier", async () => {
   const out = await text("partner_architect", WB);
-  const email = out.slice(out.indexOf("Subject:"));
+  const email = out.slice(out.indexOf("Subject:")).split("\n```")[0];
+  assert.match(out, /## Reading the answer/);
   assert.match(email, /works with languages and localisation/);
   assert.match(email, /Our goal is partner-sourced pipeline among enterprise software, financial services, education, web and mobile apps/);
   assert.match(out, /No payment terms are proposed/);
@@ -174,7 +176,8 @@ test("round 3: manufacturing and food segments lead to supply chain and logistic
 });
 test("round 3: the email carries only what the inputs hold: the company, the goal in the user's words, the segments; no product claim from a name", async () => {
   const out = await FR();
-  const email = out.slice(out.indexOf("Subject:"));
+  const email = out.slice(out.indexOf("Subject:")).split("\n```")[0];
+  assert.match(out, /## Reading the answer/);
   assert.match(email, /Automotive, Chemical, Food and beverage/);
   assert.doesNotMatch(email, /works with|which is the part your clients would use/);
   const loc = (await BARE()).slice((await BARE()).indexOf("Subject:"));
@@ -193,7 +196,8 @@ test("round 4: the segments' buying motion is in the tiers note and the 90 day p
   assertClean(out, "Plainmove");
   assert.match(out.split("## Partner tiers")[1].split("### Tier 1")[0], /manufacturing: a pilot at one plant, lane or supplier/);
   assert.match(out.split("## The first 90 days")[1].split("## Recruitment email")[0], /Agree how a first referred account would run in manufacturing and consumer goods and food/);
-  const email = out.slice(out.indexOf("Subject:"));
+  const email = out.slice(out.indexOf("Subject:")).split("\n```")[0];
+  assert.match(out, /## Reading the answer/);
   assert.match(email, /We are looking for partners such as supply chain and logistics consultancies[^.]*that already serve clients in manufacturing and consumer goods and food/);
   assert.match(email, /Clients in manufacturing are often dealing with a line stoppage/);
 });
@@ -205,7 +209,8 @@ for (const id of POOL) {
     const out = await text("partner_architect", args);
     assertClean(out, id);
     assertUses(out, [args.company, args.partner_goals.replace(/; no numeric target given/, ""), args.your_deal_size.replace(/\(hypothetical\)/, "")], id);
-    const email = out.slice(out.indexOf("Subject:"));
+    const email = out.slice(out.indexOf("Subject:")).split("\n```")[0];
+  assert.match(out, /## Reading the answer/);
     assert.doesNotMatch(email, /\[[^\]]+\]|see the tiers above/);
     assert.match(out, /\*Sector: [^\n]*Business model: /);
   });

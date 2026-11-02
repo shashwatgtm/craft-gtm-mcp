@@ -117,7 +117,7 @@ test("partner_architect: no 'offers \"X\"' when the product is the company name;
   const r = await call("partner_architect", { company: "Ledgerline", product: "Ledgerline", partner_model: "referral", partner_goals: "Partner-sourced pipeline for Ledgerline among 3PL operators, Digital media and publishing; no numeric target given", your_deal_size: "$60,000" });
   assert.doesNotMatch(r.text, /offers "Ledgerline"/);
   assert.doesNotMatch(r.text, /Use the figures in your goal/);
-  assert.match(r.text, /Your goal holds no number/);
+  assert.match(r.text, /No closed partner deal target was supplied/);
   assert.doesNotMatch(r.text, /OSS and BSS/);
   assert.match(r.text, /agency and ad-tech integrators/);
 });

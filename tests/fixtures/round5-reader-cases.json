@@ -1,0 +1,84 @@
+[
+  {
+    "tool": "pmf_scorecard",
+    "args": {
+      "product": "AI native contract review software",
+      "target_market": "enterprise_saas",
+      "current_metrics": "MRR: $50000; ACV: $24000; monthly logo churn: 2%; NPS: 35 from 12 replies; CAC: $18000; LTV: unknown; activation: 60%; annual logo retention: 78%",
+      "business_model": "saas"
+    }
+  },
+  {
+    "tool": "launch_commander",
+    "args": {
+      "product_feature": "Weekend alert triage service",
+      "launch_date": "2026-12-01",
+      "launch_type": "major_release",
+      "target_segments": "Midmarket SaaS companies with no weekend SOC cover",
+      "goals": "Five qualified pilot commitments",
+      "available_channels": "Founder outreach and two security community events",
+      "team_size": "small_2_5",
+      "budget_level": "bootstrap",
+      "business_model": "services"
+    }
+  },
+  {
+    "tool": "customer_interview_kit",
+    "args": {
+      "interview_type": "discovery",
+      "product_context": "Invoice processing service for regional insurers; we think exception approvals are the bottleneck but have only two interviews.",
+      "target_persona": "Accounts payable head"
+    }
+  },
+  {
+    "tool": "retention_playbook",
+    "args": {
+      "customer_segment": "Regional logistics fleets using dispatch planning software",
+      "business_model": "saas_subscription",
+      "current_churn_rate": "3% monthly logo churn",
+      "product": "Dispatch planning software",
+      "churn_reasons": "Two customers said dispatchers bypass the tool during peak hours; another said the price is too high. No price change experiment has run."
+    }
+  },
+  {
+    "tool": "partner_architect",
+    "args": {
+      "company": "Regional telecom software vendor",
+      "product": "Network incident automation",
+      "partner_model": "referral",
+      "partner_goals": "Find three network integration partners able to introduce operators with outage backlogs",
+      "your_deal_size": "$48000 annual",
+      "partner_support_capacity": "moderate",
+      "existing_partners": "One integrator made two introductions but neither became a paid account.",
+      "business_model": "saas"
+    }
+  },
+  {
+    "tool": "crisis_planner",
+    "args": {
+      "company": "Regional fintech payments provider",
+      "industry": "fintech",
+      "customer_base": "b2b_enterprise",
+      "data_sensitivity": "high_pii_financial",
+      "potential_crises": "A settlement outage prevents two bank customers from closing their books. No evidence of data exposure yet."
+    }
+  },
+  {
+    "tool": "competitive_intel",
+    "args": {
+      "your_product": "Dispatch planning software for regional fleets",
+      "competitors": "Existing TMS; spreadsheets",
+      "common_objections": "Our TMS already assigns routes. Switching will disrupt peak season.",
+      "your_strengths": "Dispatcher can reassign a failed delivery and notify the depot in one view. Time saved is not measured."
+    }
+  },
+  {
+    "tool": "craft_gtm_analyzer",
+    "args": {
+      "document_content": "Launch dispatch planning software to regional logistics fleets on 1 December. The CMO owns the launch. Two account executives can run six demos weekly. We have $18000 for events and outreach. We need 12 paid customers at $24000 ACV by March. Current conversion from demo to sale is 10 percent across 20 completed demos. Product can onboard three fleets monthly. We have not agreed a pilot acceptance measure.",
+      "document_type": "launch_plan",
+      "intended_audience": "CEO and CRO of a pre Series A logistics software business",
+      "desired_outcome": "Decide whether to keep the 12 customer target or reduce launch scope"
+    }
+  }
+]
