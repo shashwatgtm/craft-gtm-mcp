@@ -1,6 +1,7 @@
 /** Deterministic metric reader. Never score a target, negation or conflicting pair as an observed fact. */
 export interface MetricReading {
     values: Record<string, number>;
+    currencies: Record<string, string>;
     evidence: string[];
     issues: string[];
     retentionIsNet: boolean;

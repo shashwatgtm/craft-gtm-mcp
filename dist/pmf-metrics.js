@@ -1,6 +1,8 @@
 import { readSignal } from './text-signals.js';
 export function readPMFMetrics(raw) {
-    const result = { values: {}, evidence: [], issues: [], retentionIsNet: false };
+    const result = { values: {}, currencies: {}, evidence: [], issues: [], retentionIsNet: false };
+    const currency = '(?:\\b(?:USD|INR|SGD|EUR|GBP|AED|SAR|CAD|AUD|NZD|HKD|JPY|CNY|CHF|ZAR|BRL|MXN|KRW|SEK|NOK|DKK|PLN|TRY|IDR|MYR|THB|PHP|VND)\\b|US\\$|HK\\$|NZ\\$|S\\$|A\\$|C\\$|₹|€|£|¥|\\$)';
+    const currencyName = (value) => ({ '₹': 'INR', '€': 'EUR', '£': 'GBP', 'US$': 'USD', 'S$': 'SGD', 'A$': 'AUD', 'C$': 'CAD', 'HK$': 'HKD', 'NZ$': 'NZD' }[value.toUpperCase()] || value.toUpperCase());
     const definitions = [
         ['churn', '(?:(?:monthly|annual|yearly|quarterly)\\s+)?(?:logo\\s+)?churn(?:\\s+rates?)?', 0, 100],
         ['nps', '(?:nps|net promoter score)', -100, 100],
@@ -12,7 +14,9 @@ export function readPMFMetrics(raw) {
         ['activationRate', 'activation(?:\\s+rates?)?', 0, 100],
     ];
     for (const [key, label, min, max] of definitions) {
-        const pattern = new RegExp('\\b(' + label + ')\\b\\s*(?::|=|is|of|was)?\\s*\\$?\\s*([+-]?\\d[\\d,]*(?:\\.\\d+)?)\\s*(?:([kmb])\\b)?\\s*(%)?', 'gi');
+        const money = ['ltv', 'cac', 'mrr', 'arr', 'acv'].includes(key);
+        const unit = money ? '(?:' + currency + ')?' : '\\$?';
+        const pattern = new RegExp('\\b(' + label + ')\\b\\s*(?::|=|is|of|was)?\\s*' + unit + '\\s*([+-]?\\d[\\d,]*(?:\\.\\d+)?)\\s*(?:([kmb])\\b)?\\s*(%)?' + (money ? '\\s*(?:' + currency + ')?' : ''), 'gi');
         const matches = [...raw.matchAll(pattern)];
         // Common percentage-first forms remain scoped to the named measure.
         if (!matches.length && ['churn', 'retentionRate', 'activationRate'].includes(key)) {
@@ -51,6 +55,16 @@ export function readPMFMetrics(raw) {
                 result.issues.push(`${key}: conflicting values or bases; give one confirmed measure and period. Read: "${match[0]}".`);
                 continue;
             }
+            if (money) {
+                const units = [...new Set((match[0].match(new RegExp(currency, 'gi')) || []).map(currencyName))];
+                const prior = result.currencies[key];
+                if (units.length > 1 || (prior && units.length && prior !== units[0])) {
+                    result.issues.push(`${key}: conflicting currency units; confirm one amount and currency before comparison.`);
+                    continue;
+                }
+                if (units[0])
+                    result.currencies[key] = units[0];
+            }
             if (key === 'churn') {
                 // Read the period only in this metric's clause, never from a neighbouring measure.
                 const clause = (before.split(/,(?!\d)/).pop() + match[0] + after).trim();
@@ -74,6 +88,12 @@ export function readPMFMetrics(raw) {
                 result.retentionBasis = basis;
             }
             result.evidence.push(`${match[1]}: "${match[0]}"`);
+        }
+    }
+    if (result.values.ltv !== undefined && result.values.cac !== undefined) {
+        const ltvCurrency = result.currencies.ltv, cacCurrency = result.currencies.cac;
+        if (!ltvCurrency || !cacCurrency || ltvCurrency !== cacCurrency) {
+            result.issues.push(`ltvCacRatio: currency units are ${ltvCurrency || 'not supplied'} for lifetime value and ${cacCurrency || 'not supplied'} for acquisition cost. Supply comparable amounts in the same stated currency and the conversion basis before calculating a ratio. No exchange rate has been assumed.`);
         }
     }
     return result;

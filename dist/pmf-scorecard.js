@@ -19,6 +19,10 @@ export function generatePMFScorecard(args) {
     metrics.retentionIsNet = reading.retentionIsNet;
     if (metrics.ltv !== undefined && metrics.cac !== undefined && metrics.cac > 0)
         metrics.ltvCacRatio = metrics.ltv / metrics.cac;
+    const money = (key, value) => {
+        const amount = value.toLocaleString('en-US'), currency = reading.currencies[key];
+        return currency === '$' ? '$' + amount : currency ? currency + ' ' + amount : amount + ' (currency not supplied)';
+    };
     const marketType = args.target_market || 'other';
     const maturity = args.time_in_market || '1_2_years';
     // Define benchmarks by market type
@@ -165,7 +169,7 @@ export function generatePMFScorecard(args) {
     if (retentionScore.label === 'CRITICAL' || retentionScore.label === 'DEVELOPING') {
         recommendations.push('RETENTION: Check the cohort and period, investigate lost customers or revenue, and assign an owner to the recovery plan. Confirm renewal evidence before scaling.');
     }
-    const acvNote = metrics.acv !== undefined ? ` You gave an annual contract value of $${metrics.acv.toLocaleString('en-US')}: LTV is that value times your gross margin times the years a contract lasts, and CAC is your sales and marketing cost divided by the contracts won in the same period.` : '';
+    const acvNote = metrics.acv !== undefined ? ` You gave an annual contract value of ${money('acv', metrics.acv)}: LTV is that value times your gross margin times the years a contract lasts, and CAC is your sales and marketing cost divided by the contracts won in the same period.` : '';
     if (ltvCacScore.label === 'MISSING') {
         recommendations.push(`LTV:CAC: not scored, because ${metrics.ltv === undefined && metrics.cac === undefined ? 'neither LTV nor CAC was given' : metrics.ltv === undefined ? 'LTV was not given' : 'CAC was not given'}.${acvNote || ' Work out both from your own sales and renewal records.'}`);
     }
@@ -299,8 +303,8 @@ ${dimensionHeader}
 ### 3. Unit Economics (LTV:CAC)
 ${dimensionHeader}
 |--------|-----------|-------|-----------|--------|
-| LTV | ${metrics.ltv !== undefined ? '$' + metrics.ltv.toLocaleString('en-US') : 'NOT PROVIDED'} | - | - | - |
-| CAC | ${metrics.cac !== undefined ? '$' + metrics.cac.toLocaleString('en-US') : 'NOT PROVIDED'} | - | - | - |
+| LTV | ${metrics.ltv !== undefined ? money('ltv', metrics.ltv) : 'NOT PROVIDED'} | - | - | - |
+| CAC | ${metrics.cac !== undefined ? money('cac', metrics.cac) : 'NOT PROVIDED'} | - | - | - |
 | LTV:CAC Ratio | ${metrics.ltvCacRatio !== undefined ? metrics.ltvCacRatio.toFixed(1) + 'x' : 'NOT PROVIDED'} | ${ltvCacScore.score}/10 | healthy from ${b.ltvCac.medium}x, excellent from ${b.ltvCac.high}x | ${ltvCacScore.label} |
 
 **Analysis:** ${ltvCacScore.analysis}
@@ -329,7 +333,7 @@ ${activationApplies ? `${dimensionHeader}
 
 ## Additional Metrics Detected
 
-${(() => { const rows = `${metrics.mrr !== undefined ? `| MRR | $${metrics.mrr.toLocaleString('en-US')} | Monthly Recurring Revenue |\n` : ''}${metrics.arr !== undefined ? `| ARR | $${metrics.arr.toLocaleString('en-US')} | Annual Recurring Revenue |\n` : ''}${metrics.acv !== undefined ? `| ACV | $${metrics.acv.toLocaleString('en-US')} | Annual contract value (your figure; not scored, shown for reference) |\n` : ''}${metrics.dau !== undefined ? `| DAU | ${metrics.dau.toLocaleString('en-US')} | Daily Active Users |\n` : ''}${metrics.mau !== undefined ? `| MAU | ${metrics.mau.toLocaleString('en-US')} | Monthly Active Users |\n` : ''}${metrics.dauMauRatio !== undefined ? `| DAU/MAU | ${pct(metrics.dauMauRatio * 100)}% | Stickiness ratio |\n` : ''}${metrics.trialConversion !== undefined ? `| Trial Conversion | ${pct(metrics.trialConversion)}% | Trial to paid rate |\n` : ''}${metrics.revenueGrowth !== undefined ? `| Revenue Growth | ${pct(metrics.revenueGrowth)}% | MoM or YoY growth |\n` : ''}`; return rows.trim() ? `| Metric | Value | Notes |\n|--------|-------|-------|\n${rows}` : 'None found in your text (MRR, ARR, ACV, DAU, MAU, trial conversion or revenue growth).\n'; })()}
+${(() => { const rows = `${metrics.mrr !== undefined ? `| MRR | ${money('mrr', metrics.mrr)} | Monthly Recurring Revenue |\n` : ''}${metrics.arr !== undefined ? `| ARR | ${money('arr', metrics.arr)} | Annual Recurring Revenue |\n` : ''}${metrics.acv !== undefined ? `| ACV | ${money('acv', metrics.acv)} | Annual contract value (your figure; not scored, shown for reference) |\n` : ''}${metrics.dau !== undefined ? `| DAU | ${metrics.dau.toLocaleString('en-US')} | Daily Active Users |\n` : ''}${metrics.mau !== undefined ? `| MAU | ${metrics.mau.toLocaleString('en-US')} | Monthly Active Users |\n` : ''}${metrics.dauMauRatio !== undefined ? `| DAU/MAU | ${pct(metrics.dauMauRatio * 100)}% | Stickiness ratio |\n` : ''}${metrics.trialConversion !== undefined ? `| Trial Conversion | ${pct(metrics.trialConversion)}% | Trial to paid rate |\n` : ''}${metrics.revenueGrowth !== undefined ? `| Revenue Growth | ${pct(metrics.revenueGrowth)}% | MoM or YoY growth |\n` : ''}`; return rows.trim() ? `| Metric | Value | Notes |\n|--------|-------|-------|\n${rows}` : 'None found in your text (MRR, ARR, ACV, DAU, MAU, trial conversion or revenue growth).\n'; })()}
 
 ${unscored.length ? `Not scored (no rule reads these figures): ${unscored.map((x) => q(x)).join('; ')}. This scorecard scores ${andList(['churn', 'NPS', 'LTV:CAC', 'retention', ...(activationApplies ? ['activation'] : [])])} only: compare these figures with your own targets.\n` : ''}
 ${feedbackAnalysis ? `---\n\n## Customer Feedback You Gave\n\n${feedbackAnalysis}\n` : ''}
