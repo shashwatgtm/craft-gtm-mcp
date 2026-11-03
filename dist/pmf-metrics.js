@@ -28,7 +28,12 @@ export function readPMFMetrics(raw) {
             const before = raw.slice(0, index).split(/[;\n]|(?<!\d)\.(?!\d)/).pop() ?? '';
             const after = raw.slice(index + match[0].length).split(/[;\n]|,(?!\d)|(?<!\d)\.(?!\d)/)[0];
             const sentence = (before + match[0] + after).trim();
-            if (/\b(?:not|never|no longer|target|goal|forecast|aim|expected)\b/i.test(before.slice(-55)) || /\b(?:target|goal|not actual|not achieved|actual is|was wrong)\b/i.test(after)) {
+            const unobserved = /\b(?:target|goal|forecast|projected|projection|assumed|assumption|illustrative|hypothetical|expected|incorrect|invalid|withdrawn|retracted|not actual|not measured|not observed|not achieved|actual is|was wrong)\b/i;
+            // A directly attached correction can follow a full stop. Do not borrow a
+            // qualification from a different metric or an unrelated revenue forecast.
+            const following = raw.slice(index + match[0].length).match(/^[^.\n;]*\.\s*((?:(?:this|that)\s+(?:value|figure|metric|result)|the\s+(?:value|figure|metric|result)|(?:the\s+)?(?:nps|churn|ltv|cac|retention|activation)\s+(?:value|figure|metric|result))\b[^.\n;]*)/i)?.[1] || '';
+            const refersToMetric = !/\b(?:nps|churn|ltv|cac|retention|activation)\b/i.test(following) || new RegExp('\\b' + label + '\\b', 'i').test(following);
+            if (/\b(?:not|never|no longer|aim)\b/i.test(before.slice(-55)) || unobserved.test(before.slice(-55)) || unobserved.test(after) || (refersToMetric && unobserved.test(following))) {
                 result.issues.push(`${key}: the fact was not clear; confirm the observed value. Read: "${sentence}".`);
                 continue;
             }
