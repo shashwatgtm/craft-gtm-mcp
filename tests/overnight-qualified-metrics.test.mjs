@@ -19,7 +19,10 @@ for(const current_metrics of [
  'Expected monthly churn: 1%. No observed churn is available.',
  'Projected monthly churn: 1%. No observed churn is available.',
  'NPS: 70. This value has been withdrawn.',
- 'NPS: 70. The NPS result is incorrect.'
+ 'NPS: 70. The NPS result is incorrect.',
+ 'NPS: 70 is not a measured customer result.',
+ 'NPS: 70 is not an observed customer result.',
+ 'NPS: 70 is not the actual customer result.'
 ])test('M100 nonobserved or invalidated metric is not scored: '+current_metrics,()=>{
  const out=run(current_metrics);assert.match(out,/Cannot score these metrics/);assert.doesNotMatch(out,/Overall PMF Assessment/);
  const m=readPMFMetrics(current_metrics);assert.equal(Object.keys(m.values).length,0);

@@ -30,7 +30,7 @@ export function readPMFMetrics(raw: string): MetricReading {
       const before = raw.slice(0,index).split(/[;\n]|(?<!\d)\.(?!\d)/).pop() ?? '';
       const after = raw.slice(index + match[0].length).split(/[;\n]|,(?!\d)|(?<!\d)\.(?!\d)/)[0];
       const sentence = (before+match[0]+after).trim();
-      const unobserved = /\b(?:target|goal|forecast|projected|projection|assumed|assumption|illustrative|hypothetical|expected|incorrect|invalid|withdrawn|retracted|not actual|not measured|not observed|not achieved|actual is|was wrong)\b/i;
+      const unobserved = /\b(?:target|goal|forecast|projected|projection|assumed|assumption|illustrative|hypothetical|expected|incorrect|invalid|withdrawn|retracted|not(?: an?| the)? (?:actual|measured|observed)|not achieved|actual is|was wrong)\b/i;
       // A directly attached correction can follow a full stop. Do not borrow a
       // qualification from a different metric or an unrelated revenue forecast.
       const following = raw.slice(index + match[0].length).match(/^[^.\n;]*\.\s*((?:(?:this|that)\s+(?:value|figure|metric|result)|the\s+(?:value|figure|metric|result)|(?:the\s+)?(?:nps|churn|ltv|cac|retention|activation)\s+(?:value|figure|metric|result))\b[^.\n;]*)/i)?.[1] || '';
