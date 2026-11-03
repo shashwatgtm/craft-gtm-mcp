@@ -1,6 +1,8 @@
+import {pathToFileURL as dynamicTestURL} from 'node:url';
+const importPortableTest=specifier=>import(typeof specifier==='string'&&/^[A-Za-z]:[\\/]/.test(specifier)?dynamicTestURL(specifier).href:specifier);
 import test from 'node:test';import assert from 'node:assert/strict';import {pathToFileURL} from 'node:url';import path from 'node:path';
 const home=process.env.WAVE4_TEST_HOME||path.resolve('.');
-const {generatePMFScorecard:score}=await import(pathToFileURL(home+'/dist/pmf-scorecard.js'));
+const {generatePMFScorecard:score}=await importPortableTest(pathToFileURL(home+'/dist/pmf-scorecard.js'));
 const markets=['logistics_tech','fintech','enterprise_saas','vertical_saas','ai_native','ites','telecom','software','cybersecurity'];
 const healthy='Monthly Churn: 0.5%, NPS: 80, LTV: $300000, CAC: $30000, Retention: 98%, Activation: 90%';
 for(const market of markets){

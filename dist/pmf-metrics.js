@@ -1,6 +1,14 @@
 import { readSignal } from './text-signals.js';
 export function readPMFMetrics(raw) {
     const result = { values: {}, evidence: [], issues: [], retentionIsNet: false };
+    // Consume numeric notation as a whole. Unsupported units and intervals must
+    // never leave a truncated prefix available to the scalar scoring rules.
+    const numericText = raw.replace(/\b\d{4}-\d{2}-\d{2}\b/g, '');
+    const unsupported = /\d[\d,]*(?:\.\d+)?\s*(?:lakhs?|lacs?|crores?|thousand|million|billion|basis\s+points?|bps)\b|\d(?:\.\d+)?e[+-]?\d+\b|\d[\d,]*(?:\.\d+)?\s*(?:[kmb]\b)?\s*%?\s*(?:to|[-–—])\s*(?:(?:USD|INR|GBP|EUR|CAD|SGD)\s*|[$£€₹]\s*)?[+-]?\d|\bas\s+a\s+fraction\b/i.exec(numericText);
+    if (unsupported) {
+        result.issues.push('Unsupported numeric unit or interval: "' + unsupported[0] + '". Supply one confirmed scalar in ordinary currency units or percent, with its measurement period. No numeric prefix has been scored.');
+        return result;
+    }
     const definitions = [
         ['churn', '(?:(?:monthly|annual|yearly|quarterly)\\s+)?(?:logo\\s+)?churn(?:\\s+rates?)?', 0, 100],
         ['nps', '(?:nps|net promoter score)', -100, 100],
