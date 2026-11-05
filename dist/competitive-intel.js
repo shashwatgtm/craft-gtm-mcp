@@ -569,7 +569,7 @@ ${comps.length === 1 && comps[0].ref === 'the current approach you described' ? 
             out += `**${c.desc ? 'Why not stay with the current approach?' : `Why not ${c.name}?`} What to say:**\n\n> "Comparing us with ${c.ref} is fair, and I would rather answer it than dodge it.${lead.length ? ` Against ${c.ref}, ${'our unverified seller claim is'}: ${sayList(lead.slice(0, 2))}.` : ''}${c.weak.length && !PAGE_NOTE.test(noteParts(c.weak[0]).core) ? (() => { const np = noteParts(c.weak[0]); return np.who ? ` And on ${c.ref}, in ${np.who}: ${np.core}.` : ` And on ${c.ref}, the supplied, unverified note says: ${np.core}.`; })() : ''} Which point would you want to check first against ${c.ref}?"\n\n`;
         }
         else {
-            out += `**Comparison conversation:**\n\n> "We have not established an advantage over ${c.ref}. Which task should we compare using the same inputs and acceptance measure? Let us record where ${c.ref} works well, what remains unresolved and whether a change would justify its disruption."\n\n`;
+            out += `**Comparison conversation:**\n\n> "We have not established an advantage over ${c.ref}. Which task should we compare with ${c.ref} using the same inputs and acceptance measure? Let us record where ${c.ref} works well, what remains unresolved and whether a change would justify its disruption."\n\n`;
         }
     });
     out += `## Objection handlers\n\n`;

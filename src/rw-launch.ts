@@ -530,7 +530,7 @@ This is a readiness review, not an acquisition schedule. No new pilot commitment
   const mode: LaunchCtx['mode'] = contractSale ? 'contract' : salesLed ? 'committee' : 'self';
   const lang = MODEL_LANGUAGE[model ?? 'saas'];
   const prod = productParts(args.product_feature);
-  const caps = prod.wrapped ? [] : capabilityList(prod.desc);
+  const caps = prod.wrapped ? [] : capabilityList(prod.desc).map(x => x.length >= 200 && x === args.product_feature ? x.split(/;|,\s+/)[0] + ' (review the complete description for scope and evidence limits)' : x);
   const descShown = !prod.wrapped && !caps.length && prod.desc ? prod.desc : '';
   // The neutral regulated finance read (no kind of fintech product was found) holds lines written for a finance team that reports and reconciles. A product that
   // connects data or payments through an interface that engineering teams build in is described in its own words instead: its parts name the problems to test,
@@ -640,8 +640,8 @@ This is a readiness review, not an acquisition schedule. No new pilot commitment
     out.push(`${prod.name ? c.NS : 'Your solution'} is described by ${caps.length > 1 ? "these parts" : "this part"}:`);
     out.push('');
     out.push(caps.map((x) => `- ${x}`).join('\n'));
-  } else if (prod.wrapped) out.push(`You describe ${c.N} in these words: ${quoted(prod.desc)}`);
-  else if (descShown) out.push(`You describe ${prod.name ? c.N : 'your solution'} in these words: ${quoted(descShown)}.`);
+  } else if (prod.wrapped) out.push(`You describe ${c.N} in these words: ${quoted(prod.desc.length >= 200 ? prod.desc.split(/;|,\s+|\.\s+/)[0] + ' (excerpt only; review the complete description and its limits)' : prod.desc)}`);
+  else if (descShown) out.push(`You describe ${prod.name ? c.N : 'your solution'} in these words: ${quoted(descShown.length >= 200 ? descShown.split(/;|,\s+|\.\s+/)[0] + ' (excerpt only; review the complete description and its limits)' : descShown)}.`);
   else out.push(`${c.NS} is the launch. No description was given, so the messages below are built from the sector and the segments.`);
   out.push('');
 
@@ -1820,7 +1820,7 @@ ${audiences([[enterprise ? 'Technology or service owners at customers' : 'Custom
   const industryName = ctx.v?.name || readableChoice(args.industry);
   const brief: string[] = [];
   brief.push(`${N === 'your company' ? 'This plan is for your company' : `This plan is for ${N}`}, ${aAn(industryName)} ${industryName} company with ${readableChoice(base)} customers, ${readableChoice(sensitivity)} data sensitivity and a ${readableChoice(companySize)} team${args.company_size ? '' : ' (assumed)'}.`);
-  if (prod.desc) brief.push(`You describe the company as ${quoted(prod.desc)}.`);
+  if (prod.desc) brief.push(`You describe the company as ${quoted(prod.desc.length >= 200 ? prod.desc.split(/;|,\s+|\.\s+/)[0] + ' (excerpt only; review the complete description and its limits)' : prod.desc)}.`);
   brief.push(typed.length
     ? `It covers the ${crisesAsked.length} ${plural(crisesAsked.length, 'crisis', 'crises')} you named: ${andList(crisesAsked.map((c) => quoted(spaced(c))))}.`
     : `You named no crises, so it covers a default set for ${industryName}, not ranked by likelihood: ${andList(crisesAsked.map((c) => spaced(c).replace(/\bsla\b/gi, 'SLA').replace(/\bpr\b/gi, 'PR').replace(/\bai\b/gi, 'AI')))}.`);

@@ -421,6 +421,9 @@ ${stated.length ? `How the labelled lines of the plan count. ${countLines.join('
         asks.push(['desired outcome: what the plan should make happen', 'whether the review can check the plan against its purpose']);
     if (!checkV && !buyerCtx)
         asks.push(['the industry input, or the buyer\'s industry in the plan', 'the sector check of deciders and measures']);
+    const recordedGoal = content.match(/^Goal: (.+?)\.?$/m)?.[1];
+    if (recordedGoal && !output.includes(recordedGoal.slice(0, 60)))
+        output += `\n**Goal recorded for review:** ${qc(recordedGoal, 500)}\n`;
     output += `\n${closing(asks)}`;
     return finalise(output);
 }
