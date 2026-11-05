@@ -196,14 +196,15 @@ export function sectorChoiceNotice(tool, args, infer) {
     if (!chosen || !SECTOR_LABELS[chosen])
         return '';
     const texts = (fields[tool] || []).map(f => args[f]).filter((v) => typeof v === 'string' && !!v.trim());
+    const evidence = (text) => text.length < 200 ? `Sentence read: "${text}".` : `Description excerpt: "${text.slice(0, 160).replace(/\s+\S*$/, '')}" (excerpt only; review the complete description and its qualifications).`;
     for (const text of texts)
         if (excludesSellerSector(text, chosen))
-            return `**Sector conflict:** You selected ${SECTOR_LABELS[chosen]}, but the description explicitly excludes that sector. The selected ${SECTOR_LABELS[chosen]} is used. Sentence read: "${text}".\n\n`;
+            return `**Sector conflict:** You selected ${SECTOR_LABELS[chosen]}, but the description explicitly excludes that sector. The selected ${SECTOR_LABELS[chosen]} is used. ${evidence(text)}\n\n`;
     for (const text of texts) {
         const label = sellerSectorLabel(text), r = infer(text);
         const id = label.id || (label.state !== 'negated' && r.source === 'seller' ? r.id : null);
         if (id && id !== chosen)
-            return `**Sector conflict:** You selected ${SECTOR_LABELS[chosen]}, but the description reads as ${SECTOR_LABELS[id] || r.name || id}. The selected ${SECTOR_LABELS[chosen]} is used. Sentence read: "${text}".\n\n`;
+            return `**Sector conflict:** You selected ${SECTOR_LABELS[chosen]}, but the description reads as ${SECTOR_LABELS[id] || r.name || id}. The selected ${SECTOR_LABELS[chosen]} is used. ${evidence(text)}\n\n`;
     }
     return '';
 }
