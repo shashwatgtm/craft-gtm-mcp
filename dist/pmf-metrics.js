@@ -4,6 +4,15 @@ export function readPMFMetrics(raw) {
     // Consume numeric notation as a whole. Unsupported units and intervals must
     // never leave a truncated prefix available to the scalar scoring rules.
     const numericText = raw.replace(/\b\d{4}-\d{2}-\d{2}\b/g, '');
+    // A fraction is one unsupported number, never its numerator. Dates are not fractions.
+    const fraction = /(?<![/\d.])(?:(?:churn|nps|ltv|cac|mrr|arr|acv|retention|nrr|activation)[^.;\n]{0,30}?)?\d[\d,]*(?:\.\d+)?\s*\/\s*[+-]?\d[\d,]*(?:\.\d+)?(?!\s*\/\s*\d)(?!\d)/gi;
+    for (const m of numericText.matchAll(fraction)) {
+        const near = /(?:churn|nps|ltv|cac|mrr|arr|acv|retention|nrr|activation)/i.test(m[0]) || /^\s*%/.test(numericText.slice(m.index + m[0].length));
+        if (near) {
+            result.issues.push('Unsupported numeric fraction: "' + m[0].trim() + '". Supply one confirmed scalar in ordinary currency units or percent, with its measurement period. No numerator or denominator has been scored.');
+            return result;
+        }
+    }
     const unsupported = /\d[\d,]*(?:\.\d+)?\s*(?:lakhs?|lacs?|crores?|thousand|million|billion|basis\s+points?|bps)\b|\d(?:\.\d+)?e[+-]?\d+\b|\d[\d,]*(?:\.\d+)?\s*(?:[kmb]\b)?\s*%?\s*(?:to|[-–—])\s*(?:(?:USD|INR|GBP|EUR|CAD|SGD)\s*|[$£€₹]\s*)?[+-]?\d|\bas\s+a\s+fraction\b/i.exec(numericText);
     if (unsupported) {
         result.issues.push('Unsupported numeric unit or interval: "' + unsupported[0] + '". Supply one confirmed scalar in ordinary currency units or percent, with its measurement period. No numeric prefix has been scored.');
