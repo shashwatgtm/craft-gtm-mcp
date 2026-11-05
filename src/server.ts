@@ -1,3 +1,4 @@
+import { guardInputs, holdBuyerCopy } from './input-evidence.js';
 import { withReadingGuide } from './reader-actions.js';
 import { softwareAdvice, SOFTWARE_REFERRAL } from './software-policy.js';
 import { BUILD_PROFILE } from './build-profile.js';
@@ -170,15 +171,18 @@ export function createServer(): Server {
     // Run 20 (D086): the one place where a tools/call reaches a tool, on both the hosted path (netlify/functions/mcp.mjs and
     // api.mjs) and the stdio path (src/index.ts), because all use this server.
     // Run 40S (D6, safe by design): the input checks read the text as typed (hidden characters removed); then every text is escaped once, so nothing the caller typed can form markup in any answer. The words stay (src/escape-inputs.ts).
-    const typed = cleanDeep(request.params.arguments);
+    let typed = cleanDeep(request.params.arguments);
+    const inputEvidence = guardInputs(typed, listedTools.find(t => t.name === name)?.inputSchema);
+    typed = inputEvidence.args as typeof typed;
     const problem = checkRequiredInputs(name, typed as Record<string, unknown> | undefined);
     const args = escapeDeep(typed);
-    if (problem) {
-      return { content: [{ type: "text", text: problem }], isError: true };
+    if (problem || inputEvidence.stop) {
+      return { content: [{ type: "text", text: (problem || 'Missing required input. Supply the missing evidence before continuing.') + (inputEvidence.notice ? '\n\n' + inputEvidence.notice : '') }], isError: true };
     }
 
     const advice = softwareAdvice(typed);
     if (advice) return { content: [{ type: 'text', text: advice }] };
+
 
     try {
       let result: string;
@@ -218,7 +222,7 @@ export function createServer(): Server {
         content: [
           {
             type: "text",
-            text: withReadingGuide(name, result, args as Record<string,unknown>),
+            text: inputEvidence.notice + (inputEvidence.notice ? '\n\n' : '') + withReadingGuide(name, holdBuyerCopy(name, args, result), args as Record<string,unknown>),
           },
         ],
       };

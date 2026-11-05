@@ -1,3 +1,4 @@
+import { satisfactionEvidence } from './satisfaction-evidence.js';
 import { suppliedAssessmentDate } from './supplied-date.js';
 import { explainSector } from './verticals.js';
 import { pmfBenchmarkNotice, frictionReading, readSignal } from './text-signals.js';
@@ -84,7 +85,11 @@ export function generatePMFScorecard(args) {
     const ctx = readContext({ model: args.business_model, hintModel: hint, vertical: marketType, sector: args.your_sector }, { seller: [args.product], context: [args.current_metrics, args.customer_feedback] });
     // Activation measures the first use of a software subscription: it is not scored for services, connectivity or investment.
     const activationApplies = !(ctx.model === 'services' || ctx.model === 'connectivity' || ctx.model === 'investment');
-    const dimensionCount = activationApplies ? 5 : 4;
+    const satisfaction = satisfactionEvidence(args.current_metrics);
+    if (satisfaction.issue)
+        return benchmarkNotice + "# Cannot score these metrics\n\n" + satisfaction.issue;
+    const disappointmentScore = satisfaction.share === undefined ? null : { score: satisfaction.share >= 40 ? 7 : 3, label: satisfaction.share >= 40 ? "MEETS 40% LINE" : "CRITICAL", analysis: `${satisfaction.share}% very disappointed ${satisfaction.share >= 40 ? "meets" : "is below"} the 40% comparison line. This survey signal alone does not prove fit.` };
+    const dimensionCount = (activationApplies ? 5 : 4) + (disappointmentScore ? 1 : 0);
     // Score each dimension
     const months = reading.churnMonths;
     const churnLabel = months === 12 ? 'Annual Churn' : months === 3 ? 'Quarterly Churn' : months === 1 ? 'Monthly Churn' : 'Churn (period not supplied)';
@@ -96,14 +101,15 @@ export function generatePMFScorecard(args) {
     const churnPeriodNote = metrics.churn !== undefined && !months
         ? 'Period not supplied. This churn figure is listed but not scored; confirm whether it is monthly, quarterly or annual.'
         : metrics.churn !== undefined && months && months > 1 ? `Your ${months === 12 ? 'annual' : 'quarterly'} churn remains ${pct(metrics.churn)}%. Monthly equivalent: (1 − (1 − ${pct(metrics.churn)} / 100)^(1/${months})) × 100 = ${monthlyShown}%. This assumes a constant monthly loss rate. The monthly equivalent is compared with the existing monthly example range: healthy up to ${pct(churnRange.medium)}%, excellent up to ${pct(churnRange.low)}%.` : '';
-    const npsScore = scoreMetric(metrics.nps, b.nps, true);
+    const earlyNPS = metrics.nps !== undefined && satisfaction.sample !== undefined && satisfaction.sample < 30;
+    const npsScore = earlyNPS ? { score: 0, label: "EARLY SIGNAL", analysis: `NPS ${metrics.nps} from ${satisfaction.sample} ${satisfaction.sampleBasis}. Below 30 responses, treat this as an early signal, not a status. It is not scored and is excluded from the fit average. Confirm the response count, cohort and collection period.` } : scoreMetric(metrics.nps, b.nps, true);
     const ltvCacScore = scoreMetric(metrics.ltvCacRatio, b.ltvCac, true, metrics.ltvCacRatio?.toFixed(1), 'x');
     const retentionLabel = reading.retentionBasis === 'logo' ? 'Logo Retention' : reading.retentionBasis === 'gross_revenue' ? 'Gross Revenue Retention' : metrics.retentionIsNet ? 'Net Revenue Retention' : 'Retention Rate';
     const retentionScore = scoreMetric(metrics.retentionRate, b.retention, true, undefined, '%');
     const activationScore = scoreMetric(metrics.activationRate, b.activation, true, undefined, '%');
     // Calculate overall PMF score
-    const scoredDimensions = [churnScore, npsScore, ltvCacScore, retentionScore, ...(activationApplies ? [activationScore] : [])]
-        .filter(s => s.label !== 'MISSING');
+    const scoredDimensions = [churnScore, npsScore, ltvCacScore, retentionScore, ...(activationApplies ? [activationScore] : []), ...(disappointmentScore ? [disappointmentScore] : [])]
+        .filter(s => s.label !== 'MISSING' && s.label !== 'EARLY SIGNAL');
     const overallScore = scoredDimensions.length > 0
         ? Math.round(scoredDimensions.reduce((sum, s) => sum + s.score, 0) / scoredDimensions.length * 10) / 10
         : 0;
@@ -129,7 +135,7 @@ export function generatePMFScorecard(args) {
     else {
         pmfAnalysis = 'Early stage: more data is needed, or a pivot if the numbers you have are weak.';
     }
-    const criticalRows = [churnScore, npsScore, ltvCacScore, retentionScore, ...(activationApplies ? [activationScore] : [])].filter(s => s.label === 'CRITICAL');
+    const criticalRows = [churnScore, npsScore, ltvCacScore, retentionScore, ...(activationApplies ? [activationScore] : []), ...(disappointmentScore ? [disappointmentScore] : [])].filter(s => s.label === 'CRITICAL');
     if (criticalRows.length) {
         pmfStage = 'Searching for PMF';
         pmfAnalysis = 'A CRITICAL dimension blocks a fit verdict. Resolve the priority actions before treating the average as evidence to scale.';
@@ -157,10 +163,14 @@ export function generatePMFScorecard(args) {
             ? 'CHURN: Interview the buyers of recent non-renewals, check service-level misses before each renewal, and name the owner of every at-risk contract'
             : 'CHURN: Interview the customers who left in the period, group their reasons, and fix the biggest reason first before building anything predictive');
     }
+    if (earlyNPS)
+        recommendations.push('NPS: collect at least 30 responses from the defined customer cohort before assigning a satisfaction status. Keep the current result as an early signal.');
+    if (disappointmentScore)
+        recommendations.push(disappointmentScore.analysis + ' Confirm the survey question, response count and cohort before acting.');
     if (npsScore.label === 'MISSING') {
         recommendations.push(`NPS: not given, so it is not scored. ${contract ? 'Ask the sponsor and the day-to-day contact of each account the same two questions (how likely to recommend, and why) after each service review' : 'Survey the people who use the product with the same two questions (how likely to recommend, and why)'}.`);
     }
-    else if (npsScore.score < 6) {
+    else if (!earlyNPS && npsScore.score < 6) {
         recommendations.push('NPS: Read the detractors\' comments, group them, and fix the biggest reason first; then ask the same people again');
     }
     if (retentionScore.label === 'MISSING') {
@@ -248,7 +258,7 @@ export function generatePMFScorecard(args) {
         recommendations.push(`FEEDBACK: fix the friction you named first: ${q(capEcho(frictionItems[0], 140).short)}`);
     if (proofItems.length)
         recommendations.push(`PROOF: you gave ${proofItems.length === 1 ? 'one customer result' : proofItems.length + ' customer results or recognitions'}. Check each is yours to quote and put the strongest in your sales story${ctx.v ? `; the form of proof that lands in ${ctx.v.name} is ${lcFirst(ctx.v.proofShape)}` : ''}`);
-    const unscored = unscoredFigures(args.current_metrics);
+    const unscored = unscoredFigures(args.current_metrics).filter(item => satisfaction.share === undefined || !/very\s+disappointed/i.test(item));
     const productHead = capEcho(args.product, 120);
     // Every benchmark below is an example figure: the column header carries the block label.
     const dimensionHeader = `| Metric | Your Value | Score | Benchmark (${EXAMPLE_FIGURES.replace(/\.$/, '')}) | Status |`;
@@ -294,9 +304,19 @@ ${dimensionHeader}
 ### 2. Customer Satisfaction (NPS)
 ${dimensionHeader}
 |--------|-----------|-------|-----------|--------|
-| NPS Score | ${metrics.nps !== undefined ? metrics.nps : 'NOT PROVIDED'} | ${npsScore.score}/10 | healthy from ${b.nps.medium}, excellent from ${b.nps.high} | ${npsScore.label} |
+| NPS Score | ${metrics.nps !== undefined ? metrics.nps : 'NOT PROVIDED'} | ${earlyNPS ? 'Not scored' : npsScore.score + '/10'} | ${earlyNPS ? 'At least 30 responses needed before a status' : `healthy from ${b.nps.medium}, excellent from ${b.nps.high}`} | ${npsScore.label} |
 
 **Analysis:** ${npsScore.analysis}
+${disappointmentScore ? `
+### Very disappointed survey
+
+| Share | Comparison line | Score | Reading |
+| :--- | :--- | :--- | :--- |
+| ${satisfaction.share}% | 40% | ${disappointmentScore.score}/10 | ${disappointmentScore.label} |
+
+${disappointmentScore.analysis}
+The 40% line is a survey heuristic, not a fit verdict. Confirm the sample and survey wording.
+` : ""}
 
 ---
 
@@ -335,7 +355,7 @@ ${activationApplies ? `${dimensionHeader}
 
 ${(() => { const rows = `${metrics.mrr !== undefined ? `| MRR | ${money('mrr', metrics.mrr)} | Monthly Recurring Revenue |\n` : ''}${metrics.arr !== undefined ? `| ARR | ${money('arr', metrics.arr)} | Annual Recurring Revenue |\n` : ''}${metrics.acv !== undefined ? `| ACV | ${money('acv', metrics.acv)} | Annual contract value (your figure; not scored, shown for reference) |\n` : ''}${metrics.dau !== undefined ? `| DAU | ${metrics.dau.toLocaleString('en-US')} | Daily Active Users |\n` : ''}${metrics.mau !== undefined ? `| MAU | ${metrics.mau.toLocaleString('en-US')} | Monthly Active Users |\n` : ''}${metrics.dauMauRatio !== undefined ? `| DAU/MAU | ${pct(metrics.dauMauRatio * 100)}% | Stickiness ratio |\n` : ''}${metrics.trialConversion !== undefined ? `| Trial Conversion | ${pct(metrics.trialConversion)}% | Trial to paid rate |\n` : ''}${metrics.revenueGrowth !== undefined ? `| Revenue Growth | ${pct(metrics.revenueGrowth)}% | MoM or YoY growth |\n` : ''}`; return rows.trim() ? `| Metric | Value | Notes |\n|--------|-------|-------|\n${rows}` : 'None found in your text (MRR, ARR, ACV, DAU, MAU, trial conversion or revenue growth).\n'; })()}
 
-${unscored.length ? `Not scored (no rule reads these figures): ${unscored.map((x) => q(x)).join('; ')}. This scorecard scores ${andList(['churn', 'NPS', 'LTV:CAC', 'retention', ...(activationApplies ? ['activation'] : [])])} only: compare these figures with your own targets.\n` : ''}
+${unscored.length ? `Not scored (no rule reads these figures): ${unscored.map((x) => q(x)).join('; ')}. This scorecard scores ${andList(['churn', 'NPS', 'LTV:CAC', 'retention', ...(activationApplies ? ['activation'] : []), ...(disappointmentScore ? ['very disappointed survey'] : [])])} only: compare these figures with your own targets.\n` : ''}
 ${feedbackAnalysis ? `---\n\n## Customer Feedback You Gave\n\n${feedbackAnalysis}\n` : ''}
 ---
 
