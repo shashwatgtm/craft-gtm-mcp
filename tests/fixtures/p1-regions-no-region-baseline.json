@@ -1,0 +1,1700 @@
+{
+  "base_commit": "775a9f5ba31c7f708982f865c658f160c2476b0b",
+  "profile": "current",
+  "tool_list": {
+    "tools": [
+      {
+        "name": "pmf_scorecard",
+        "description": "Takes your product, target market and current metrics (MRR, ACV, churn, NPS, CAC, LTV, retention, activation and similar) and returns a product-market fit scorecard that scores each dimension against example benchmark ranges. Reads the business model from your inputs and leaves the activation score out for services, connectivity and investment businesses. Quotes your customer feedback and answers it.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "product": {
+              "type": "string",
+              "description": "Product name and brief description"
+            },
+            "target_market": {
+              "type": "string",
+              "description": "Benchmark segment for scoring (for example enterprise SaaS, telecom or logistics tech). Ask the user to confirm it when it differs from the product description. The selected benchmark and its stated fallback ranges are used; the output explains conflicts. The separate sector choice controls sector notes.",
+              "enum": [
+                "enterprise_saas",
+                "smb_saas",
+                "consumer",
+                "marketplace",
+                "fintech",
+                "logistics_tech",
+                "vertical_saas",
+                "ai_native",
+                "ites",
+                "telecom",
+                "software",
+                "cybersecurity",
+                "other"
+              ]
+            },
+            "current_metrics": {
+              "type": "string",
+              "description": "Your current metrics, written as text (the tool reads the figures from it). Include any of: MRR, ARR, ACV, churn rate, NPS, CAC, LTV, retention rate, activation rate, DAU/MAU, trial conversion, revenue growth. Example: 'MRR: $50K, Churn: 3%, NPS: 45, CAC: $500, LTV: $3000, Retention: 92%'. A figure that no rule scores is listed as not scored"
+            },
+            "time_in_market": {
+              "type": "string",
+              "description": "How long the product has been in market (shown in the scorecard)",
+              "enum": [
+                "pre_launch",
+                "0_6_months",
+                "6_12_months",
+                "1_2_years",
+                "2_plus_years"
+              ]
+            },
+            "customer_feedback": {
+              "type": "string",
+              "description": "Optional: Qualitative feedback themes, one per line or separated by semicolons (for example 'Customers like X; they struggle with Y'). Each theme is quoted and answered"
+            },
+            "business_model": {
+              "type": "string",
+              "description": "Optional: how you earn revenue, so the advice fits it (saas, services, connectivity, transactions, marketplace, hardware_software or investment). Leave it out and the tool reads it from your other inputs and says how it read it",
+              "enum": [
+                "saas",
+                "services",
+                "connectivity",
+                "transactions",
+                "marketplace",
+                "hardware_software",
+                "investment"
+              ]
+            },
+            "your_sector": {
+              "type": "string",
+              "description": "Optional: your company's own industry (not your customers'). When given, it decides the sector notes; when left out, the tool reads it from your words and stays neutral if they are unclear.",
+              "enum": [
+                "logistics_tech",
+                "fintech",
+                "saas",
+                "vertical_saas",
+                "ai_native",
+                "ites",
+                "telecom",
+                "software",
+                "cybersecurity",
+                "other"
+              ]
+            }
+          },
+          "required": [
+            "product",
+            "target_market",
+            "current_metrics"
+          ]
+        },
+        "title": "PMF Scorecard",
+        "annotations": {
+          "title": "PMF Scorecard",
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "openWorldHint": false
+        }
+      },
+      {
+        "name": "launch_commander",
+        "description": "Takes what you are launching, the launch type, your target segments and your goals, and returns a phased launch plan with tasks, a messaging table and success metrics. Give a date for a dated timeline, or enter 'TBD' or a quarter such as 'Q2 2027' for a flexible plan. Tasks and the messaging table follow the sector and business model read from your inputs, and each goal is filed under its own metric.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "product_feature": {
+              "type": "string",
+              "description": "What you're launching (product/feature name and description)"
+            },
+            "launch_date": {
+              "type": "string",
+              "description": "Target launch date. Accepts: 'YYYY-MM-DD', 'Q1 2027', 'March 2027', or 'TBD' for planning mode"
+            },
+            "launch_type": {
+              "type": "string",
+              "description": "Type of launch determines plan complexity",
+              "enum": [
+                "major_release",
+                "feature_launch",
+                "beta_launch",
+                "product_update",
+                "market_expansion"
+              ]
+            },
+            "target_segments": {
+              "type": "string",
+              "description": "Target customer segments (comma-separated)"
+            },
+            "goals": {
+              "type": "string",
+              "description": "Launch success metrics (for example '40 qualified meetings, $300K pipeline, 5 reference customers')"
+            },
+            "available_channels": {
+              "type": "string",
+              "description": "Optional: Marketing channels available (comma-separated). E.g., 'email, linkedin, blog, webinar, PR, paid_ads, community'"
+            },
+            "team_size": {
+              "type": "string",
+              "description": "Marketing/GTM team size affects task distribution",
+              "enum": [
+                "solo",
+                "small_2_5",
+                "medium_6_15",
+                "large_15_plus"
+              ]
+            },
+            "budget_level": {
+              "type": "string",
+              "description": "Budget affects recommended tactics",
+              "enum": [
+                "bootstrap",
+                "moderate",
+                "well_funded"
+              ]
+            },
+            "business_model": {
+              "type": "string",
+              "description": "Optional: how you earn revenue, so the advice fits it (saas, services, connectivity, transactions, marketplace, hardware_software or investment). Leave it out and the tool reads it from your other inputs and says how it read it",
+              "enum": [
+                "saas",
+                "services",
+                "connectivity",
+                "transactions",
+                "marketplace",
+                "hardware_software",
+                "investment"
+              ]
+            },
+            "industry": {
+              "type": "string",
+              "description": "Optional: your own company's sector, so the answer uses the usual buyers, measures and objections for what you sell. Leave it out and the tool reads the sector from your other inputs and names what it read",
+              "enum": [
+                "logistics_tech",
+                "fintech",
+                "saas",
+                "vertical_saas",
+                "ai_native",
+                "ites",
+                "telecom",
+                "software",
+                "cybersecurity",
+                "other"
+              ]
+            },
+            "your_sector": {
+              "type": "string",
+              "description": "Optional: your company's own industry (not your customers'). When given, it decides the sector notes; when left out, the tool reads it from your words and stays neutral if they are unclear.",
+              "enum": [
+                "logistics_tech",
+                "fintech",
+                "saas",
+                "vertical_saas",
+                "ai_native",
+                "ites",
+                "telecom",
+                "software",
+                "cybersecurity",
+                "other"
+              ]
+            }
+          },
+          "required": [
+            "product_feature",
+            "launch_type",
+            "target_segments",
+            "goals"
+          ]
+        },
+        "title": "Launch Commander",
+        "annotations": {
+          "title": "Launch Commander",
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "openWorldHint": false
+        }
+      },
+      {
+        "name": "customer_interview_kit",
+        "description": "Takes the interview type, the product context and the person you are interviewing, and returns an interview guide that fits the interview type, the sector (chosen, or read from your inputs) and the product complexity. Questions use the sector's own language, your hypotheses are kept whole, and synthesis templates are included.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "interview_type": {
+              "type": "string",
+              "enum": [
+                "discovery",
+                "validation",
+                "feedback",
+                "churn",
+                "win_loss",
+                "persona_research"
+              ],
+              "description": "Type of interview determines question focus"
+            },
+            "product_context": {
+              "type": "string",
+              "description": "Product/service being researched"
+            },
+            "industry": {
+              "type": "string",
+              "description": "Industry affects terminology and context. Leave it out and the sector is read from your other inputs",
+              "enum": [
+                "saas",
+                "fintech",
+                "logistics_tech",
+                "vertical_saas",
+                "ai_native",
+                "ites",
+                "telecom",
+                "software",
+                "cybersecurity",
+                "ecommerce",
+                "marketplace",
+                "enterprise_software",
+                "consumer",
+                "other"
+              ]
+            },
+            "product_complexity": {
+              "type": "string",
+              "description": "Affects technical depth of questions",
+              "enum": [
+                "simple",
+                "moderate",
+                "complex",
+                "highly_technical"
+              ]
+            },
+            "target_persona": {
+              "type": "string",
+              "description": "Who you're interviewing (role/title)"
+            },
+            "key_hypotheses": {
+              "type": "string",
+              "description": "Optional: Hypotheses to validate during interview, one per line or separated by semicolons"
+            },
+            "business_model": {
+              "type": "string",
+              "description": "Optional: how you earn revenue, so the advice fits it (saas, services, connectivity, transactions, marketplace, hardware_software or investment). Leave it out and the tool reads it from your other inputs and says how it read it",
+              "enum": [
+                "saas",
+                "services",
+                "connectivity",
+                "transactions",
+                "marketplace",
+                "hardware_software",
+                "investment"
+              ]
+            },
+            "your_sector": {
+              "type": "string",
+              "description": "Optional: your company's own industry (not your customers'). When given, it decides the sector notes; when left out, the tool reads it from your words and stays neutral if they are unclear.",
+              "enum": [
+                "logistics_tech",
+                "fintech",
+                "saas",
+                "vertical_saas",
+                "ai_native",
+                "ites",
+                "telecom",
+                "software",
+                "cybersecurity",
+                "other"
+              ]
+            }
+          },
+          "required": [
+            "interview_type",
+            "product_context",
+            "target_persona"
+          ]
+        },
+        "title": "Customer Interview Kit",
+        "annotations": {
+          "title": "Customer Interview Kit",
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "openWorldHint": false
+        }
+      },
+      {
+        "name": "retention_playbook",
+        "description": "Takes your customer segment, business model and current churn rate, and returns a retention playbook with health signals, interventions and an email draft for each churn reason. If you do not know why customers leave, leave the churn reasons out and you get a churn discovery kit with a framework for finding out. Health signals and interventions follow the business model, each churn reason gets its own answer, and your current interventions and data signals are used.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "customer_segment": {
+              "type": "string",
+              "description": "Customer segment to focus on"
+            },
+            "business_model": {
+              "type": "string",
+              "description": "Business model affects health score weighting. enterprise_contract is read further from your text when it names services, connectivity or investment",
+              "enum": [
+                "saas_subscription",
+                "usage_based",
+                "marketplace",
+                "transactional",
+                "freemium",
+                "enterprise_contract",
+                "services_contract",
+                "connectivity_contract",
+                "investment_mandate"
+              ]
+            },
+            "current_churn_rate": {
+              "type": "string",
+              "description": "Current churn rate (e.g., '5%' or '5% monthly')"
+            },
+            "churn_reasons": {
+              "type": "string",
+              "description": "Optional: known churn reasons, comma-separated. If you do not know them, leave this blank and you get a churn discovery kit with a framework for finding the reasons"
+            },
+            "available_data_signals": {
+              "type": "string",
+              "description": "What you can track (comma-separated). E.g., 'login frequency, support tickets, SLA attainment, QBR attendance'"
+            },
+            "cs_team_size": {
+              "type": "string",
+              "description": "CS team capacity affects intervention strategy",
+              "enum": [
+                "no_dedicated_cs",
+                "small_1_3",
+                "medium_4_10",
+                "large_10_plus"
+              ]
+            },
+            "current_interventions": {
+              "type": "string",
+              "description": "Optional: What retention tactics you already do (listed and compared with the playbook)"
+            },
+            "product": {
+              "type": "string",
+              "description": "Optional: Your product or company name, used in the title and the email drafts"
+            },
+            "industry": {
+              "type": "string",
+              "description": "Optional: your own company's sector, so the answer uses the usual buyers, measures and objections for what you sell. Leave it out and the tool reads the sector from your other inputs and names what it read",
+              "enum": [
+                "logistics_tech",
+                "fintech",
+                "saas",
+                "vertical_saas",
+                "ai_native",
+                "ites",
+                "telecom",
+                "software",
+                "cybersecurity",
+                "other"
+              ]
+            },
+            "your_sector": {
+              "type": "string",
+              "description": "Optional: your company's own industry (not your customers'). When given, it decides the sector notes; when left out, the tool reads it from your words and stays neutral if they are unclear.",
+              "enum": [
+                "logistics_tech",
+                "fintech",
+                "saas",
+                "vertical_saas",
+                "ai_native",
+                "ites",
+                "telecom",
+                "software",
+                "cybersecurity",
+                "other"
+              ]
+            }
+          },
+          "required": [
+            "customer_segment",
+            "business_model",
+            "current_churn_rate"
+          ]
+        },
+        "title": "Retention Playbook",
+        "annotations": {
+          "title": "Retention Playbook",
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "openWorldHint": false
+        }
+      },
+      {
+        "name": "partner_architect",
+        "description": "Takes your company, product, partner model, partner goal and deal size, and returns a partner program with tiers, example commission amounts and KPIs, with a different structure for resellers, referrals, integrations, agencies, affiliates and white label. Uses your stated goal, existing partners and deal size, and names the partner types that fit your sector's buying committee.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "company": {
+              "type": "string",
+              "description": "Your company name"
+            },
+            "product": {
+              "type": "string",
+              "description": "Product partners will sell/integrate"
+            },
+            "partner_model": {
+              "type": "string",
+              "description": "Partner type determines program structure",
+              "enum": [
+                "reseller",
+                "referral",
+                "integration_tech",
+                "agency_si",
+                "affiliate",
+                "oem_white_label"
+              ]
+            },
+            "partner_goals": {
+              "type": "string",
+              "description": "Revenue/growth targets from partners (shown as the target of the first KPI row)"
+            },
+            "your_deal_size": {
+              "type": "string",
+              "description": "Average deal size as one amount (e.g., '$5000 ACV', '$5K' or '$500/month'; a range is refused). It scales the example commission amounts; the example rates are fixed"
+            },
+            "partner_support_capacity": {
+              "type": "string",
+              "description": "How much partner support can you provide?",
+              "enum": [
+                "minimal_self_serve",
+                "moderate",
+                "high_touch"
+              ]
+            },
+            "existing_partners": {
+              "type": "string",
+              "description": "Optional: Current partner types/count, one per line or separated by semicolons (listed in the plan)"
+            },
+            "business_model": {
+              "type": "string",
+              "description": "Optional: how you earn revenue, so the advice fits it (saas, services, connectivity, transactions, marketplace, hardware_software or investment). Leave it out and the tool reads it from your other inputs and says how it read it",
+              "enum": [
+                "saas",
+                "services",
+                "connectivity",
+                "transactions",
+                "marketplace",
+                "hardware_software",
+                "investment"
+              ]
+            },
+            "industry": {
+              "type": "string",
+              "description": "Optional: your own company's sector, so the answer uses the usual buyers, measures and objections for what you sell. Leave it out and the tool reads the sector from your other inputs and names what it read",
+              "enum": [
+                "logistics_tech",
+                "fintech",
+                "saas",
+                "vertical_saas",
+                "ai_native",
+                "ites",
+                "telecom",
+                "software",
+                "cybersecurity",
+                "other"
+              ]
+            },
+            "your_sector": {
+              "type": "string",
+              "description": "Optional: your company's own industry (not your customers'). When given, it decides the sector notes; when left out, the tool reads it from your words and stays neutral if they are unclear.",
+              "enum": [
+                "logistics_tech",
+                "fintech",
+                "saas",
+                "vertical_saas",
+                "ai_native",
+                "ites",
+                "telecom",
+                "software",
+                "cybersecurity",
+                "other"
+              ]
+            }
+          },
+          "required": [
+            "company",
+            "product",
+            "partner_model",
+            "partner_goals",
+            "your_deal_size"
+          ]
+        },
+        "title": "Partner Architect",
+        "annotations": {
+          "title": "Partner Architect",
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "openWorldHint": false
+        }
+      },
+      {
+        "name": "crisis_planner",
+        "description": "Takes your company, industry, customer base and data sensitivity, and returns crisis playbooks with a response team and notification steps for each crisis. Name the crises you know of to get those playbooks. If you leave them out, the tool uses a default set of common crises for your sector (not ranked by likelihood). Each compliance item you list is used in the notification steps.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "company": {
+              "type": "string",
+              "description": "Company name"
+            },
+            "industry": {
+              "type": "string",
+              "description": "Industry affects which crises to prioritize",
+              "enum": [
+                "fintech",
+                "saas",
+                "logistics_tech",
+                "vertical_saas",
+                "ai_native",
+                "ites",
+                "telecom",
+                "software",
+                "cybersecurity",
+                "ecommerce",
+                "enterprise",
+                "consumer",
+                "other"
+              ]
+            },
+            "customer_base": {
+              "type": "string",
+              "description": "Customer type affects communication approach",
+              "enum": [
+                "b2b_enterprise",
+                "b2b_smb",
+                "b2c_consumer",
+                "mixed"
+              ]
+            },
+            "data_sensitivity": {
+              "type": "string",
+              "description": "Data sensitivity affects security protocols",
+              "enum": [
+                "high_pii_financial",
+                "medium_business_data",
+                "low_general"
+              ]
+            },
+            "potential_crises": {
+              "type": "string",
+              "description": "Optional: crisis types to plan for, comma-separated. If not provided, the tool uses a default set of common crises for your sector (not ranked by likelihood). Options: data_breach, service_outage, sla_breach, regulatory_action, fraud_incident, ai_wrong_action, pr_incident, executive_departure, security_vulnerability, customer_data_exposure, product_safety"
+            },
+            "company_size": {
+              "type": "string",
+              "description": "Affects response team structure",
+              "enum": [
+                "startup_under_50",
+                "scaleup_50_200",
+                "midsize_200_1000",
+                "enterprise_1000_plus"
+              ]
+            },
+            "compliance_requirements": {
+              "type": "string",
+              "description": "Optional: Relevant compliance, comma-separated (for example ISO 27001, SOC 2, GDPR). Each item is named in the notification steps"
+            },
+            "business_model": {
+              "type": "string",
+              "description": "Optional: how you earn revenue, so the advice fits it (saas, services, connectivity, transactions, marketplace, hardware_software or investment). Leave it out and the tool reads it from your other inputs and says how it read it",
+              "enum": [
+                "saas",
+                "services",
+                "connectivity",
+                "transactions",
+                "marketplace",
+                "hardware_software",
+                "investment"
+              ]
+            },
+            "your_sector": {
+              "type": "string",
+              "description": "Optional: your company's own industry (not your customers'). When given, it decides the sector notes; when left out, the tool reads it from your words and stays neutral if they are unclear.",
+              "enum": [
+                "logistics_tech",
+                "fintech",
+                "saas",
+                "vertical_saas",
+                "ai_native",
+                "ites",
+                "telecom",
+                "software",
+                "cybersecurity",
+                "other"
+              ]
+            }
+          },
+          "required": [
+            "company",
+            "industry",
+            "customer_base",
+            "data_sensitivity"
+          ]
+        },
+        "title": "Crisis Planner",
+        "annotations": {
+          "title": "Crisis Planner",
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "openWorldHint": false
+        }
+      },
+      {
+        "name": "competitive_intel",
+        "description": "Takes your product and the competitors you name, and returns one battle card per competitor built from your strengths, weaknesses, competitor details, objections, wins and losses. Each competitor detail goes to the competitor it names, each objection gets its own answer, and strengths and gaps taken from wins and losses are your own words.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "your_product": {
+              "type": "string",
+              "description": "Your product name and brief description"
+            },
+            "competitors": {
+              "type": "string",
+              "description": "Competitor names, comma-separated. You get one battle card for each competitor named"
+            },
+            "your_strengths": {
+              "type": "string",
+              "description": "Optional: what you do better, comma-separated. Taken from your wins, in your own words, if not provided"
+            },
+            "your_weaknesses": {
+              "type": "string",
+              "description": "Optional: where competitors beat you, comma-separated. Taken from your losses, in your own words, if not provided"
+            },
+            "competitor_details": {
+              "type": "string",
+              "description": "Optional: Any known details about competitors, one per line or separated by semicolons. E.g., 'Competitor A is cheaper; Competitor B targets enterprise'. Each detail goes to the competitor it names"
+            },
+            "common_objections": {
+              "type": "string",
+              "description": "Sales objections you hear (comma-separated). E.g., 'too expensive, missing X feature, competitor has better Y'"
+            },
+            "recent_wins": {
+              "type": "string",
+              "description": "Why customers chose you over competitors: used as your strengths when none are given"
+            },
+            "recent_losses": {
+              "type": "string",
+              "description": "Why you lost deals to competitors: used as your gaps when none are given"
+            },
+            "business_model": {
+              "type": "string",
+              "description": "Optional: how you earn revenue, so the advice fits it (saas, services, connectivity, transactions, marketplace, hardware_software or investment). Leave it out and the tool reads it from your other inputs and says how it read it",
+              "enum": [
+                "saas",
+                "services",
+                "connectivity",
+                "transactions",
+                "marketplace",
+                "hardware_software",
+                "investment"
+              ]
+            },
+            "industry": {
+              "type": "string",
+              "description": "Optional: your own company's sector, so the answer uses the usual buyers, measures and objections for what you sell. Leave it out and the tool reads the sector from your other inputs and names what it read",
+              "enum": [
+                "logistics_tech",
+                "fintech",
+                "saas",
+                "vertical_saas",
+                "ai_native",
+                "ites",
+                "telecom",
+                "software",
+                "cybersecurity",
+                "other"
+              ]
+            },
+            "your_sector": {
+              "type": "string",
+              "description": "Optional: your company's own industry (not your customers'). When given, it decides the sector notes; when left out, the tool reads it from your words and stays neutral if they are unclear.",
+              "enum": [
+                "logistics_tech",
+                "fintech",
+                "saas",
+                "vertical_saas",
+                "ai_native",
+                "ites",
+                "telecom",
+                "software",
+                "cybersecurity",
+                "other"
+              ]
+            }
+          },
+          "required": [
+            "your_product",
+            "competitors"
+          ]
+        },
+        "title": "Competitive Intel",
+        "annotations": {
+          "title": "Competitive Intel",
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "openWorldHint": false
+        }
+      },
+      {
+        "name": "craft_gtm_analyzer",
+        "description": "Takes the text of a GTM document or plan and returns an analysis against the CRAFT framework, with a score for each dimension. Each dimension is scored only on what the plan contains (Timeline counts real dates, durations and quarters), the tool shows the plan's own line for each, names only the elements that are missing and suggests sections to add.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "document_content": {
+              "type": "string",
+              "description": "The GTM document or plan to analyze. Paste the full text: the tool reads it and scores it against the framework"
+            },
+            "document_type": {
+              "type": "string",
+              "description": "Type of document (shown in the analysis)",
+              "enum": [
+                "gtm_strategy",
+                "launch_plan",
+                "campaign_brief",
+                "quarterly_plan",
+                "project_proposal",
+                "marketing_plan"
+              ]
+            },
+            "intended_audience": {
+              "type": "string",
+              "description": "Optional: Who will read/approve this document"
+            },
+            "desired_outcome": {
+              "type": "string",
+              "description": "Optional: What action should this document drive"
+            },
+            "industry": {
+              "type": "string",
+              "description": "Optional: your own company's sector, so the answer uses the usual buyers, measures and objections for what you sell. Leave it out and the tool reads the sector from your other inputs and names what it read",
+              "enum": [
+                "logistics_tech",
+                "fintech",
+                "saas",
+                "vertical_saas",
+                "ai_native",
+                "ites",
+                "telecom",
+                "software",
+                "cybersecurity",
+                "other"
+              ]
+            },
+            "your_sector": {
+              "type": "string",
+              "description": "Optional: your company's own industry (not your customers'). When given, it decides the sector notes; when left out, the tool reads it from your words and stays neutral if they are unclear.",
+              "enum": [
+                "logistics_tech",
+                "fintech",
+                "saas",
+                "vertical_saas",
+                "ai_native",
+                "ites",
+                "telecom",
+                "software",
+                "cybersecurity",
+                "other"
+              ]
+            }
+          },
+          "required": [
+            "document_content",
+            "document_type"
+          ]
+        },
+        "title": "CRAFT GTM Analyzer",
+        "annotations": {
+          "title": "CRAFT GTM Analyzer",
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "openWorldHint": false
+        }
+      }
+    ]
+  },
+  "rows": [
+    {
+      "tool": "pmf_scorecard",
+      "vertical": "logistics-tech",
+      "args": {
+        "product": "Logistics dispatch planning software",
+        "target_market": "enterprise_saas",
+        "current_metrics": "MRR: $50000; ACV: $24000; monthly logo churn: 2%; NPS: 35 from 12 replies; CAC: $18000; LTV: unknown; activation: 60%; annual logo retention: 78%",
+        "business_model": "saas"
+      },
+      "sha256": "bb83731c8d156ccf63fbf8eaeb180e39699c8a93868c20751a5f574d45a40703"
+    },
+    {
+      "tool": "pmf_scorecard",
+      "vertical": "fintech",
+      "args": {
+        "product": "Fintech payment reconciliation",
+        "target_market": "enterprise_saas",
+        "current_metrics": "MRR: $50000; ACV: $24000; monthly logo churn: 2%; NPS: 35 from 12 replies; CAC: $18000; LTV: unknown; activation: 60%; annual logo retention: 78%",
+        "business_model": "saas"
+      },
+      "sha256": "b5754cfef76db174cc4ba5251915ff373408cfa647a98f32b86f681183d56f53"
+    },
+    {
+      "tool": "pmf_scorecard",
+      "vertical": "saas",
+      "args": {
+        "product": "SaaS subscription management platform",
+        "target_market": "enterprise_saas",
+        "current_metrics": "MRR: $50000; ACV: $24000; monthly logo churn: 2%; NPS: 35 from 12 replies; CAC: $18000; LTV: unknown; activation: 60%; annual logo retention: 78%",
+        "business_model": "saas"
+      },
+      "sha256": "f6bfcb294a1ffc14fbd1447055e81b7c38fdc504682b32c4bc825b02cd254d5b"
+    },
+    {
+      "tool": "pmf_scorecard",
+      "vertical": "vertical-saas",
+      "args": {
+        "product": "Vertical SaaS retail execution software",
+        "target_market": "enterprise_saas",
+        "current_metrics": "MRR: $50000; ACV: $24000; monthly logo churn: 2%; NPS: 35 from 12 replies; CAC: $18000; LTV: unknown; activation: 60%; annual logo retention: 78%",
+        "business_model": "saas"
+      },
+      "sha256": "fbd1d5d14577975dfc1249000c61154294ef14f64eb6f56e0883c7a324e13f7b"
+    },
+    {
+      "tool": "pmf_scorecard",
+      "vertical": "ai-native",
+      "args": {
+        "product": "AI native document review agents",
+        "target_market": "enterprise_saas",
+        "current_metrics": "MRR: $50000; ACV: $24000; monthly logo churn: 2%; NPS: 35 from 12 replies; CAC: $18000; LTV: unknown; activation: 60%; annual logo retention: 78%",
+        "business_model": "saas"
+      },
+      "sha256": "4481325f860ac169aadda8593d625c205e207761b20d40854876d298cbb7f683"
+    },
+    {
+      "tool": "pmf_scorecard",
+      "vertical": "ites",
+      "args": {
+        "product": "ITeS business process outsourcing services",
+        "target_market": "enterprise_saas",
+        "current_metrics": "MRR: $50000; ACV: $24000; monthly logo churn: 2%; NPS: 35 from 12 replies; CAC: $18000; LTV: unknown; activation: 60%; annual logo retention: 78%",
+        "business_model": "saas"
+      },
+      "sha256": "34d000d9191da208730775d2df7395de0d9e46962998904bd5895f763c9f0308"
+    },
+    {
+      "tool": "pmf_scorecard",
+      "vertical": "telecom",
+      "args": {
+        "product": "Telecom network connectivity services",
+        "target_market": "enterprise_saas",
+        "current_metrics": "MRR: $50000; ACV: $24000; monthly logo churn: 2%; NPS: 35 from 12 replies; CAC: $18000; LTV: unknown; activation: 60%; annual logo retention: 78%",
+        "business_model": "saas"
+      },
+      "sha256": "8d32c1f510d31f33287606176d69578d2c1602117a4fe7344ea30be394d2108f"
+    },
+    {
+      "tool": "pmf_scorecard",
+      "vertical": "software",
+      "args": {
+        "product": "API testing and monitoring tool for backend developers",
+        "target_market": "enterprise_saas",
+        "current_metrics": "MRR: $50000; ACV: $24000; monthly logo churn: 2%; NPS: 35 from 12 replies; CAC: $18000; LTV: unknown; activation: 60%; annual logo retention: 78%",
+        "business_model": "saas"
+      },
+      "sha256": "093d37feccf357a7ac19c225132777f9591831df0e0f6c86e213f22956cf1a30"
+    },
+    {
+      "tool": "pmf_scorecard",
+      "vertical": "cybersecurity",
+      "args": {
+        "product": "Cybersecurity threat detection software",
+        "target_market": "enterprise_saas",
+        "current_metrics": "MRR: $50000; ACV: $24000; monthly logo churn: 2%; NPS: 35 from 12 replies; CAC: $18000; LTV: unknown; activation: 60%; annual logo retention: 78%",
+        "business_model": "saas"
+      },
+      "sha256": "5770d682c89595d456d8fe5c87398252a7bb6f9ab428b7cbbecbe9c099eaae8b"
+    },
+    {
+      "tool": "launch_commander",
+      "vertical": "logistics-tech",
+      "args": {
+        "product_feature": "Logistics dispatch planning software",
+        "launch_date": "2026-12-01",
+        "launch_type": "major_release",
+        "target_segments": "Midmarket SaaS companies with no weekend SOC cover",
+        "goals": "Five qualified pilot commitments",
+        "available_channels": "Founder outreach and two security community events",
+        "team_size": "small_2_5",
+        "budget_level": "bootstrap",
+        "business_model": "services"
+      },
+      "sha256": "fcce78b95f8939f3d840511801c2adc8f491393b8046ceb79920ab147e1de73d"
+    },
+    {
+      "tool": "launch_commander",
+      "vertical": "fintech",
+      "args": {
+        "product_feature": "Fintech payment reconciliation",
+        "launch_date": "2026-12-01",
+        "launch_type": "major_release",
+        "target_segments": "Midmarket SaaS companies with no weekend SOC cover",
+        "goals": "Five qualified pilot commitments",
+        "available_channels": "Founder outreach and two security community events",
+        "team_size": "small_2_5",
+        "budget_level": "bootstrap",
+        "business_model": "services"
+      },
+      "sha256": "e7a08de2eaa73b85f78368ddbc3731a235ba64c376b7a10caeda75be1d557553"
+    },
+    {
+      "tool": "launch_commander",
+      "vertical": "saas",
+      "args": {
+        "product_feature": "SaaS subscription management platform",
+        "launch_date": "2026-12-01",
+        "launch_type": "major_release",
+        "target_segments": "Midmarket SaaS companies with no weekend SOC cover",
+        "goals": "Five qualified pilot commitments",
+        "available_channels": "Founder outreach and two security community events",
+        "team_size": "small_2_5",
+        "budget_level": "bootstrap",
+        "business_model": "services"
+      },
+      "sha256": "0b2d8b65463a0dcd813712c3f8043db70d06dbf26cd3f5c00b65562020019bb3"
+    },
+    {
+      "tool": "launch_commander",
+      "vertical": "vertical-saas",
+      "args": {
+        "product_feature": "Vertical SaaS retail execution software",
+        "launch_date": "2026-12-01",
+        "launch_type": "major_release",
+        "target_segments": "Midmarket SaaS companies with no weekend SOC cover",
+        "goals": "Five qualified pilot commitments",
+        "available_channels": "Founder outreach and two security community events",
+        "team_size": "small_2_5",
+        "budget_level": "bootstrap",
+        "business_model": "services"
+      },
+      "sha256": "97e5e01f5b66dbba0d0ad2bfb91e9b04478e9116afd43203cb86187f4a10a614"
+    },
+    {
+      "tool": "launch_commander",
+      "vertical": "ai-native",
+      "args": {
+        "product_feature": "AI native document review agents",
+        "launch_date": "2026-12-01",
+        "launch_type": "major_release",
+        "target_segments": "Midmarket SaaS companies with no weekend SOC cover",
+        "goals": "Five qualified pilot commitments",
+        "available_channels": "Founder outreach and two security community events",
+        "team_size": "small_2_5",
+        "budget_level": "bootstrap",
+        "business_model": "services"
+      },
+      "sha256": "038a2deea762af76fa19b36177ca56f23c4c15a617ca947d5f1e3026f0fd2f9a"
+    },
+    {
+      "tool": "launch_commander",
+      "vertical": "ites",
+      "args": {
+        "product_feature": "ITeS business process outsourcing services",
+        "launch_date": "2026-12-01",
+        "launch_type": "major_release",
+        "target_segments": "Midmarket SaaS companies with no weekend SOC cover",
+        "goals": "Five qualified pilot commitments",
+        "available_channels": "Founder outreach and two security community events",
+        "team_size": "small_2_5",
+        "budget_level": "bootstrap",
+        "business_model": "services"
+      },
+      "sha256": "27ec337aa321bab44bc372a46e8d327d34bae8cbba20914688460107a5f183fe"
+    },
+    {
+      "tool": "launch_commander",
+      "vertical": "telecom",
+      "args": {
+        "product_feature": "Telecom network connectivity services",
+        "launch_date": "2026-12-01",
+        "launch_type": "major_release",
+        "target_segments": "Midmarket SaaS companies with no weekend SOC cover",
+        "goals": "Five qualified pilot commitments",
+        "available_channels": "Founder outreach and two security community events",
+        "team_size": "small_2_5",
+        "budget_level": "bootstrap",
+        "business_model": "services"
+      },
+      "sha256": "358df552f7edf76b0c2898a5fad273bbf6b428aa2a70781caa6561ac5b2d7ea0"
+    },
+    {
+      "tool": "launch_commander",
+      "vertical": "software",
+      "args": {
+        "product_feature": "API testing and monitoring tool for backend developers",
+        "launch_date": "2026-12-01",
+        "launch_type": "major_release",
+        "target_segments": "Midmarket SaaS companies with no weekend SOC cover",
+        "goals": "Five qualified pilot commitments",
+        "available_channels": "Founder outreach and two security community events",
+        "team_size": "small_2_5",
+        "budget_level": "bootstrap",
+        "business_model": "services"
+      },
+      "sha256": "ae37d6a2a4fb7326ebf8f82cecb8f59656fe7dc825d0aab7887d3c5739de5f87"
+    },
+    {
+      "tool": "launch_commander",
+      "vertical": "cybersecurity",
+      "args": {
+        "product_feature": "Cybersecurity threat detection software",
+        "launch_date": "2026-12-01",
+        "launch_type": "major_release",
+        "target_segments": "Midmarket SaaS companies with no weekend SOC cover",
+        "goals": "Five qualified pilot commitments",
+        "available_channels": "Founder outreach and two security community events",
+        "team_size": "small_2_5",
+        "budget_level": "bootstrap",
+        "business_model": "services"
+      },
+      "sha256": "3c74139c0483399b0648644d8117ace3bbf60f86aab1264c9c4d74f79acba265"
+    },
+    {
+      "tool": "customer_interview_kit",
+      "vertical": "logistics-tech",
+      "args": {
+        "interview_type": "discovery",
+        "product_context": "Logistics dispatch planning software",
+        "target_persona": "Accounts payable head"
+      },
+      "sha256": "b8c82cdc030bd58d962a17fb9aa297975d72cec7a10a0f8f8df4e34f2cfe6517"
+    },
+    {
+      "tool": "customer_interview_kit",
+      "vertical": "fintech",
+      "args": {
+        "interview_type": "discovery",
+        "product_context": "Fintech payment reconciliation",
+        "target_persona": "Accounts payable head"
+      },
+      "sha256": "f332053c23194e7be507ef1e80e844ebd5f61777425c2b7e51a104bf9788ee23"
+    },
+    {
+      "tool": "customer_interview_kit",
+      "vertical": "saas",
+      "args": {
+        "interview_type": "discovery",
+        "product_context": "SaaS subscription management platform",
+        "target_persona": "Accounts payable head"
+      },
+      "sha256": "2feb6cbba6c4b6908c206908c64150b3f055de6f1802542d6557c2b3b631f787"
+    },
+    {
+      "tool": "customer_interview_kit",
+      "vertical": "vertical-saas",
+      "args": {
+        "interview_type": "discovery",
+        "product_context": "Vertical SaaS retail execution software",
+        "target_persona": "Accounts payable head"
+      },
+      "sha256": "8b7af79ced62683803ad8b344b5de971541b9304b5b76ab7ade7d534e8792da1"
+    },
+    {
+      "tool": "customer_interview_kit",
+      "vertical": "ai-native",
+      "args": {
+        "interview_type": "discovery",
+        "product_context": "AI native document review agents",
+        "target_persona": "Accounts payable head"
+      },
+      "sha256": "4b1d825606b5b2a004dfe1e5f32794817e9984bc842f4fd4a53c3728a483f261"
+    },
+    {
+      "tool": "customer_interview_kit",
+      "vertical": "ites",
+      "args": {
+        "interview_type": "discovery",
+        "product_context": "ITeS business process outsourcing services",
+        "target_persona": "Accounts payable head"
+      },
+      "sha256": "e9608eb05d3efe8346a0f1aa9e7d4e508f14279c123d5b7e33e53629f5e292c6"
+    },
+    {
+      "tool": "customer_interview_kit",
+      "vertical": "telecom",
+      "args": {
+        "interview_type": "discovery",
+        "product_context": "Telecom network connectivity services",
+        "target_persona": "Accounts payable head"
+      },
+      "sha256": "d25495fcec68230cbdb630e96184e149dc7e84c3aab84f258a86b44bfacdc81d"
+    },
+    {
+      "tool": "customer_interview_kit",
+      "vertical": "software",
+      "args": {
+        "interview_type": "discovery",
+        "product_context": "API testing and monitoring tool for backend developers",
+        "target_persona": "Accounts payable head"
+      },
+      "sha256": "daa984707458f8693ad76f4d1d75155748553a6070095b11ac786982b0833761"
+    },
+    {
+      "tool": "customer_interview_kit",
+      "vertical": "cybersecurity",
+      "args": {
+        "interview_type": "discovery",
+        "product_context": "Cybersecurity threat detection software",
+        "target_persona": "Accounts payable head"
+      },
+      "sha256": "03e33bdab5183a9adccc009d2e305878fb1f927cf64a697738b055e6bed4e62d"
+    },
+    {
+      "tool": "retention_playbook",
+      "vertical": "logistics-tech",
+      "args": {
+        "customer_segment": "Regional logistics fleets using dispatch planning software",
+        "business_model": "saas_subscription",
+        "current_churn_rate": "3% monthly logo churn",
+        "product": "Logistics dispatch planning software",
+        "churn_reasons": "Two customers said dispatchers bypass the tool during peak hours; another said the price is too high. No price change experiment has run."
+      },
+      "sha256": "5fe56b915dcbdb1fa8cf25f00dac64097122a06950b398f0b2fe2091f7ec1f2a"
+    },
+    {
+      "tool": "retention_playbook",
+      "vertical": "fintech",
+      "args": {
+        "customer_segment": "Regional logistics fleets using dispatch planning software",
+        "business_model": "saas_subscription",
+        "current_churn_rate": "3% monthly logo churn",
+        "product": "Fintech payment reconciliation",
+        "churn_reasons": "Two customers said dispatchers bypass the tool during peak hours; another said the price is too high. No price change experiment has run."
+      },
+      "sha256": "52e917f18611c6f66646b159aebc119f375d95062aedec55e787a084545605a3"
+    },
+    {
+      "tool": "retention_playbook",
+      "vertical": "saas",
+      "args": {
+        "customer_segment": "Regional logistics fleets using dispatch planning software",
+        "business_model": "saas_subscription",
+        "current_churn_rate": "3% monthly logo churn",
+        "product": "SaaS subscription management platform",
+        "churn_reasons": "Two customers said dispatchers bypass the tool during peak hours; another said the price is too high. No price change experiment has run."
+      },
+      "sha256": "31690eca1ac9488f854c3baa822b3001feb88cb43f3ba8f84a705ddc3c103ea1"
+    },
+    {
+      "tool": "retention_playbook",
+      "vertical": "vertical-saas",
+      "args": {
+        "customer_segment": "Regional logistics fleets using dispatch planning software",
+        "business_model": "saas_subscription",
+        "current_churn_rate": "3% monthly logo churn",
+        "product": "Vertical SaaS retail execution software",
+        "churn_reasons": "Two customers said dispatchers bypass the tool during peak hours; another said the price is too high. No price change experiment has run."
+      },
+      "sha256": "961b0700f4c9999778390d9392983233ecd1ed9c4e010df239d82b956ce37eae"
+    },
+    {
+      "tool": "retention_playbook",
+      "vertical": "ai-native",
+      "args": {
+        "customer_segment": "Regional logistics fleets using dispatch planning software",
+        "business_model": "saas_subscription",
+        "current_churn_rate": "3% monthly logo churn",
+        "product": "AI native document review agents",
+        "churn_reasons": "Two customers said dispatchers bypass the tool during peak hours; another said the price is too high. No price change experiment has run."
+      },
+      "sha256": "eb1cb3f33d098c945d89be56abfd2c418493b172c6ac379b2cb830b8b9b160fb"
+    },
+    {
+      "tool": "retention_playbook",
+      "vertical": "ites",
+      "args": {
+        "customer_segment": "Regional logistics fleets using dispatch planning software",
+        "business_model": "saas_subscription",
+        "current_churn_rate": "3% monthly logo churn",
+        "product": "ITeS business process outsourcing services",
+        "churn_reasons": "Two customers said dispatchers bypass the tool during peak hours; another said the price is too high. No price change experiment has run."
+      },
+      "sha256": "58d0506a013261934a97c4b42fea6041302ecf6e5f6feef5189d1a6014c37a64"
+    },
+    {
+      "tool": "retention_playbook",
+      "vertical": "telecom",
+      "args": {
+        "customer_segment": "Regional logistics fleets using dispatch planning software",
+        "business_model": "saas_subscription",
+        "current_churn_rate": "3% monthly logo churn",
+        "product": "Telecom network connectivity services",
+        "churn_reasons": "Two customers said dispatchers bypass the tool during peak hours; another said the price is too high. No price change experiment has run."
+      },
+      "sha256": "9f7032692e9edf4a957f1e2fa6e4bf40775312451d1624caa985731cc8bae108"
+    },
+    {
+      "tool": "retention_playbook",
+      "vertical": "software",
+      "args": {
+        "customer_segment": "Regional logistics fleets using dispatch planning software",
+        "business_model": "saas_subscription",
+        "current_churn_rate": "3% monthly logo churn",
+        "product": "API testing and monitoring tool for backend developers",
+        "churn_reasons": "Two customers said dispatchers bypass the tool during peak hours; another said the price is too high. No price change experiment has run."
+      },
+      "sha256": "6a48df60acaacc2fc4bb3c1390200c63d86c6f04aeac25ce770676cd3bbc9519"
+    },
+    {
+      "tool": "retention_playbook",
+      "vertical": "cybersecurity",
+      "args": {
+        "customer_segment": "Regional logistics fleets using dispatch planning software",
+        "business_model": "saas_subscription",
+        "current_churn_rate": "3% monthly logo churn",
+        "product": "Cybersecurity threat detection software",
+        "churn_reasons": "Two customers said dispatchers bypass the tool during peak hours; another said the price is too high. No price change experiment has run."
+      },
+      "sha256": "429a0eda48b8c98f42e4170f05ccfdd1a1348d34ce7dbbf95c3a6477c8905e7a"
+    },
+    {
+      "tool": "partner_architect",
+      "vertical": "logistics-tech",
+      "args": {
+        "company": "Regional telecom software vendor",
+        "product": "Logistics dispatch planning software",
+        "partner_model": "referral",
+        "partner_goals": "Find three network integration partners able to introduce operators with outage backlogs",
+        "your_deal_size": "$48000 annual",
+        "partner_support_capacity": "moderate",
+        "existing_partners": "One integrator made two introductions but neither became a paid account.",
+        "business_model": "saas"
+      },
+      "sha256": "6f5b79a49cbc79cf2d9a1802ca28cadf31e43b9d3f6c1164b24790fd50cd56c4"
+    },
+    {
+      "tool": "partner_architect",
+      "vertical": "fintech",
+      "args": {
+        "company": "Regional telecom software vendor",
+        "product": "Fintech payment reconciliation",
+        "partner_model": "referral",
+        "partner_goals": "Find three network integration partners able to introduce operators with outage backlogs",
+        "your_deal_size": "$48000 annual",
+        "partner_support_capacity": "moderate",
+        "existing_partners": "One integrator made two introductions but neither became a paid account.",
+        "business_model": "saas"
+      },
+      "sha256": "0d7b19111875307543ad1b1b610e6caa9330cf116409babe1762fd0b81313c1a"
+    },
+    {
+      "tool": "partner_architect",
+      "vertical": "saas",
+      "args": {
+        "company": "Regional telecom software vendor",
+        "product": "SaaS subscription management platform",
+        "partner_model": "referral",
+        "partner_goals": "Find three network integration partners able to introduce operators with outage backlogs",
+        "your_deal_size": "$48000 annual",
+        "partner_support_capacity": "moderate",
+        "existing_partners": "One integrator made two introductions but neither became a paid account.",
+        "business_model": "saas"
+      },
+      "sha256": "486794d1a9e0a125688309644220d353944aa7353b702d4b34864a06ff7971ce"
+    },
+    {
+      "tool": "partner_architect",
+      "vertical": "vertical-saas",
+      "args": {
+        "company": "Regional telecom software vendor",
+        "product": "Vertical SaaS retail execution software",
+        "partner_model": "referral",
+        "partner_goals": "Find three network integration partners able to introduce operators with outage backlogs",
+        "your_deal_size": "$48000 annual",
+        "partner_support_capacity": "moderate",
+        "existing_partners": "One integrator made two introductions but neither became a paid account.",
+        "business_model": "saas"
+      },
+      "sha256": "95d564e1adf2d7f3950f8b598097a7a2a0a7e834d4f4fc22307bceaa703fc04f"
+    },
+    {
+      "tool": "partner_architect",
+      "vertical": "ai-native",
+      "args": {
+        "company": "Regional telecom software vendor",
+        "product": "AI native document review agents",
+        "partner_model": "referral",
+        "partner_goals": "Find three network integration partners able to introduce operators with outage backlogs",
+        "your_deal_size": "$48000 annual",
+        "partner_support_capacity": "moderate",
+        "existing_partners": "One integrator made two introductions but neither became a paid account.",
+        "business_model": "saas"
+      },
+      "sha256": "eb846e89eae443fd8a4c8b1bec5765015df1d51291dd45327e183babeee44667"
+    },
+    {
+      "tool": "partner_architect",
+      "vertical": "ites",
+      "args": {
+        "company": "Regional telecom software vendor",
+        "product": "ITeS business process outsourcing services",
+        "partner_model": "referral",
+        "partner_goals": "Find three network integration partners able to introduce operators with outage backlogs",
+        "your_deal_size": "$48000 annual",
+        "partner_support_capacity": "moderate",
+        "existing_partners": "One integrator made two introductions but neither became a paid account.",
+        "business_model": "saas"
+      },
+      "sha256": "e2fe4de61f2c0b49a5ad71c562cf49f488df1c31ea4e4741bc6e5b08868a50cd"
+    },
+    {
+      "tool": "partner_architect",
+      "vertical": "telecom",
+      "args": {
+        "company": "Regional telecom software vendor",
+        "product": "Telecom network connectivity services",
+        "partner_model": "referral",
+        "partner_goals": "Find three network integration partners able to introduce operators with outage backlogs",
+        "your_deal_size": "$48000 annual",
+        "partner_support_capacity": "moderate",
+        "existing_partners": "One integrator made two introductions but neither became a paid account.",
+        "business_model": "saas"
+      },
+      "sha256": "6dbab305fae3087a65556efcd96b30c875f91d2e43a89ee7d2fc77972351bba3"
+    },
+    {
+      "tool": "partner_architect",
+      "vertical": "software",
+      "args": {
+        "company": "Regional telecom software vendor",
+        "product": "API testing and monitoring tool for backend developers",
+        "partner_model": "referral",
+        "partner_goals": "Find three network integration partners able to introduce operators with outage backlogs",
+        "your_deal_size": "$48000 annual",
+        "partner_support_capacity": "moderate",
+        "existing_partners": "One integrator made two introductions but neither became a paid account.",
+        "business_model": "saas"
+      },
+      "sha256": "acf3ad65991683096775dcb0fbe687dba462930fda46486dee429e93839e56e0"
+    },
+    {
+      "tool": "partner_architect",
+      "vertical": "cybersecurity",
+      "args": {
+        "company": "Regional telecom software vendor",
+        "product": "Cybersecurity threat detection software",
+        "partner_model": "referral",
+        "partner_goals": "Find three network integration partners able to introduce operators with outage backlogs",
+        "your_deal_size": "$48000 annual",
+        "partner_support_capacity": "moderate",
+        "existing_partners": "One integrator made two introductions but neither became a paid account.",
+        "business_model": "saas"
+      },
+      "sha256": "e71285e075478421e9764a02cd588ec8576d3d83668057def44b18494b7679f9"
+    },
+    {
+      "tool": "crisis_planner",
+      "vertical": "logistics-tech",
+      "args": {
+        "company": "Regional fintech payments provider",
+        "industry": "logistics_tech",
+        "customer_base": "b2b_enterprise",
+        "data_sensitivity": "high_pii_financial",
+        "potential_crises": "Our product is Logistics dispatch planning software. A service outage prevents two business customers from completing their daily work. No evidence of data exposure."
+      },
+      "sha256": "9369b3b69af5e6f3f095054357587201cd81cf8e1bbc473ad5b95e46d356936d"
+    },
+    {
+      "tool": "crisis_planner",
+      "vertical": "fintech",
+      "args": {
+        "company": "Regional fintech payments provider",
+        "industry": "fintech",
+        "customer_base": "b2b_enterprise",
+        "data_sensitivity": "high_pii_financial",
+        "potential_crises": "Our product is Fintech payment reconciliation. A service outage prevents two business customers from completing their daily work. No evidence of data exposure."
+      },
+      "sha256": "ef26b6199d5eaaaff09729ff5f9ca9faef6be7976e9e9cb79820e573a6c7d37b"
+    },
+    {
+      "tool": "crisis_planner",
+      "vertical": "saas",
+      "args": {
+        "company": "Regional fintech payments provider",
+        "industry": "saas",
+        "customer_base": "b2b_enterprise",
+        "data_sensitivity": "high_pii_financial",
+        "potential_crises": "Our product is SaaS subscription management platform. A service outage prevents two business customers from completing their daily work. No evidence of data exposure."
+      },
+      "sha256": "3e171aad986a56c8b7be9d0e412d42f750c9d38e84c7202f5af578aa00780541"
+    },
+    {
+      "tool": "crisis_planner",
+      "vertical": "vertical-saas",
+      "args": {
+        "company": "Regional fintech payments provider",
+        "industry": "vertical_saas",
+        "customer_base": "b2b_enterprise",
+        "data_sensitivity": "high_pii_financial",
+        "potential_crises": "Our product is Vertical SaaS retail execution software. A service outage prevents two business customers from completing their daily work. No evidence of data exposure."
+      },
+      "sha256": "179d7a20d6b3556f071ae3db54def11bd9150310eba4db9bf38d5519f16eaec0"
+    },
+    {
+      "tool": "crisis_planner",
+      "vertical": "ai-native",
+      "args": {
+        "company": "Regional fintech payments provider",
+        "industry": "ai_native",
+        "customer_base": "b2b_enterprise",
+        "data_sensitivity": "high_pii_financial",
+        "potential_crises": "Our product is AI native document review agents. A service outage prevents two business customers from completing their daily work. No evidence of data exposure."
+      },
+      "sha256": "44710b9046ab9d9c80934e25cc7799bc238eee44742dadd57bb8f38d6a5d04ed"
+    },
+    {
+      "tool": "crisis_planner",
+      "vertical": "ites",
+      "args": {
+        "company": "Regional fintech payments provider",
+        "industry": "ites",
+        "customer_base": "b2b_enterprise",
+        "data_sensitivity": "high_pii_financial",
+        "potential_crises": "Our product is ITeS business process outsourcing services. A service outage prevents two business customers from completing their daily work. No evidence of data exposure."
+      },
+      "sha256": "429f68e22447f415986c6ee183c0da2c1375e198064da9e82deec97bc2fcfbc7"
+    },
+    {
+      "tool": "crisis_planner",
+      "vertical": "telecom",
+      "args": {
+        "company": "Regional fintech payments provider",
+        "industry": "telecom",
+        "customer_base": "b2b_enterprise",
+        "data_sensitivity": "high_pii_financial",
+        "potential_crises": "Our product is Telecom network connectivity services. A service outage prevents two business customers from completing their daily work. No evidence of data exposure."
+      },
+      "sha256": "ba0eeff37252fed81660c59aed3688da69c3978d5571e497b14ae98fce115747"
+    },
+    {
+      "tool": "crisis_planner",
+      "vertical": "software",
+      "args": {
+        "company": "Regional fintech payments provider",
+        "industry": "software",
+        "customer_base": "b2b_enterprise",
+        "data_sensitivity": "high_pii_financial",
+        "potential_crises": "Our product is API testing and monitoring tool for backend developers. A service outage prevents two business customers from completing their daily work. No evidence of data exposure."
+      },
+      "sha256": "da59cfbddfd02f636fe2eb0a86c648f381a3c2acc2af63d6a8d85b7836d81d04"
+    },
+    {
+      "tool": "crisis_planner",
+      "vertical": "cybersecurity",
+      "args": {
+        "company": "Regional fintech payments provider",
+        "industry": "cybersecurity",
+        "customer_base": "b2b_enterprise",
+        "data_sensitivity": "high_pii_financial",
+        "potential_crises": "Our product is Cybersecurity threat detection software. A service outage prevents two business customers from completing their daily work. No evidence of data exposure."
+      },
+      "sha256": "8b6a854fbce8ad41df9c1455420eee0faa17b24ed48da0edd38b70f3ffb5caca"
+    },
+    {
+      "tool": "competitive_intel",
+      "vertical": "logistics-tech",
+      "args": {
+        "your_product": "Logistics dispatch planning software",
+        "competitors": "Existing TMS; spreadsheets",
+        "common_objections": "Our TMS already assigns routes. Switching will disrupt peak season.",
+        "your_strengths": "Dispatcher can reassign a failed delivery and notify the depot in one view. Time saved is not measured."
+      },
+      "sha256": "dde36460368081eb17b7392bc287043137a7947e5bfd57f07fe07591834f2da8"
+    },
+    {
+      "tool": "competitive_intel",
+      "vertical": "fintech",
+      "args": {
+        "your_product": "Fintech payment reconciliation",
+        "competitors": "Existing TMS; spreadsheets",
+        "common_objections": "Our TMS already assigns routes. Switching will disrupt peak season.",
+        "your_strengths": "Dispatcher can reassign a failed delivery and notify the depot in one view. Time saved is not measured."
+      },
+      "sha256": "90fa158d830a337e4ffc311721c24f72390464fccd7b57d397d7b4c74ae109c8"
+    },
+    {
+      "tool": "competitive_intel",
+      "vertical": "saas",
+      "args": {
+        "your_product": "SaaS subscription management platform",
+        "competitors": "Existing TMS; spreadsheets",
+        "common_objections": "Our TMS already assigns routes. Switching will disrupt peak season.",
+        "your_strengths": "Dispatcher can reassign a failed delivery and notify the depot in one view. Time saved is not measured."
+      },
+      "sha256": "233ed29aafb91662c87bb859836575fe4027faeba5616016edaffa32a09fe06f"
+    },
+    {
+      "tool": "competitive_intel",
+      "vertical": "vertical-saas",
+      "args": {
+        "your_product": "Vertical SaaS retail execution software",
+        "competitors": "Existing TMS; spreadsheets",
+        "common_objections": "Our TMS already assigns routes. Switching will disrupt peak season.",
+        "your_strengths": "Dispatcher can reassign a failed delivery and notify the depot in one view. Time saved is not measured."
+      },
+      "sha256": "d8336deb8778c196de26382366d9d5bd9e0b5273e6c38e4a4239018e400a20c3"
+    },
+    {
+      "tool": "competitive_intel",
+      "vertical": "ai-native",
+      "args": {
+        "your_product": "AI native document review agents",
+        "competitors": "Existing TMS; spreadsheets",
+        "common_objections": "Our TMS already assigns routes. Switching will disrupt peak season.",
+        "your_strengths": "Dispatcher can reassign a failed delivery and notify the depot in one view. Time saved is not measured."
+      },
+      "sha256": "06005a43d6910b432df484f2c89a805289084d2f613805559db291a3e20ffb17"
+    },
+    {
+      "tool": "competitive_intel",
+      "vertical": "ites",
+      "args": {
+        "your_product": "ITeS business process outsourcing services",
+        "competitors": "Existing TMS; spreadsheets",
+        "common_objections": "Our TMS already assigns routes. Switching will disrupt peak season.",
+        "your_strengths": "Dispatcher can reassign a failed delivery and notify the depot in one view. Time saved is not measured."
+      },
+      "sha256": "ef6b9e645fcb2f4e8cfa2bb12f854c7e5b0ba21083d1cd360c86c1807faadc34"
+    },
+    {
+      "tool": "competitive_intel",
+      "vertical": "telecom",
+      "args": {
+        "your_product": "Telecom network connectivity services",
+        "competitors": "Existing TMS; spreadsheets",
+        "common_objections": "Our TMS already assigns routes. Switching will disrupt peak season.",
+        "your_strengths": "Dispatcher can reassign a failed delivery and notify the depot in one view. Time saved is not measured."
+      },
+      "sha256": "9830aea66cf366fde8cfe903dc0c90b86599a7809df7b6114fd3e227d14876fa"
+    },
+    {
+      "tool": "competitive_intel",
+      "vertical": "software",
+      "args": {
+        "your_product": "API testing and monitoring tool for backend developers",
+        "competitors": "Existing TMS; spreadsheets",
+        "common_objections": "Our TMS already assigns routes. Switching will disrupt peak season.",
+        "your_strengths": "Dispatcher can reassign a failed delivery and notify the depot in one view. Time saved is not measured."
+      },
+      "sha256": "4f2fd1613aba7803575a90b2e99088421809bf4c72fb97947c1d604bf9246a8c"
+    },
+    {
+      "tool": "competitive_intel",
+      "vertical": "cybersecurity",
+      "args": {
+        "your_product": "Cybersecurity threat detection software",
+        "competitors": "Existing TMS; spreadsheets",
+        "common_objections": "Our TMS already assigns routes. Switching will disrupt peak season.",
+        "your_strengths": "Dispatcher can reassign a failed delivery and notify the depot in one view. Time saved is not measured."
+      },
+      "sha256": "ebb0a197a42e6437c9da97fe15149535c47e3b5492a762ebd65e18bc2ab94bc4"
+    },
+    {
+      "tool": "craft_gtm_analyzer",
+      "vertical": "logistics-tech",
+      "args": {
+        "document_content": "Launch Logistics dispatch planning software to business accounts. The CMO owns the launch. Two account executives can run six demos weekly. The event and outreach budget is $18000. The goal is 12 paid customers at $24000 ACV by March. Current demo to sale conversion is 10 percent across 20 completed demos. Product can onboard three accounts monthly. No pilot acceptance measure is agreed.",
+        "document_type": "launch_plan",
+        "intended_audience": "CEO and CRO of a pre Series A logistics software business",
+        "desired_outcome": "Decide whether to keep the 12 customer target or reduce launch scope"
+      },
+      "sha256": "80e8265bfb369a88dbb14c69b78bbfc10cfb5350307ac64f0091c65cebab4130"
+    },
+    {
+      "tool": "craft_gtm_analyzer",
+      "vertical": "fintech",
+      "args": {
+        "document_content": "Launch Fintech payment reconciliation to business accounts. The CMO owns the launch. Two account executives can run six demos weekly. The event and outreach budget is $18000. The goal is 12 paid customers at $24000 ACV by March. Current demo to sale conversion is 10 percent across 20 completed demos. Product can onboard three accounts monthly. No pilot acceptance measure is agreed.",
+        "document_type": "launch_plan",
+        "intended_audience": "CEO and CRO of a pre Series A logistics software business",
+        "desired_outcome": "Decide whether to keep the 12 customer target or reduce launch scope"
+      },
+      "sha256": "d7a424b8c6dc978600641e49518de99f222fa779dfc2f0c3e5c03d5b226efa6b"
+    },
+    {
+      "tool": "craft_gtm_analyzer",
+      "vertical": "saas",
+      "args": {
+        "document_content": "Launch SaaS subscription management platform to business accounts. The CMO owns the launch. Two account executives can run six demos weekly. The event and outreach budget is $18000. The goal is 12 paid customers at $24000 ACV by March. Current demo to sale conversion is 10 percent across 20 completed demos. Product can onboard three accounts monthly. No pilot acceptance measure is agreed.",
+        "document_type": "launch_plan",
+        "intended_audience": "CEO and CRO of a pre Series A logistics software business",
+        "desired_outcome": "Decide whether to keep the 12 customer target or reduce launch scope"
+      },
+      "sha256": "969c5ae34713d0e7ad4bd15818de0332020830b120ed8eb055ad1825d2635e4d"
+    },
+    {
+      "tool": "craft_gtm_analyzer",
+      "vertical": "vertical-saas",
+      "args": {
+        "document_content": "Launch Vertical SaaS retail execution software to business accounts. The CMO owns the launch. Two account executives can run six demos weekly. The event and outreach budget is $18000. The goal is 12 paid customers at $24000 ACV by March. Current demo to sale conversion is 10 percent across 20 completed demos. Product can onboard three accounts monthly. No pilot acceptance measure is agreed.",
+        "document_type": "launch_plan",
+        "intended_audience": "CEO and CRO of a pre Series A logistics software business",
+        "desired_outcome": "Decide whether to keep the 12 customer target or reduce launch scope"
+      },
+      "sha256": "e4d26647bffbd1c02efa1d4610387588a0bef33d508b98a3caa92de37f76e546"
+    },
+    {
+      "tool": "craft_gtm_analyzer",
+      "vertical": "ai-native",
+      "args": {
+        "document_content": "Launch AI native document review agents to business accounts. The CMO owns the launch. Two account executives can run six demos weekly. The event and outreach budget is $18000. The goal is 12 paid customers at $24000 ACV by March. Current demo to sale conversion is 10 percent across 20 completed demos. Product can onboard three accounts monthly. No pilot acceptance measure is agreed.",
+        "document_type": "launch_plan",
+        "intended_audience": "CEO and CRO of a pre Series A logistics software business",
+        "desired_outcome": "Decide whether to keep the 12 customer target or reduce launch scope"
+      },
+      "sha256": "7ab4727800d915514de43b9b4a65139b9378aeea1c4ef60113a654891923b791"
+    },
+    {
+      "tool": "craft_gtm_analyzer",
+      "vertical": "ites",
+      "args": {
+        "document_content": "Launch ITeS business process outsourcing services to business accounts. The CMO owns the launch. Two account executives can run six demos weekly. The event and outreach budget is $18000. The goal is 12 paid customers at $24000 ACV by March. Current demo to sale conversion is 10 percent across 20 completed demos. Product can onboard three accounts monthly. No pilot acceptance measure is agreed.",
+        "document_type": "launch_plan",
+        "intended_audience": "CEO and CRO of a pre Series A logistics software business",
+        "desired_outcome": "Decide whether to keep the 12 customer target or reduce launch scope"
+      },
+      "sha256": "b399e69c19490c396f9852fa0017434949665f65d7357f1bb952f8e6b44905f7"
+    },
+    {
+      "tool": "craft_gtm_analyzer",
+      "vertical": "telecom",
+      "args": {
+        "document_content": "Launch Telecom network connectivity services to business accounts. The CMO owns the launch. Two account executives can run six demos weekly. The event and outreach budget is $18000. The goal is 12 paid customers at $24000 ACV by March. Current demo to sale conversion is 10 percent across 20 completed demos. Product can onboard three accounts monthly. No pilot acceptance measure is agreed.",
+        "document_type": "launch_plan",
+        "intended_audience": "CEO and CRO of a pre Series A logistics software business",
+        "desired_outcome": "Decide whether to keep the 12 customer target or reduce launch scope"
+      },
+      "sha256": "188da66b5c2d74c2c6e279e8c163d38e551dddddfa0de95a6cf869102bd078ab"
+    },
+    {
+      "tool": "craft_gtm_analyzer",
+      "vertical": "software",
+      "args": {
+        "document_content": "Launch API testing and monitoring tool for backend developers to business accounts. The CMO owns the launch. Two account executives can run six demos weekly. The event and outreach budget is $18000. The goal is 12 paid customers at $24000 ACV by March. Current demo to sale conversion is 10 percent across 20 completed demos. Product can onboard three accounts monthly. No pilot acceptance measure is agreed.",
+        "document_type": "launch_plan",
+        "intended_audience": "CEO and CRO of a pre Series A logistics software business",
+        "desired_outcome": "Decide whether to keep the 12 customer target or reduce launch scope"
+      },
+      "sha256": "02fb00edc10ed8109a345d10dc351bcae973eda7dd686f1d83599411ab97717a"
+    },
+    {
+      "tool": "craft_gtm_analyzer",
+      "vertical": "cybersecurity",
+      "args": {
+        "document_content": "Launch Cybersecurity threat detection software to business accounts. The CMO owns the launch. Two account executives can run six demos weekly. The event and outreach budget is $18000. The goal is 12 paid customers at $24000 ACV by March. Current demo to sale conversion is 10 percent across 20 completed demos. Product can onboard three accounts monthly. No pilot acceptance measure is agreed.",
+        "document_type": "launch_plan",
+        "intended_audience": "CEO and CRO of a pre Series A logistics software business",
+        "desired_outcome": "Decide whether to keep the 12 customer target or reduce launch scope"
+      },
+      "sha256": "0bbc9af2799962748b18984d7de0416ddcb8bb93b2873009059323410fcfbb59"
+    }
+  ]
+}

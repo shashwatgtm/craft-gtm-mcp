@@ -3,6 +3,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import mcp0 from "../netlify/functions/mcp.mjs";
+import {NO_REGION_SUFFIX} from "../dist/region-reader.js";
 
 const mcp = mcp0.default || mcp0;
 let rid = 900;
@@ -10,7 +11,9 @@ async function call(name, args) {
   const r = await mcp(new Request("https://x.gtmhelix.com/mcp", { method: "POST", headers: { "content-type": "application/json", accept: "application/json, text/event-stream" }, body: JSON.stringify({ jsonrpc: "2.0", id: rid++, method: "tools/call", params: { name, arguments: args } }) }), {});
   const t = await r.text();
   let j; try { j = JSON.parse(t); } catch { j = JSON.parse(t.split("\n").filter((l) => l.startsWith("data:")).pop().slice(5)); }
-  return (j.result?.content ?? []).map((c) => c.text).join("\n");
+  const output=(j.result?.content ?? []).map((c) => c.text).join("\n");
+  // The six-choice question is not regional courier advice. Remove only that exact suffix.
+  return output.endsWith(NO_REGION_SUFFIX)?output.slice(0,-NO_REGION_SUFFIX.length):output;
 }
 const REGIONAL = /cash on delivery|pin code|return to origin|non delivery report|\bindia/i;
 const PRODUCT = "Zipship: multi-carrier shipping software, an app and an API to compare rates across carriers, buy and print labels, validate addresses and track shipments";
