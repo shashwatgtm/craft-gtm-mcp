@@ -4,6 +4,7 @@ import { softwareAdvice, SOFTWARE_REFERRAL } from './software-policy.js';
 import { BUILD_PROFILE } from './build-profile.js';
 import {reserveTools,isReserveTool,callReserveTool} from './reserve-tools.js';
 import { attachWidgets } from './widget-layer.js';
+import { attachLaneFResults } from './lane-f-results.js';
 import { waveTools, isWaveTool, callWaveTool } from './wave2-checkers.js';
 import { readerLabel, readerIssue, claimRisk, outcomeReading } from './text-signals.js';
 import { sectorChoiceNotice } from './text-signals.js';
@@ -244,5 +245,7 @@ export function createServer(): Server {
     }
   });
 
+  // Result widget for the PMF Scorecard: last, after every safety, reader and widget wrapper (adds _meta only).
+  attachLaneFResults(server);
   return server;
 }
