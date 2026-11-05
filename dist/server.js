@@ -4,6 +4,8 @@ import { softwareAdvice } from './software-policy.js';
 import { BUILD_PROFILE } from './build-profile.js';
 import { reserveTools, isReserveTool, callReserveTool } from './reserve-tools.js';
 import { attachWidgets } from './widget-layer.js';
+import { attachHelixResults } from './helix-results.js';
+import { WIDGET_ORIGIN } from './widget-origin.js';
 import { waveTools, isWaveTool, callWaveTool } from './wave2-checkers.js';
 import { readerLabel, readerIssue } from './text-signals.js';
 import { sectorChoiceNotice } from './text-signals.js';
@@ -230,6 +232,9 @@ export function createServer() {
             };
         }
     });
+    // Result widget for the PMF Scorecard: last, after every safety, reader and widget wrapper (adds _meta only).
+    // The widget domain follows the same build switch as the existing widget layer.
+    attachHelixResults(server, BUILD_PROFILE.domainEnabled && WIDGET_ORIGIN ? WIDGET_ORIGIN : undefined);
     return server;
 }
 //# sourceMappingURL=server.js.map
