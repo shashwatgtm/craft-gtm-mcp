@@ -163,11 +163,15 @@ export function createServer() {
         // api.mjs) and the stdio path (src/index.ts), because all use this server.
         // Run 40S (D6, safe by design): the input checks read the text as typed (hidden characters removed); then every text is escaped once, so nothing the caller typed can form markup in any answer. The words stay (src/escape-inputs.ts).
         let typed = cleanDeep(request.params.arguments);
+        const offeredPersona = typed?.target_persona;
         const inputEvidence = guardInputs(typed, listedTools.find(t => t.name === name)?.inputSchema);
         typed = inputEvidence.args;
-        const problem = checkRequiredInputs(name, typed);
+        // An explicitly unknown interview persona starts with a role question.
+        // An omitted or blank required answer still uses the required input check.
+        const establishPersona = name === 'customer_interview_kit' && typeof offeredPersona === 'string' && !!offeredPersona.trim() && !typed?.target_persona;
+        const problem = checkRequiredInputs(name, establishPersona ? { ...typed, target_persona: 'Respondent role to establish' } : typed);
         const args = escapeDeep(typed);
-        if (problem || inputEvidence.stop) {
+        if (problem || (inputEvidence.stop && !establishPersona)) {
             return { content: [{ type: "text", text: (problem || 'Missing required input. Supply the missing evidence before continuing.') + (inputEvidence.notice ? '\n\n' + inputEvidence.notice : '') }], isError: true };
         }
         const advice = softwareAdvice(typed);
