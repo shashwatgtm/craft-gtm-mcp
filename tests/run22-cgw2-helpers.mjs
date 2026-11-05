@@ -62,7 +62,7 @@ export function sharpen(text) {
 }
 
 // ---- the pool scenarios (private) ----
-const WORK = "/home/user/directory-submission-work/work";
+const WORK = process.env.HELIX_WORK || "/home/user/directory-submission-work/work";
 export const POOL_AVAILABLE = existsSync(`${WORK}/run20/eval/builders20.mjs`) && existsSync(`${WORK}/run21/eval/common21.mjs`);
 let poolCache = null;
 /** Arguments of one tool for the pool scenarios (T6 to T9, H1 to H9, P1 to P9, Q1 to Q18), built by the run 20 builders from fetched pages. */

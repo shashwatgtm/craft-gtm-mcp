@@ -1,3 +1,4 @@
+import {pathToFileURL} from "node:url";
 // Run 22 writer cg-w1: shared helpers of the rewrite tests of competitive_intel, partner_architect and craft_gtm_analyzer.
 // Not a test file itself (no .test in the name). Real company names are never written here; the pool scenarios (private repo only) are read
 // at run time from the project work folder when it exists, and those tests are skipped when it does not.
@@ -86,11 +87,11 @@ export const POOL_OK = existsSync(`${WORK}/run20/eval/builders20.mjs`) && exists
 let builders = null; let scenarios = null; let schemas = null;
 async function load() {
   if (builders) return;
-  const mod = await import(`${WORK}/run20/eval/builders20.mjs`);
+  const mod = await import(pathToFileURL(`${WORK}/run20/eval/builders20.mjs`).href);
   builders = mod.BUILD20["craft-gtm"];
   scenarios = {};
   for (const [file, key] of [["run20/eval/tuning20.mjs", "TUNING20"], ["run20/eval/holdout-check20.mjs", "HOLDOUT_CHECK20"], ["run21/eval/pool.mjs", "POOL21"], ["run22/eval/pool2.mjs", "POOL22"]]) {
-    for (const s of (await import(`${WORK}/${file}`))[key]) scenarios[s.id] = s;
+    for (const s of (await import(pathToFileURL(`${WORK}/${file}`).href))[key]) scenarios[s.id] = s;
   }
   const tl = await rpc("tools/list", {});
   schemas = Object.fromEntries(tl.result.tools.map((t) => [t.name, t.inputSchema]));
