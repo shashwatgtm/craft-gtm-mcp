@@ -1,4 +1,5 @@
 import { guardInputs, holdBuyerCopy } from './input-evidence.js';
+import { regionNotes } from "./region-reader.js";
 import { withReadingGuide } from './reader-actions.js';
 import { softwareAdvice } from './software-policy.js';
 import { BUILD_PROFILE } from './build-profile.js';
@@ -214,7 +215,7 @@ export function createServer() {
                 content: [
                     {
                         type: "text",
-                        text: inputEvidence.notice + (inputEvidence.notice ? '\n\n' : '') + withReadingGuide(name, holdBuyerCopy(name, args, result), args),
+                        text: inputEvidence.notice + (inputEvidence.notice ? '\n\n' : '') + withReadingGuide(name, holdBuyerCopy(name, args, result), args) + regionNotes(typed),
                     },
                 ],
             };
