@@ -29,6 +29,7 @@
 <link rel="preload" href="/assets/fonts/VT323-latin-400.woff2?v=8ddbebcc10" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/assets/fonts.css?v=a7f7495a4f">
 <link rel="stylesheet" href="/assets/helix.css?v=4c6d14d19e">
+<link rel="stylesheet" href="/assets/jtbd.css?v=c58d595f2b">
 <link rel="stylesheet" href="/assets/helix-report.css?v=f78ed582b4">
 <script type="application/ld+json">
 {
@@ -171,7 +172,7 @@
    "about": {
     "@id": "https://craft-gtm.gtmhelix.com/#app"
    },
-   "dateModified": "2026-11-02",
+   "dateModified": "2026-11-05",
    "inLanguage": "en",
    "primaryImageOfPage": "https://craft-gtm.gtmhelix.com/og.png"
   },
@@ -268,15 +269,24 @@
   <div class="wrap">
     <p class="eyebrow"><span class="tag">Retention Playbook</span></p>
     <div class="crop"><span class="cm tl" aria-hidden="true"></span><span class="cm tr" aria-hidden="true"></span><span class="cm bl" aria-hidden="true"></span><span class="cm br" aria-hidden="true"></span><h1 id="h1">Get retention strategies for each churn reason</h1></div>
+    <p class="hx-for"><b>For</b> customer success and revenue leads. <b>The decision:</b> why are customers leaving, and what do we do about each reason?</p>
     <div class="hero-grid"><div class="hx10-split-text">
       <p class="sub">Give it a customer segment, business model and churn rate. Get a churn severity check, a health score model, actions for each churn reason and the metrics to watch.</p>
       <p class="hx10-actions hx11-tool-acts"><a class="hx-btn" href="?example=1#run">Try it with an example</a><a class="slink" href="#run">Use your own details</a></p>
-      <p class="hx-byline">Last updated <time datetime="2026-11-02">2 November 2026</time></p>
+      <p class="hx-byline">Last updated <time datetime="2026-11-05">5 November 2026</time></p>
     </div><figure class="hx8-vis hx10-split-vis "><svg viewBox="0 0 360 166" width="360" height="166" role="img" aria-labelledby="v4t v4d" class="hx8-svg"><title id="v4t">Health Score Model</title><desc id="v4d">Health Score Model: Health bands: Critical, At Risk, Monitor, Healthy; Lifecycle intervention timing: Day 7, Day 30, Day 60, Day 90.</desc><text x="0" y="16" class="v-k" text-anchor="start">Health Score Model</text><text x="0" y="46" class="v-tb" text-anchor="start">Health bands</text><rect x="0" y="54" width="360" height="34" class="v-clay"/><rect x="0" y="54" width="86" height="34" class="v-ox v-grow d0"/><text x="5" y="68" class="v-tp" text-anchor="start">Critical</text><rect x="90" y="54" width="86" height="34" class="v-ox v-grow d1"/><text x="95" y="68" class="v-tp" text-anchor="start">At Risk</text><rect x="180" y="54" width="86" height="34" class="v-ox v-grow d2"/><text x="185" y="68" class="v-tp" text-anchor="start">Monitor</text><rect x="270" y="54" width="86" height="34" class="v-ox v-grow d3"/><text x="275" y="68" class="v-tp" text-anchor="start">Healthy</text><text x="0" y="112" class="v-tb" text-anchor="start">Lifecycle intervention timing</text><rect x="0" y="120" width="360" height="34" class="v-clay"/><rect x="0" y="120" width="68" height="34" class="v-ink7 v-grow d1"/><text x="5" y="134" class="v-tp" text-anchor="start">Day 7</text><rect x="90" y="120" width="68" height="34" class="v-ink7 v-grow d2"/><text x="95" y="134" class="v-tp" text-anchor="start">Day 30</text><rect x="180" y="120" width="68" height="34" class="v-ink7 v-grow d3"/><text x="185" y="134" class="v-tp" text-anchor="start">Day 60</text><rect x="270" y="120" width="68" height="34" class="v-ink7 v-grow d4"/><text x="275" y="134" class="v-tp" text-anchor="start">Day 90</text></svg></figure></div>
   </div>
 </section>
 
 <div class="hx-body">
+<section class="hx-section hx-sample" aria-labelledby="sample-h">
+  <h2 id="sample-h">What you get</h2>
+  <p class="hx-sample-note">Sample output, labelled: a made up example from the inputs behind <em>Fill in an example</em>. Part of one section of the answer.</p>
+  <div class="hxr-body hx-result-body hx-sample-body"><h3 class="hxr-h3">Why customers leave, and what to do about each reason</h3>
+<p>Each reason gets a signal to watch, a first step, an owner and a draft message. The measure of success is the same for all of them: the share of customers who got the step and are still customers after the next billing period. In vertical SaaS the proof that lands is one team or site before and after on the work the software changes, measured by the buyer&#39;s own staff over a full working cycle. Add a result to a draft only if you hold it.</p></div>
+  <p class="hx-sample-more"><a href="#ex-h">See the full example answer</a> or <a href="#run">run it with your own details</a>.</p>
+</section>
+
 <section class="hx-section hx-run-sec" id="run" aria-label="Run Retention Playbook">
   <div class="win hx-form-win"><div class="win-bar"><span class="t">Run Retention Playbook</span><span class="wb" aria-hidden="true"><i></i><i></i></span></div><form class="hx-form" method="post" action="/api/tools/retention_playbook" data-tool="retention_playbook" data-title="Retention Playbook"><p class="hx-help">You need: Customer segment, Business model, Current churn rate. You can add: Churn reasons, Available data signals, CS team size, Current interventions.</p>
 <div class="hx-field"><label for="f-customer_segment">Customer segment <span class="hx-req" aria-hidden="true">*</span></label><input id="f-customer_segment" name="customer_segment" type="text" maxlength="6000" data-kind="string" required aria-required="true" aria-describedby="f-customer_segment-help"><p class="hx-help" id="f-customer_segment-help">Customer segment to focus on</p></div>
@@ -311,6 +321,7 @@
     <div class="hxr-body hx-result-body" data-result></div>
     <footer class="hxr-foot"><span>Built by Shashwat Ghosh</span><span>https://craft-gtm.gtmhelix.com/tools/retention-playbook/</span><span data-hxr-date></span></footer>
   </article>
+  <p class="hx-notenough"><strong>When a tool is not enough:</strong> if the decision needs more than one answer, talk it through with Shashwat. <a href="https://calendly.com/shashwat-gtmhelix/45min">Book 45 minutes</a>.</p>
   <p class="hx9-next"><strong>What next?</strong> <a href="https://gtmhelix.com/lets-get-started/">Work with Shashwat on this</a> <a href="https://gtmhelix.com/#start">Try another tool</a> <a href="https://tools.gtmhelix.com/tools/">See all 48 tools</a></p>
 </section>
 
@@ -372,6 +383,7 @@ Your account team</code></pre>
     <footer class="hxr-foot"><span>Built by Shashwat Ghosh</span><span>https://craft-gtm.gtmhelix.com/tools/retention-playbook/</span></footer>
   </article>
   <p class="figcap">How the answer is laid out, using the sections the tool prints. Example figure: replace with your own.</p>
+  <p class="hx-notenough"><strong>When a tool is not enough:</strong> if the decision needs more than one answer, talk it through with Shashwat. <a href="https://calendly.com/shashwat-gtmhelix/45min">Book 45 minutes</a>.</p>
 </section>
 <aside class="hx7-strip" aria-label="Built by Shashwat Ghosh"><div class="hx-wrap hx7-strip-row"><picture class="hx7-strip-photo"><source srcset="/assets/shashwat-ghosh-160.webp?v=c5d0d41b0c" type="image/webp"><img src="/assets/shashwat-ghosh-160.jpg?v=b453d25fa4" width="160" height="160" alt="Shashwat Ghosh" decoding="async"></picture><p><b>Built by Shashwat Ghosh</b>, Co-Founder and Fractional CMO, Helix GTM Consulting, with 24+ years in B2B and 10+ years fractional.</p><a href="https://gtmhelix.com/about/">About Shashwat</a></div></aside>
 <section class="hx-section" aria-labelledby="not-t-h">
