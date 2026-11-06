@@ -5,7 +5,7 @@
     "tools": [
       {
         "name": "pmf_scorecard",
-        "description": "Takes your product, target market and current metrics (MRR, ACV, churn, NPS, CAC, LTV, retention, activation and similar) and returns a product-market fit scorecard that scores each dimension against example benchmark ranges. Reads the business model from your inputs and leaves the activation score out for services, connectivity and investment businesses. Quotes your customer feedback and answers it.",
+        "description": "Helps you decide whether you have product market fit and whether to scale: it takes your product, target market and current metrics (MRR, ACV, churn, NPS, CAC, LTV, retention, activation and similar) and returns a scorecard that scores each dimension against example benchmark ranges. It also gives priority actions and the data gaps to fill, reads the business model from your inputs, leaves the activation score out for services, connectivity and investment businesses, and quotes and answers your customer feedback.",
         "inputSchema": {
           "type": "object",
           "properties": {
@@ -103,7 +103,7 @@
       },
       {
         "name": "launch_commander",
-        "description": "Takes what you are launching, the launch type, your target segments and your goals, and returns a phased launch plan with tasks, a messaging table and success metrics. Give a date for a dated timeline, or enter 'TBD' or a quarter such as 'Q2 2027' for a flexible plan. Tasks and the messaging table follow the sector and business model read from your inputs, and each goal is filed under its own metric.",
+        "description": "Helps you decide your launch plan: it takes what you are launching, the launch type, your target segments and your goals, and returns a phased launch plan with tasks, a messaging table and success metrics. Give a date for a dated timeline, or 'TBD' or a quarter such as 'Q2 2027' for a flexible plan. Tasks and messaging follow the sector and business model read from your inputs, and each goal is filed under its own metric.",
         "inputSchema": {
           "type": "object",
           "properties": {
@@ -220,7 +220,7 @@
       },
       {
         "name": "customer_interview_kit",
-        "description": "Takes the interview type, the product context and the person you are interviewing, and returns an interview guide that fits the interview type, the sector (chosen, or read from your inputs) and the product complexity. Questions use the sector's own language, your hypotheses are kept whole, and synthesis templates are included.",
+        "description": "Helps you decide what to ask customers to test your hunch: it takes the interview type, the product context and the person you are interviewing, and returns an interview guide that fits the interview type, the sector and the product complexity. Questions use the sector's own language (the sector is chosen, or read from your inputs), your hypotheses are kept whole, and synthesis templates are included.",
         "inputSchema": {
           "type": "object",
           "properties": {
@@ -324,7 +324,7 @@
       },
       {
         "name": "retention_playbook",
-        "description": "Takes your customer segment, business model and current churn rate, and returns a retention playbook with health signals, interventions and an email draft for each churn reason. If you do not know why customers leave, leave the churn reasons out and you get a churn discovery kit with a framework for finding out. Health signals and interventions follow the business model, each churn reason gets its own answer, and your current interventions and data signals are used.",
+        "description": "Helps you decide why customers leave and what to do about each reason: it takes your customer segment, business model and current churn rate, and returns a retention playbook with health signals, interventions and an email draft for each churn reason. If you do not know why customers leave, leave the churn reasons out and you get a churn discovery kit instead. Your current interventions and data signals are used when you give them.",
         "inputSchema": {
           "type": "object",
           "properties": {
@@ -426,7 +426,7 @@
       },
       {
         "name": "partner_architect",
-        "description": "Takes your company, product, partner model, partner goal and deal size, and returns a partner program with tiers, example commission amounts and KPIs, with a different structure for resellers, referrals, integrations, agencies, affiliates and white label. Uses your stated goal, existing partners and deal size, and names the partner types that fit your sector's buying committee.",
+        "description": "Helps you decide what partner program to run and how to start it: it takes your company, product, partner model, partner goal and deal size, and returns a partner program with tiers, example commission amounts and KPIs. The structure differs for resellers, referrals, integrations, agencies, affiliates and white label, uses your existing partners when given, and names the partner types that fit your sector's buying committee.",
         "inputSchema": {
           "type": "object",
           "properties": {
@@ -535,7 +535,7 @@
       },
       {
         "name": "crisis_planner",
-        "description": "Takes your company, industry, customer base and data sensitivity, and returns crisis playbooks with a response team and notification steps for each crisis. Name the crises you know of to get those playbooks. If you leave them out, the tool uses a default set of common crises for your sector (not ranked by likelihood). Each compliance item you list is used in the notification steps.",
+        "description": "Helps you decide who does what when a crisis hits: it takes your company, industry, customer base and data sensitivity, and returns crisis playbooks with a response team and notification steps for each crisis. Name the crises you know of to get those playbooks; without them it uses a default set of common crises for your sector, not ranked by likelihood. Each compliance item you list is used in the notification steps.",
         "inputSchema": {
           "type": "object",
           "properties": {
@@ -646,7 +646,7 @@
       },
       {
         "name": "competitive_intel",
-        "description": "Takes your product and the competitors you name, and returns one battle card per competitor built from your strengths, weaknesses, competitor details, objections, wins and losses. Each competitor detail goes to the competitor it names, each objection gets its own answer, and strengths and gaps taken from wins and losses are your own words.",
+        "description": "Helps you decide how to win against each competitor: it takes your product and the competitors you name, and returns one battle card per competitor built from your strengths, weaknesses, competitor details, objections, wins and losses. Each competitor detail goes to the competitor it names, each objection gets its own answer, and strengths and gaps taken from wins and losses stay in your own words.",
         "inputSchema": {
           "type": "object",
           "properties": {
@@ -743,7 +743,7 @@
       },
       {
         "name": "craft_gtm_analyzer",
-        "description": "Takes the text of a GTM document or plan and returns an analysis against the CRAFT framework, with a score for each dimension. Each dimension is scored only on what the plan contains (Timeline counts real dates, durations and quarters), the tool shows the plan's own line for each, names only the elements that are missing and suggests sections to add.",
+        "description": "Helps you decide whether a GTM plan is clear enough to run: it takes the text of a GTM document or plan and returns a score for each CRAFT dimension, based only on what the plan contains. Timeline counts real dates, durations and quarters; the answer shows the plan's own line for each dimension, names only the elements that are missing and suggests sections to add.",
         "inputSchema": {
           "type": "object",
           "properties": {
