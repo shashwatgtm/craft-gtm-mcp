@@ -20,12 +20,6 @@ function softwareQuestions(value: unknown): string[] {
           if (field === 'account_notes' && typeof text === 'string') visit(text.split(/\bobjections?\s*:/i)[0]);
           else if (typeof text === 'string') visit(text.replace(/\b(?:Risks|Objections):[^\n]*/gmi,''));
           else visit(text);
-        } else if (typeof text === 'string') {
-          for (const s of text.split(/(?<=[.!?;])\s+|\n/)) {
-            if (!/\byour\b/i.test(s) && /\b(?:which|what)\b[^?]*\b(?:should|shall|do|can)\s+(?:we|I|our team)\s+(?:buy|use|choose|adopt|switch|replace)\b|\b(?:should|shall)\s+(?:we|I|our team)\s+(?:buy|use|choose|adopt|switch|replace)\b/i.test(s)) {
-              texts.push(s);
-            }
-          }
         }
       }
     }

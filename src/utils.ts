@@ -107,9 +107,8 @@ const KNOWN_NAMES = new Set((
   'Salesforce Microsoft Slack HubSpot LinkedIn Google Gmail Outlook Excel Zoom Zendesk Jira Notion Shopify Stripe ' +
   'Marketo Pardot Gong Intercom Freshworks Oracle SAP Workday ServiceNow Snowflake Tableau Asana Trello Dropbox ' +
   'Apple Amazon AWS Azure Facebook Instagram WhatsApp YouTube Sam ' +
-  // Run 19: the invented company names of the page examples, plus common vertical and enterprise brand names.
-  'Shelfwalk Answerloop Cloudmoat Spendrill Lanehop Branchwire Bengaluru Clari Northwind Metricly ' +
-  'Chargebee Infosys Airtel SmartBear Postman Mindbody Genpact Seclore Happay Zenoti Locus FarEye Zoho'
+  // Run 19: the invented company names of the page examples.
+  'Shelfwalk Answerloop Cloudmoat Spendrill Lanehop Branchwire Bengaluru Clari Northwind Metricly'
 ).split(/\s+/).filter(Boolean));
 function bareWord(word: string): string {
   return word.replace(/^[^A-Za-z0-9]+|[^A-Za-z0-9]+$/g, '');

@@ -234,7 +234,7 @@ ${verdict} The scores come from a keyword check of the lines that describe your 
     const acronym = /^Chief .* Officer$/.test(role) ? role.split(' ').filter((w) => /^[A-Z]/.test(w) && w !== 'Officer').map((w) => w[0]).join('') + 'O' : '';
     // the same words in another order count ("IT Infrastructure Head" names the "Head of IT Infrastructure"), all in one line of the plan
     const roleWords = role.toLowerCase().split(/\s+/).filter((w) => !['of', 'and', 'the'].includes(w));
-    const sameWords = roleClauses.some((line) => { const l = line.toLowerCase(); return roleWords.every((w) => new RegExp(`\\b${w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}s?\\b`).test(l)); });
+    const sameWords = roleClauses.some((line) => { const l = line.toLowerCase(); return roleWords.every((w) => new RegExp(`\\b${w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}${w === 'it' ? '' : 's?'}\\b`).test(l)); });
     // plain titles that name the same decider (GM-IT and the IT head are the CIO's side; a platform leader is the platform engineering lead; IT / Security is the security lead)
     const ALIASES: Array<[RegExp, RegExp]> = [
       [/information officer|head of it|network manager|cio\b|cto\b|chief technology/i, /\b(gm[- ]it|it head|head of it|cios?|ctos?|it manager|it director|it infrastructure|it \/ security|it and security)\b/i],

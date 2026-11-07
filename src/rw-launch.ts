@@ -548,7 +548,7 @@ This is a readiness review, not an acquisition schedule. No new pilot commitment
   })() : null;
 
   // channels: the ones named, else the sector's own
-  const channelsGiven = args.available_channels ? splitTopLevel(args.available_channels).filter((c) => !/(?:^|\b)(?:we\s+)?(?:do\s+not|don't|never|cannot|can't|no)\s+(?:use|run|have|do)\b/i.test(c) && !/^no\s+/i.test(c.trim())).map((c) => (c.toLowerCase() === 'linkedin' ? 'LinkedIn' : c)) : [];
+  const channelsGiven = args.available_channels ? splitTopLevel(args.available_channels).map((c) => (c.toLowerCase() === 'linkedin' ? 'LinkedIn' : c)) : [];
   const segChannels = segmentKinds(args.target_segments).flatMap((k) => k.channels ?? []).filter((c, i, a) => a.indexOf(c) === i).slice(0, 4);
   const shownChannels = channelsGiven.length ? channelsGiven : layer ? layer.channels : pb ? pb.channels : segChannels.length ? segChannels : salesLed ? ['account-based outreach to named buyers', 'LinkedIn posts from your experts and customers', 'executive roundtable or briefing'] : ['email', 'LinkedIn', 'blog'];
   const filterWords = (channelsGiven.length ? channelsGiven : ['email', 'linkedin', 'blog']).map((c) => c.toLowerCase());
@@ -1043,7 +1043,7 @@ export function writeRetentionPlaybook(args: {
   const choice = args.business_model;
   const csTeamSize = args.cs_team_size || 'unknown';
   const capacity = CAPACITY[csTeamSize] || {highTouch:0,scaledTouch:0,automated:0};
-  const reasonNotes = typedList(args.churn_reasons);
+  const reasonNotes = (args.churn_reasons || '').split(/[;\n]/).map(x=>x.trim()).filter(Boolean);
   const unresolved = reasonNotes.filter(x=>/\b(?:unknown|unconfirmed|not (?:yet )?(?:known|confirmed|established)|no evidence)\b/i.test(x) || /\b(?:is|are|was|were)\s+not\s+(?:a\s+)?(?:reason|cause|problem|concern|issue|factor|winning)\b/i.test(x) || /\b(?:have\s+not|haven't|never)\s+lost\b/i.test(x) || readSignal(x,/\b(?:training gaps?|training problems?|training issues?)\b/i).state === 'negated');
   const reasons = reasonNotes.filter(x=>!unresolved.includes(x));
   const trainingObserved = reasons.some(x=>hasSignal(x,/\b(?:training gaps?|training problems?|training issues?|lack of training|insufficient training)\b/i));
@@ -1454,9 +1454,9 @@ export function writeCrisisPlan(args: {
   const sensitivity = args.data_sensitivity;
   const compItems = typedList(args.compliance_requirements);
   const comp = compItems.length ? andList(compItems) : '';
+  const prod = productParts(args.company);
   const cname = args.company.trim();
   const cnamePlain = unescapeMd(cname);
-  const prod = /^(?:a|an|the|our|my)\b/i.test(cnamePlain) ? { name: null, desc: escapePiece(cnamePlain), wrapped: false } : productParts(args.company);
   const plainName = !/[,:;]/.test(cnamePlain) && !/^(?:a|an|the|our|my)\b/i.test(cnamePlain) && (/^[A-Z0-9]/.test(cnamePlain) ? cnamePlain.split(/\s+/).length <= 6 : cnamePlain.split(/\s+/).length === 1) ? cname : null;
   const N = prod.name ?? plainName ?? 'your company';
   const ctx = readContext({ model: args.business_model, vertical: args.industry, sector: args.your_sector }, { seller: [cleanCompanyName(args.company)], context: [args.potential_crises, args.compliance_requirements] });
