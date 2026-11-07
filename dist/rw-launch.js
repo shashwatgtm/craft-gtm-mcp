@@ -1162,10 +1162,10 @@ export function writeRetentionPlaybook(args) {
     const csTeamSize = args.cs_team_size || 'unknown';
     const capacity = CAPACITY[csTeamSize] || { highTouch: 0, scaledTouch: 0, automated: 0 };
     const reasonNotes = (args.churn_reasons || '').split(/[;\n]/).map(x => x.trim()).filter(Boolean);
-    const unresolved = reasonNotes.filter(x => /\b(?:unknown|unconfirmed|not (?:yet )?(?:known|confirmed|established)|no evidence)\b/i.test(x) || readSignal(x, /\b(?:training gaps?|training problems?|training issues?)\b/i).state === 'negated');
+    const unresolved = reasonNotes.filter(x => /\b(?:unknown|unconfirmed|not (?:yet )?(?:known|confirmed|established)|no evidence)\b/i.test(x) || /\b(?:is|are|was|were)\s+not\s+(?:a\s+)?(?:reason|cause|problem|concern|issue|factor|winning)\b/i.test(x) || /\b(?:have\s+not|haven't|never)\s+lost\b/i.test(x) || readSignal(x, /\b(?:training gaps?|training problems?|training issues?)\b/i).state === 'negated');
     const reasons = reasonNotes.filter(x => !unresolved.includes(x));
     const trainingObserved = reasons.some(x => hasSignal(x, /\b(?:training gaps?|training problems?|training issues?|lack of training|insufficient training)\b/i));
-    const dataSignals = typedList(args.available_data_signals);
+    const dataSignals = typedList(args.available_data_signals).filter(d => !/\b(?:do\s+not|don't|never|cannot|can't)\s+(?:track|measure|have|collect)\b/i.test(d) && !/^(?:no|none)\b/i.test(d.trim()));
     const current = typedList(args.current_interventions);
     const product = args.product ? args.product.trim() : '';
     // a long product name is used once in the title; the drafts, written by the seller to its customer, say "our service" instead of repeating it
@@ -1343,8 +1343,8 @@ export function writeRetentionPlaybook(args) {
         ? Object.fromEntries(CONTRACT_SIGNALS[contractModel].map((sg) => [sg, Math.round((100 / CONTRACT_SIGNALS[contractModel].length) * 10) / 10]))
         : (HEALTH_WEIGHTS[choice] || HEALTH_WEIGHTS.saas_subscription);
     const signalWords = (key) => key.split('_').filter((w) => w.length >= 4 && !['trend', 'rate', 'requested', 'sentiment'].includes(w));
-    const trackedFor = (key) => dataSignals.find((ds) => signalWords(key).some((w) => ds.toLowerCase().includes(w.slice(0, 4)))) ?? null;
     const usedSignals = new Set();
+    const trackedFor = (key) => dataSignals.find((ds) => !usedSignals.has(ds) && signalWords(key).some((w) => ds.toLowerCase().includes(w.slice(0, 4)))) ?? null;
     const LABELS = { ticket_backlog_trend: 'open request backlog trend', aov_trend: 'value per transaction trend', category_breadth: 'breadth of use', purchase_frequency: 'transaction frequency', feature_adoption: subscription ? 'feature adoption' : 'service adoption', support_nps: 'support NPS' };
     const label = (sg) => LABELS[sg] ?? sg.replace(/_/g, ' ');
     out.push('## Health score');
@@ -1618,7 +1618,7 @@ export function writeCrisisPlan(args) {
     const enterprise = base === 'b2b_enterprise';
     const consumers = base === 'b2c_consumer' || base === 'mixed';
     // crises: the ones typed, else the default set for the sector
-    const typed = typedList(args.potential_crises);
+    const typed = typedList(args.potential_crises).filter((c) => !/^(?:not\s+a\b|no\s+|none\b|we\s+(?:have\s+not|do\s+not|never)\b)/i.test(unescapeMd(c).trim()));
     let crises;
     if (typed.length)
         crises = typed;
@@ -1975,8 +1975,9 @@ ${audiences([[enterprise ? 'Technology or service owners at customers' : 'Custom
     out.push('');
     out.push('## The plan in brief');
     const industryName = ctx.v?.name || readableChoice(args.industry);
+    const sizeLabel = readableChoice(companySize);
     const brief = [];
-    brief.push(`${N === 'your company' ? 'This plan is for your company' : `This plan is for ${N}`}, ${aAn(industryName)} ${industryName} company with ${readableChoice(base)} customers, ${readableChoice(sensitivity)} data sensitivity and a ${readableChoice(companySize)} team${args.company_size ? '' : ' (assumed)'}.`);
+    brief.push(`${N === 'your company' ? 'This plan is for your company' : `This plan is for ${N}`}, ${aAn(industryName)} ${industryName} company with ${readableChoice(base)} customers, ${readableChoice(sensitivity)} data sensitivity and ${aAn(sizeLabel)} ${sizeLabel} team${args.company_size ? '' : ' (assumed)'}.`);
     if (prod.desc)
         brief.push(`You describe the company as ${quoted(prod.desc.length >= 200 ? prod.desc.slice(0, 180).replace(/\s+\S*$/, '') + ' (excerpt only; review the complete description and its limits)' : prod.desc)}.`);
     brief.push(typed.length

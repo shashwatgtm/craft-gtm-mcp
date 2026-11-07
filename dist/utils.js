@@ -432,14 +432,16 @@ const CHARACTER_GROUPS = [
     { label: 'an owner or responsible party', patterns: [
             /\bresponsible\s+(?:for|party|team|person)\b/gi,
             /\b(?:who|team|person|role)\s+(?:will|should|must|owns|executes|leads)\b/gi,
+            /\b(?:led|owned|run|managed)\s+by\b/gi,
             /\bowner[:\s]/gi, /\b(?:cmo|ceo|cto|coo|cro|founder|director|manager|lead|team)\s+(?:owns|leads)\b/gi
         ] },
     { label: 'a RACI', optional: true, patterns: [/\braci\b/gi] },
 ];
 const RESULT_GROUPS = [
-    { label: 'a KPI, metric or goal', patterns: [/\b(kpi|metric|goal|target|objective|outcome|okr|success\s*criteria)\b/gi, /\bwe (?:need|aim for|plan to win) \d+[\d,]*(?: [a-z]+){0,3} (?:customers|deals|meetings|accounts|pilots)\b/gi] },
+    { label: 'a KPI, metric or goal', patterns: [/\b(kpi|metric|goal|target|objective|outcome|okr|success\s*criteria)\b/gi, /\bwe (?:need|aim for|plan to win) \d+[\d,]*(?: [a-z]+){0,3} (?:customers|deals|meetings|accounts|pilots)\b/gi, /\b(?:sign|win|close|land|acquire|reach)\s+(?:\d+|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|fifteen|twenty|thirty|forty|fifty|hundred)\s+(?:[a-z-]+\s+){0,3}(?:customers?|deals?|meetings?|accounts?|pilots?|subscriptions?|logos?)\b/gi] },
     { label: 'a target with a number', patterns: [
             /\bwe (?:need|aim for|plan to win) \d+[\d,]*(?: [a-z]+){0,3} (?:customers|deals|meetings|accounts|pilots)\b/gi,
+            /\b(?:sign|win|close|land|acquire|reach)\s+(?:\d+|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|fifteen|twenty|thirty|forty|fifty|hundred)\s+(?:[a-z-]+\s+){0,3}(?:customers?|deals?|meetings?|accounts?|pilots?|subscriptions?|logos?)\b/gi,
             /(?<=^\s*(?:customer(?: acquisition)? )?(?:goals?|targets?)\s*:\s*)(?:zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)(?:\s+(?:new|paid|paying|qualified|additional))?\s+(?:customers?|accounts?|clients?)\b/gim,
             /\b(increase|decrease|improve|reduce|achieve|reach|hit)\s+\d+/gi,
             /\d+%?\s*(increase|decrease|improvement|reduction|growth)\b/gi,
@@ -481,8 +483,8 @@ const TIMELINE_GROUPS = [
             /\bfy\s*'?\d{2,4}\b/gi
         ] },
     { label: 'a duration with a number', patterns: [
-            /\b\d+[\s-]*(?:day|week|month|quarter|year)s?\b/gi,
-            /\b(?:week|day|month)\s+\d+\b/gi
+            /(?<!payback\s+(?:is\s+|of\s+)?)\b\d+[\s-]*(?:day|week|month|quarter|year)s?(?!\s+(?:cac\s+)?payback)\b/gi,
+            /\b(?:weeks?|days?|months?)\s+\d+(?:\s*(?:to|[-–—])\s*\d+)?\b/gi
         ] },
 ];
 const TIMELINE_WORDS = /\b(deadline|due|milestone|phase|sprint|timeline|schedule|roadmap|calendar)s?\b/gi;

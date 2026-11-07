@@ -8,5 +8,5 @@ export interface MetricReading {
     retentionBasis?: 'logo' | 'gross_revenue' | 'net_revenue' | 'unspecified';
     churnMonths?: number;
 }
-export declare function readPMFMetrics(raw: string): MetricReading;
+export declare function readPMFMetrics(rawInput: string): MetricReading;
 //# sourceMappingURL=pmf-metrics.d.ts.map

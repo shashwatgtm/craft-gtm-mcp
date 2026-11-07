@@ -1,5 +1,25 @@
 import { readSignal } from './text-signals.js';
-export function readPMFMetrics(raw) {
+const WORD_NUM = {
+    zero: 0, one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9,
+    ten: 10, eleven: 11, twelve: 12, thirteen: 13, fourteen: 14, fifteen: 15, sixteen: 16,
+    seventeen: 17, eighteen: 18, nineteen: 19, twenty: 20, thirty: 30, forty: 40, fifty: 50,
+    sixty: 60, seventy: 70, eighty: 80, ninety: 90, hundred: 100
+};
+function normalizePMFText(raw0) {
+    let s = raw0
+        .replace(/\bis\s+not\s+(?:above|below|over|under|more\s+than|less\s+than)\s+[^()]*\(\s*(?:it\s+is|actual\s+is|actually)\s+([^()]+)\)/gi, 'is $1')
+        .replace(/\bis\s+not\s+(?:bad|low|poor|weak)\s+at\s+/gi, 'is ')
+        .replace(/\b(?:lifetime value|ltv)\s+is\s+\w+\s+times\s+(?:customer acquisition cost|cac)\s*\(\s*([^()\s]+)\s+vs\.?\s+([^()\s]+)\s*\)/gi, 'lifetime value is $1; customer acquisition cost is $2');
+    s = s.replace(/\b(zero|one|two|three|four|five|six|seven|eight|nine|ten)\s+point\s+(zero|one|two|three|four|five|six|seven|eight|nine)\s+percent\b/gi, (_, a, b) => `${WORD_NUM[a.toLowerCase()] ?? 0}.${WORD_NUM[b.toLowerCase()] ?? 0}%`);
+    s = s.replace(/\b(twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety)(?:[-\s]+(one|two|three|four|five|six|seven|eight|nine))?\s+percent\b/gi, (_, tens, ones) => `${(WORD_NUM[tens.toLowerCase()] ?? 0) + (ones ? (WORD_NUM[ones.toLowerCase()] ?? 0) : 0)}%`);
+    s = s.replace(/\b(net promoter score|nps)\s+is\s+(twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety)(?:[-\s]+(one|two|three|four|five|six|seven|eight|nine))?\b/gi, (_, lbl, tens, ones) => `${lbl} is ${(WORD_NUM[tens.toLowerCase()] ?? 0) + (ones ? (WORD_NUM[ones.toLowerCase()] ?? 0) : 0)}`);
+    if (!/\bretention\b|\bnrr\b/i.test(s)) {
+        s = s.replace(/\b(twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety)(?:[-\s]+(one|two|three|four|five|six|seven|eight|nine))?\s+out\s+of\s+(?:a\s+|one\s+|100\s+)?hundred\s+(?:accounts?|customers?)\s+renew/gi, (_, tens, ones) => `logo retention is ${(WORD_NUM[tens.toLowerCase()] ?? 0) + (ones ? (WORD_NUM[ones.toLowerCase()] ?? 0) : 0)}%`);
+    }
+    return s;
+}
+export function readPMFMetrics(rawInput) {
+    const raw = normalizePMFText(rawInput);
     const result = { values: {}, currencies: {}, evidence: [], issues: [], retentionIsNet: false };
     const currency = '(?:\\b(?:USD|INR|SGD|EUR|GBP|AED|SAR|CAD|AUD|NZD|HKD|JPY|CNY|CHF|ZAR|BRL|MXN|KRW|SEK|NOK|DKK|PLN|TRY|IDR|MYR|THB|PHP|VND)\\b|US\\$|HK\\$|NZ\\$|S\\$|A\\$|C\\$|₹|€|£|¥|\\$)';
     const currencyName = (value) => ({ '₹': 'INR', '€': 'EUR', '£': 'GBP', 'US$': 'USD', 'S$': 'SGD', 'A$': 'AUD', 'C$': 'CAD', 'HK$': 'HKD', 'NZ$': 'NZD' }[value.toUpperCase()] || value.toUpperCase());
