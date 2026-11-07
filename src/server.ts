@@ -10,7 +10,7 @@ import { WIDGET_ORIGIN } from './widget-origin.js';
 import { waveTools, isWaveTool, callWaveTool } from './wave2-checkers.js';
 import { readerLabel, readerIssue, claimRisk, outcomeReading } from './text-signals.js';
 import { sectorChoiceNotice } from './text-signals.js';
-import { explainSector } from './verticals.js';
+import { explainSector, VERTICALS } from './verticals.js';
 // Shared MCP server definition, used by both entry points:
 //   src/index.ts                 stdio (the npm package)
 //   netlify/functions/mcp.mjs    Streamable HTTP (the hosted connector)
@@ -223,7 +223,7 @@ export function createServer(): Server {
           throw new Error(`Unknown tool: ${escapeText(String(name))}`);
       }
 
-      result = sectorChoiceNotice(name, (args || {}) as Record<string,unknown>, text=>{const r=explainSector({seller:[text]});return {id:r.vertical?.id,name:r.vertical?.name,source:r.source}}) + result;
+      result = sectorChoiceNotice(name, (args || {}) as Record<string,unknown>, text=>{const r=explainSector({seller:[text]});const chosen=String((args as any)?.your_sector||(args as any)?.industry||'').replace(/_/g,'-');const cv=VERTICALS.find(v=>v.id===chosen);if(cv&&(cv.match.test(text)||cv.weak.test(text)))return {id:chosen,name:cv.name,source:'seller'};return {id:r.vertical?.id,name:r.vertical?.name,source:r.source}}) + result;
 
       return {
         content: [
