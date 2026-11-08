@@ -1,0 +1,26 @@
+{
+ "case": "Red team 05: Base with only one mature cohort (second cohort has one member signed 1 day after as_of minus 12 months).",
+ "input": {
+  "product": "Helix Cloud Cost Radar, Kubernetes spend alerts for platform teams",
+  "business_model": "saas_subscription",
+  "billing_term": "monthly",
+  "as_of": "2026-08-15",
+  "customers": [
+   {"id": "RT05_01", "signed": "2025-04-05", "segment": "Platform teams", "monthly_fee": 3000},
+   {"id": "RT05_02", "signed": "2025-04-18", "segment": "Platform teams", "monthly_fee": 3000},
+   {"id": "RT05_03", "signed": "2025-05-09", "segment": "Platform teams", "monthly_fee": 3000},
+   {"id": "RT05_04", "signed": "2025-05-22", "segment": "Platform teams", "monthly_fee": 3000},
+   {"id": "RT05_05", "signed": "2025-06-10", "segment": "Platform teams", "monthly_fee": 3000},
+   {"id": "RT05_06", "signed": "2025-06-25", "segment": "Platform teams", "monthly_fee": 3000},
+   {"id": "RT05_07", "signed": "2025-07-02", "segment": "Platform teams", "monthly_fee": 3000},
+   {"id": "RT05_08", "signed": "2025-07-14", "segment": "Platform teams", "monthly_fee": 3000},
+   {"id": "RT05_09", "signed": "2025-08-01", "segment": "Platform teams", "monthly_fee": 3000},
+   {"id": "RT05_10", "signed": "2025-08-15", "segment": "Platform teams", "monthly_fee": 3000},
+   {"id": "RT05_11", "signed": "2025-08-16", "segment": "Platform teams", "monthly_fee": 3000}
+  ],
+  "gross_margin": 0.80,
+  "paid_cac": 18000,
+  "churn_reasons": "platform team built native billing alerts, cluster count shrank",
+  "interview_persona": "VP of Platform Engineering"
+ }
+}

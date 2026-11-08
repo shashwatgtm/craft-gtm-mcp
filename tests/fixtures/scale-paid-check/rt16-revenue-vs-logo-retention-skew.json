@@ -1,0 +1,30 @@
+{
+  "product": "RedTeam Case 16: Revenue Kept at Month 12 Diverges From Logo Retention",
+  "business_model": "saas_subscription",
+  "billing_term": "monthly",
+  "as_of": "2026-04-30",
+  "stop_line": 0.80,
+  "gross_margin": 0.80,
+  "paid_cac": 15000,
+  "test_cap": 75000,
+  "win_rate_floor": 0.15,
+  "win_rate_target": 0.25,
+  "churn_reasons": "small accounts churned after starter trial; enterprise accounts stayed",
+  "interview_persona": "VP of Revenue at multi-tier SaaS platforms",
+  "customers": [
+    { "id": "R16-JAN-01", "signed": "2025-01-05", "segment": "mixed", "monthly_fee": 10000 },
+    { "id": "R16-JAN-02", "signed": "2025-01-08", "segment": "mixed", "monthly_fee": 10000 },
+    { "id": "R16-JAN-03", "signed": "2025-01-12", "segment": "mixed", "monthly_fee": 10000 },
+    { "id": "R16-JAN-04", "signed": "2025-01-15", "segment": "mixed", "monthly_fee": 500, "stopped": "2025-03-10" },
+    { "id": "R16-JAN-05", "signed": "2025-01-18", "segment": "mixed", "monthly_fee": 500, "stopped": "2025-03-20" },
+    { "id": "R16-JAN-06", "signed": "2025-01-21", "segment": "mixed", "monthly_fee": 500, "stopped": "2025-04-05" },
+    { "id": "R16-JAN-07", "signed": "2025-01-24", "segment": "mixed", "monthly_fee": 500, "stopped": "2025-04-15" },
+    { "id": "R16-JAN-08", "signed": "2025-01-27", "segment": "mixed", "monthly_fee": 500, "stopped": "2025-04-25" },
+    { "id": "R16-FEB-01", "signed": "2025-02-04", "segment": "mixed", "monthly_fee": 10000 },
+    { "id": "R16-FEB-02", "signed": "2025-02-08", "segment": "mixed", "monthly_fee": 10000 },
+    { "id": "R16-FEB-03", "signed": "2025-02-12", "segment": "mixed", "monthly_fee": 10000 },
+    { "id": "R16-FEB-04", "signed": "2025-02-16", "segment": "mixed", "monthly_fee": 500, "stopped": "2025-04-10" },
+    { "id": "R16-FEB-05", "signed": "2025-02-20", "segment": "mixed", "monthly_fee": 500, "stopped": "2025-04-18" },
+    { "id": "R16-FEB-06", "signed": "2025-02-24", "segment": "mixed", "monthly_fee": 500, "stopped": "2025-05-02" }
+  ]
+}

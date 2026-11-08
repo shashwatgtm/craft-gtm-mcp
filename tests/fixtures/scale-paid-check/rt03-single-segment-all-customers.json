@@ -1,0 +1,30 @@
+{
+ "case": "Red team 03: Every customer in one single segment and untagged (no monthly_starts).",
+ "input": {
+  "product": "Helix Ledger Sync, automated reconciliation for B2B SaaS finance teams",
+  "business_model": "saas_subscription",
+  "billing_term": "monthly",
+  "as_of": "2026-09-30",
+  "customers": [
+   {"id": "RT03_01", "signed": "2025-01-10", "segment": "Mid-market SaaS finance", "monthly_fee": 2500, "stopped": "2025-11-15"},
+   {"id": "RT03_02", "signed": "2025-01-20", "segment": "Mid-market SaaS finance", "monthly_fee": 2500},
+   {"id": "RT03_03", "signed": "2025-02-05", "segment": "Mid-market SaaS finance", "monthly_fee": 2500},
+   {"id": "RT03_04", "signed": "2025-02-18", "segment": "Mid-market SaaS finance", "monthly_fee": 2500},
+   {"id": "RT03_05", "signed": "2025-03-04", "segment": "Mid-market SaaS finance", "monthly_fee": 2500},
+   {"id": "RT03_06", "signed": "2025-03-19", "segment": "Mid-market SaaS finance", "monthly_fee": 2500},
+   {"id": "RT03_07", "signed": "2025-04-02", "segment": "Mid-market SaaS finance", "monthly_fee": 2500, "stopped": "2026-01-10"},
+   {"id": "RT03_08", "signed": "2025-04-16", "segment": "Mid-market SaaS finance", "monthly_fee": 2500},
+   {"id": "RT03_09", "signed": "2025-05-07", "segment": "Mid-market SaaS finance", "monthly_fee": 2500},
+   {"id": "RT03_10", "signed": "2025-05-21", "segment": "Mid-market SaaS finance", "monthly_fee": 2500},
+   {"id": "RT03_11", "signed": "2025-06-09", "segment": "Mid-market SaaS finance", "monthly_fee": 2500},
+   {"id": "RT03_12", "signed": "2025-06-24", "segment": "Mid-market SaaS finance", "monthly_fee": 2500},
+   {"id": "RT03_13", "signed": "2025-07-11", "segment": "Mid-market SaaS finance", "monthly_fee": 2500},
+   {"id": "RT03_14", "signed": "2025-08-08", "segment": "Mid-market SaaS finance", "monthly_fee": 2500},
+   {"id": "RT03_15", "signed": "2025-09-12", "segment": "Mid-market SaaS finance", "monthly_fee": 2500}
+  ],
+  "gross_margin": 0.80,
+  "paid_cac": 20000,
+  "churn_reasons": "controller migrated ERP and paused reconciliation, company was acquired",
+  "interview_persona": "VP of Finance at a mid-market SaaS company"
+ }
+}

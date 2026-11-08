@@ -1,0 +1,25 @@
+{
+  "product": "RedTeam Case 15: Zero Window Churn Where Kept Equals Base and c Equals Zero",
+  "business_model": "saas_subscription",
+  "billing_term": "monthly",
+  "as_of": "2026-04-30",
+  "gross_margin": 0.80,
+  "paid_cac": 12000,
+  "test_cap": 60000,
+  "win_rate_floor": 0.15,
+  "win_rate_target": 0.25,
+  "churn_reasons": "no confirmed losses yet; occasional procurement delay",
+  "interview_persona": "VP of Finance at mid-market SaaS firms",
+  "customers": [
+    { "id": "R15-01", "signed": "2025-01-05", "segment": "enterprise", "monthly_fee": 3000 },
+    { "id": "R15-02", "signed": "2025-01-10", "segment": "enterprise", "monthly_fee": 3000 },
+    { "id": "R15-03", "signed": "2025-01-15", "segment": "enterprise", "monthly_fee": 3000 },
+    { "id": "R15-04", "signed": "2025-01-20", "segment": "enterprise", "monthly_fee": 3000 },
+    { "id": "R15-05", "signed": "2025-01-25", "segment": "enterprise", "monthly_fee": 3000 },
+    { "id": "R15-06", "signed": "2025-02-05", "segment": "enterprise", "monthly_fee": 3000 },
+    { "id": "R15-07", "signed": "2025-02-10", "segment": "enterprise", "monthly_fee": 3000 },
+    { "id": "R15-08", "signed": "2025-02-15", "segment": "enterprise", "monthly_fee": 3000 },
+    { "id": "R15-09", "signed": "2025-02-20", "segment": "enterprise", "monthly_fee": 3000 },
+    { "id": "R15-10", "signed": "2025-02-25", "segment": "enterprise", "monthly_fee": 3000 }
+  ]
+}

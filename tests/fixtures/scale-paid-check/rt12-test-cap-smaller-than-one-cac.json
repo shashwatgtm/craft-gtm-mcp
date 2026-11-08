@@ -1,0 +1,25 @@
+{
+  "product": "RedTeam Case 12: Test Cap Smaller Than One Customer CAC",
+  "business_model": "enterprise_contract",
+  "billing_term": "monthly",
+  "as_of": "2026-04-30",
+  "gross_margin": 0.75,
+  "paid_cac": 28000,
+  "test_cap": 3000,
+  "win_rate_floor": 0.15,
+  "win_rate_target": 0.25,
+  "churn_reasons": "pilot budget expired; procurement froze new vendor onboarding",
+  "interview_persona": "Chief Information Security Officer at mid-market banks",
+  "customers": [
+    { "id": "R12-01", "signed": "2025-01-06", "segment": "mid_bank", "monthly_fee": 2000 },
+    { "id": "R12-02", "signed": "2025-01-10", "segment": "mid_bank", "monthly_fee": 2000 },
+    { "id": "R12-03", "signed": "2025-01-14", "segment": "mid_bank", "monthly_fee": 2000 },
+    { "id": "R12-04", "signed": "2025-01-18", "segment": "mid_bank", "monthly_fee": 2000 },
+    { "id": "R12-05", "signed": "2025-01-22", "segment": "mid_bank", "monthly_fee": 2000, "stopped": "2025-04-15" },
+    { "id": "R12-06", "signed": "2025-02-05", "segment": "mid_bank", "monthly_fee": 2000 },
+    { "id": "R12-07", "signed": "2025-02-10", "segment": "mid_bank", "monthly_fee": 2000 },
+    { "id": "R12-08", "signed": "2025-02-15", "segment": "mid_bank", "monthly_fee": 2000 },
+    { "id": "R12-09", "signed": "2025-02-20", "segment": "mid_bank", "monthly_fee": 2000 },
+    { "id": "R12-10", "signed": "2025-02-25", "segment": "mid_bank", "monthly_fee": 2000 }
+  ]
+}

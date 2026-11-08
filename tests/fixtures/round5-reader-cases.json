@@ -80,5 +80,28 @@
       "intended_audience": "CEO and CRO of a pre Series A logistics software business",
       "desired_outcome": "Decide whether to keep the 12 customer target or reduce launch scope"
     }
+  },
+  {
+    "tool": "scale_paid_check",
+    "args": {
+      "product": "Dispatch planning software for regional logistics fleets",
+      "business_model": "saas_subscription",
+      "billing_term": "monthly",
+      "as_of": "2026-10-01",
+      "customers": [
+        { "id": "C01", "signed": "2025-07-10", "segment": "Regional fleets", "monthly_fee": 2000 },
+        { "id": "C02", "signed": "2025-07-15", "segment": "Regional fleets", "monthly_fee": 2000 },
+        { "id": "C03", "signed": "2025-08-01", "segment": "Regional fleets", "monthly_fee": 2000 },
+        { "id": "C04", "signed": "2025-08-20", "segment": "Regional fleets", "monthly_fee": 2000 },
+        { "id": "C05", "signed": "2025-09-05", "segment": "Regional fleets", "monthly_fee": 2000, "stopped": "2026-04-05" }
+      ],
+      "metrics": [
+        { "name": "Annual customer retention", "value": 0.80, "counts": "customers", "period": "year" }
+      ],
+      "gross_margin": 0.75,
+      "paid_cac": 12000,
+      "churn_reasons": "Two customers said dispatchers bypass the tool during peak hours; one customer said route imports took too long.",
+      "interview_persona": "Fleet operations manager"
+    }
   }
 ]

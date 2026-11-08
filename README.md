@@ -53,6 +53,7 @@ Generated on 27 September 2026 from the server's own tool list and checked again
 | 6 | `crisis_planner` | Crisis Planner | Generate crisis playbooks. Know your risks? Get specific playbooks. Not sure what to plan for? The tool uses a default set of common crises for your industry (not ranked by likelihood). |
 | 7 | `competitive_intel` | Competitive Intel | Generate battle cards. If you know your strengths/weaknesses, get complete battle cards. If you only know competitors and win/loss stories, we'll derive your positioning. |
 | 8 | `craft_gtm_analyzer` | CRAFT GTM Analyzer | Analyze a GTM document against the CRAFT framework. Parses the content, identifies gaps, scores each dimension and suggests sections to add. |
+| 9 | `scale_paid_check` | Scale Paid Check | Helps you decide whether to scale paid now: it takes your customer list (signing date, segment, monthly fee and any stop or return dates) and your churn reasons, and returns, for each customer group, scale, run a capped test, or hold, with the counts behind it, the stop rule, payback, a first draft response to each churn reason and a churn interview guide. |
 
 ### Inputs of each tool
 
@@ -155,6 +156,29 @@ Generated on 27 September 2026 from the server's own tool list and checked again
 | `intended_audience` | No | string | Optional: Who will read/approve this document |
 | `desired_outcome` | No | string | Optional: What action should this document drive |
 | `your_sector` | No | one of: `logistics_tech`, `fintech`, `saas`, `vertical_saas`, `ai_native`, `ites`, `telecom`, `software`, `cybersecurity`, `other` | Optional: your company's own industry (not your customers'). When given, it decides the sector notes; when left out, the tool reads it from your words and stays neutral if they are unclear. |
+
+#### 9. Scale Paid Check (`scale_paid_check`)
+
+Answers "Should we scale paid now?" per customer group (`SCALE`, `CAPPED_TEST`, or `HOLD`) from a customer list, then chains `retention_playbook` and `customer_interview_kit`. Every date is computed from `as_of`, so identical inputs always produce identical outputs.
+
+| Input | Required | Type | Description |
+|---|---|---|---|
+| `product` | Yes | string | Product in one line |
+| `business_model` | Yes | one of: `saas_subscription`, `usage_based`, `marketplace`, `transactional`, `freemium`, `enterprise_contract`, `services_contract`, `connectivity_contract`, `investment_mandate` | Business model, passed on to `retention_playbook` |
+| `billing_term` | Yes | one of: `monthly`, `annual` | How customers are billed |
+| `as_of` | Yes | string (`YYYY-MM-DD`) | The date the list was pulled |
+| `customers` | Yes | array (1 to 2000 objects) | Customer rows (`id`, `signed`, `segment`, `monthly_fee`, and optional `stopped`, `resumed`, `monthly_starts`) |
+| `churn_reasons` | Yes | string | Reasons in customers' words, comma or line separated |
+| `interview_persona` | Yes | string | Role to interview, for the interview kit |
+| `metrics` | No | array of objects | Optional metrics (`name`, `value`, `counts`, `period`) |
+| `stop_line` | No | number (default `0.80`) | Share of a cohort that must still pay at month 12 (Shashwat's example line for a $36,000 contract, not a benchmark) |
+| `payback_line_months` | No | number (default `12`) | Longest acceptable paid payback in months (Shashwat's example line for a $36,000 contract, not a benchmark) |
+| `gross_margin` | No | number (`0` to `1`) | Gross margin needed for the money section |
+| `paid_cac` | No | number | Paid-only CAC |
+| `blended_cac` | No | number | Blended CAC, shown for contrast only |
+| `test_cap` | No | number | All-in budget for a capped test |
+| `win_rate_floor` | No | number (`0` to `1`) | Win rate the buyer is confident paid can reach |
+| `win_rate_target` | No | number (`0` to `1`) | Highest win rate the buyer would believe |
 
 ## Design Principles (v2.0)
 

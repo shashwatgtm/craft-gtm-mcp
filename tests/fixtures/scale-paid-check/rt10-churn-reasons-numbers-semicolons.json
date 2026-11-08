@@ -1,0 +1,25 @@
+{
+  "product": "RedTeam Case 10: Churn Reasons with Embedded Commas in Numbers, Semicolons, and Newlines",
+  "business_model": "saas_subscription",
+  "billing_term": "monthly",
+  "as_of": "2026-04-30",
+  "gross_margin": 0.80,
+  "paid_cac": 12000,
+  "test_cap": 60000,
+  "win_rate_floor": 0.15,
+  "win_rate_target": 0.25,
+  "churn_reasons": "setup fee of $1,200 felt high for teams under 1,500 shipments; warehouse staff skipped mobile scanning\nsales promised an SAP B1 connector, operations moved back to spreadsheets",
+  "interview_persona": "VP of Supply Chain at regional distribution firms",
+  "customers": [
+    { "id": "R10-01", "signed": "2025-01-08", "segment": "regional_3pl", "monthly_fee": 1800 },
+    { "id": "R10-02", "signed": "2025-01-12", "segment": "regional_3pl", "monthly_fee": 1800 },
+    { "id": "R10-03", "signed": "2025-01-16", "segment": "regional_3pl", "monthly_fee": 1800 },
+    { "id": "R10-04", "signed": "2025-01-20", "segment": "regional_3pl", "monthly_fee": 1800 },
+    { "id": "R10-05", "signed": "2025-01-24", "segment": "regional_3pl", "monthly_fee": 1800, "stopped": "2025-04-05" },
+    { "id": "R10-06", "signed": "2025-02-04", "segment": "regional_3pl", "monthly_fee": 1800 },
+    { "id": "R10-07", "signed": "2025-02-09", "segment": "regional_3pl", "monthly_fee": 1800 },
+    { "id": "R10-08", "signed": "2025-02-14", "segment": "regional_3pl", "monthly_fee": 1800 },
+    { "id": "R10-09", "signed": "2025-02-19", "segment": "regional_3pl", "monthly_fee": 1800 },
+    { "id": "R10-10", "signed": "2025-02-24", "segment": "regional_3pl", "monthly_fee": 1800 }
+  ]
+}

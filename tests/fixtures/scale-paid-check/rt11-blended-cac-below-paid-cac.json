@@ -1,0 +1,29 @@
+{
+  "product": "RedTeam Case 11: Blended CAC Passes Payback Line While Paid CAC Fails",
+  "business_model": "saas_subscription",
+  "billing_term": "monthly",
+  "as_of": "2026-04-30",
+  "payback_line_months": 12,
+  "gross_margin": 0.80,
+  "paid_cac": 36000,
+  "blended_cac": 6000,
+  "test_cap": 90000,
+  "win_rate_floor": 0.15,
+  "win_rate_target": 0.25,
+  "churn_reasons": "paid search leads had lower intent than founder referrals; long security review",
+  "interview_persona": "VP of Growth at B2B software companies",
+  "customers": [
+    { "id": "R11-01", "signed": "2025-01-05", "segment": "growth_saas", "monthly_fee": 2000 },
+    { "id": "R11-02", "signed": "2025-01-09", "segment": "growth_saas", "monthly_fee": 2000 },
+    { "id": "R11-03", "signed": "2025-01-13", "segment": "growth_saas", "monthly_fee": 2000 },
+    { "id": "R11-04", "signed": "2025-01-17", "segment": "growth_saas", "monthly_fee": 2000 },
+    { "id": "R11-05", "signed": "2025-01-21", "segment": "growth_saas", "monthly_fee": 2000 },
+    { "id": "R11-06", "signed": "2025-01-25", "segment": "growth_saas", "monthly_fee": 2000 },
+    { "id": "R11-07", "signed": "2025-02-03", "segment": "growth_saas", "monthly_fee": 2000 },
+    { "id": "R11-08", "signed": "2025-02-08", "segment": "growth_saas", "monthly_fee": 2000 },
+    { "id": "R11-09", "signed": "2025-02-12", "segment": "growth_saas", "monthly_fee": 2000 },
+    { "id": "R11-10", "signed": "2025-02-16", "segment": "growth_saas", "monthly_fee": 2000 },
+    { "id": "R11-11", "signed": "2025-02-20", "segment": "growth_saas", "monthly_fee": 2000 },
+    { "id": "R11-12", "signed": "2025-02-24", "segment": "growth_saas", "monthly_fee": 2000, "stopped": "2025-05-10" }
+  ]
+}

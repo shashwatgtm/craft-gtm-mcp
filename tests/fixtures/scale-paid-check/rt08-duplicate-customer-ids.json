@@ -1,0 +1,28 @@
+{
+  "product": "RedTeam Case 08: Duplicate Customer IDs",
+  "business_model": "saas_subscription",
+  "billing_term": "monthly",
+  "as_of": "2026-04-30",
+  "gross_margin": 0.80,
+  "paid_cac": 14000,
+  "test_cap": 70000,
+  "win_rate_floor": 0.15,
+  "win_rate_target": 0.25,
+  "churn_reasons": "duplicate CRM export rows; champion changed roles; budget freeze",
+  "interview_persona": "Head of Revenue Operations at B2B SaaS firms",
+  "customers": [
+    { "id": "DUP-01", "signed": "2025-01-10", "segment": "mid_market", "monthly_fee": 2500 },
+    { "id": "DUP-01", "signed": "2025-01-10", "segment": "mid_market", "monthly_fee": 2500, "stopped": "2025-03-15" },
+    { "id": "DUP-01", "signed": "2025-06-01", "segment": "enterprise", "monthly_fee": 9000, "stopped": "2025-08-01" },
+    { "id": "DUP-02", "signed": "2025-01-14", "segment": "mid_market", "monthly_fee": 2500 },
+    { "id": "DUP-03", "signed": "2025-01-18", "segment": "mid_market", "monthly_fee": 2500 },
+    { "id": "DUP-04", "signed": "2025-01-22", "segment": "mid_market", "monthly_fee": 2500 },
+    { "id": "DUP-05", "signed": "2025-01-26", "segment": "mid_market", "monthly_fee": 2500, "stopped": "2025-04-10" },
+    { "id": "DUP-05", "signed": "2025-01-26", "segment": "mid_market", "monthly_fee": 2500 },
+    { "id": "DUP-06", "signed": "2025-02-05", "segment": "mid_market", "monthly_fee": 2500 },
+    { "id": "DUP-07", "signed": "2025-02-10", "segment": "mid_market", "monthly_fee": 2500 },
+    { "id": "DUP-08", "signed": "2025-02-15", "segment": "mid_market", "monthly_fee": 2500 },
+    { "id": "DUP-09", "signed": "2025-02-20", "segment": "mid_market", "monthly_fee": 2500 },
+    { "id": "DUP-10", "signed": "2025-02-25", "segment": "mid_market", "monthly_fee": 2500 }
+  ]
+}

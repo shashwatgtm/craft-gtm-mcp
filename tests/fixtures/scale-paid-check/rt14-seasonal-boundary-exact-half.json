@@ -1,0 +1,27 @@
+{
+  "product": "RedTeam Case 14: Seasonal Tag Boundary at Exactly Half of Max Monthly Starts",
+  "business_model": "usage_based",
+  "billing_term": "monthly",
+  "as_of": "2026-04-30",
+  "gross_margin": 0.75,
+  "paid_cac": 9000,
+  "test_cap": 54000,
+  "win_rate_floor": 0.15,
+  "win_rate_target": 0.25,
+  "churn_reasons": "off-season staffing pauses; shift leads reverted to paper",
+  "interview_persona": "Director of Staffing Operations at logistics employers",
+  "customers": [
+    { "id": "R14-EXACT-HALF-01", "signed": "2025-01-06", "segment": "warehouse", "monthly_fee": 1500, "monthly_starts": [5, 10, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8] },
+    { "id": "R14-EXACT-HALF-02", "signed": "2025-01-12", "segment": "warehouse", "monthly_fee": 1500, "monthly_starts": [50, 100, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75] },
+    { "id": "R14-EXACT-HALF-03", "signed": "2025-01-18", "segment": "warehouse", "monthly_fee": 1500, "monthly_starts": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] },
+    { "id": "R14-EXACT-HALF-04", "signed": "2025-02-04", "segment": "warehouse", "monthly_fee": 1500, "monthly_starts": [6, 12, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9] },
+    { "id": "R14-EXACT-HALF-05", "signed": "2025-02-10", "segment": "warehouse", "monthly_fee": 1500, "monthly_starts": [10, 20, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15] },
+    { "id": "R14-UNDER-HALF-01", "signed": "2025-01-08", "segment": "warehouse", "monthly_fee": 1500, "monthly_starts": [4, 10, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8] },
+    { "id": "R14-UNDER-HALF-02", "signed": "2025-01-15", "segment": "warehouse", "monthly_fee": 1500, "monthly_starts": [49, 100, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70], "stopped": "2025-04-12" },
+    { "id": "R14-UNDER-HALF-03", "signed": "2025-01-22", "segment": "warehouse", "monthly_fee": 1500, "monthly_starts": [0, 10, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5] },
+    { "id": "R14-UNDER-HALF-04", "signed": "2025-02-08", "segment": "warehouse", "monthly_fee": 1500, "monthly_starts": [3, 10, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7] },
+    { "id": "R14-UNDER-HALF-05", "signed": "2025-02-16", "segment": "warehouse", "monthly_fee": 1500, "monthly_starts": [2, 10, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6] },
+    { "id": "R14-UNTAGGED-01", "signed": "2025-01-25", "segment": "warehouse", "monthly_fee": 1500 },
+    { "id": "R14-UNTAGGED-02", "signed": "2025-02-22", "segment": "warehouse", "monthly_fee": 1500 }
+  ]
+}

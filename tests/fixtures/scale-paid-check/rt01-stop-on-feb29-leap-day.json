@@ -1,0 +1,31 @@
+{
+ "case": "Red team 01: Leap day (29 Feb) signing and stop dates across leap and non-leap years.",
+ "input": {
+  "product": "Helix Fleet Dispatch, route optimization for regional carriers",
+  "business_model": "saas_subscription",
+  "billing_term": "monthly",
+  "as_of": "2025-09-30",
+  "customers": [
+   {"id": "RT01_01", "signed": "2024-02-29", "segment": "Regional carriers", "monthly_fee": 2400, "stopped": "2024-08-29"},
+   {"id": "RT01_02", "signed": "2024-02-29", "segment": "Regional carriers", "monthly_fee": 2400},
+   {"id": "RT01_03", "signed": "2024-02-29", "segment": "Regional carriers", "monthly_fee": 2400},
+   {"id": "RT01_04", "signed": "2024-02-29", "segment": "Regional carriers", "monthly_fee": 2400},
+   {"id": "RT01_05", "signed": "2024-02-29", "segment": "Regional carriers", "monthly_fee": 2400},
+   {"id": "RT01_06", "signed": "2023-11-30", "segment": "Regional carriers", "monthly_fee": 2400, "stopped": "2024-02-29"},
+   {"id": "RT01_07", "signed": "2024-05-31", "segment": "Regional carriers", "monthly_fee": 2400},
+   {"id": "RT01_08", "signed": "2024-05-31", "segment": "Regional carriers", "monthly_fee": 2400},
+   {"id": "RT01_09", "signed": "2024-05-31", "segment": "Regional carriers", "monthly_fee": 2400},
+   {"id": "RT01_10", "signed": "2024-05-31", "segment": "Regional carriers", "monthly_fee": 2400},
+   {"id": "RT01_11", "signed": "2024-05-31", "segment": "Regional carriers", "monthly_fee": 2400},
+   {"id": "RT01_12", "signed": "2024-08-31", "segment": "Regional carriers", "monthly_fee": 2400},
+   {"id": "RT01_13", "signed": "2024-08-31", "segment": "Regional carriers", "monthly_fee": 2400},
+   {"id": "RT01_14", "signed": "2024-08-31", "segment": "Regional carriers", "monthly_fee": 2400},
+   {"id": "RT01_15", "signed": "2024-08-31", "segment": "Regional carriers", "monthly_fee": 2400},
+   {"id": "RT01_16", "signed": "2024-08-31", "segment": "Regional carriers", "monthly_fee": 2400}
+  ],
+  "gross_margin": 0.75,
+  "paid_cac": 18000,
+  "churn_reasons": "dispatcher turnover at the carrier, route volume dropped in winter",
+  "interview_persona": "Head of Fleet Operations at a regional carrier"
+ }
+}
