@@ -281,5 +281,82 @@ export const tools: Tool[] = [
       },
       required: ["document_content", "document_type"]
     }
+  },
+  {
+    name: "scale_paid_check",
+    description: "Helps you decide whether to scale paid now: it takes your customer list (signing date, segment, monthly fee and any stop or return dates) and your churn reasons, and returns, for each customer group, scale, run a capped test, or hold, with the counts behind it, the stop rule, payback, a first draft response to each churn reason and a churn interview guide.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        product: { type: "string", description: "Product in one line" },
+        business_model: {
+          type: "string",
+          description: "Business model, passed on to retention_playbook",
+          enum: ["saas_subscription", "usage_based", "marketplace", "transactional", "freemium", "enterprise_contract", "services_contract", "connectivity_contract", "investment_mandate"]
+        },
+        billing_term: {
+          type: "string",
+          description: "How customers are billed",
+          enum: ["monthly", "annual"]
+        },
+        as_of: { type: "string", description: "The date the list was pulled (YYYY-MM-DD)" },
+        customers: {
+          type: "array",
+          description: "One row per customer (1 to 2000 items)",
+          minItems: 1,
+          maxItems: 2000,
+          items: {
+            type: "object",
+            properties: {
+              id: { type: "string", description: "An ID, never a name" },
+              signed: { type: "string", description: "Signing date (YYYY-MM-DD)" },
+              segment: { type: "string", description: "Segment label" },
+              monthly_fee: { type: "number", description: "Monthly fee at signing (annual contracts: the yearly fee divided by 12)" },
+              stopped: { type: "string", description: "Optional: the first date a payment was due and not paid (for annual contracts, the renewal date they did not renew), YYYY-MM-DD" },
+              resumed: { type: "string", description: "Optional: date they paid again, if they came back (YYYY-MM-DD)" },
+              monthly_starts: {
+                type: "array",
+                description: "Optional: activity in each of the 12 months before as_of (or before stopped), for the seasonal tag",
+                items: { type: "number" }
+              }
+            },
+            required: ["id", "signed", "segment", "monthly_fee"]
+          }
+        },
+        metrics: {
+          type: "array",
+          description: "Optional: each metric with its name, value, whether it counts customers or revenue, and its period",
+          items: {
+            type: "object",
+            properties: {
+              name: { type: "string", description: "Metric name" },
+              value: { type: "number", description: "Metric value" },
+              counts: {
+                type: "string",
+                description: "Optional: whether the metric counts customers or revenue",
+                enum: ["customers", "revenue"]
+              },
+              period: {
+                type: "string",
+                description: "Optional: period over which the metric is measured",
+                enum: ["month", "year"]
+              }
+            },
+            required: ["name", "value"]
+          }
+        },
+        stop_line: { type: "number", description: "Optional (default 0.80): share of a cohort that must still pay at month 12. 0.80 is Shashwat's example line for a $36,000 contract, not a benchmark." },
+        payback_line_months: { type: "number", description: "Optional (default 12): the longest acceptable paid payback in months. 12 is Shashwat's example line for a $36,000 contract, not a benchmark." },
+        gross_margin: { type: "number", minimum: 0, maximum: 1, description: "Optional (0 to 1): gross margin needed for the money section" },
+        paid_cac: { type: "number", description: "Optional: paid-only CAC" },
+        blended_cac: { type: "number", description: "Optional: blended CAC, shown for contrast only" },
+        test_cap: { type: "number", description: "Optional: all-in budget for a capped test" },
+        win_rate_floor: { type: "number", minimum: 0, maximum: 1, description: "Optional (0 to 1): a win rate the buyer is confident paid can reach" },
+        win_rate_target: { type: "number", minimum: 0, maximum: 1, description: "Optional (0 to 1): the highest win rate the buyer would believe" },
+        churn_reasons: { type: "string", description: "Reasons in customers' words, comma or line separated" },
+        interview_persona: { type: "string", description: "Role to interview, for the interview kit" }
+      },
+      required: ["product", "business_model", "billing_term", "as_of", "customers", "churn_reasons", "interview_persona"]
+    }
   }
 ];

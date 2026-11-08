@@ -1,0 +1,24 @@
+{
+ "case": "Red team 04: Group boundary with exactly 5 customers in window base vs 4 customers in second group.",
+ "input": {
+  "product": "Helix Procurement Guard, vendor risk checks for finance teams",
+  "business_model": "saas_subscription",
+  "billing_term": "monthly",
+  "as_of": "2026-09-30",
+  "customers": [
+   {"id": "RT04_01", "signed": "2025-04-10", "segment": "Five-customer segment", "monthly_fee": 4000},
+   {"id": "RT04_02", "signed": "2025-05-12", "segment": "Five-customer segment", "monthly_fee": 4000},
+   {"id": "RT04_03", "signed": "2025-06-14", "segment": "Five-customer segment", "monthly_fee": 4000},
+   {"id": "RT04_04", "signed": "2025-07-16", "segment": "Five-customer segment", "monthly_fee": 4000},
+   {"id": "RT04_05", "signed": "2025-08-18", "segment": "Five-customer segment", "monthly_fee": 4000, "stopped": "2026-03-01"},
+   {"id": "RT04_06", "signed": "2025-04-20", "segment": "Four-customer segment", "monthly_fee": 4000},
+   {"id": "RT04_07", "signed": "2025-05-22", "segment": "Four-customer segment", "monthly_fee": 4000},
+   {"id": "RT04_08", "signed": "2025-07-24", "segment": "Four-customer segment", "monthly_fee": 4000},
+   {"id": "RT04_09", "signed": "2025-08-26", "segment": "Four-customer segment", "monthly_fee": 4000}
+  ],
+  "gross_margin": 0.75,
+  "paid_cac": 24000,
+  "churn_reasons": "security review took too long, procurement team consolidated vendors",
+  "interview_persona": "Head of Procurement at a mid-market enterprise"
+ }
+}

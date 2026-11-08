@@ -1,0 +1,26 @@
+{
+ "case": "Red team 06: Annual billing with a stop 89 days before as_of (1 day before the 90 day mark) vs 90 days before as_of.",
+ "input": {
+  "product": "Helix Compliance Vault, audit evidence collection for banks",
+  "business_model": "enterprise_contract",
+  "billing_term": "annual",
+  "as_of": "2026-09-30",
+  "customers": [
+   {"id": "RT06_01", "signed": "2025-04-10", "segment": "Regulated banks", "monthly_fee": 6000},
+   {"id": "RT06_02", "signed": "2025-04-22", "segment": "Regulated banks", "monthly_fee": 6000},
+   {"id": "RT06_03", "signed": "2025-05-08", "segment": "Regulated banks", "monthly_fee": 6000},
+   {"id": "RT06_04", "signed": "2025-05-19", "segment": "Regulated banks", "monthly_fee": 6000},
+   {"id": "RT06_05", "signed": "2025-06-12", "segment": "Regulated banks", "monthly_fee": 6000},
+   {"id": "RT06_06", "signed": "2025-07-02", "segment": "Regulated banks", "monthly_fee": 6000, "stopped": "2026-07-02"},
+   {"id": "RT06_07", "signed": "2025-07-03", "segment": "Regulated banks", "monthly_fee": 6000, "stopped": "2026-07-03"},
+   {"id": "RT06_08", "signed": "2025-07-18", "segment": "Regulated banks", "monthly_fee": 6000},
+   {"id": "RT06_09", "signed": "2025-08-05", "segment": "Regulated banks", "monthly_fee": 6000},
+   {"id": "RT06_10", "signed": "2025-08-21", "segment": "Regulated banks", "monthly_fee": 6000},
+   {"id": "RT06_11", "signed": "2025-09-09", "segment": "Regulated banks", "monthly_fee": 6000}
+  ],
+  "gross_margin": 0.78,
+  "paid_cac": 36000,
+  "churn_reasons": "annual renewal stalled in procurement, bank merged with another institution",
+  "interview_persona": "Chief Compliance Officer at a regulated bank"
+ }
+}

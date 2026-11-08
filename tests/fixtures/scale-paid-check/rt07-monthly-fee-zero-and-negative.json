@@ -1,0 +1,29 @@
+{
+  "product": "RedTeam Case 07: Monthly Fee Zero and Negative",
+  "business_model": "saas_subscription",
+  "billing_term": "monthly",
+  "as_of": "2026-04-30",
+  "gross_margin": 0.80,
+  "paid_cac": 12000,
+  "test_cap": 60000,
+  "win_rate_floor": 0.15,
+  "win_rate_target": 0.25,
+  "churn_reasons": "champion left; switched to internal tool; low seat adoption",
+  "interview_persona": "VP of Operations at mid-market SaaS buyers",
+  "customers": [
+    { "id": "R07-01", "signed": "2025-01-10", "segment": "core", "monthly_fee": 0 },
+    { "id": "R07-02", "signed": "2025-01-12", "segment": "core", "monthly_fee": -100 },
+    { "id": "R07-03", "signed": "2025-01-15", "segment": "core", "monthly_fee": -0.01, "stopped": "2025-04-15" },
+    { "id": "R07-04", "signed": "2025-01-18", "segment": "core", "monthly_fee": 2000 },
+    { "id": "R07-05", "signed": "2025-01-20", "segment": "core", "monthly_fee": 2000 },
+    { "id": "R07-06", "signed": "2025-01-22", "segment": "core", "monthly_fee": 2000 },
+    { "id": "R07-07", "signed": "2025-01-25", "segment": "core", "monthly_fee": 2000 },
+    { "id": "R07-08", "signed": "2025-01-28", "segment": "core", "monthly_fee": 2000, "stopped": "2025-04-10" },
+    { "id": "R07-09", "signed": "2025-02-05", "segment": "core", "monthly_fee": 0, "stopped": "2025-05-01" },
+    { "id": "R07-10", "signed": "2025-02-10", "segment": "core", "monthly_fee": 2000 },
+    { "id": "R07-11", "signed": "2025-02-14", "segment": "core", "monthly_fee": 2000 },
+    { "id": "R07-12", "signed": "2025-02-18", "segment": "core", "monthly_fee": 2000 },
+    { "id": "R07-13", "signed": "2025-02-22", "segment": "core", "monthly_fee": 2000 },
+    { "id": "R07-14", "signed": "2025-02-26", "segment": "core", "monthly_fee": 2000 }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "product": "RedTeam Case 17: Customers Stopped Before Month 6 and Resumed Before Month 9",
+  "business_model": "saas_subscription",
+  "billing_term": "monthly",
+  "as_of": "2026-04-30",
+  "stop_line": 0.80,
+  "gross_margin": 0.80,
+  "paid_cac": 12000,
+  "test_cap": 60000,
+  "win_rate_floor": 0.15,
+  "win_rate_target": 0.25,
+  "churn_reasons": "seasonal pause during summer shutdown; temporary budget freeze",
+  "interview_persona": "VP of Operations at manufacturing software customers",
+  "customers": [
+    { "id": "R17-JAN-01", "signed": "2025-01-10", "segment": "plant_ops", "monthly_fee": 2000, "stopped": "2025-05-10", "resumed": "2025-09-01" },
+    { "id": "R17-JAN-02", "signed": "2025-01-12", "segment": "plant_ops", "monthly_fee": 2000, "stopped": "2025-05-15", "resumed": "2025-09-05" },
+    { "id": "R17-JAN-03", "signed": "2025-01-15", "segment": "plant_ops", "monthly_fee": 2000 },
+    { "id": "R17-JAN-04", "signed": "2025-01-18", "segment": "plant_ops", "monthly_fee": 2000 },
+    { "id": "R17-JAN-05", "signed": "2025-01-22", "segment": "plant_ops", "monthly_fee": 2000 },
+    { "id": "R17-FEB-01", "signed": "2025-02-05", "segment": "plant_ops", "monthly_fee": 2000, "stopped": "2025-06-01", "resumed": "2025-10-01" },
+    { "id": "R17-FEB-02", "signed": "2025-02-10", "segment": "plant_ops", "monthly_fee": 2000 },
+    { "id": "R17-FEB-03", "signed": "2025-02-15", "segment": "plant_ops", "monthly_fee": 2000 },
+    { "id": "R17-FEB-04", "signed": "2025-02-20", "segment": "plant_ops", "monthly_fee": 2000 },
+    { "id": "R17-FEB-05", "signed": "2025-02-25", "segment": "plant_ops", "monthly_fee": 2000 }
+  ]
+}

@@ -28,6 +28,7 @@ import { generatePartnerArchitect } from "./partner-architect.js";
 import { generateCrisisPlanner } from "./crisis-planner.js";
 import { generateCompetitiveIntel } from "./competitive-intel.js";
 import { generateCRAFTAnalyzer } from "./craft-analyzer.js";
+import { generateScalePaidCheck } from "./scale-paid-check.js";
 export const SERVER_NAME = "craft-gtm-mcp";
 export const SERVER_VERSION = "2.2.23";
 // Every tool only builds text from its inputs: no storage, no network, no side effects.
@@ -39,7 +40,8 @@ const TOOL_TITLES = {
     "partner_architect": "Partner Architect",
     "crisis_planner": "Crisis Planner",
     "competitive_intel": "Competitive Intel",
-    "craft_gtm_analyzer": "CRAFT GTM Analyzer"
+    "craft_gtm_analyzer": "CRAFT GTM Analyzer",
+    "scale_paid_check": "Scale Paid Check"
 };
 export const listedTools = tools.map((tool) => {
     const title = TOOL_TITLES[tool.name] ?? tool.name;
@@ -117,8 +119,17 @@ function checkRequiredInputs(name, args) {
     // Decision N2 (run 6) and run 7: schema limits at any depth, choices, money text and single amounts.
     const problems = [];
     if (args) {
-        for (const [k, p] of Object.entries(tool.inputSchema.properties ?? {}))
+        if (name === "scale_paid_check") {
+            if (!Array.isArray(args.customers) || args.customers.length < 1 || args.customers.length > 2000) {
+                problems.push("customers must be an array of 1 to 2000 items");
+            }
+        }
+        // Bypass checkValue on customers and metrics for scale_paid_check so row-level and metric-level checks in spec sections 2 and 10 handle bad rows without rejecting the whole call.
+        for (const [k, p] of Object.entries(tool.inputSchema.properties ?? {})) {
+            if (name === "scale_paid_check" && (k === "customers" || k === "metrics"))
+                continue;
             checkValue(p, args, k, k, problems);
+        }
     }
     for (const key of MONEY_TEXT[name] ?? []) {
         const raw = args?.[key];
@@ -162,6 +173,36 @@ export function createServer() {
         if (BUILD_PROFILE.profile === "wave" && isWaveTool(request.params.name))
             return callWaveTool(request.params.name, request.params.arguments);
         const { name } = request.params;
+        // Bypass sectorChoiceNotice, withReadingGuide and holdBuyerCopy for scale_paid_check so customers/metrics arrays are not rewritten by copy wrappers and spec section 13 text order holds; keep guardInputs, softwareAdvice and regionNotes.
+        if (name === "scale_paid_check") {
+            let typed = cleanDeep(request.params.arguments);
+            const inputEvidence = guardInputs(typed, listedTools.find(t => t.name === name)?.inputSchema);
+            typed = inputEvidence.args;
+            const problem = checkRequiredInputs(name, typed);
+            if (problem || inputEvidence.stop) {
+                return {
+                    content: [{ type: "text", text: (problem || "Missing required input. Supply the missing evidence before continuing.") + (inputEvidence.notice ? "\n\n" + inputEvidence.notice : "") }],
+                    isError: true,
+                };
+            }
+            const advice = softwareAdvice(typed);
+            if (advice)
+                return { content: [{ type: "text", text: advice }] };
+            try {
+                const spcResult = generateScalePaidCheck(escapeDeep(typed));
+                return {
+                    content: [{ type: "text", text: inputEvidence.notice + (inputEvidence.notice ? "\n\n" : "") + spcResult.text + regionNotes(typed) }],
+                    structuredContent: spcResult.structuredContent,
+                };
+            }
+            catch (error) {
+                const errorMessage = error instanceof Error ? error.message : String(error);
+                return {
+                    content: [{ type: "text", text: `Error executing ${escapeText(String(name))}: ${errorMessage}` }],
+                    isError: true,
+                };
+            }
+        }
         // Run 20 (D086): the one place where a tools/call reaches a tool, on both the hosted path (netlify/functions/mcp.mjs and
         // api.mjs) and the stdio path (src/index.ts), because all use this server.
         // Run 40S (D6, safe by design): the input checks read the text as typed (hidden characters removed); then every text is escaped once, so nothing the caller typed can form markup in any answer. The words stay (src/escape-inputs.ts).
@@ -206,6 +247,9 @@ export function createServer() {
                     break;
                 case "craft_gtm_analyzer":
                     result = generateCRAFTAnalyzer(args);
+                    break;
+                case "scale_paid_check":
+                    result = generateScalePaidCheck(args).text;
                     break;
                 default:
                     throw new Error(`Unknown tool: ${escapeText(String(name))}`);

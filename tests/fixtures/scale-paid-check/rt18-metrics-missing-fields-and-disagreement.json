@@ -1,0 +1,32 @@
+{
+  "product": "RedTeam Case 18: Metrics With Missing Fields and Disagreement Over Two Points",
+  "business_model": "saas_subscription",
+  "billing_term": "monthly",
+  "as_of": "2026-04-30",
+  "gross_margin": 0.80,
+  "paid_cac": 12000,
+  "test_cap": 60000,
+  "win_rate_floor": 0.15,
+  "win_rate_target": 0.25,
+  "metrics": [
+    { "name": "logo churn", "value": 0.03, "counts": "customers", "period": "month" },
+    { "name": "annual customer retention", "value": 0.88, "counts": "customers", "period": "year" },
+    { "name": "net retention", "value": 1.08, "counts": "revenue" },
+    { "name": "headline retention", "value": 0.92, "period": "year" },
+    { "name": "board deck churn", "value": 0.05 }
+  ],
+  "churn_reasons": "reporting definitions mixed gross and net retention; champion left",
+  "interview_persona": "VP of Finance at Series B SaaS companies",
+  "customers": [
+    { "id": "R18-01", "signed": "2025-01-06", "segment": "core", "monthly_fee": 2000 },
+    { "id": "R18-02", "signed": "2025-01-10", "segment": "core", "monthly_fee": 2000 },
+    { "id": "R18-03", "signed": "2025-01-14", "segment": "core", "monthly_fee": 2000 },
+    { "id": "R18-04", "signed": "2025-01-18", "segment": "core", "monthly_fee": 2000 },
+    { "id": "R18-05", "signed": "2025-01-22", "segment": "core", "monthly_fee": 2000, "stopped": "2025-04-10" },
+    { "id": "R18-06", "signed": "2025-02-05", "segment": "core", "monthly_fee": 2000 },
+    { "id": "R18-07", "signed": "2025-02-10", "segment": "core", "monthly_fee": 2000 },
+    { "id": "R18-08", "signed": "2025-02-15", "segment": "core", "monthly_fee": 2000 },
+    { "id": "R18-09", "signed": "2025-02-20", "segment": "core", "monthly_fee": 2000 },
+    { "id": "R18-10", "signed": "2025-02-25", "segment": "core", "monthly_fee": 2000 }
+  ]
+}

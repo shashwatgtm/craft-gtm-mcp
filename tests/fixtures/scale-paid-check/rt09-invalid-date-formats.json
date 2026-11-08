@@ -1,0 +1,32 @@
+{
+  "product": "RedTeam Case 09: Invalid Date Formats and Ordering",
+  "business_model": "saas_subscription",
+  "billing_term": "monthly",
+  "as_of": "2026-04-30",
+  "gross_margin": 0.78,
+  "paid_cac": 15000,
+  "test_cap": 75000,
+  "win_rate_floor": 0.15,
+  "win_rate_target": 0.25,
+  "churn_reasons": "integration delay; team restructure; scope mismatch",
+  "interview_persona": "Director of Engineering at mid-size software teams",
+  "customers": [
+    { "id": "BAD-SLASH", "signed": "2025/01/15", "segment": "core", "monthly_fee": 2000 },
+    { "id": "BAD-DMY", "signed": "15-01-2025", "segment": "core", "monthly_fee": 2000 },
+    { "id": "BAD-NONLEAP", "signed": "2025-02-29", "segment": "core", "monthly_fee": 2000 },
+    { "id": "BAD-APR31", "signed": "2025-01-10", "segment": "core", "monthly_fee": 2000, "stopped": "2025-04-31" },
+    { "id": "BAD-FUTURE-SIGN", "signed": "2026-05-01", "segment": "core", "monthly_fee": 2000 },
+    { "id": "BAD-STOP-BEFORE-SIGN", "signed": "2025-03-10", "segment": "core", "monthly_fee": 2000, "stopped": "2025-02-10" },
+    { "id": "BAD-RESUME-BEFORE-STOP", "signed": "2025-01-10", "segment": "core", "monthly_fee": 2000, "stopped": "2025-06-10", "resumed": "2025-05-10" },
+    { "id": "OK-01", "signed": "2025-01-10", "segment": "core", "monthly_fee": 2000 },
+    { "id": "OK-02", "signed": "2025-01-14", "segment": "core", "monthly_fee": 2000 },
+    { "id": "OK-03", "signed": "2025-01-18", "segment": "core", "monthly_fee": 2000 },
+    { "id": "OK-04", "signed": "2025-01-22", "segment": "core", "monthly_fee": 2000 },
+    { "id": "OK-05", "signed": "2025-01-26", "segment": "core", "monthly_fee": 2000, "stopped": "2025-04-12" },
+    { "id": "OK-06", "signed": "2025-02-05", "segment": "core", "monthly_fee": 2000 },
+    { "id": "OK-07", "signed": "2025-02-10", "segment": "core", "monthly_fee": 2000 },
+    { "id": "OK-08", "signed": "2025-02-15", "segment": "core", "monthly_fee": 2000 },
+    { "id": "OK-09", "signed": "2025-02-20", "segment": "core", "monthly_fee": 2000 },
+    { "id": "OK-10", "signed": "2025-02-25", "segment": "core", "monthly_fee": 2000 }
+  ]
+}
