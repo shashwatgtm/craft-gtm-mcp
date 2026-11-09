@@ -194,6 +194,26 @@ function capabilityPieces(desc: string): string[] {
   return pieces.filter((x) => x.split(/\s+/).length <= 24).filter((x, i, a) => x.split(/\s+/).length < 2 || a.findIndex((y) => y.toLowerCase() === x.toLowerCase()) === i);
 }
 
+/** Channel list negation belongs to the whole list until a new clause affirms channels. */
+function launchChannels(text: string): { available: string[]; restricted: boolean } {
+  if (!/\b(?:not|no|never|without|exclude|avoid|cannot)\b|(?:don['’]t|can['’]t)/i.test(text)) {
+    return { available: splitTopLevel(text), restricted: false };
+  }
+  const available: string[] = [];
+  for (const clause of text.split(/[;.!?\n]|\bbut\b/i)) {
+    let excluded = false;
+    for (const raw of clause.split(/,|\s+(?:and|or|nor)\s+/i)) {
+      let part = raw.trim().replace(/^(?:and|or|nor)\s+/i, '');
+      if (!part) continue;
+      if (/^(?:(?:we|our team|I)\s+)?(?:do not|does not|don['’]t|cannot|can['’]t|never|not|no|without|exclude|avoid)\b/i.test(part)) excluded = true;
+      else if (/^(?:we|our team|I)\s+(?:use|can use|have|will use)\b/i.test(part)) excluded = false;
+      part = part.replace(/^(?:we|our team|I)\s+(?:use|can use|have|will use)\s+/i, '');
+      if (!excluded && part) available.push(part);
+    }
+  }
+  return { available, restricted: true };
+}
+
 // ---------------------------------------------------------------------------------------------------------------------------------
 // launch_commander
 // ---------------------------------------------------------------------------------------------------------------------------------
@@ -548,9 +568,11 @@ This is a readiness review, not an acquisition schedule. No new pilot commitment
   })() : null;
 
   // channels: the ones named, else the sector's own
-  const channelsGiven = args.available_channels ? splitTopLevel(args.available_channels).map((c) => (c.toLowerCase() === 'linkedin' ? 'LinkedIn' : c)) : [];
+  const channelReading = launchChannels(args.available_channels ?? '');
+  const channelsGiven = channelReading.available.map((c) => (c.toLowerCase() === 'linkedin' ? 'LinkedIn' : c));
+  const channelsUnconfirmed = channelReading.restricted && !channelsGiven.length;
   const segChannels = segmentKinds(args.target_segments).flatMap((k) => k.channels ?? []).filter((c, i, a) => a.indexOf(c) === i).slice(0, 4);
-  const shownChannels = channelsGiven.length ? channelsGiven : layer ? layer.channels : pb ? pb.channels : segChannels.length ? segChannels : salesLed ? ['account-based outreach to named buyers', 'LinkedIn posts from your experts and customers', 'executive roundtable or briefing'] : ['email', 'LinkedIn', 'blog'];
+  const shownChannels = channelsGiven.length ? channelsGiven : channelsUnconfirmed ? ['channels still to confirm'] : layer ? layer.channels : pb ? pb.channels : segChannels.length ? segChannels : salesLed ? ['account-based outreach to named buyers', 'LinkedIn posts from your experts and customers', 'executive roundtable or briefing'] : ['email', 'LinkedIn', 'blog'];
   const filterWords = (channelsGiven.length ? channelsGiven : ['email', 'linkedin', 'blog']).map((c) => c.toLowerCase());
   const adoption = pb ? pb.adoption.measure : 'product or service usage';
   const c: LaunchCtx = { N: prod.name ?? 'your solution', NS: prod.name ?? 'Your solution', segs, segList, segRef: segs.length <= 3 ? segList : 'the target segments', segEach: segs.length <= 3 ? `each of ${segList}` : 'each target segment', buyer, channels: shownChannels, channelList: channelsGiven.length ? andList(channelsGiven) : 'the channels listed under Channels and budget', mode, caps, adoption, goals, ctx, launchWord: LAUNCH_WORD[launchType] };
@@ -565,7 +587,7 @@ This is a readiness review, not an acquisition schedule. No new pilot commitment
   };
   const keepTask = (task: string): boolean => {
     const t = task.toLowerCase();
-    if (channelsGiven.length) {
+    if (channelsGiven.length || channelsUnconfirmed) {
       const allowed = channelsGiven.join(' ').toLowerCase();
       const families = [/\b(?:email|newsletter)\b/, /\b(?:social|linkedin|twitter|facebook|instagram)\b/, /\b(?:webinar|event|roundtable)\b/, /\b(?:pr|press|journalist)\b/, /\b(?:paid|ads|retargeting)\b/, /\b(?:blog|article|content syndication)\b/, /\b(?:partner|co-marketing)\b/, /\b(?:notification|in-app)\b/];
       if (families.some(re=>re.test(t)&&!re.test(allowed))) return false;
@@ -746,7 +768,7 @@ This is a readiness review, not an acquisition schedule. No new pilot commitment
     well_funded: ['multi-channel paid campaigns', 'large events', 'a PR agency', 'account-based programmes'],
   };
   const tacticList = channelsGiven.length ? channelsGiven.map(ch=>`prepare and verify the message for ${ch}`) : (tactics[budgetLevel] || tactics.moderate);
-  out.push(`${channelsGiven.length ? `You can use ${andList(channelsGiven)}.` : `The channels are the usual ones for ${ctx.v ? `${ctx.v.name} buyers` : 'this kind of buyer'}: ${andList(shownChannels)}.`} At a ${readableChoice(budgetLevel)} budget, ${channelsGiven.length ? andList(tacticList) : `prioritise ${andList(tacticList)}`}.`);
+  out.push(channelsUnconfirmed ? 'The channels you named are excluded. Confirm an available channel and its owner before scheduling outreach or assigning channel spend.' : `${channelsGiven.length ? `You can use ${andList(channelsGiven)}.` : `The channels are the usual ones for ${ctx.v ? `${ctx.v.name} buyers` : 'this kind of buyer'}: ${andList(shownChannels)}.`} At a ${readableChoice(budgetLevel)} budget, ${channelsGiven.length ? andList(tacticList) : `prioritise ${andList(tacticList)}`}.`);
   out.push('');
 
   // ---- timeline ----
