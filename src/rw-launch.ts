@@ -1065,7 +1065,14 @@ export function writeRetentionPlaybook(args: {
   const choice = args.business_model;
   const csTeamSize = args.cs_team_size || 'unknown';
   const capacity = CAPACITY[csTeamSize] || {highTouch:0,scaledTouch:0,automated:0};
-  const reasonNotes = (args.churn_reasons || '').split(/[;\n]/).map(x=>x.trim()).filter(Boolean);
+  const reasonNotes = (args.churn_reasons || '').split(/[;\n]/).map(x=>x.trim()).filter(Boolean).flatMap(note => {
+    // Split only a list of distinct, recognised causes. Causal clauses and scoped denials stay whole.
+    if (/^(?:no|not|neither|we do not)\b/i.test(note)) return [note];
+    const parts = splitTopLevel(note.replace(/\s+and\s+/gi, ', ')).map(p => p.replace(/^(?:and|or)\s+/i, '').trim());
+    if (parts.length < 2 || parts.some(p => /^(?:so|because|which|that|with|where|while|then|but|therefore)\b/i.test(p))) return [note];
+    const kinds = parts.map(kindOfReason);
+    return kinds.every(k => k !== 'other') && new Set(kinds).size === parts.length ? parts : [note];
+  });
   const unresolved = reasonNotes.filter(x=>/\b(?:unknown|unconfirmed|not (?:yet )?(?:known|confirmed|established)|no evidence)\b/i.test(x) || readSignal(x,/\b(?:training gaps?|training problems?|training issues?)\b/i).state === 'negated');
   const reasons = reasonNotes.filter(x=>!unresolved.includes(x));
   const trainingObserved = reasons.some(x=>hasSignal(x,/\b(?:training gaps?|training problems?|training issues?|lack of training|insufficient training)\b/i));
