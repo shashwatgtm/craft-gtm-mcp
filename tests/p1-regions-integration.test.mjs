@@ -23,7 +23,7 @@ for(const [vertical,product]of verticalCases)for(const [region,alias]of regionCa
   for(const phrase of [`We sell in ${region}.`,`We sell in ${alias}.`]){
    const args=caseArgs(c,vertical,product+'. '+phrase);
    const result=await rpc(handler,'tools/call',{name:c.tool,arguments:args});assert.ok(!result.isError,c.tool);
-   const notes=suffix(text(result));assert.ok(notes,c.tool+' has notes');
+   const notes=suffix(text(result));if(c.tool==='scale_paid_check')assert.doesNotMatch(text(result),/Which region applies|## Region and industry context/);else assert.ok(notes,c.tool+' has notes');
    if(first)assert.equal(notes,first,c.tool+' equivalent region notes');else first=notes;
    for(let run=1;run<3;run++)assert.deepEqual(await rpc(handler,'tools/call',{name:c.tool,arguments:args}),result);
    first=notes;
@@ -35,4 +35,4 @@ for(const [vertical,product]of verticalCases)for(const [region,alias]of regionCa
  }
 });
 
-test('India and Germany fintech notes stay separate',async()=>{for(const c of seedCases){const outputs={};for(const country of ['India','Germany']){const args=caseArgs(c,'fintech','Fintech payment reconciliation software sold in '+country);outputs[country]=text(await rpc(handler,'tools/call',{name:c.tool,arguments:args}));}assert.match(suffix(outputs.India),/Reserve Bank of India/);assert.doesNotMatch(suffix(outputs.Germany),/Reserve Bank of India/);assert.match(suffix(outputs.Germany),/Germany/);assert.notEqual(suffix(outputs.India),suffix(outputs.Germany));}});
+test('India and Germany fintech notes stay separate',async()=>{for(const c of seedCases){const outputs={};for(const country of ['India','Germany']){const args=caseArgs(c,'fintech','Fintech payment reconciliation software sold in '+country);outputs[country]=text(await rpc(handler,'tools/call',{name:c.tool,arguments:args}));}if(c.tool==='scale_paid_check'){for(const output of Object.values(outputs))assert.doesNotMatch(output,/Which region applies|## Region and industry context/);}else{assert.match(suffix(outputs.India),/Reserve Bank of India/);assert.doesNotMatch(suffix(outputs.Germany),/Reserve Bank of India/);assert.match(suffix(outputs.Germany),/Germany/);assert.notEqual(suffix(outputs.India),suffix(outputs.Germany));}}});

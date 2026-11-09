@@ -26,7 +26,11 @@ for(const seed of seeds){
   ['M099 membership','We sell lending software in the UK. The UK is not an EU member.','We sell lending software in the UK.',['UK · United Kingdom']],
  ])test(seed.tool+' '+id,async()=>{
   const first=await rpc(seed.tool,args(input)),expected=await rpc(seed.tool,args(control));
+  if(seed.tool==='scale_paid_check'&&headings.length>0){
+   for(const result of [first,expected])assert.doesNotMatch(result.content.filter(c=>c.type==='text').map(c=>c.text).join('\n'),/Which region applies|## Region and industry context/);
+  }else{
   assert.deepEqual([...notes(first).matchAll(/^### (.+)$/gm)].map(m=>m[1]),headings);
+  }
   assert.equal(notes(first),notes(expected));
   assert.deepEqual(await rpc(seed.tool,args(input)),first);assert.deepEqual(await rpc(seed.tool,args(input)),first);
  });
@@ -36,10 +40,14 @@ for(const seed of seeds){
   // Crisis requires one selected industry. Test its valid same-industry two-market case.
   if(alpha||seed.tool==='crisis_planner')a.industry='fintech',a[field]='We sell lending software in India. We sell wealth management software in Singapore.';
   const first=await rpc(seed.tool,a),text=notes(first);
+  if(seed.tool==='scale_paid_check'){
+   assert.doesNotMatch(first.content.filter(c=>c.type==='text').map(c=>c.text).join('\n'),/Which region applies|## Region and industry context/);
+  }else{
   assert.match(text,/### India/);assert.match(text,/### Southeast Asia · Singapore/);
   const sg=text.split('### Southeast Asia · Singapore')[1];
   assert.doesNotMatch(sg,/licensed moneylenders fall under/);
   if(!alpha&&seed.tool!=='crisis_planner')assert.match(sg,/SOC|Security Operations|cybersecurity/i);
+  }
   assert.deepEqual(await rpc(seed.tool,a),first);assert.deepEqual(await rpc(seed.tool,a),first);
  });
 }

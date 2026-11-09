@@ -26,7 +26,11 @@ for(const seed of seeds){
   ['RFIX M077 warehouse','We sell warehouse management software to warehouse operators in Singapore, but do not sell lending software in India.','We sell warehouse management software to warehouse operators in Singapore.',['Southeast Asia · Singapore']],
  ])test(seed.tool+' '+id,async()=>{
   const first=await rpc(seed.tool,args(input)),expected=await rpc(seed.tool,args(control));
+  if(seed.tool==='scale_paid_check'&&headings.length>0){
+   for(const result of [first,expected])assert.doesNotMatch(result.content.filter(c=>c.type==='text').map(c=>c.text).join('\n'),/Which region applies|## Region and industry context/);
+  }else{
   assert.deepEqual([...notes(first).matchAll(/^### (.+)$/gm)].map(m=>m[1]),headings);
+  }
   assert.equal(notes(first),notes(expected));
   assert.deepEqual(await rpc(seed.tool,args(input)),first);assert.deepEqual(await rpc(seed.tool,args(input)),first);
  });
