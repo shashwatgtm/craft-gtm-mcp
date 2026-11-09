@@ -53,7 +53,7 @@ test('rounded failing shares show a decimal; an exact keep line still passes',()
   assert.equal(g.line_pass,n===50);
   if(n===49) assert.match(r.text,/39 of 49 kept, 79\.6% vs 80%/);
   if(n===44) assert.match(r.text,/35 of 44 kept, 79\.5% vs 80%/);
-  if(n===50) assert.match(r.text,/40 of 50 kept, 80%/);
+  if(n===50) assert.match(r.text,/40 of 50 still paying \(80%\)/);
  }
 });
 test('return without stop has a truthful reason; earlier return and valid pause stay distinct',()=>{
@@ -112,5 +112,18 @@ test('readable labels replace code words in exact, equivalent and failing buyer 
   assert.doesNotMatch(r.text,/\b(?:SCALE|CAPPED_TEST|HOLD|NO_VERDICT|NOT_ENOUGH_HISTORY|PASS|FAIL)\b|\b[a-z]+(?:_[a-z0-9]+)+\b/);
   assert.match(r.text,/Your keep line: (?:80|60)% of customers still paying at month 12/);
   assert.ok(['SCALE','CAPPED_TEST','HOLD'].includes(r.structuredContent.groups[0].verdict));
+ }
+});
+
+test('Answer Card leads with the base and one short decision per group; details follow in buyer order',()=>{
+ for(const file of Object.keys(baseline)){
+  const raw=fixture(file),r=generateScalePaidCheck(raw.input??raw);
+  assert.ok(r.text.startsWith('# Scale Paid Check: Answer Card\n\nBase verdict:'));
+  const card=r.text.split('## Check this first')[0];
+  assert.equal(card.split('\n').filter(x=>x.startsWith('- **')).length,r.structuredContent.groups.length);
+  assert.ok(card.split('\n').every(line=>line.length<260),file);
+  const headings=['## Check this first','## Cohort table','## Groups table','## Money','## Stop rule','## First draft: responses'];
+  for(let i=1;i<headings.length;i++) assert.ok(r.text.indexOf(headings[i-1])<r.text.indexOf(headings[i]),file);
+  assert.equal(r.text,r.content[0].text);assert.equal(r.toString(),r.text);
  }
 });

@@ -955,35 +955,46 @@ export function generateScalePaidCheck(input: ScalePaidCheckInput): ScalePaidChe
   // Section 13: Build output text in exact section 1..10 order
   const lines: string[] = [];
 
-  // 1. The answer card (the verdict per group, one line each)
+  // The first screen carries the base decision and one concise reason per group.
   lines.push("# Scale Paid Check: Answer Card");
   lines.push("");
-  lines.push(`Base verdict: **${baseVerdict}**.`);
+  const baseReason = baseVerdict === "NOT_ENOUGH_HISTORY"
+    ? "Fewer than two signing quarters have reached month 12."
+    : baseVerdict === "HOLD"
+      ? evaluatedCohorts.some(c => !c.line_pass)
+        ? "Too few customers stay through month 12."
+        : "Losses speed up in months 7 to 12."
+      : "Both latest signing quarters pass your checks.";
+  lines.push(`Base verdict: **${baseVerdict}**. ${baseReason}`);
   for (const g of groups) {
-    if (g.verdict === "NO_VERDICT") {
-      lines.push(`- **${g.name} (${g.kind}):** NO_VERDICT (${g.base} of ${wholeBase} customers in window base: too few customers to read)`);
-    } else if (g.verdict === "SCALE") {
-      const m = groupMoneyMap[g.name];
-      const pbText = m && m.payback_months !== null ? `, paid payback ${m.payback_months.toFixed(1)} months` : "";
-      lines.push(`- **${g.name} (${g.kind}):** SCALE (${g.kept} of ${g.base} kept, ${keptPercent(g.kept_share, stopLine)}%${pbText}; ${g.verdict_note})`);
-    } else if (g.verdict === "CAPPED_TEST") {
-      lines.push(`- **${g.name} (${g.kind}):** CAPPED_TEST (${g.kept} of ${g.base} kept, ${keptPercent(g.kept_share, stopLine)}%; ${g.verdict_note})`);
-    } else {
-      lines.push(`- **${g.name} (${g.kind}):** HOLD (${g.kept} of ${g.base} kept, ${keptPercent(g.kept_share, stopLine)}%; ${g.verdict_note})`);
+    if (g.too_few_customers) {
+      lines.push(`- **${g.name}: ${g.verdict}.** ${g.base} customers with a full year of history. Too few customers to read.`);
+      continue;
     }
+    const money = groupMoneyMap[g.name];
+    let reason: string;
+    if (g.verdict === "HOLD") reason = `Below your ${Math.round(stopLine * 100)}% keep line.`;
+    else if (g.lead_not_proof) reason = g.base < 15
+      ? "Fewer than 15 customers, a lead, not proof."
+      : `A lead, not proof: ${g.losses_to_fail} more ${g.losses_to_fail === 1 ? "loss would" : "losses would"} fail your line.`;
+    else if (baseVerdict === "HOLD") reason = "The base is on hold, so keep this to a small capped test.";
+    else if (baseVerdict === "NOT_ENOUGH_HISTORY") reason = "The base needs two signing quarters past month 12.";
+    else if (money?.payback_months !== null && money?.payback_months !== undefined) reason =
+      `Paid payback is ${money.payback_months.toFixed(1)} months, ${g.verdict === "SCALE" ? "within" : "above"} your ${paybackLineMonths} month line.`;
+    else reason = "Add paid acquisition cost and gross margin to check payback.";
+    lines.push(`- **${g.name}: ${g.verdict}.** ${g.kept} of ${g.base} still paying (${keptPercent(g.kept_share, stopLine)}%). ${reason}`);
   }
   lines.push("");
 
   // 2. "Check this first" (the echo, rejected rows, pending and paused customers, and which defaults were used)
   lines.push("## Check this first");
   lines.push("");
-  lines.push("### Upload echo");
   lines.push(`- Rows received: ${rowsReceived}`);
   lines.push(`- Rows used: ${rowsUsed}`);
   lines.push(`- Rows rejected: ${rejectedRows.length}`);
   if (segmentLabelsMerged) lines.push("- Segment labels that differ only in capital letters were merged, using the first spelling supplied.");
   lines.push(`- Customers paying on ${asOf}: ${payingOnAsOfCount} of ${rowsUsed} used rows`);
-  lines.push(`- MRR on ${asOf}: ${formatMoney(mrrOnAsOf)} across ${payingOnAsOfCount} paying customers`);
+  lines.push(`- Monthly recurring revenue (MRR) on ${asOf}: ${formatMoney(mrrOnAsOf)} across ${payingOnAsOfCount} paying customers`);
   lines.push(`- Earliest signed: ${earliestSigned ?? "none"}`);
   lines.push(`- Latest signed: ${latestSigned ?? "none"}`);
   lines.push("");
@@ -1036,36 +1047,6 @@ export function generateScalePaidCheck(input: ScalePaidCheckInput): ScalePaidChe
     }
     lines.push("");
   }
-
-  // 3. The stop rule with its counts
-  lines.push("## Stop rule");
-  lines.push("");
-  if (shapeTestSkipped) {
-    lines.push("Annual billing: losses land at renewal, so the shape test does not apply; read month 12 as the first renewal.");
-    lines.push("");
-  }
-  if (matureCohorts.length < 2) {
-    lines.push(
-      `Base verdict: **NOT_ENOUGH_HISTORY** (${matureCohorts.length} of ${cohortRows.length} signing cohorts have reached month 12 by ${asOf}; fewer than 2 mature cohorts, so the base has not enough history and every group is at most CAPPED_TEST).`
-    );
-    if (matureCohorts.length === 1) {
-      const only = matureCohorts[0];
-      lines.push(`- Mature cohort ${only.quarter}: ${only.month_12.display} kept at month 12. One customer moves this cohort ${only.one_customer_points.toFixed(1)} points.`);
-    }
-  } else {
-    lines.push(`Base verdict: **${baseVerdict}** (evaluated on the two latest mature cohorts: ${evaluatedCohorts.map((c) => c.quarter).join(" and ")}).`);
-    for (const ec of evaluatedCohorts) {
-      lines.push(`- **Cohort ${ec.quarter}** (${ec.n} customers):`);
-      lines.push(`  - Line test: ${ec.k12} of ${ec.n} (${keptPercent(ec.kept_share_m12, stopLine)}%) still paying at month 12 against ${Math.round(stopLine * 100)}% stop line: **${ec.line_pass ? "PASS" : "FAIL"}**.`);
-      if (!shapeTestSkipped) {
-        lines.push(
-          `  - Shape test: lost_1_6 = ${ec.lost_1_6} (${ec.n} at start to ${ec.k6} at month 6), lost_7_12 = ${ec.lost_7_12} (${ec.k6} at month 6 to ${ec.k12} at month 12): **${ec.shape_pass ? "PASS" : "FAIL"}**.`
-        );
-      }
-      lines.push(`  - One customer moves this cohort ${ec.one_customer_points.toFixed(1)} points.`);
-    }
-  }
-  lines.push("");
 
   // 4. The cohort table
   lines.push("## Cohort table");
@@ -1172,6 +1153,36 @@ export function generateScalePaidCheck(input: ScalePaidCheckInput): ScalePaidChe
         }
       }
       lines.push("");
+    }
+  }
+  lines.push("");
+
+  // 3. The stop rule with its counts
+  lines.push("## Stop rule");
+  lines.push("");
+  if (shapeTestSkipped) {
+    lines.push("Annual billing: losses land at renewal, so the shape test does not apply; read month 12 as the first renewal.");
+    lines.push("");
+  }
+  if (matureCohorts.length < 2) {
+    lines.push(
+      `Base verdict: **NOT_ENOUGH_HISTORY** (${matureCohorts.length} of ${cohortRows.length} signing cohorts have reached month 12 by ${asOf}; fewer than 2 mature cohorts, so the base has not enough history and every group is at most CAPPED_TEST).`
+    );
+    if (matureCohorts.length === 1) {
+      const only = matureCohorts[0];
+      lines.push(`- Mature cohort ${only.quarter}: ${only.month_12.display} kept at month 12. One customer moves this cohort ${only.one_customer_points.toFixed(1)} points.`);
+    }
+  } else {
+    lines.push(`Base verdict: **${baseVerdict}** (evaluated on the two latest mature cohorts: ${evaluatedCohorts.map((c) => c.quarter).join(" and ")}).`);
+    for (const ec of evaluatedCohorts) {
+      lines.push(`- **Cohort ${ec.quarter}** (${ec.n} customers):`);
+      lines.push(`  - Line test: ${ec.k12} of ${ec.n} (${keptPercent(ec.kept_share_m12, stopLine)}%) still paying at month 12 against ${Math.round(stopLine * 100)}% stop line: **${ec.line_pass ? "PASS" : "FAIL"}**.`);
+      if (!shapeTestSkipped) {
+        lines.push(
+          `  - Shape test: lost_1_6 = ${ec.lost_1_6} (${ec.n} at start to ${ec.k6} at month 6), lost_7_12 = ${ec.lost_7_12} (${ec.k6} at month 6 to ${ec.k12} at month 12): **${ec.shape_pass ? "PASS" : "FAIL"}**.`
+        );
+      }
+      lines.push(`  - One customer moves this cohort ${ec.one_customer_points.toFixed(1)} points.`);
     }
   }
   lines.push("");
