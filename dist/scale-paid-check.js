@@ -134,7 +134,7 @@ function buyerWords(text) {
         as_of: "the check date", monthly_fee: "monthly fee", stop_line: "keep line",
         payback_line_months: "payback months",
     };
-    return text.replace(/\b(?:NOT_ENOUGH_HISTORY|NO_VERDICT|CAPPED_TEST|SCALE|HOLD|PASS|FAIL|lost_1_6|lost_7_12|as_of|monthly_fee|stop_line|payback_line_months)\b/g, word => labels[word]);
+    return text.replace(/\b(?:NOT_ENOUGH_HISTORY|NO_VERDICT|CAPPED_TEST|SCALE|HOLD|PASS|FAIL|lost_1_6|lost_7_12|as_of|monthly_fee|stop_line|payback_line_months)\b/g, word => labels[word]).replace(/\b[a-z][a-z0-9]*(?:_[a-z0-9]+)+\b/g, word => word.replace(/_/g, " "));
 }
 function refusal(text) {
     return { text, structuredContent: {}, content: [{ type: "text", text }], isError: true, toString() { return text; } };
@@ -162,7 +162,7 @@ export function generateScalePaidCheck(input) {
     }
     const asOf = typeof input.as_of === "string" ? input.as_of.trim() : "";
     if (!isRealDate(asOf)) {
-        throw new Error("as_of must be a real YYYY-MM-DD date.");
+        throw new Error("Give the check date as a real date in year-month-day order, for example 2026-09-30.");
     }
     const billingTerm = input.billing_term === "annual" ? "annual" : "monthly";
     const stopLineIsDefault = input.stop_line === undefined || input.stop_line === null;
@@ -734,7 +734,27 @@ export function generateScalePaidCheck(input) {
     const cappedTestGroups = groups.filter((g) => g.verdict === "CAPPED_TEST").map((g) => g.name);
     const scaleGroups = groups.filter((g) => g.verdict === "SCALE").map((g) => g.name);
     const holdGroups = groups.filter((g) => g.verdict === "HOLD").map((g) => g.name);
-    // Section 13: Build output text in exact section 1..10 order
+    // A return date is a known signing quarter reaching month 12, not a forecast.
+    // Wait until the base can have two mature quarters, as the stop rule requires.
+    const cohortReadyOn = new Map(sortedQuarters.map(quarter => [quarter,
+        (cohortsMap.get(quarter) ?? []).map(c => addMonths(c.signed, 12)).sort().at(-1)
+    ]));
+    const baseReadyOn = [...cohortReadyOn.values()].sort()[1];
+    const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    const returnLines = [];
+    for (const g of groups.filter(g => g.verdict === "HOLD")) {
+        if (!baseReadyOn)
+            continue;
+        const members = groupDefs.find(def => def.name === g.name && def.kind === g.kind).members;
+        const nextReady = [...new Set(members.map(c => cohortReadyOn.get(quarterOf(c.signed))))]
+            .filter(date => date > asOf && date >= baseReadyOn).sort()[0];
+        if (!nextReady)
+            continue;
+        const count = members.filter(c => addMonths(c.signed, 12) <= nextReady).length;
+        const monthYear = `${monthNames[Number(nextReady.slice(5, 7)) - 1]} ${nextReady.slice(0, 4)}`;
+        returnLines.push(`- ${g.name}: Run this again after ${monthYear}, when this group has ${count} customers past month 12.`);
+    }
+    // Build readable text with the decision first, then the supporting detail.
     const lines = [];
     // The first screen carries the base decision and one concise reason per group.
     lines.push("# Scale Paid Check: Answer Card");
@@ -757,7 +777,7 @@ export function generateScalePaidCheck(input) {
     }
     for (const g of groups) {
         if (g.too_few_customers) {
-            lines.push(`- **${g.name}: ${g.verdict}.** ${g.base} customers with a full year of history. Too few customers to read.`);
+            lines.push(`- **${g.name}: ${g.verdict}.** ${g.base} ${g.base === 1 ? "customer" : "customers"} with a full year of history. Too few customers to read.`);
             continue;
         }
         const money = groupMoneyMap[g.name];
@@ -779,6 +799,7 @@ export function generateScalePaidCheck(input) {
             reason = "Add paid acquisition cost and gross margin to check payback.";
         lines.push(`- **${g.name}: ${g.verdict}.** ${g.kept} of ${g.base} still paying (${keptPercent(g.kept_share, stopLine)}%). ${reason}`);
     }
+    lines.push(...returnLines);
     lines.push("");
     // 2. "Check this first" (the echo, rejected rows, pending and paused customers, and which defaults were used)
     lines.push("## Check this first");

@@ -165,3 +165,47 @@ test('server and direct calls keep the 2,000 limit and return the plain 2,001 an
  for(const customers of [[], 'a customer list']) assert.equal((await call(base({customers}))).isError,true);
  for(const paid_cac of [0,-5000]) assert.equal((await call(base({paid_cac}))).isError,true);
 });
+
+test('held groups get known cohort return dates and full-year counts; mature or passing controls do not',()=>{
+ const held=rows(20).map((r,i)=>({...r,...(i<8?{stopped:'2026-02-01'}:{})}));
+ for(const [signed,monthYear] of [['2025-12-15','December 2026'],['2026-01-31','January 2027']]){
+  const young=rows(10).map((r,i)=>({...r,id:`Y${i}`,signed}));
+  const r=run({customers:[...held,...young]});
+  assert.equal(r.structuredContent.groups[0].verdict,'HOLD');
+  const card=r.text.split('## Check this first')[0];
+  assert.ok(card.includes(`Dispatch teams: Run this again after ${monthYear}, when this group has 30 customers past month 12.`));
+  assert.equal((card.match(/Run this again after/g)??[]).length,1);
+ }
+ assert.doesNotMatch(run({customers:held}).text,/Run this again after/);
+ const young=rows(10).map((r,i)=>({...r,id:`Y${i}`,signed:'2025-12-15'}));
+ assert.doesNotMatch(run({customers:[...rows(40),...young]}).text,/Run this again after/);
+ assert.doesNotMatch(run({customers:[...held,...young.map(r=>({...r,segment:'Fleet teams'}))]}).text,/Run this again after/);
+});
+test('return dates respect leap days, the latest signing in a quarter, and the two-quarter stop rule',()=>{
+ const held=rows(20).map((r,i)=>({...r,signed:i%2?'2023-04-10':'2023-07-10',...(i<8?{stopped:'2024-02-01'}:{})}));
+ const young=rows(5).map((r,i)=>({...r,id:`Y${i}`,signed:'2024-02-29'}));
+ const r=run({customers:[...held,...young],as_of:'2024-09-30'});
+ assert.match(r.text,/Run this again after February 2025, when this group has 25 customers past month 12/);
+ const recent=rows(5).map((r,i)=>({...r,id:`R${i}`,signed:'2024-03-31'}));
+ assert.match(run({customers:[...held,...young,...recent],as_of:'2024-09-30'}).text,/after March 2025, when this group has 30 customers past month 12/);
+ const oneQuarter=held.map(r=>({...r,signed:'2023-04-10'}));
+ assert.doesNotMatch(run({customers:oneQuarter,as_of:'2024-09-30'}).text,/Run this again after/);
+ // An invalid future signing date cannot create a return date.
+ assert.doesNotMatch(run({customers:[...held,...young.map(r=>({...r,signed:'2027-01-01'}))],as_of:'2024-09-30'}).text,/Run this again after/);
+});
+test('all fixture answers use readable segment names while structured identities stay intact',()=>{
+ for(const file of Object.keys(baseline)){
+  const raw=fixture(file),r=generateScalePaidCheck(raw.input??raw);
+  assert.doesNotMatch(r.text,/\b[a-z][a-z0-9]*(?:_[a-z0-9]+)+\b/,file);
+  assert.deepEqual(r.structuredContent.groups.map(g=>g.name),baseline[file].groups.map(g=>g.name),file);
+ }
+});
+
+test('invalid check dates return a readable server error; a real calendar date runs',async()=>{
+ for(const as_of of ['2026-02-30','30/09/2026']){
+  const r=await call(base({as_of})); assert.equal(r.isError,true);
+  assert.match(r.content[0].text,/Give the check date as a real date in year-month-day order/);
+  assert.doesNotMatch(r.content[0].text,/as_of|scale_paid_check/);
+ }
+ assert.equal((await call(base({as_of:'2026-09-30'}))).isError,undefined);
+});
