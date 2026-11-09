@@ -142,3 +142,11 @@ test('example lines are named in the Answer Card for missing, supplied and same-
  assert.match(card({stop_line:undefined,payback_line_months:18}),/did not set a keep line.*80% kept at month 12/);
  assert.doesNotMatch(card({stop_line:undefined,payback_line_months:18}),/12 month payback/);
 });
+
+test('Scale Paid never appends a region question or regional advice, for absent, equivalent and opposite markets',async()=>{
+ for(const product of ['Dispatch planning software','Dispatch planning software sold in India','Dispatch planning software for the Indian market','Dispatch planning software. We do not sell in India.']){
+  const args=base({product});const r=await call(args);
+  assert.doesNotMatch(r.content[0].text,/Which region applies|## Region and industry context/);
+  assert.equal(r.content[0].text,generateScalePaidCheck(args).text);
+ }
+});

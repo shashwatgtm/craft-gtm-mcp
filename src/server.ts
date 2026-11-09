@@ -182,7 +182,7 @@ export function createServer(): Server {
     if (BUILD_PROFILE.profile === "wave" && isReserveTool(request.params.name)) return callReserveTool(request.params.name,request.params.arguments);
     if (BUILD_PROFILE.profile === "wave" && isWaveTool(request.params.name)) return callWaveTool(request.params.name, request.params.arguments);
     const { name } = request.params;
-    // Bypass sectorChoiceNotice, withReadingGuide and holdBuyerCopy for scale_paid_check so customers/metrics arrays are not rewritten by copy wrappers and spec section 13 text order holds; keep guardInputs, softwareAdvice and regionNotes.
+    // Bypass sectorChoiceNotice, withReadingGuide and holdBuyerCopy for scale_paid_check so customers/metrics arrays are not rewritten by copy wrappers and spec section 13 text order holds; keep guardInputs and softwareAdvice. Region does not affect this calculation.
     if (name === "scale_paid_check") {
       let typed = cleanDeep(request.params.arguments);
       const inputEvidence = guardInputs(typed, listedTools.find(t => t.name === name)?.inputSchema);
@@ -199,7 +199,7 @@ export function createServer(): Server {
       try {
         const spcResult = generateScalePaidCheck(escapeDeep(typed) as unknown as Parameters<typeof generateScalePaidCheck>[0]);
         return {
-          content: [{ type: "text", text: inputEvidence.notice + (inputEvidence.notice ? "\n\n" : "") + spcResult.text + regionNotes(typed) }],
+          content: [{ type: "text", text: inputEvidence.notice + (inputEvidence.notice ? "\n\n" : "") + spcResult.text }],
           structuredContent: spcResult.structuredContent,
         };
       } catch (error) {
