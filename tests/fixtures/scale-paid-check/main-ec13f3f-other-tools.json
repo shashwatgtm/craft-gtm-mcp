@@ -1,0 +1,272 @@
+[
+  {
+    "tool": "pmf_scorecard",
+    "args": {
+      "product": "AI native contract review software",
+      "target_market": "enterprise_saas",
+      "current_metrics": "MRR: $50000; ACV: $24000; monthly logo churn: 2%; NPS: 35 from 12 replies; CAC: $18000; LTV: unknown; activation: 60%; annual logo retention: 78%",
+      "business_model": "saas"
+    },
+    "sha256": "df9d516f291029db43b2c6491c1ba2688d63babe1d38eb622529304d7f686205"
+  },
+  {
+    "tool": "pmf_scorecard",
+    "args": {
+      "product": "AI native contract review software We sell in India.",
+      "target_market": "enterprise_saas",
+      "current_metrics": "MRR: $50000; ACV: $24000; monthly logo churn: 2%; NPS: 35 from 12 replies; CAC: $18000; LTV: unknown; activation: 60%; annual logo retention: 78%",
+      "business_model": "saas"
+    },
+    "sha256": "cd5c668c0b6a39695f71c022c37139aeba29cf5e6e22ccfcf762978a949cead7"
+  },
+  {
+    "tool": "pmf_scorecard",
+    "args": {
+      "product": "AI native contract review software We do not sell in India.",
+      "target_market": "enterprise_saas",
+      "current_metrics": "MRR: $50000; ACV: $24000; monthly logo churn: 2%; NPS: 35 from 12 replies; CAC: $18000; LTV: unknown; activation: 60%; annual logo retention: 78%",
+      "business_model": "saas"
+    },
+    "sha256": "0ca247e944a67ff9d6b2b08c883fe50b2092c2a482d8f7cb70b34e9ec0d2b22c"
+  },
+  {
+    "tool": "launch_commander",
+    "args": {
+      "product_feature": "Weekend alert triage service",
+      "launch_date": "2026-12-01",
+      "launch_type": "major_release",
+      "target_segments": "Midmarket SaaS companies with no weekend SOC cover",
+      "goals": "Five qualified pilot commitments",
+      "available_channels": "Founder outreach and two security community events",
+      "team_size": "small_2_5",
+      "budget_level": "bootstrap",
+      "business_model": "services"
+    },
+    "sha256": "2678e00002daebb6c96e6cc4ab1bb949ec5a5ced587b8ef19cf85fca53228884"
+  },
+  {
+    "tool": "launch_commander",
+    "args": {
+      "product_feature": "Weekend alert triage service We sell in India.",
+      "launch_date": "2026-12-01",
+      "launch_type": "major_release",
+      "target_segments": "Midmarket SaaS companies with no weekend SOC cover",
+      "goals": "Five qualified pilot commitments",
+      "available_channels": "Founder outreach and two security community events",
+      "team_size": "small_2_5",
+      "budget_level": "bootstrap",
+      "business_model": "services"
+    },
+    "sha256": "bfe6e90ff68d1332e5b19de3e29706472fb26403ed1e3bfa469a0ec64197dd9f"
+  },
+  {
+    "tool": "launch_commander",
+    "args": {
+      "product_feature": "Weekend alert triage service We do not sell in India.",
+      "launch_date": "2026-12-01",
+      "launch_type": "major_release",
+      "target_segments": "Midmarket SaaS companies with no weekend SOC cover",
+      "goals": "Five qualified pilot commitments",
+      "available_channels": "Founder outreach and two security community events",
+      "team_size": "small_2_5",
+      "budget_level": "bootstrap",
+      "business_model": "services"
+    },
+    "sha256": "ce2659c90a07681afd6babef72659a3df158796ddd8fd5a6364705ad365b300a"
+  },
+  {
+    "tool": "customer_interview_kit",
+    "args": {
+      "interview_type": "discovery",
+      "product_context": "Invoice processing service for regional insurers; we think exception approvals are the bottleneck but have only two interviews.",
+      "target_persona": "Accounts payable head"
+    },
+    "sha256": "9b5933f8a2eebc470bcefd35eec9a5e1f813e56336de941d372daac6bb25ca82"
+  },
+  {
+    "tool": "customer_interview_kit",
+    "args": {
+      "interview_type": "discovery",
+      "product_context": "Invoice processing service for regional insurers; we think exception approvals are the bottleneck but have only two interviews. We sell in India.",
+      "target_persona": "Accounts payable head"
+    },
+    "sha256": "ebddf79b1af057e4321e10e329a9662ea607199718e98a0f74adf579457964d2"
+  },
+  {
+    "tool": "customer_interview_kit",
+    "args": {
+      "interview_type": "discovery",
+      "product_context": "Invoice processing service for regional insurers; we think exception approvals are the bottleneck but have only two interviews. We do not sell in India.",
+      "target_persona": "Accounts payable head"
+    },
+    "sha256": "3b069cbd297c803ee5a549ef226d68eedb261c336e1ccb76d62cac7747e4e790"
+  },
+  {
+    "tool": "retention_playbook",
+    "args": {
+      "customer_segment": "Regional logistics fleets using dispatch planning software",
+      "business_model": "saas_subscription",
+      "current_churn_rate": "3% monthly logo churn",
+      "product": "Dispatch planning software",
+      "churn_reasons": "Two customers said dispatchers bypass the tool during peak hours; another said the price is too high. No price change experiment has run."
+    },
+    "sha256": "f88627a183109e9851c68cdd768f4d1f0b62786842ab5f734c5aa476d3e20cba"
+  },
+  {
+    "tool": "retention_playbook",
+    "args": {
+      "customer_segment": "Regional logistics fleets using dispatch planning software",
+      "business_model": "saas_subscription",
+      "current_churn_rate": "3% monthly logo churn",
+      "product": "Dispatch planning software We sell in India.",
+      "churn_reasons": "Two customers said dispatchers bypass the tool during peak hours; another said the price is too high. No price change experiment has run."
+    },
+    "sha256": "ecb6e9cbc4fa5175735c13f69a27b480106781eb6a228d339a9275da7ba67202"
+  },
+  {
+    "tool": "retention_playbook",
+    "args": {
+      "customer_segment": "Regional logistics fleets using dispatch planning software",
+      "business_model": "saas_subscription",
+      "current_churn_rate": "3% monthly logo churn",
+      "product": "Dispatch planning software We do not sell in India.",
+      "churn_reasons": "Two customers said dispatchers bypass the tool during peak hours; another said the price is too high. No price change experiment has run."
+    },
+    "sha256": "57a931b56f60f4c20bc50e7562aee225499e53692e4e889039af2b6285677c58"
+  },
+  {
+    "tool": "partner_architect",
+    "args": {
+      "company": "Regional telecom software vendor",
+      "product": "Network incident automation",
+      "partner_model": "referral",
+      "partner_goals": "Find three network integration partners able to introduce operators with outage backlogs",
+      "your_deal_size": "$48000 annual",
+      "partner_support_capacity": "moderate",
+      "existing_partners": "One integrator made two introductions but neither became a paid account.",
+      "business_model": "saas"
+    },
+    "sha256": "0c5dc2934f0f2a4a7188deb06de9483fcb5b8eda971c2b61d2191100b4702535"
+  },
+  {
+    "tool": "partner_architect",
+    "args": {
+      "company": "Regional telecom software vendor",
+      "product": "Network incident automation We sell in India.",
+      "partner_model": "referral",
+      "partner_goals": "Find three network integration partners able to introduce operators with outage backlogs",
+      "your_deal_size": "$48000 annual",
+      "partner_support_capacity": "moderate",
+      "existing_partners": "One integrator made two introductions but neither became a paid account.",
+      "business_model": "saas"
+    },
+    "sha256": "0e389b8918be629c1fe3719183d90a7b5e6977b6a019f31c2b215664e0f0b5d9"
+  },
+  {
+    "tool": "partner_architect",
+    "args": {
+      "company": "Regional telecom software vendor",
+      "product": "Network incident automation We do not sell in India.",
+      "partner_model": "referral",
+      "partner_goals": "Find three network integration partners able to introduce operators with outage backlogs",
+      "your_deal_size": "$48000 annual",
+      "partner_support_capacity": "moderate",
+      "existing_partners": "One integrator made two introductions but neither became a paid account.",
+      "business_model": "saas"
+    },
+    "sha256": "668664569968567971c5bdccdcf0fcd78db95256a727fe82689c89e2676c4d2f"
+  },
+  {
+    "tool": "crisis_planner",
+    "args": {
+      "company": "Regional fintech payments provider",
+      "industry": "fintech",
+      "customer_base": "b2b_enterprise",
+      "data_sensitivity": "high_pii_financial",
+      "potential_crises": "A settlement outage prevents two bank customers from closing their books. No evidence of data exposure yet."
+    },
+    "sha256": "de3da40fdf0e2ca0f35c8b9864106a4091bffe8aa2b3f89776c2a1e76e4d07c3"
+  },
+  {
+    "tool": "crisis_planner",
+    "args": {
+      "company": "Regional fintech payments provider",
+      "industry": "fintech",
+      "customer_base": "b2b_enterprise",
+      "data_sensitivity": "high_pii_financial",
+      "potential_crises": "A settlement outage prevents two bank customers from closing their books. No evidence of data exposure yet. We sell in India."
+    },
+    "sha256": "f90e4112ae81eff63adb0c19d7a5b05750be1b88fa24308cb2c4f7917da668fc"
+  },
+  {
+    "tool": "crisis_planner",
+    "args": {
+      "company": "Regional fintech payments provider",
+      "industry": "fintech",
+      "customer_base": "b2b_enterprise",
+      "data_sensitivity": "high_pii_financial",
+      "potential_crises": "A settlement outage prevents two bank customers from closing their books. No evidence of data exposure yet. We do not sell in India."
+    },
+    "sha256": "21377931e22cbb751b11fb92d1e6567ae95afe8c6f716022e7f8c5ef143c2686"
+  },
+  {
+    "tool": "competitive_intel",
+    "args": {
+      "your_product": "Dispatch planning software for regional fleets",
+      "competitors": "Existing TMS; spreadsheets",
+      "common_objections": "Our TMS already assigns routes. Switching will disrupt peak season.",
+      "your_strengths": "Dispatcher can reassign a failed delivery and notify the depot in one view. Time saved is not measured."
+    },
+    "sha256": "332ea9ffbdb39ec9df7c65595b0f40080bebe1db03f04933e272d936fc7c8d0a"
+  },
+  {
+    "tool": "competitive_intel",
+    "args": {
+      "your_product": "Dispatch planning software for regional fleets We sell in India.",
+      "competitors": "Existing TMS; spreadsheets",
+      "common_objections": "Our TMS already assigns routes. Switching will disrupt peak season.",
+      "your_strengths": "Dispatcher can reassign a failed delivery and notify the depot in one view. Time saved is not measured."
+    },
+    "sha256": "1414452c21d7e45f1b45de6e72ca58ea0c6c5fc4ca244bb0ec666066f96d1b5d"
+  },
+  {
+    "tool": "competitive_intel",
+    "args": {
+      "your_product": "Dispatch planning software for regional fleets We do not sell in India.",
+      "competitors": "Existing TMS; spreadsheets",
+      "common_objections": "Our TMS already assigns routes. Switching will disrupt peak season.",
+      "your_strengths": "Dispatcher can reassign a failed delivery and notify the depot in one view. Time saved is not measured."
+    },
+    "sha256": "c1e910dc0cc95a0dd0db73bf5ab41745012a9362eafc291a12c3794e6c0e5432"
+  },
+  {
+    "tool": "craft_gtm_analyzer",
+    "args": {
+      "document_content": "Launch dispatch planning software to regional logistics fleets on 1 December. The CMO owns the launch. Two account executives can run six demos weekly. We have $18000 for events and outreach. We need 12 paid customers at $24000 ACV by March. Current conversion from demo to sale is 10 percent across 20 completed demos. Product can onboard three fleets monthly. We have not agreed a pilot acceptance measure.",
+      "document_type": "launch_plan",
+      "intended_audience": "CEO and CRO of a pre Series A logistics software business",
+      "desired_outcome": "Decide whether to keep the 12 customer target or reduce launch scope"
+    },
+    "sha256": "7dd341a6430621b14b12bfd50bc3cc44a38371662e5ec6b3f846f7733444f105"
+  },
+  {
+    "tool": "craft_gtm_analyzer",
+    "args": {
+      "document_content": "Launch dispatch planning software to regional logistics fleets on 1 December. The CMO owns the launch. Two account executives can run six demos weekly. We have $18000 for events and outreach. We need 12 paid customers at $24000 ACV by March. Current conversion from demo to sale is 10 percent across 20 completed demos. Product can onboard three fleets monthly. We have not agreed a pilot acceptance measure. We sell in India.",
+      "document_type": "launch_plan",
+      "intended_audience": "CEO and CRO of a pre Series A logistics software business",
+      "desired_outcome": "Decide whether to keep the 12 customer target or reduce launch scope"
+    },
+    "sha256": "137c800400c228b8b2b4f200e7519ed3819e3ac568e94406c36724ac03863234"
+  },
+  {
+    "tool": "craft_gtm_analyzer",
+    "args": {
+      "document_content": "Launch dispatch planning software to regional logistics fleets on 1 December. The CMO owns the launch. Two account executives can run six demos weekly. We have $18000 for events and outreach. We need 12 paid customers at $24000 ACV by March. Current conversion from demo to sale is 10 percent across 20 completed demos. Product can onboard three fleets monthly. We have not agreed a pilot acceptance measure. We do not sell in India.",
+      "document_type": "launch_plan",
+      "intended_audience": "CEO and CRO of a pre Series A logistics software business",
+      "desired_outcome": "Decide whether to keep the 12 customer target or reduce launch scope"
+    },
+    "sha256": "d87888eb98d72c2ff615b3928ec6122290757243d88c659f565c2a50d32f08ba"
+  }
+]

@@ -297,6 +297,17 @@ function isPayingOn(c: ValidatedCustomer, dateStr: string): boolean {
   return dateStr < c.stopped;
 }
 
+function refusal(text: string): ScalePaidCheckResult {
+  return { text, structuredContent: {}, content: [{ type: "text", text }], isError: true, toString() { return text; } };
+}
+
+// Keep the rounded JSON figures stable; show the extra decimal only in the answer.
+function keptPercent(share: number, line: number): string {
+  const percent = share * 100;
+  return Math.round(percent) === line * 100 && Math.abs(percent - line * 100) > 1e-9
+    ? percent.toFixed(1) : String(Math.round(percent));
+}
+
 export function generateScalePaidCheck(input: ScalePaidCheckInput): ScalePaidCheckResult {
   const rawCustomers = Array.isArray(input?.customers) ? input.customers : [];
   const rowsReceived = rawCustomers.length;
@@ -324,10 +335,31 @@ export function generateScalePaidCheck(input: ScalePaidCheckInput): ScalePaidChe
   const paybackLineIsDefault = input.payback_line_months === undefined || input.payback_line_months === null;
   const paybackLineMonths = paybackLineIsDefault ? 12 : Number(input.payback_line_months);
 
+  // Refuse invalid decision inputs before calculating a verdict or any money figures.
+  const ranges: Array<[keyof ScalePaidCheckInput, string, number | null]> = [
+    ["stop_line", "keep line", 1], ["payback_line_months", "payback months", null],
+    ["paid_cac", "paid customer acquisition cost", null], ["blended_cac", "blended customer acquisition cost", null],
+    ["test_cap", "test budget", null], ["gross_margin", "gross margin", 1],
+    ["win_rate_floor", "floor win rate", 1], ["win_rate_target", "target win rate", 1],
+  ];
+  for (const [key, label, maximum] of ranges) {
+    const raw = input[key];
+    if (raw === undefined || raw === null) continue;
+    const value = Number(raw);
+    if (key === "stop_line" && value > 1 && value <= 100) {
+      return refusal("Give your keep line as a share, for example 0.8 for 80%");
+    }
+    if (!Number.isFinite(value) || value <= 0 || (maximum !== null && value > maximum)) {
+      return refusal(`Give your ${label} as a number above 0${maximum === 1 ? " and at most 1" : ""}.`);
+    }
+  }
+
   // Section 2: Row checks (before any sum)
   const rejectedRows: RejectedRowInfo[] = [];
   const validRows: ScalePaidCustomerRow[] = [];
   const seenIds = new Set<string>();
+  const segmentLabels = new Map<string, string>();
+  let segmentLabelsMerged = false;
 
   rawCustomers.forEach((row, idx) => {
     const rawId = typeof row?.id === "string" ? row.id.trim() : String(row?.id ?? `row_${idx + 1}`);
@@ -378,7 +410,11 @@ export function generateScalePaidCheck(input: ScalePaidCheckInput): ScalePaidChe
       rejectedRows.push({ id: rawId, index: idx, reason: `stopped (${stopped}) is before signed (${signed})` });
       return;
     }
-    if (resumed !== undefined && (stopped === undefined || resumed < stopped)) {
+    if (resumed !== undefined && stopped === undefined) {
+      rejectedRows.push({ id: rawId, index: idx, reason: "has a return date but no stop date" });
+      return;
+    }
+    if (resumed !== undefined && stopped !== undefined && resumed < stopped) {
       rejectedRows.push({ id: rawId, index: idx, reason: `resumed (${resumed}) is before stopped (${stopped ?? "none"})` });
       return;
     }
@@ -387,11 +423,16 @@ export function generateScalePaidCheck(input: ScalePaidCheckInput): ScalePaidChe
       return;
     }
 
+    const label = typeof row.segment === "string" && row.segment.trim() ? row.segment.trim() : "Unsegmented";
+    const segmentKey = label.toLowerCase();
+    const segment = segmentLabels.get(segmentKey) ?? label;
+    if (segment !== label) segmentLabelsMerged = true;
+    segmentLabels.set(segmentKey, segment);
     validRows.push({
       ...row,
       id: rawId,
       signed,
-      segment: typeof row.segment === "string" && row.segment.trim() ? row.segment.trim() : "Unsegmented",
+      segment,
       monthly_fee: fee,
       stopped,
       resumed,
@@ -734,7 +775,7 @@ export function generateScalePaidCheck(input: ScalePaidCheckInput): ScalePaidChe
           j += 1;
         }
         lossesToFail = j;
-        leadNotProof = j <= 3;
+        leadNotProof = j <= 3 || base < 15;
       } else {
         lossesToFail = 0;
       }
@@ -748,10 +789,11 @@ export function generateScalePaidCheck(input: ScalePaidCheckInput): ScalePaidChe
       verdictNote = "too few customers to read";
     } else if (!linePass) {
       verdict = "HOLD";
-      verdictNote = `fails the group line test (${kept} of ${base} kept, ${keptPct}% vs ${Math.round(stopLine * 100)}% stop line)`;
-    } else if (baseVerdict === "NOT_ENOUGH_HISTORY" || leadNotProof) {
+      verdictNote = `fails the group line test (${kept} of ${base} kept, ${keptPercent(keptShare, stopLine)}% vs ${Math.round(stopLine * 100)}% stop line)`;
+    } else if (baseVerdict === "HOLD" || baseVerdict === "NOT_ENOUGH_HISTORY" || leadNotProof) {
       verdict = "CAPPED_TEST";
       const reasons: string[] = [];
+      if (baseVerdict === "HOLD") reasons.push("the base fails the stop rule");
       if (baseVerdict === "NOT_ENOUGH_HISTORY") reasons.push("base has NOT_ENOUGH_HISTORY");
       if (leadNotProof) reasons.push(`lead, not proof (${lossesToFail} loss${lossesToFail === 1 ? "" : "es"} to fail)`);
       verdictNote = `${reasons.join("; ")}; measure cost per opportunity, not growth`;
@@ -903,17 +945,18 @@ export function generateScalePaidCheck(input: ScalePaidCheckInput): ScalePaidChe
   // 1. The answer card (the verdict per group, one line each)
   lines.push("# Scale Paid Check: Answer Card");
   lines.push("");
+  lines.push(`Base verdict: **${baseVerdict}**.`);
   for (const g of groups) {
     if (g.verdict === "NO_VERDICT") {
       lines.push(`- **${g.name} (${g.kind}):** NO_VERDICT (${g.base} of ${wholeBase} customers in window base: too few customers to read)`);
     } else if (g.verdict === "SCALE") {
       const m = groupMoneyMap[g.name];
       const pbText = m && m.payback_months !== null ? `, paid payback ${m.payback_months.toFixed(1)} months` : "";
-      lines.push(`- **${g.name} (${g.kind}):** SCALE (${g.kept} of ${g.base} kept, ${g.kept_pct}%${pbText}; ${g.verdict_note})`);
+      lines.push(`- **${g.name} (${g.kind}):** SCALE (${g.kept} of ${g.base} kept, ${keptPercent(g.kept_share, stopLine)}%${pbText}; ${g.verdict_note})`);
     } else if (g.verdict === "CAPPED_TEST") {
-      lines.push(`- **${g.name} (${g.kind}):** CAPPED_TEST (${g.kept} of ${g.base} kept, ${g.kept_pct}%; ${g.verdict_note})`);
+      lines.push(`- **${g.name} (${g.kind}):** CAPPED_TEST (${g.kept} of ${g.base} kept, ${keptPercent(g.kept_share, stopLine)}%; ${g.verdict_note})`);
     } else {
-      lines.push(`- **${g.name} (${g.kind}):** HOLD (${g.kept} of ${g.base} kept, ${g.kept_pct}%; ${g.verdict_note})`);
+      lines.push(`- **${g.name} (${g.kind}):** HOLD (${g.kept} of ${g.base} kept, ${keptPercent(g.kept_share, stopLine)}%; ${g.verdict_note})`);
     }
   }
   lines.push("");
@@ -925,6 +968,7 @@ export function generateScalePaidCheck(input: ScalePaidCheckInput): ScalePaidChe
   lines.push(`- Rows received: ${rowsReceived}`);
   lines.push(`- Rows used: ${rowsUsed}`);
   lines.push(`- Rows rejected: ${rejectedRows.length}`);
+  if (segmentLabelsMerged) lines.push("- Segment labels that differ only in capital letters were merged, using the first spelling supplied.");
   lines.push(`- Customers paying on ${asOf}: ${payingOnAsOfCount} of ${rowsUsed} used rows`);
   lines.push(`- MRR on ${asOf}: ${formatMoney(mrrOnAsOf)} across ${payingOnAsOfCount} paying customers`);
   lines.push(`- Earliest signed: ${earliestSigned ?? "none"}`);
@@ -1008,7 +1052,7 @@ export function generateScalePaidCheck(input: ScalePaidCheckInput): ScalePaidChe
     lines.push(`Base verdict: **${baseVerdict}** (evaluated on the two latest mature cohorts: ${evaluatedCohorts.map((c) => c.quarter).join(" and ")}).`);
     for (const ec of evaluatedCohorts) {
       lines.push(`- **Cohort ${ec.quarter}** (${ec.n} customers):`);
-      lines.push(`  - Line test: ${ec.k12} of ${ec.n} (${ec.kept_pct_m12}%) still paying at month 12 against ${Math.round(stopLine * 100)}% stop line: **${ec.line_pass ? "PASS" : "FAIL"}**.`);
+      lines.push(`  - Line test: ${ec.k12} of ${ec.n} (${keptPercent(ec.kept_share_m12, stopLine)}%) still paying at month 12 against ${Math.round(stopLine * 100)}% stop line: **${ec.line_pass ? "PASS" : "FAIL"}**.`);
       if (!shapeTestSkipped) {
         lines.push(
           `  - Shape test: lost_1_6 = ${ec.lost_1_6} (${ec.n} at start to ${ec.k6} at month 6), lost_7_12 = ${ec.lost_7_12} (${ec.k6} at month 6 to ${ec.k12} at month 12): **${ec.shape_pass ? "PASS" : "FAIL"}**.`
@@ -1040,7 +1084,7 @@ export function generateScalePaidCheck(input: ScalePaidCheckInput): ScalePaidChe
   lines.push(`12-month window: ${windowStart} to ${asOf}. Whole window base: ${wholeBase} customers paying on ${windowStart}; ${wholeLost} of ${wholeBase} lost in window; ${wholeKept} of ${wholeBase} (${wholeBase > 0 ? Math.round(wholeKeptShare * 100) : 0}%) kept on ${asOf}.`);
   lines.push("");
   if (baseVerdict === "HOLD") {
-    lines.push("The base fails the stop rule. Nothing beyond a capped test goes to paid, except to a group that passes on its own.");
+    lines.push("The base fails the stop rule. No group can go beyond a small capped test while the base is on hold.");
     lines.push("");
   }
   lines.push("| Group | Type | Window base | Lost in window | Kept in window | Kept share | Share of window losses | Share of window base | Group line test | Losses to fail | Verdict |");
@@ -1048,7 +1092,7 @@ export function generateScalePaidCheck(input: ScalePaidCheckInput): ScalePaidChe
   for (const g of groups) {
     if (g.too_few_customers) {
       lines.push(
-        `| ${g.name} | ${g.kind} | ${g.base} | ${g.lost} | ${g.kept} | ${g.kept} of ${g.base} (${g.kept_pct}%) | ${g.lost} of ${wholeLost} (${g.share_of_losses_pct}%) | ${g.base} of ${wholeBase} (${g.share_of_base_pct}%) | too few customers to read | n/a | **NO_VERDICT** (too few customers to read) |`
+        `| ${g.name} | ${g.kind} | ${g.base} | ${g.lost} | ${g.kept} | ${g.kept} of ${g.base} (${keptPercent(g.kept_share, stopLine)}%) | ${wholeLost > 0 ? `${g.lost} of ${wholeLost} (${g.share_of_losses_pct}%)` : "no window losses"} | ${g.base} of ${wholeBase} (${g.share_of_base_pct}%) | too few customers to read | n/a | **NO_VERDICT** (too few customers to read) |`
       );
     } else {
       const lineTestLabel = g.line_pass ? "PASS" : "FAIL";
@@ -1056,7 +1100,7 @@ export function generateScalePaidCheck(input: ScalePaidCheckInput): ScalePaidChe
         ? `${g.losses_to_fail}${g.lead_not_proof ? " (lead, not proof)" : ""}`
         : "0 (already below line)";
       lines.push(
-        `| ${g.name} | ${g.kind} | ${g.base} | ${g.lost} | ${g.kept} | ${g.kept} of ${g.base} (${g.kept_pct}%) | ${g.lost} of ${wholeLost} (${g.share_of_losses_pct}%) | ${g.base} of ${wholeBase} (${g.share_of_base_pct}%) | ${lineTestLabel} | ${lossesLabel} | **${g.verdict}** |`
+        `| ${g.name} | ${g.kind} | ${g.base} | ${g.lost} | ${g.kept} | ${g.kept} of ${g.base} (${keptPercent(g.kept_share, stopLine)}%) | ${wholeLost > 0 ? `${g.lost} of ${wholeLost} (${g.share_of_losses_pct}%)` : "no window losses"} | ${g.base} of ${wholeBase} (${g.share_of_base_pct}%) | ${lineTestLabel} | ${lossesLabel} | **${g.verdict}** |`
       );
     }
   }
@@ -1068,7 +1112,7 @@ export function generateScalePaidCheck(input: ScalePaidCheckInput): ScalePaidChe
     } else {
       const leadNote = g.lead_not_proof ? ` (${g.losses_to_fail} losses to fail: lead, not proof)` : g.line_pass ? ` (${g.losses_to_fail} losses to fail)` : "";
       lines.push(
-        `- **${g.name}:** ${g.kept} of ${g.base} (${g.kept_pct}%) kept, ${g.lost} of ${wholeLost} (${g.share_of_losses_pct}%) of window losses from ${g.base} of ${wholeBase} (${g.share_of_base_pct}%) of window base${leadNote}. Verdict: **${g.verdict}** (${g.verdict_note}).`
+        `- **${g.name}:** ${g.kept} of ${g.base} (${keptPercent(g.kept_share, stopLine)}%) kept, ${wholeLost > 0 ? `${g.lost} of ${wholeLost} (${g.share_of_losses_pct}%)` : "no window losses"} of window losses from ${g.base} of ${wholeBase} (${g.share_of_base_pct}%) of window base${leadNote}. Verdict: **${g.verdict}** (${g.verdict_note}).`
       );
     }
     if (g.loses_more_than_share) {
@@ -1178,7 +1222,7 @@ export function generateScalePaidCheck(input: ScalePaidCheckInput): ScalePaidChe
   lines.push("## Your next action");
   lines.push("");
   lines.push(
-    `Founder: By ${day7}, put the cohort table and the ${Math.round(stopLine * 100)}% month-12 stop line in front of everyone who approves budget, and book the ${wholeLost} churn and pause interviews yourself before ${day28}.`
+    `Founder: By ${day7}, put the cohort table and the ${Math.round(stopLine * 100)}% month-12 stop line in front of everyone who approves budget, ${wholeLost > 0 ? `and book the ${wholeLost} churn and pause interviews yourself before ${day28}` : "and check why customers stayed"}.`
   );
   lines.push(
     `CEO: Hold paid expansion on ${holdGroups.length > 0 ? holdGroups.join(", ") : "any group below the stop line"}, require a named executive signature at ${day90} to keep or lift any hold, and approve paid scale only where the group passes (${scaleGroups.length > 0 ? scaleGroups.join(", ") : "no group passes paid payback today"}).`
@@ -1187,7 +1231,7 @@ export function generateScalePaidCheck(input: ScalePaidCheckInput): ScalePaidChe
     `CMO: Keep paid acquisition off ${holdGroups.length > 0 ? holdGroups.join(", ") : "groups that fail the stop line"}, and if ${cappedTestGroups.length > 0 ? cappedTestGroups.join(", ") : "a group"} runs a capped test at ${day35}, judge it on cost per sales-accepted opportunity rather than top-line lead volume.`
   );
   lines.push(
-    `CRO: Have sales acceptance check every opportunity against the passing group profile, log why each of the ${wholeLost} lost window accounts left by ${day28}, and keep seasonal or failing-group deals out of the capped test count.`
+    `CRO: Have sales acceptance check every opportunity against the passing group profile, ${wholeLost > 0 ? `log why each of the ${wholeLost} lost window accounts left by ${day28},` : "review why customers stayed,"} and keep seasonal or failing-group deals out of the capped test count.`
   );
   lines.push(
     `Demand generation head: Build the targeting list for ${cappedTestGroups.length > 0 ? cappedTestGroups.join(", ") : scaleGroups.length > 0 ? scaleGroups.join(", ") : "the passing group only"} from pre-signup signals before ${day35}, track all-in cost per opportunity against the payback line, and stop the test if opportunity counts land at or below the stop count.`
@@ -1199,7 +1243,7 @@ export function generateScalePaidCheck(input: ScalePaidCheckInput): ScalePaidChe
     `The conclusion needs review if younger cohorts cross 12 months of history after ${asOf}, if paused or stopped accounts resume payment, or if audited paid CAC and gross margin differ from the figures supplied (${rowsUsed} of ${rowsReceived} customer rows used).`
   );
 
-  const finalText = stripDashes(lines.join("\n"));
+  const finalText = stripDashes(lines.join("\n")).replace(/0 of 0 \(0%\)/g, "no customers in this window");
 
   const structuredContent: Record<string, unknown> = {
     as_of: asOf,

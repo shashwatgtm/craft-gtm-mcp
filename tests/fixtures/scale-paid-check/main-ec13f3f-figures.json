@@ -1,0 +1,4422 @@
+{
+  "rt01-stop-on-feb29-leap-day.json": {
+    "as_of": "2025-09-30",
+    "billing_term": "monthly",
+    "stop_line": 0.8,
+    "stop_line_is_default": true,
+    "payback_line_months": 12,
+    "payback_line_is_default": true,
+    "echo": {
+      "rows_received": 16,
+      "rows_used": 16,
+      "rows_rejected": 0,
+      "paying_on_as_of": 14,
+      "mrr_on_as_of": 33600,
+      "earliest_signed": "2023-11-30",
+      "latest_signed": "2024-08-31"
+    },
+    "rejected_rows": [],
+    "pending_customers": [],
+    "paused_customers": [],
+    "stop_rule": {
+      "base_verdict": "PASS",
+      "mature_cohort_count": 4,
+      "shape_test_skipped": false,
+      "evaluated_cohorts": [
+        {
+          "quarter": "2024-Q2",
+          "n": 5,
+          "k6": 5,
+          "k12": 5,
+          "kept_share_m12": 1,
+          "kept_pct_m12": 100,
+          "line_pass": true,
+          "lost_1_6": 0,
+          "lost_7_12": 0,
+          "shape_pass": true,
+          "one_customer_points": 20
+        },
+        {
+          "quarter": "2024-Q3",
+          "n": 5,
+          "k6": 5,
+          "k12": 5,
+          "kept_share_m12": 1,
+          "kept_pct_m12": 100,
+          "line_pass": true,
+          "lost_1_6": 0,
+          "lost_7_12": 0,
+          "shape_pass": true,
+          "one_customer_points": 20
+        }
+      ]
+    },
+    "cohorts": [
+      {
+        "quarter": "2023-Q4",
+        "n": 1,
+        "mature": true,
+        "one_customer_points": 100,
+        "month_3": {
+          "reached": true,
+          "k": 0,
+          "n": 1,
+          "pct": 0,
+          "display": "0 of 1 (0%)"
+        },
+        "month_6": {
+          "reached": true,
+          "k": 0,
+          "n": 1,
+          "pct": 0,
+          "display": "0 of 1 (0%)"
+        },
+        "month_9": {
+          "reached": true,
+          "k": 0,
+          "n": 1,
+          "pct": 0,
+          "display": "0 of 1 (0%)"
+        },
+        "month_12": {
+          "reached": true,
+          "k": 0,
+          "n": 1,
+          "pct": 0,
+          "display": "0 of 1 (0%)"
+        },
+        "revenue_kept_month_12": {
+          "reached": true,
+          "kept_fee": 0,
+          "starting_fee": 2400,
+          "share": 0,
+          "pct": 0,
+          "label": "revenue kept at starting fees, no expansion"
+        }
+      },
+      {
+        "quarter": "2024-Q1",
+        "n": 5,
+        "mature": true,
+        "one_customer_points": 20,
+        "month_3": {
+          "reached": true,
+          "k": 5,
+          "n": 5,
+          "pct": 100,
+          "display": "5 of 5 (100%)"
+        },
+        "month_6": {
+          "reached": true,
+          "k": 4,
+          "n": 5,
+          "pct": 80,
+          "display": "4 of 5 (80%)"
+        },
+        "month_9": {
+          "reached": true,
+          "k": 4,
+          "n": 5,
+          "pct": 80,
+          "display": "4 of 5 (80%)"
+        },
+        "month_12": {
+          "reached": true,
+          "k": 4,
+          "n": 5,
+          "pct": 80,
+          "display": "4 of 5 (80%)"
+        },
+        "revenue_kept_month_12": {
+          "reached": true,
+          "kept_fee": 9600,
+          "starting_fee": 12000,
+          "share": 0.8,
+          "pct": 80,
+          "label": "revenue kept at starting fees, no expansion"
+        }
+      },
+      {
+        "quarter": "2024-Q2",
+        "n": 5,
+        "mature": true,
+        "one_customer_points": 20,
+        "month_3": {
+          "reached": true,
+          "k": 5,
+          "n": 5,
+          "pct": 100,
+          "display": "5 of 5 (100%)"
+        },
+        "month_6": {
+          "reached": true,
+          "k": 5,
+          "n": 5,
+          "pct": 100,
+          "display": "5 of 5 (100%)"
+        },
+        "month_9": {
+          "reached": true,
+          "k": 5,
+          "n": 5,
+          "pct": 100,
+          "display": "5 of 5 (100%)"
+        },
+        "month_12": {
+          "reached": true,
+          "k": 5,
+          "n": 5,
+          "pct": 100,
+          "display": "5 of 5 (100%)"
+        },
+        "revenue_kept_month_12": {
+          "reached": true,
+          "kept_fee": 12000,
+          "starting_fee": 12000,
+          "share": 1,
+          "pct": 100,
+          "label": "revenue kept at starting fees, no expansion"
+        }
+      },
+      {
+        "quarter": "2024-Q3",
+        "n": 5,
+        "mature": true,
+        "one_customer_points": 20,
+        "month_3": {
+          "reached": true,
+          "k": 5,
+          "n": 5,
+          "pct": 100,
+          "display": "5 of 5 (100%)"
+        },
+        "month_6": {
+          "reached": true,
+          "k": 5,
+          "n": 5,
+          "pct": 100,
+          "display": "5 of 5 (100%)"
+        },
+        "month_9": {
+          "reached": true,
+          "k": 5,
+          "n": 5,
+          "pct": 100,
+          "display": "5 of 5 (100%)"
+        },
+        "month_12": {
+          "reached": true,
+          "k": 5,
+          "n": 5,
+          "pct": 100,
+          "display": "5 of 5 (100%)"
+        },
+        "revenue_kept_month_12": {
+          "reached": true,
+          "kept_fee": 12000,
+          "starting_fee": 12000,
+          "share": 1,
+          "pct": 100,
+          "label": "revenue kept at starting fees, no expansion"
+        }
+      }
+    ],
+    "window": {
+      "start": "2024-09-30",
+      "end": "2025-09-30",
+      "base": 14,
+      "lost": 0,
+      "kept": 14,
+      "kept_share": 1,
+      "loss_share": 0
+    },
+    "groups": [
+      {
+        "name": "Regional carriers",
+        "kind": "segment",
+        "total_rows": 16,
+        "base": 14,
+        "lost": 0,
+        "kept": 14,
+        "kept_share": 1,
+        "kept_pct": 100,
+        "share_of_losses": 0,
+        "share_of_losses_pct": 0,
+        "share_of_base": 1,
+        "share_of_base_pct": 100,
+        "loses_more_than_share": false,
+        "line_pass": true,
+        "losses_to_fail": 3,
+        "lead_not_proof": true,
+        "too_few_customers": false,
+        "verdict": "CAPPED_TEST",
+        "verdict_note": "lead, not proof (3 losses to fail); measure cost per opportunity, not growth"
+      }
+    ],
+    "money": {
+      "enabled": true,
+      "gross_margin": 0.75,
+      "months_seen": 22,
+      "paid_cac": 18000,
+      "blended_cac": null,
+      "test_cap": null,
+      "win_rate_floor": null,
+      "win_rate_target": null,
+      "whole_base": {
+        "name": "All customers (whole base)",
+        "base": 14,
+        "kept": 14,
+        "lost": 0,
+        "average_monthly_fee": 2400,
+        "monthly_margin": 1800,
+        "monthly_churn": 0,
+        "months_seen": 22,
+        "capped_ltv": 39600,
+        "required_paid_cac": 21600,
+        "payback_months": 10,
+        "ltv_to_paid_cac": 2.2,
+        "ltv_to_blended_cac": null,
+        "go_count": null,
+        "stop_count": null
+      },
+      "by_group": {
+        "Regional carriers": {
+          "name": "Regional carriers",
+          "base": 14,
+          "kept": 14,
+          "lost": 0,
+          "average_monthly_fee": 2400,
+          "monthly_margin": 1800,
+          "monthly_churn": 0,
+          "months_seen": 22,
+          "capped_ltv": 39600,
+          "required_paid_cac": 21600,
+          "payback_months": 10,
+          "ltv_to_paid_cac": 2.2,
+          "ltv_to_blended_cac": null,
+          "go_count": null,
+          "stop_count": null
+        }
+      }
+    },
+    "metrics_check": {
+      "items": [],
+      "disagreement": false,
+      "implied_annual_retention_pct": null,
+      "reported_annual_retention_pct": null,
+      "note": null
+    },
+    "handoff": {
+      "retention_playbook": {
+        "customer_segment": "Regional carriers",
+        "business_model": "saas_subscription",
+        "current_churn_rate": "0.0% monthly",
+        "churn_reasons": "dispatcher turnover at the carrier\nroute volume dropped in winter",
+        "available_data_signals": "monthly starts, stop dates, monthly fee",
+        "server_loss_share_pct": 0,
+        "playbook_yearly_loss_pct": 0,
+        "use_server_figure_note": null
+      },
+      "customer_interview_kit": {
+        "interview_type": "churn",
+        "product_context": "Helix Fleet Dispatch, route optimization for regional carriers",
+        "target_persona": "Head of Fleet Operations at a regional carrier",
+        "key_hypotheses": "Customers leave because dispatcher turnover at the carrier; Customers leave because route volume dropped in winter",
+        "hypotheses_list": [
+          "Customers leave because dispatcher turnover at the carrier",
+          "Customers leave because route volume dropped in winter"
+        ],
+        "lost_to_call": 0
+      }
+    },
+    "next_steps": {
+      "week_1_date": "2025-10-07",
+      "interviews_done_date": "2025-10-28",
+      "capped_test_start_date": "2025-11-04",
+      "decide_again_date": "2025-12-29",
+      "capped_test_groups": [
+        "Regional carriers"
+      ]
+    }
+  },
+  "rt02-stopped-and-resumed-twice.json": {
+    "as_of": "2026-09-30",
+    "billing_term": "monthly",
+    "stop_line": 0.8,
+    "stop_line_is_default": true,
+    "payback_line_months": 12,
+    "payback_line_is_default": true,
+    "echo": {
+      "rows_received": 14,
+      "rows_used": 13,
+      "rows_rejected": 1,
+      "paying_on_as_of": 13,
+      "mrr_on_as_of": 41600,
+      "earliest_signed": "2024-10-10",
+      "latest_signed": "2025-06-18"
+    },
+    "rejected_rows": [
+      {
+        "id": "RT02_01",
+        "index": 1,
+        "reason": "id repeats (duplicate id)"
+      }
+    ],
+    "pending_customers": [],
+    "paused_customers": [
+      {
+        "id": "RT02_01",
+        "stopped": "2025-02-10",
+        "resumed": "2025-05-10",
+        "status": "pause: came back"
+      },
+      {
+        "id": "RT02_02",
+        "stopped": "2025-03-01",
+        "resumed": "2025-09-01",
+        "status": "pause: came back"
+      }
+    ],
+    "stop_rule": {
+      "base_verdict": "PASS",
+      "mature_cohort_count": 3,
+      "shape_test_skipped": false,
+      "evaluated_cohorts": [
+        {
+          "quarter": "2025-Q1",
+          "n": 5,
+          "k6": 5,
+          "k12": 5,
+          "kept_share_m12": 1,
+          "kept_pct_m12": 100,
+          "line_pass": true,
+          "lost_1_6": 0,
+          "lost_7_12": 0,
+          "shape_pass": true,
+          "one_customer_points": 20
+        },
+        {
+          "quarter": "2025-Q2",
+          "n": 3,
+          "k6": 3,
+          "k12": 3,
+          "kept_share_m12": 1,
+          "kept_pct_m12": 100,
+          "line_pass": true,
+          "lost_1_6": 0,
+          "lost_7_12": 0,
+          "shape_pass": true,
+          "one_customer_points": 33.3
+        }
+      ]
+    },
+    "cohorts": [
+      {
+        "quarter": "2024-Q4",
+        "n": 5,
+        "mature": true,
+        "one_customer_points": 20,
+        "month_3": {
+          "reached": true,
+          "k": 5,
+          "n": 5,
+          "pct": 100,
+          "display": "5 of 5 (100%)"
+        },
+        "month_6": {
+          "reached": true,
+          "k": 3,
+          "n": 5,
+          "pct": 60,
+          "display": "3 of 5 (60%)"
+        },
+        "month_9": {
+          "reached": true,
+          "k": 4,
+          "n": 5,
+          "pct": 80,
+          "display": "4 of 5 (80%)"
+        },
+        "month_12": {
+          "reached": true,
+          "k": 5,
+          "n": 5,
+          "pct": 100,
+          "display": "5 of 5 (100%)"
+        },
+        "revenue_kept_month_12": {
+          "reached": true,
+          "kept_fee": 16000,
+          "starting_fee": 16000,
+          "share": 1,
+          "pct": 100,
+          "label": "revenue kept at starting fees, no expansion"
+        }
+      },
+      {
+        "quarter": "2025-Q1",
+        "n": 5,
+        "mature": true,
+        "one_customer_points": 20,
+        "month_3": {
+          "reached": true,
+          "k": 5,
+          "n": 5,
+          "pct": 100,
+          "display": "5 of 5 (100%)"
+        },
+        "month_6": {
+          "reached": true,
+          "k": 5,
+          "n": 5,
+          "pct": 100,
+          "display": "5 of 5 (100%)"
+        },
+        "month_9": {
+          "reached": true,
+          "k": 5,
+          "n": 5,
+          "pct": 100,
+          "display": "5 of 5 (100%)"
+        },
+        "month_12": {
+          "reached": true,
+          "k": 5,
+          "n": 5,
+          "pct": 100,
+          "display": "5 of 5 (100%)"
+        },
+        "revenue_kept_month_12": {
+          "reached": true,
+          "kept_fee": 16000,
+          "starting_fee": 16000,
+          "share": 1,
+          "pct": 100,
+          "label": "revenue kept at starting fees, no expansion"
+        }
+      },
+      {
+        "quarter": "2025-Q2",
+        "n": 3,
+        "mature": true,
+        "one_customer_points": 33.3,
+        "month_3": {
+          "reached": true,
+          "k": 3,
+          "n": 3,
+          "pct": 100,
+          "display": "3 of 3 (100%)"
+        },
+        "month_6": {
+          "reached": true,
+          "k": 3,
+          "n": 3,
+          "pct": 100,
+          "display": "3 of 3 (100%)"
+        },
+        "month_9": {
+          "reached": true,
+          "k": 3,
+          "n": 3,
+          "pct": 100,
+          "display": "3 of 3 (100%)"
+        },
+        "month_12": {
+          "reached": true,
+          "k": 3,
+          "n": 3,
+          "pct": 100,
+          "display": "3 of 3 (100%)"
+        },
+        "revenue_kept_month_12": {
+          "reached": true,
+          "kept_fee": 9600,
+          "starting_fee": 9600,
+          "share": 1,
+          "pct": 100,
+          "label": "revenue kept at starting fees, no expansion"
+        }
+      }
+    ],
+    "window": {
+      "start": "2025-09-30",
+      "end": "2026-09-30",
+      "base": 13,
+      "lost": 0,
+      "kept": 13,
+      "kept_share": 1,
+      "loss_share": 0
+    },
+    "groups": [
+      {
+        "name": "3PL warehouses",
+        "kind": "segment",
+        "total_rows": 13,
+        "base": 13,
+        "lost": 0,
+        "kept": 13,
+        "kept_share": 1,
+        "kept_pct": 100,
+        "share_of_losses": 0,
+        "share_of_losses_pct": 0,
+        "share_of_base": 1,
+        "share_of_base_pct": 100,
+        "loses_more_than_share": false,
+        "line_pass": true,
+        "losses_to_fail": 3,
+        "lead_not_proof": true,
+        "too_few_customers": false,
+        "verdict": "CAPPED_TEST",
+        "verdict_note": "lead, not proof (3 losses to fail); measure cost per opportunity, not growth"
+      }
+    ],
+    "money": {
+      "enabled": true,
+      "gross_margin": 0.72,
+      "months_seen": 23,
+      "paid_cac": 21000,
+      "blended_cac": null,
+      "test_cap": null,
+      "win_rate_floor": null,
+      "win_rate_target": null,
+      "whole_base": {
+        "name": "All customers (whole base)",
+        "base": 13,
+        "kept": 13,
+        "lost": 0,
+        "average_monthly_fee": 3200,
+        "monthly_margin": 2304,
+        "monthly_churn": 0,
+        "months_seen": 23,
+        "capped_ltv": 52992,
+        "required_paid_cac": 27648,
+        "payback_months": 9.114583333333334,
+        "ltv_to_paid_cac": 2.5234285714285716,
+        "ltv_to_blended_cac": null,
+        "go_count": null,
+        "stop_count": null
+      },
+      "by_group": {
+        "3PL warehouses": {
+          "name": "3PL warehouses",
+          "base": 13,
+          "kept": 13,
+          "lost": 0,
+          "average_monthly_fee": 3200,
+          "monthly_margin": 2304,
+          "monthly_churn": 0,
+          "months_seen": 23,
+          "capped_ltv": 52992,
+          "required_paid_cac": 27648,
+          "payback_months": 9.114583333333334,
+          "ltv_to_paid_cac": 2.5234285714285716,
+          "ltv_to_blended_cac": null,
+          "go_count": null,
+          "stop_count": null
+        }
+      }
+    },
+    "metrics_check": {
+      "items": [],
+      "disagreement": false,
+      "implied_annual_retention_pct": null,
+      "reported_annual_retention_pct": null,
+      "note": null
+    },
+    "handoff": {
+      "retention_playbook": {
+        "customer_segment": "3PL warehouses",
+        "business_model": "saas_subscription",
+        "current_churn_rate": "0.0% monthly",
+        "churn_reasons": "warehouse paused between seasonal client contracts\nmanager changed shift software",
+        "available_data_signals": "monthly starts, stop dates, monthly fee",
+        "server_loss_share_pct": 0,
+        "playbook_yearly_loss_pct": 0,
+        "use_server_figure_note": null
+      },
+      "customer_interview_kit": {
+        "interview_type": "churn",
+        "product_context": "Helix Warehouse Pulse, shift scheduling for fulfillment centers",
+        "target_persona": "VP of Warehouse Operations at a 3PL",
+        "key_hypotheses": "Customers leave because warehouse paused between seasonal client contracts; Customers leave because manager changed shift software",
+        "hypotheses_list": [
+          "Customers leave because warehouse paused between seasonal client contracts",
+          "Customers leave because manager changed shift software"
+        ],
+        "lost_to_call": 0
+      }
+    },
+    "next_steps": {
+      "week_1_date": "2026-10-07",
+      "interviews_done_date": "2026-10-28",
+      "capped_test_start_date": "2026-11-04",
+      "decide_again_date": "2026-12-29",
+      "capped_test_groups": [
+        "3PL warehouses"
+      ]
+    }
+  },
+  "rt03-single-segment-all-customers.json": {
+    "as_of": "2026-09-30",
+    "billing_term": "monthly",
+    "stop_line": 0.8,
+    "stop_line_is_default": true,
+    "payback_line_months": 12,
+    "payback_line_is_default": true,
+    "echo": {
+      "rows_received": 15,
+      "rows_used": 15,
+      "rows_rejected": 0,
+      "paying_on_as_of": 13,
+      "mrr_on_as_of": 32500,
+      "earliest_signed": "2025-01-10",
+      "latest_signed": "2025-09-12"
+    },
+    "rejected_rows": [],
+    "pending_customers": [],
+    "paused_customers": [],
+    "stop_rule": {
+      "base_verdict": "HOLD",
+      "mature_cohort_count": 3,
+      "shape_test_skipped": false,
+      "evaluated_cohorts": [
+        {
+          "quarter": "2025-Q2",
+          "n": 6,
+          "k6": 6,
+          "k12": 5,
+          "kept_share_m12": 0.8333333333333334,
+          "kept_pct_m12": 83,
+          "line_pass": true,
+          "lost_1_6": 0,
+          "lost_7_12": 1,
+          "shape_pass": false,
+          "one_customer_points": 16.7
+        },
+        {
+          "quarter": "2025-Q3",
+          "n": 3,
+          "k6": 3,
+          "k12": 3,
+          "kept_share_m12": 1,
+          "kept_pct_m12": 100,
+          "line_pass": true,
+          "lost_1_6": 0,
+          "lost_7_12": 0,
+          "shape_pass": true,
+          "one_customer_points": 33.3
+        }
+      ]
+    },
+    "cohorts": [
+      {
+        "quarter": "2025-Q1",
+        "n": 6,
+        "mature": true,
+        "one_customer_points": 16.7,
+        "month_3": {
+          "reached": true,
+          "k": 6,
+          "n": 6,
+          "pct": 100,
+          "display": "6 of 6 (100%)"
+        },
+        "month_6": {
+          "reached": true,
+          "k": 6,
+          "n": 6,
+          "pct": 100,
+          "display": "6 of 6 (100%)"
+        },
+        "month_9": {
+          "reached": true,
+          "k": 6,
+          "n": 6,
+          "pct": 100,
+          "display": "6 of 6 (100%)"
+        },
+        "month_12": {
+          "reached": true,
+          "k": 5,
+          "n": 6,
+          "pct": 83,
+          "display": "5 of 6 (83%)"
+        },
+        "revenue_kept_month_12": {
+          "reached": true,
+          "kept_fee": 12500,
+          "starting_fee": 15000,
+          "share": 0.8333333333333334,
+          "pct": 83,
+          "label": "revenue kept at starting fees, no expansion"
+        }
+      },
+      {
+        "quarter": "2025-Q2",
+        "n": 6,
+        "mature": true,
+        "one_customer_points": 16.7,
+        "month_3": {
+          "reached": true,
+          "k": 6,
+          "n": 6,
+          "pct": 100,
+          "display": "6 of 6 (100%)"
+        },
+        "month_6": {
+          "reached": true,
+          "k": 6,
+          "n": 6,
+          "pct": 100,
+          "display": "6 of 6 (100%)"
+        },
+        "month_9": {
+          "reached": true,
+          "k": 6,
+          "n": 6,
+          "pct": 100,
+          "display": "6 of 6 (100%)"
+        },
+        "month_12": {
+          "reached": true,
+          "k": 5,
+          "n": 6,
+          "pct": 83,
+          "display": "5 of 6 (83%)"
+        },
+        "revenue_kept_month_12": {
+          "reached": true,
+          "kept_fee": 12500,
+          "starting_fee": 15000,
+          "share": 0.8333333333333334,
+          "pct": 83,
+          "label": "revenue kept at starting fees, no expansion"
+        }
+      },
+      {
+        "quarter": "2025-Q3",
+        "n": 3,
+        "mature": true,
+        "one_customer_points": 33.3,
+        "month_3": {
+          "reached": true,
+          "k": 3,
+          "n": 3,
+          "pct": 100,
+          "display": "3 of 3 (100%)"
+        },
+        "month_6": {
+          "reached": true,
+          "k": 3,
+          "n": 3,
+          "pct": 100,
+          "display": "3 of 3 (100%)"
+        },
+        "month_9": {
+          "reached": true,
+          "k": 3,
+          "n": 3,
+          "pct": 100,
+          "display": "3 of 3 (100%)"
+        },
+        "month_12": {
+          "reached": true,
+          "k": 3,
+          "n": 3,
+          "pct": 100,
+          "display": "3 of 3 (100%)"
+        },
+        "revenue_kept_month_12": {
+          "reached": true,
+          "kept_fee": 7500,
+          "starting_fee": 7500,
+          "share": 1,
+          "pct": 100,
+          "label": "revenue kept at starting fees, no expansion"
+        }
+      }
+    ],
+    "window": {
+      "start": "2025-09-30",
+      "end": "2026-09-30",
+      "base": 15,
+      "lost": 2,
+      "kept": 13,
+      "kept_share": 0.8666666666666667,
+      "loss_share": 0.13333333333333333
+    },
+    "groups": [
+      {
+        "name": "Mid-market SaaS finance",
+        "kind": "segment",
+        "total_rows": 15,
+        "base": 15,
+        "lost": 2,
+        "kept": 13,
+        "kept_share": 0.8666666666666667,
+        "kept_pct": 87,
+        "share_of_losses": 1,
+        "share_of_losses_pct": 100,
+        "share_of_base": 1,
+        "share_of_base_pct": 100,
+        "loses_more_than_share": false,
+        "line_pass": true,
+        "losses_to_fail": 2,
+        "lead_not_proof": true,
+        "too_few_customers": false,
+        "verdict": "CAPPED_TEST",
+        "verdict_note": "lead, not proof (2 losses to fail); measure cost per opportunity, not growth"
+      }
+    ],
+    "money": {
+      "enabled": true,
+      "gross_margin": 0.8,
+      "months_seen": 20,
+      "paid_cac": 20000,
+      "blended_cac": null,
+      "test_cap": null,
+      "win_rate_floor": null,
+      "win_rate_target": null,
+      "whole_base": {
+        "name": "All customers (whole base)",
+        "base": 15,
+        "kept": 13,
+        "lost": 2,
+        "average_monthly_fee": 2500,
+        "monthly_margin": 2000,
+        "monthly_churn": 0.011854248450581695,
+        "months_seen": 20,
+        "capped_ltv": 35800.231510094294,
+        "required_paid_cac": 24000,
+        "payback_months": 10,
+        "ltv_to_paid_cac": 1.7900115755047148,
+        "ltv_to_blended_cac": null,
+        "go_count": null,
+        "stop_count": null
+      },
+      "by_group": {
+        "Mid-market SaaS finance": {
+          "name": "Mid-market SaaS finance",
+          "base": 15,
+          "kept": 13,
+          "lost": 2,
+          "average_monthly_fee": 2500,
+          "monthly_margin": 2000,
+          "monthly_churn": 0.011854248450581695,
+          "months_seen": 20,
+          "capped_ltv": 35800.231510094294,
+          "required_paid_cac": 24000,
+          "payback_months": 10,
+          "ltv_to_paid_cac": 1.7900115755047148,
+          "ltv_to_blended_cac": null,
+          "go_count": null,
+          "stop_count": null
+        }
+      }
+    },
+    "metrics_check": {
+      "items": [],
+      "disagreement": false,
+      "implied_annual_retention_pct": null,
+      "reported_annual_retention_pct": null,
+      "note": null
+    },
+    "handoff": {
+      "retention_playbook": {
+        "customer_segment": "Mid-market SaaS finance",
+        "business_model": "saas_subscription",
+        "current_churn_rate": "1.2% monthly",
+        "churn_reasons": "controller migrated ERP and paused reconciliation\ncompany was acquired",
+        "available_data_signals": "monthly starts, stop dates, monthly fee",
+        "server_loss_share_pct": 13.333333333333334,
+        "playbook_yearly_loss_pct": 13.5,
+        "use_server_figure_note": null
+      },
+      "customer_interview_kit": {
+        "interview_type": "churn",
+        "product_context": "Helix Ledger Sync, automated reconciliation for B2B SaaS finance teams",
+        "target_persona": "VP of Finance at a mid-market SaaS company",
+        "key_hypotheses": "Customers leave because controller migrated ERP and paused reconciliation; Customers leave because company was acquired",
+        "hypotheses_list": [
+          "Customers leave because controller migrated ERP and paused reconciliation",
+          "Customers leave because company was acquired"
+        ],
+        "lost_to_call": 2
+      }
+    },
+    "next_steps": {
+      "week_1_date": "2026-10-07",
+      "interviews_done_date": "2026-10-28",
+      "capped_test_start_date": "2026-11-04",
+      "decide_again_date": "2026-12-29",
+      "capped_test_groups": [
+        "Mid-market SaaS finance"
+      ]
+    }
+  },
+  "rt04-group-exactly-five-customers.json": {
+    "as_of": "2026-09-30",
+    "billing_term": "monthly",
+    "stop_line": 0.8,
+    "stop_line_is_default": true,
+    "payback_line_months": 12,
+    "payback_line_is_default": true,
+    "echo": {
+      "rows_received": 9,
+      "rows_used": 9,
+      "rows_rejected": 0,
+      "paying_on_as_of": 8,
+      "mrr_on_as_of": 32000,
+      "earliest_signed": "2025-04-10",
+      "latest_signed": "2025-08-26"
+    },
+    "rejected_rows": [],
+    "pending_customers": [],
+    "paused_customers": [],
+    "stop_rule": {
+      "base_verdict": "HOLD",
+      "mature_cohort_count": 2,
+      "shape_test_skipped": false,
+      "evaluated_cohorts": [
+        {
+          "quarter": "2025-Q2",
+          "n": 5,
+          "k6": 5,
+          "k12": 5,
+          "kept_share_m12": 1,
+          "kept_pct_m12": 100,
+          "line_pass": true,
+          "lost_1_6": 0,
+          "lost_7_12": 0,
+          "shape_pass": true,
+          "one_customer_points": 20
+        },
+        {
+          "quarter": "2025-Q3",
+          "n": 4,
+          "k6": 4,
+          "k12": 3,
+          "kept_share_m12": 0.75,
+          "kept_pct_m12": 75,
+          "line_pass": false,
+          "lost_1_6": 0,
+          "lost_7_12": 1,
+          "shape_pass": false,
+          "one_customer_points": 25
+        }
+      ]
+    },
+    "cohorts": [
+      {
+        "quarter": "2025-Q2",
+        "n": 5,
+        "mature": true,
+        "one_customer_points": 20,
+        "month_3": {
+          "reached": true,
+          "k": 5,
+          "n": 5,
+          "pct": 100,
+          "display": "5 of 5 (100%)"
+        },
+        "month_6": {
+          "reached": true,
+          "k": 5,
+          "n": 5,
+          "pct": 100,
+          "display": "5 of 5 (100%)"
+        },
+        "month_9": {
+          "reached": true,
+          "k": 5,
+          "n": 5,
+          "pct": 100,
+          "display": "5 of 5 (100%)"
+        },
+        "month_12": {
+          "reached": true,
+          "k": 5,
+          "n": 5,
+          "pct": 100,
+          "display": "5 of 5 (100%)"
+        },
+        "revenue_kept_month_12": {
+          "reached": true,
+          "kept_fee": 20000,
+          "starting_fee": 20000,
+          "share": 1,
+          "pct": 100,
+          "label": "revenue kept at starting fees, no expansion"
+        }
+      },
+      {
+        "quarter": "2025-Q3",
+        "n": 4,
+        "mature": true,
+        "one_customer_points": 25,
+        "month_3": {
+          "reached": true,
+          "k": 4,
+          "n": 4,
+          "pct": 100,
+          "display": "4 of 4 (100%)"
+        },
+        "month_6": {
+          "reached": true,
+          "k": 4,
+          "n": 4,
+          "pct": 100,
+          "display": "4 of 4 (100%)"
+        },
+        "month_9": {
+          "reached": true,
+          "k": 3,
+          "n": 4,
+          "pct": 75,
+          "display": "3 of 4 (75%)"
+        },
+        "month_12": {
+          "reached": true,
+          "k": 3,
+          "n": 4,
+          "pct": 75,
+          "display": "3 of 4 (75%)"
+        },
+        "revenue_kept_month_12": {
+          "reached": true,
+          "kept_fee": 12000,
+          "starting_fee": 16000,
+          "share": 0.75,
+          "pct": 75,
+          "label": "revenue kept at starting fees, no expansion"
+        }
+      }
+    ],
+    "window": {
+      "start": "2025-09-30",
+      "end": "2026-09-30",
+      "base": 9,
+      "lost": 1,
+      "kept": 8,
+      "kept_share": 0.8888888888888888,
+      "loss_share": 0.1111111111111111
+    },
+    "groups": [
+      {
+        "name": "Five-customer segment",
+        "kind": "segment",
+        "total_rows": 5,
+        "base": 5,
+        "lost": 1,
+        "kept": 4,
+        "kept_share": 0.8,
+        "kept_pct": 80,
+        "share_of_losses": 1,
+        "share_of_losses_pct": 100,
+        "share_of_base": 0.5555555555555556,
+        "share_of_base_pct": 56,
+        "loses_more_than_share": true,
+        "line_pass": true,
+        "losses_to_fail": 1,
+        "lead_not_proof": true,
+        "too_few_customers": false,
+        "verdict": "CAPPED_TEST",
+        "verdict_note": "lead, not proof (1 loss to fail); measure cost per opportunity, not growth"
+      },
+      {
+        "name": "Four-customer segment",
+        "kind": "segment",
+        "total_rows": 4,
+        "base": 4,
+        "lost": 0,
+        "kept": 4,
+        "kept_share": 1,
+        "kept_pct": 100,
+        "share_of_losses": 0,
+        "share_of_losses_pct": 0,
+        "share_of_base": 0.4444444444444444,
+        "share_of_base_pct": 44,
+        "loses_more_than_share": false,
+        "line_pass": null,
+        "losses_to_fail": null,
+        "lead_not_proof": false,
+        "too_few_customers": true,
+        "verdict": "NO_VERDICT",
+        "verdict_note": "too few customers to read"
+      }
+    ],
+    "money": {
+      "enabled": true,
+      "gross_margin": 0.75,
+      "months_seen": 17,
+      "paid_cac": 24000,
+      "blended_cac": null,
+      "test_cap": null,
+      "win_rate_floor": null,
+      "win_rate_target": null,
+      "whole_base": {
+        "name": "All customers (whole base)",
+        "base": 9,
+        "kept": 8,
+        "lost": 1,
+        "average_monthly_fee": 4000,
+        "monthly_margin": 3000,
+        "monthly_churn": 0.009767240588880566,
+        "months_seen": 17,
+        "capped_ltv": 47203.09253275978,
+        "required_paid_cac": 36000,
+        "payback_months": 8,
+        "ltv_to_paid_cac": 1.9667955221983242,
+        "ltv_to_blended_cac": null,
+        "go_count": null,
+        "stop_count": null
+      },
+      "by_group": {
+        "Five-customer segment": {
+          "name": "Five-customer segment",
+          "base": 5,
+          "kept": 4,
+          "lost": 1,
+          "average_monthly_fee": 4000,
+          "monthly_margin": 3000,
+          "monthly_churn": 0.018423470126248342,
+          "months_seen": 17,
+          "capped_ltv": 44133.06274209198,
+          "required_paid_cac": 36000,
+          "payback_months": 8,
+          "ltv_to_paid_cac": 1.8388776142538323,
+          "ltv_to_blended_cac": null,
+          "go_count": null,
+          "stop_count": null
+        },
+        "Four-customer segment": {
+          "name": "Four-customer segment",
+          "base": 4,
+          "kept": 4,
+          "lost": 0,
+          "average_monthly_fee": 4000,
+          "monthly_margin": 3000,
+          "monthly_churn": 0,
+          "months_seen": 17,
+          "capped_ltv": 51000,
+          "required_paid_cac": 36000,
+          "payback_months": 8,
+          "ltv_to_paid_cac": 2.125,
+          "ltv_to_blended_cac": null,
+          "go_count": null,
+          "stop_count": null
+        }
+      }
+    },
+    "metrics_check": {
+      "items": [],
+      "disagreement": false,
+      "implied_annual_retention_pct": null,
+      "reported_annual_retention_pct": null,
+      "note": null
+    },
+    "handoff": {
+      "retention_playbook": {
+        "customer_segment": "Five-customer segment",
+        "business_model": "saas_subscription",
+        "current_churn_rate": "1.0% monthly",
+        "churn_reasons": "security review took too long\nprocurement team consolidated vendors",
+        "available_data_signals": "monthly starts, stop dates, monthly fee",
+        "server_loss_share_pct": 11.11111111111111,
+        "playbook_yearly_loss_pct": 11.4,
+        "use_server_figure_note": null
+      },
+      "customer_interview_kit": {
+        "interview_type": "churn",
+        "product_context": "Helix Procurement Guard, vendor risk checks for finance teams",
+        "target_persona": "Head of Procurement at a mid-market enterprise",
+        "key_hypotheses": "Customers leave because security review took too long; Customers leave because procurement team consolidated vendors",
+        "hypotheses_list": [
+          "Customers leave because security review took too long",
+          "Customers leave because procurement team consolidated vendors"
+        ],
+        "lost_to_call": 1
+      }
+    },
+    "next_steps": {
+      "week_1_date": "2026-10-07",
+      "interviews_done_date": "2026-10-28",
+      "capped_test_start_date": "2026-11-04",
+      "decide_again_date": "2026-12-29",
+      "capped_test_groups": [
+        "Five-customer segment"
+      ]
+    }
+  },
+  "rt05-only-one-mature-cohort.json": {
+    "as_of": "2026-08-15",
+    "billing_term": "monthly",
+    "stop_line": 0.8,
+    "stop_line_is_default": true,
+    "payback_line_months": 12,
+    "payback_line_is_default": true,
+    "echo": {
+      "rows_received": 11,
+      "rows_used": 11,
+      "rows_rejected": 0,
+      "paying_on_as_of": 11,
+      "mrr_on_as_of": 33000,
+      "earliest_signed": "2025-04-05",
+      "latest_signed": "2025-08-16"
+    },
+    "rejected_rows": [],
+    "pending_customers": [],
+    "paused_customers": [],
+    "stop_rule": {
+      "base_verdict": "NOT_ENOUGH_HISTORY",
+      "mature_cohort_count": 1,
+      "shape_test_skipped": false,
+      "evaluated_cohorts": [
+        {
+          "quarter": "2025-Q2",
+          "n": 6,
+          "k6": 6,
+          "k12": 6,
+          "kept_share_m12": 1,
+          "kept_pct_m12": 100,
+          "line_pass": true,
+          "lost_1_6": 0,
+          "lost_7_12": 0,
+          "shape_pass": true,
+          "one_customer_points": 16.7
+        }
+      ]
+    },
+    "cohorts": [
+      {
+        "quarter": "2025-Q2",
+        "n": 6,
+        "mature": true,
+        "one_customer_points": 16.7,
+        "month_3": {
+          "reached": true,
+          "k": 6,
+          "n": 6,
+          "pct": 100,
+          "display": "6 of 6 (100%)"
+        },
+        "month_6": {
+          "reached": true,
+          "k": 6,
+          "n": 6,
+          "pct": 100,
+          "display": "6 of 6 (100%)"
+        },
+        "month_9": {
+          "reached": true,
+          "k": 6,
+          "n": 6,
+          "pct": 100,
+          "display": "6 of 6 (100%)"
+        },
+        "month_12": {
+          "reached": true,
+          "k": 6,
+          "n": 6,
+          "pct": 100,
+          "display": "6 of 6 (100%)"
+        },
+        "revenue_kept_month_12": {
+          "reached": true,
+          "kept_fee": 18000,
+          "starting_fee": 18000,
+          "share": 1,
+          "pct": 100,
+          "label": "revenue kept at starting fees, no expansion"
+        }
+      },
+      {
+        "quarter": "2025-Q3",
+        "n": 5,
+        "mature": false,
+        "one_customer_points": 20,
+        "month_3": {
+          "reached": true,
+          "k": 5,
+          "n": 5,
+          "pct": 100,
+          "display": "5 of 5 (100%)"
+        },
+        "month_6": {
+          "reached": true,
+          "k": 5,
+          "n": 5,
+          "pct": 100,
+          "display": "5 of 5 (100%)"
+        },
+        "month_9": {
+          "reached": true,
+          "k": 5,
+          "n": 5,
+          "pct": 100,
+          "display": "5 of 5 (100%)"
+        },
+        "month_12": {
+          "reached": false,
+          "k": null,
+          "n": 5,
+          "pct": null,
+          "display": "not reached"
+        },
+        "revenue_kept_month_12": {
+          "reached": false,
+          "kept_fee": null,
+          "starting_fee": 15000,
+          "share": null,
+          "pct": null,
+          "label": "revenue kept at starting fees, no expansion"
+        }
+      }
+    ],
+    "window": {
+      "start": "2025-08-15",
+      "end": "2026-08-15",
+      "base": 10,
+      "lost": 0,
+      "kept": 10,
+      "kept_share": 1,
+      "loss_share": 0
+    },
+    "groups": [
+      {
+        "name": "Platform teams",
+        "kind": "segment",
+        "total_rows": 11,
+        "base": 10,
+        "lost": 0,
+        "kept": 10,
+        "kept_share": 1,
+        "kept_pct": 100,
+        "share_of_losses": 0,
+        "share_of_losses_pct": 0,
+        "share_of_base": 1,
+        "share_of_base_pct": 100,
+        "loses_more_than_share": false,
+        "line_pass": true,
+        "losses_to_fail": 3,
+        "lead_not_proof": true,
+        "too_few_customers": false,
+        "verdict": "CAPPED_TEST",
+        "verdict_note": "base has NOT_ENOUGH_HISTORY; lead, not proof (3 losses to fail); measure cost per opportunity, not growth"
+      }
+    ],
+    "money": {
+      "enabled": true,
+      "gross_margin": 0.8,
+      "months_seen": 16,
+      "paid_cac": 18000,
+      "blended_cac": null,
+      "test_cap": null,
+      "win_rate_floor": null,
+      "win_rate_target": null,
+      "whole_base": {
+        "name": "All customers (whole base)",
+        "base": 10,
+        "kept": 10,
+        "lost": 0,
+        "average_monthly_fee": 3000,
+        "monthly_margin": 2400,
+        "monthly_churn": 0,
+        "months_seen": 16,
+        "capped_ltv": 38400,
+        "required_paid_cac": 28800,
+        "payback_months": 7.5,
+        "ltv_to_paid_cac": 2.1333333333333333,
+        "ltv_to_blended_cac": null,
+        "go_count": null,
+        "stop_count": null
+      },
+      "by_group": {
+        "Platform teams": {
+          "name": "Platform teams",
+          "base": 10,
+          "kept": 10,
+          "lost": 0,
+          "average_monthly_fee": 3000,
+          "monthly_margin": 2400,
+          "monthly_churn": 0,
+          "months_seen": 16,
+          "capped_ltv": 38400,
+          "required_paid_cac": 28800,
+          "payback_months": 7.5,
+          "ltv_to_paid_cac": 2.1333333333333333,
+          "ltv_to_blended_cac": null,
+          "go_count": null,
+          "stop_count": null
+        }
+      }
+    },
+    "metrics_check": {
+      "items": [],
+      "disagreement": false,
+      "implied_annual_retention_pct": null,
+      "reported_annual_retention_pct": null,
+      "note": null
+    },
+    "handoff": {
+      "retention_playbook": {
+        "customer_segment": "Platform teams",
+        "business_model": "saas_subscription",
+        "current_churn_rate": "0.0% monthly",
+        "churn_reasons": "platform team built native billing alerts\ncluster count shrank",
+        "available_data_signals": "monthly starts, stop dates, monthly fee",
+        "server_loss_share_pct": 0,
+        "playbook_yearly_loss_pct": 0,
+        "use_server_figure_note": null
+      },
+      "customer_interview_kit": {
+        "interview_type": "churn",
+        "product_context": "Helix Cloud Cost Radar, Kubernetes spend alerts for platform teams",
+        "target_persona": "VP of Platform Engineering",
+        "key_hypotheses": "Customers leave because platform team built native billing alerts; Customers leave because cluster count shrank",
+        "hypotheses_list": [
+          "Customers leave because platform team built native billing alerts",
+          "Customers leave because cluster count shrank"
+        ],
+        "lost_to_call": 0
+      }
+    },
+    "next_steps": {
+      "week_1_date": "2026-08-22",
+      "interviews_done_date": "2026-09-12",
+      "capped_test_start_date": "2026-09-19",
+      "decide_again_date": "2026-11-13",
+      "capped_test_groups": [
+        "Platform teams"
+      ]
+    }
+  },
+  "rt06-annual-stop-89-days-pending.json": {
+    "as_of": "2026-09-30",
+    "billing_term": "annual",
+    "stop_line": 0.8,
+    "stop_line_is_default": true,
+    "payback_line_months": 12,
+    "payback_line_is_default": true,
+    "echo": {
+      "rows_received": 11,
+      "rows_used": 11,
+      "rows_rejected": 0,
+      "paying_on_as_of": 10,
+      "mrr_on_as_of": 60000,
+      "earliest_signed": "2025-04-10",
+      "latest_signed": "2025-09-09"
+    },
+    "rejected_rows": [],
+    "pending_customers": [
+      {
+        "id": "RT06_07",
+        "stopped": "2026-07-03",
+        "days_since_stopped": 89,
+        "status": "pending: stopped under 90 days ago"
+      }
+    ],
+    "paused_customers": [],
+    "stop_rule": {
+      "base_verdict": "PASS",
+      "mature_cohort_count": 2,
+      "shape_test_skipped": true,
+      "evaluated_cohorts": [
+        {
+          "quarter": "2025-Q2",
+          "n": 5,
+          "k6": 5,
+          "k12": 5,
+          "kept_share_m12": 1,
+          "kept_pct_m12": 100,
+          "line_pass": true,
+          "lost_1_6": 0,
+          "lost_7_12": 0,
+          "shape_pass": null,
+          "one_customer_points": 20
+        },
+        {
+          "quarter": "2025-Q3",
+          "n": 6,
+          "k6": 6,
+          "k12": 5,
+          "kept_share_m12": 0.8333333333333334,
+          "kept_pct_m12": 83,
+          "line_pass": true,
+          "lost_1_6": 0,
+          "lost_7_12": 1,
+          "shape_pass": null,
+          "one_customer_points": 16.7
+        }
+      ]
+    },
+    "cohorts": [
+      {
+        "quarter": "2025-Q2",
+        "n": 5,
+        "mature": true,
+        "one_customer_points": 20,
+        "month_3": {
+          "reached": true,
+          "k": 5,
+          "n": 5,
+          "pct": 100,
+          "display": "5 of 5 (100%)"
+        },
+        "month_6": {
+          "reached": true,
+          "k": 5,
+          "n": 5,
+          "pct": 100,
+          "display": "5 of 5 (100%)"
+        },
+        "month_9": {
+          "reached": true,
+          "k": 5,
+          "n": 5,
+          "pct": 100,
+          "display": "5 of 5 (100%)"
+        },
+        "month_12": {
+          "reached": true,
+          "k": 5,
+          "n": 5,
+          "pct": 100,
+          "display": "5 of 5 (100%)"
+        },
+        "revenue_kept_month_12": {
+          "reached": true,
+          "kept_fee": 30000,
+          "starting_fee": 30000,
+          "share": 1,
+          "pct": 100,
+          "label": "revenue kept at starting fees, no expansion"
+        }
+      },
+      {
+        "quarter": "2025-Q3",
+        "n": 6,
+        "mature": true,
+        "one_customer_points": 16.7,
+        "month_3": {
+          "reached": true,
+          "k": 6,
+          "n": 6,
+          "pct": 100,
+          "display": "6 of 6 (100%)"
+        },
+        "month_6": {
+          "reached": true,
+          "k": 6,
+          "n": 6,
+          "pct": 100,
+          "display": "6 of 6 (100%)"
+        },
+        "month_9": {
+          "reached": true,
+          "k": 6,
+          "n": 6,
+          "pct": 100,
+          "display": "6 of 6 (100%)"
+        },
+        "month_12": {
+          "reached": true,
+          "k": 5,
+          "n": 6,
+          "pct": 83,
+          "display": "5 of 6 (83%)"
+        },
+        "revenue_kept_month_12": {
+          "reached": true,
+          "kept_fee": 30000,
+          "starting_fee": 36000,
+          "share": 0.8333333333333334,
+          "pct": 83,
+          "label": "revenue kept at starting fees, no expansion"
+        }
+      }
+    ],
+    "window": {
+      "start": "2025-09-30",
+      "end": "2026-09-30",
+      "base": 11,
+      "lost": 1,
+      "kept": 10,
+      "kept_share": 0.9090909090909091,
+      "loss_share": 0.09090909090909091
+    },
+    "groups": [
+      {
+        "name": "Regulated banks",
+        "kind": "segment",
+        "total_rows": 11,
+        "base": 11,
+        "lost": 1,
+        "kept": 10,
+        "kept_share": 0.9090909090909091,
+        "kept_pct": 91,
+        "share_of_losses": 1,
+        "share_of_losses_pct": 100,
+        "share_of_base": 1,
+        "share_of_base_pct": 100,
+        "loses_more_than_share": false,
+        "line_pass": true,
+        "losses_to_fail": 2,
+        "lead_not_proof": true,
+        "too_few_customers": false,
+        "verdict": "CAPPED_TEST",
+        "verdict_note": "lead, not proof (2 losses to fail); measure cost per opportunity, not growth"
+      }
+    ],
+    "money": {
+      "enabled": true,
+      "gross_margin": 0.78,
+      "months_seen": 17,
+      "paid_cac": 36000,
+      "blended_cac": null,
+      "test_cap": null,
+      "win_rate_floor": null,
+      "win_rate_target": null,
+      "whole_base": {
+        "name": "All customers (whole base)",
+        "base": 11,
+        "kept": 10,
+        "lost": 1,
+        "average_monthly_fee": 6000,
+        "monthly_margin": 4680,
+        "monthly_churn": 0.007911056553009055,
+        "months_seen": 17,
+        "capped_ltv": 74718.53754618364,
+        "required_paid_cac": 56160,
+        "payback_months": 7.6923076923076925,
+        "ltv_to_paid_cac": 2.0755149318384345,
+        "ltv_to_blended_cac": null,
+        "go_count": null,
+        "stop_count": null
+      },
+      "by_group": {
+        "Regulated banks": {
+          "name": "Regulated banks",
+          "base": 11,
+          "kept": 10,
+          "lost": 1,
+          "average_monthly_fee": 6000,
+          "monthly_margin": 4680,
+          "monthly_churn": 0.007911056553009055,
+          "months_seen": 17,
+          "capped_ltv": 74718.53754618364,
+          "required_paid_cac": 56160,
+          "payback_months": 7.6923076923076925,
+          "ltv_to_paid_cac": 2.0755149318384345,
+          "ltv_to_blended_cac": null,
+          "go_count": null,
+          "stop_count": null
+        }
+      }
+    },
+    "metrics_check": {
+      "items": [],
+      "disagreement": false,
+      "implied_annual_retention_pct": null,
+      "reported_annual_retention_pct": null,
+      "note": null
+    },
+    "handoff": {
+      "retention_playbook": {
+        "customer_segment": "Regulated banks",
+        "business_model": "enterprise_contract",
+        "current_churn_rate": "0.8% monthly",
+        "churn_reasons": "annual renewal stalled in procurement\nbank merged with another institution",
+        "available_data_signals": "monthly starts, stop dates, monthly fee",
+        "server_loss_share_pct": 9.090909090909092,
+        "playbook_yearly_loss_pct": 9.2,
+        "use_server_figure_note": null
+      },
+      "customer_interview_kit": {
+        "interview_type": "churn",
+        "product_context": "Helix Compliance Vault, audit evidence collection for banks",
+        "target_persona": "Chief Compliance Officer at a regulated bank",
+        "key_hypotheses": "Customers leave because annual renewal stalled in procurement; Customers leave because bank merged with another institution",
+        "hypotheses_list": [
+          "Customers leave because annual renewal stalled in procurement",
+          "Customers leave because bank merged with another institution"
+        ],
+        "lost_to_call": 1
+      }
+    },
+    "next_steps": {
+      "week_1_date": "2026-10-07",
+      "interviews_done_date": "2026-10-28",
+      "capped_test_start_date": "2026-11-04",
+      "decide_again_date": "2026-12-29",
+      "capped_test_groups": [
+        "Regulated banks"
+      ]
+    }
+  },
+  "rt07-monthly-fee-zero-and-negative.json": {
+    "as_of": "2026-04-30",
+    "billing_term": "monthly",
+    "stop_line": 0.8,
+    "stop_line_is_default": true,
+    "payback_line_months": 12,
+    "payback_line_is_default": true,
+    "echo": {
+      "rows_received": 14,
+      "rows_used": 10,
+      "rows_rejected": 4,
+      "paying_on_as_of": 9,
+      "mrr_on_as_of": 18000,
+      "earliest_signed": "2025-01-18",
+      "latest_signed": "2025-02-26"
+    },
+    "rejected_rows": [
+      {
+        "id": "R07-01",
+        "index": 0,
+        "reason": "monthly_fee (0) is <= 0"
+      },
+      {
+        "id": "R07-02",
+        "index": 1,
+        "reason": "monthly_fee (-100) is <= 0"
+      },
+      {
+        "id": "R07-03",
+        "index": 2,
+        "reason": "monthly_fee (-0.01) is <= 0"
+      },
+      {
+        "id": "R07-09",
+        "index": 8,
+        "reason": "monthly_fee (0) is <= 0"
+      }
+    ],
+    "pending_customers": [],
+    "paused_customers": [],
+    "stop_rule": {
+      "base_verdict": "NOT_ENOUGH_HISTORY",
+      "mature_cohort_count": 1,
+      "shape_test_skipped": false,
+      "evaluated_cohorts": [
+        {
+          "quarter": "2025-Q1",
+          "n": 10,
+          "k6": 9,
+          "k12": 9,
+          "kept_share_m12": 0.9,
+          "kept_pct_m12": 90,
+          "line_pass": true,
+          "lost_1_6": 1,
+          "lost_7_12": 0,
+          "shape_pass": true,
+          "one_customer_points": 10
+        }
+      ]
+    },
+    "cohorts": [
+      {
+        "quarter": "2025-Q1",
+        "n": 10,
+        "mature": true,
+        "one_customer_points": 10,
+        "month_3": {
+          "reached": true,
+          "k": 9,
+          "n": 10,
+          "pct": 90,
+          "display": "9 of 10 (90%)"
+        },
+        "month_6": {
+          "reached": true,
+          "k": 9,
+          "n": 10,
+          "pct": 90,
+          "display": "9 of 10 (90%)"
+        },
+        "month_9": {
+          "reached": true,
+          "k": 9,
+          "n": 10,
+          "pct": 90,
+          "display": "9 of 10 (90%)"
+        },
+        "month_12": {
+          "reached": true,
+          "k": 9,
+          "n": 10,
+          "pct": 90,
+          "display": "9 of 10 (90%)"
+        },
+        "revenue_kept_month_12": {
+          "reached": true,
+          "kept_fee": 18000,
+          "starting_fee": 20000,
+          "share": 0.9,
+          "pct": 90,
+          "label": "revenue kept at starting fees, no expansion"
+        }
+      }
+    ],
+    "window": {
+      "start": "2025-04-30",
+      "end": "2026-04-30",
+      "base": 9,
+      "lost": 0,
+      "kept": 9,
+      "kept_share": 1,
+      "loss_share": 0
+    },
+    "groups": [
+      {
+        "name": "core",
+        "kind": "segment",
+        "total_rows": 10,
+        "base": 9,
+        "lost": 0,
+        "kept": 9,
+        "kept_share": 1,
+        "kept_pct": 100,
+        "share_of_losses": 0,
+        "share_of_losses_pct": 0,
+        "share_of_base": 1,
+        "share_of_base_pct": 100,
+        "loses_more_than_share": false,
+        "line_pass": true,
+        "losses_to_fail": 2,
+        "lead_not_proof": true,
+        "too_few_customers": false,
+        "verdict": "CAPPED_TEST",
+        "verdict_note": "base has NOT_ENOUGH_HISTORY; lead, not proof (2 losses to fail); measure cost per opportunity, not growth"
+      }
+    ],
+    "money": {
+      "enabled": true,
+      "gross_margin": 0.8,
+      "months_seen": 15,
+      "paid_cac": 12000,
+      "blended_cac": null,
+      "test_cap": 60000,
+      "win_rate_floor": 0.15,
+      "win_rate_target": 0.25,
+      "whole_base": {
+        "name": "All customers (whole base)",
+        "base": 9,
+        "kept": 9,
+        "lost": 0,
+        "average_monthly_fee": 2000,
+        "monthly_margin": 1600,
+        "monthly_churn": 0,
+        "months_seen": 15,
+        "capped_ltv": 24000,
+        "required_paid_cac": 19200,
+        "payback_months": 7.5,
+        "ltv_to_paid_cac": 2,
+        "ltv_to_blended_cac": null,
+        "go_count": 21,
+        "stop_count": 12
+      },
+      "by_group": {
+        "core": {
+          "name": "core",
+          "base": 9,
+          "kept": 9,
+          "lost": 0,
+          "average_monthly_fee": 2000,
+          "monthly_margin": 1600,
+          "monthly_churn": 0,
+          "months_seen": 15,
+          "capped_ltv": 24000,
+          "required_paid_cac": 19200,
+          "payback_months": 7.5,
+          "ltv_to_paid_cac": 2,
+          "ltv_to_blended_cac": null,
+          "go_count": 21,
+          "stop_count": 12
+        }
+      }
+    },
+    "metrics_check": {
+      "items": [],
+      "disagreement": false,
+      "implied_annual_retention_pct": null,
+      "reported_annual_retention_pct": null,
+      "note": null
+    },
+    "handoff": {
+      "retention_playbook": {
+        "customer_segment": "core",
+        "business_model": "saas_subscription",
+        "current_churn_rate": "0.0% monthly",
+        "churn_reasons": "champion left\nswitched to internal tool\nlow seat adoption",
+        "available_data_signals": "monthly starts, stop dates, monthly fee",
+        "server_loss_share_pct": 0,
+        "playbook_yearly_loss_pct": 0,
+        "use_server_figure_note": null
+      },
+      "customer_interview_kit": {
+        "interview_type": "churn",
+        "product_context": "RedTeam Case 07: Monthly Fee Zero and Negative",
+        "target_persona": "VP of Operations at mid-market SaaS buyers",
+        "key_hypotheses": "Customers leave because champion left; Customers leave because switched to internal tool; Customers leave because low seat adoption",
+        "hypotheses_list": [
+          "Customers leave because champion left",
+          "Customers leave because switched to internal tool",
+          "Customers leave because low seat adoption"
+        ],
+        "lost_to_call": 0
+      }
+    },
+    "next_steps": {
+      "week_1_date": "2026-05-07",
+      "interviews_done_date": "2026-05-28",
+      "capped_test_start_date": "2026-06-04",
+      "decide_again_date": "2026-07-29",
+      "capped_test_groups": [
+        "core"
+      ]
+    }
+  },
+  "rt08-duplicate-customer-ids.json": {
+    "as_of": "2026-04-30",
+    "billing_term": "monthly",
+    "stop_line": 0.8,
+    "stop_line_is_default": true,
+    "payback_line_months": 12,
+    "payback_line_is_default": true,
+    "echo": {
+      "rows_received": 13,
+      "rows_used": 10,
+      "rows_rejected": 3,
+      "paying_on_as_of": 9,
+      "mrr_on_as_of": 22500,
+      "earliest_signed": "2025-01-10",
+      "latest_signed": "2025-02-25"
+    },
+    "rejected_rows": [
+      {
+        "id": "DUP-01",
+        "index": 1,
+        "reason": "id repeats (duplicate id)"
+      },
+      {
+        "id": "DUP-01",
+        "index": 2,
+        "reason": "id repeats (duplicate id)"
+      },
+      {
+        "id": "DUP-05",
+        "index": 7,
+        "reason": "id repeats (duplicate id)"
+      }
+    ],
+    "pending_customers": [],
+    "paused_customers": [],
+    "stop_rule": {
+      "base_verdict": "NOT_ENOUGH_HISTORY",
+      "mature_cohort_count": 1,
+      "shape_test_skipped": false,
+      "evaluated_cohorts": [
+        {
+          "quarter": "2025-Q1",
+          "n": 10,
+          "k6": 9,
+          "k12": 9,
+          "kept_share_m12": 0.9,
+          "kept_pct_m12": 90,
+          "line_pass": true,
+          "lost_1_6": 1,
+          "lost_7_12": 0,
+          "shape_pass": true,
+          "one_customer_points": 10
+        }
+      ]
+    },
+    "cohorts": [
+      {
+        "quarter": "2025-Q1",
+        "n": 10,
+        "mature": true,
+        "one_customer_points": 10,
+        "month_3": {
+          "reached": true,
+          "k": 9,
+          "n": 10,
+          "pct": 90,
+          "display": "9 of 10 (90%)"
+        },
+        "month_6": {
+          "reached": true,
+          "k": 9,
+          "n": 10,
+          "pct": 90,
+          "display": "9 of 10 (90%)"
+        },
+        "month_9": {
+          "reached": true,
+          "k": 9,
+          "n": 10,
+          "pct": 90,
+          "display": "9 of 10 (90%)"
+        },
+        "month_12": {
+          "reached": true,
+          "k": 9,
+          "n": 10,
+          "pct": 90,
+          "display": "9 of 10 (90%)"
+        },
+        "revenue_kept_month_12": {
+          "reached": true,
+          "kept_fee": 22500,
+          "starting_fee": 25000,
+          "share": 0.9,
+          "pct": 90,
+          "label": "revenue kept at starting fees, no expansion"
+        }
+      }
+    ],
+    "window": {
+      "start": "2025-04-30",
+      "end": "2026-04-30",
+      "base": 9,
+      "lost": 0,
+      "kept": 9,
+      "kept_share": 1,
+      "loss_share": 0
+    },
+    "groups": [
+      {
+        "name": "mid_market",
+        "kind": "segment",
+        "total_rows": 10,
+        "base": 9,
+        "lost": 0,
+        "kept": 9,
+        "kept_share": 1,
+        "kept_pct": 100,
+        "share_of_losses": 0,
+        "share_of_losses_pct": 0,
+        "share_of_base": 1,
+        "share_of_base_pct": 100,
+        "loses_more_than_share": false,
+        "line_pass": true,
+        "losses_to_fail": 2,
+        "lead_not_proof": true,
+        "too_few_customers": false,
+        "verdict": "CAPPED_TEST",
+        "verdict_note": "base has NOT_ENOUGH_HISTORY; lead, not proof (2 losses to fail); measure cost per opportunity, not growth"
+      }
+    ],
+    "money": {
+      "enabled": true,
+      "gross_margin": 0.8,
+      "months_seen": 15,
+      "paid_cac": 14000,
+      "blended_cac": null,
+      "test_cap": 70000,
+      "win_rate_floor": 0.15,
+      "win_rate_target": 0.25,
+      "whole_base": {
+        "name": "All customers (whole base)",
+        "base": 9,
+        "kept": 9,
+        "lost": 0,
+        "average_monthly_fee": 2500,
+        "monthly_margin": 2000,
+        "monthly_churn": 0,
+        "months_seen": 15,
+        "capped_ltv": 30000,
+        "required_paid_cac": 24000,
+        "payback_months": 7,
+        "ltv_to_paid_cac": 2.142857142857143,
+        "ltv_to_blended_cac": null,
+        "go_count": 20,
+        "stop_count": 11
+      },
+      "by_group": {
+        "mid_market": {
+          "name": "mid_market",
+          "base": 9,
+          "kept": 9,
+          "lost": 0,
+          "average_monthly_fee": 2500,
+          "monthly_margin": 2000,
+          "monthly_churn": 0,
+          "months_seen": 15,
+          "capped_ltv": 30000,
+          "required_paid_cac": 24000,
+          "payback_months": 7,
+          "ltv_to_paid_cac": 2.142857142857143,
+          "ltv_to_blended_cac": null,
+          "go_count": 20,
+          "stop_count": 11
+        }
+      }
+    },
+    "metrics_check": {
+      "items": [],
+      "disagreement": false,
+      "implied_annual_retention_pct": null,
+      "reported_annual_retention_pct": null,
+      "note": null
+    },
+    "handoff": {
+      "retention_playbook": {
+        "customer_segment": "mid_market",
+        "business_model": "saas_subscription",
+        "current_churn_rate": "0.0% monthly",
+        "churn_reasons": "duplicate CRM export rows\nchampion changed roles\nbudget freeze",
+        "available_data_signals": "monthly starts, stop dates, monthly fee",
+        "server_loss_share_pct": 0,
+        "playbook_yearly_loss_pct": 0,
+        "use_server_figure_note": null
+      },
+      "customer_interview_kit": {
+        "interview_type": "churn",
+        "product_context": "RedTeam Case 08: Duplicate Customer IDs",
+        "target_persona": "Head of Revenue Operations at B2B SaaS firms",
+        "key_hypotheses": "Customers leave because duplicate CRM export rows; Customers leave because champion changed roles; Customers leave because budget freeze",
+        "hypotheses_list": [
+          "Customers leave because duplicate CRM export rows",
+          "Customers leave because champion changed roles",
+          "Customers leave because budget freeze"
+        ],
+        "lost_to_call": 0
+      }
+    },
+    "next_steps": {
+      "week_1_date": "2026-05-07",
+      "interviews_done_date": "2026-05-28",
+      "capped_test_start_date": "2026-06-04",
+      "decide_again_date": "2026-07-29",
+      "capped_test_groups": [
+        "mid_market"
+      ]
+    }
+  },
+  "rt09-invalid-date-formats.json": {
+    "as_of": "2026-04-30",
+    "billing_term": "monthly",
+    "stop_line": 0.8,
+    "stop_line_is_default": true,
+    "payback_line_months": 12,
+    "payback_line_is_default": true,
+    "echo": {
+      "rows_received": 17,
+      "rows_used": 10,
+      "rows_rejected": 7,
+      "paying_on_as_of": 9,
+      "mrr_on_as_of": 18000,
+      "earliest_signed": "2025-01-10",
+      "latest_signed": "2025-02-25"
+    },
+    "rejected_rows": [
+      {
+        "id": "BAD-SLASH",
+        "index": 0,
+        "reason": "signed (2025/01/15) is not a real YYYY-MM-DD date"
+      },
+      {
+        "id": "BAD-DMY",
+        "index": 1,
+        "reason": "signed (15-01-2025) is not a real YYYY-MM-DD date"
+      },
+      {
+        "id": "BAD-NONLEAP",
+        "index": 2,
+        "reason": "signed (2025-02-29) is not a real YYYY-MM-DD date"
+      },
+      {
+        "id": "BAD-APR31",
+        "index": 3,
+        "reason": "stopped (2025-04-31) is not a real YYYY-MM-DD date"
+      },
+      {
+        "id": "BAD-FUTURE-SIGN",
+        "index": 4,
+        "reason": "signed (2026-05-01) is after as_of (2026-04-30)"
+      },
+      {
+        "id": "BAD-STOP-BEFORE-SIGN",
+        "index": 5,
+        "reason": "stopped (2025-02-10) is before signed (2025-03-10)"
+      },
+      {
+        "id": "BAD-RESUME-BEFORE-STOP",
+        "index": 6,
+        "reason": "resumed (2025-05-10) is before stopped (2025-06-10)"
+      }
+    ],
+    "pending_customers": [],
+    "paused_customers": [],
+    "stop_rule": {
+      "base_verdict": "NOT_ENOUGH_HISTORY",
+      "mature_cohort_count": 1,
+      "shape_test_skipped": false,
+      "evaluated_cohorts": [
+        {
+          "quarter": "2025-Q1",
+          "n": 10,
+          "k6": 9,
+          "k12": 9,
+          "kept_share_m12": 0.9,
+          "kept_pct_m12": 90,
+          "line_pass": true,
+          "lost_1_6": 1,
+          "lost_7_12": 0,
+          "shape_pass": true,
+          "one_customer_points": 10
+        }
+      ]
+    },
+    "cohorts": [
+      {
+        "quarter": "2025-Q1",
+        "n": 10,
+        "mature": true,
+        "one_customer_points": 10,
+        "month_3": {
+          "reached": true,
+          "k": 9,
+          "n": 10,
+          "pct": 90,
+          "display": "9 of 10 (90%)"
+        },
+        "month_6": {
+          "reached": true,
+          "k": 9,
+          "n": 10,
+          "pct": 90,
+          "display": "9 of 10 (90%)"
+        },
+        "month_9": {
+          "reached": true,
+          "k": 9,
+          "n": 10,
+          "pct": 90,
+          "display": "9 of 10 (90%)"
+        },
+        "month_12": {
+          "reached": true,
+          "k": 9,
+          "n": 10,
+          "pct": 90,
+          "display": "9 of 10 (90%)"
+        },
+        "revenue_kept_month_12": {
+          "reached": true,
+          "kept_fee": 18000,
+          "starting_fee": 20000,
+          "share": 0.9,
+          "pct": 90,
+          "label": "revenue kept at starting fees, no expansion"
+        }
+      }
+    ],
+    "window": {
+      "start": "2025-04-30",
+      "end": "2026-04-30",
+      "base": 9,
+      "lost": 0,
+      "kept": 9,
+      "kept_share": 1,
+      "loss_share": 0
+    },
+    "groups": [
+      {
+        "name": "core",
+        "kind": "segment",
+        "total_rows": 10,
+        "base": 9,
+        "lost": 0,
+        "kept": 9,
+        "kept_share": 1,
+        "kept_pct": 100,
+        "share_of_losses": 0,
+        "share_of_losses_pct": 0,
+        "share_of_base": 1,
+        "share_of_base_pct": 100,
+        "loses_more_than_share": false,
+        "line_pass": true,
+        "losses_to_fail": 2,
+        "lead_not_proof": true,
+        "too_few_customers": false,
+        "verdict": "CAPPED_TEST",
+        "verdict_note": "base has NOT_ENOUGH_HISTORY; lead, not proof (2 losses to fail); measure cost per opportunity, not growth"
+      }
+    ],
+    "money": {
+      "enabled": true,
+      "gross_margin": 0.78,
+      "months_seen": 15,
+      "paid_cac": 15000,
+      "blended_cac": null,
+      "test_cap": 75000,
+      "win_rate_floor": 0.15,
+      "win_rate_target": 0.25,
+      "whole_base": {
+        "name": "All customers (whole base)",
+        "base": 9,
+        "kept": 9,
+        "lost": 0,
+        "average_monthly_fee": 2000,
+        "monthly_margin": 1560,
+        "monthly_churn": 0,
+        "months_seen": 15,
+        "capped_ltv": 23400,
+        "required_paid_cac": 18720,
+        "payback_months": 9.615384615384615,
+        "ltv_to_paid_cac": 1.56,
+        "ltv_to_blended_cac": null,
+        "go_count": 27,
+        "stop_count": 16
+      },
+      "by_group": {
+        "core": {
+          "name": "core",
+          "base": 9,
+          "kept": 9,
+          "lost": 0,
+          "average_monthly_fee": 2000,
+          "monthly_margin": 1560,
+          "monthly_churn": 0,
+          "months_seen": 15,
+          "capped_ltv": 23400,
+          "required_paid_cac": 18720,
+          "payback_months": 9.615384615384615,
+          "ltv_to_paid_cac": 1.56,
+          "ltv_to_blended_cac": null,
+          "go_count": 27,
+          "stop_count": 16
+        }
+      }
+    },
+    "metrics_check": {
+      "items": [],
+      "disagreement": false,
+      "implied_annual_retention_pct": null,
+      "reported_annual_retention_pct": null,
+      "note": null
+    },
+    "handoff": {
+      "retention_playbook": {
+        "customer_segment": "core",
+        "business_model": "saas_subscription",
+        "current_churn_rate": "0.0% monthly",
+        "churn_reasons": "integration delay\nteam restructure\nscope mismatch",
+        "available_data_signals": "monthly starts, stop dates, monthly fee",
+        "server_loss_share_pct": 0,
+        "playbook_yearly_loss_pct": 0,
+        "use_server_figure_note": null
+      },
+      "customer_interview_kit": {
+        "interview_type": "churn",
+        "product_context": "RedTeam Case 09: Invalid Date Formats and Ordering",
+        "target_persona": "Director of Engineering at mid-size software teams",
+        "key_hypotheses": "Customers leave because integration delay; Customers leave because team restructure; Customers leave because scope mismatch",
+        "hypotheses_list": [
+          "Customers leave because integration delay",
+          "Customers leave because team restructure",
+          "Customers leave because scope mismatch"
+        ],
+        "lost_to_call": 0
+      }
+    },
+    "next_steps": {
+      "week_1_date": "2026-05-07",
+      "interviews_done_date": "2026-05-28",
+      "capped_test_start_date": "2026-06-04",
+      "decide_again_date": "2026-07-29",
+      "capped_test_groups": [
+        "core"
+      ]
+    }
+  },
+  "rt10-churn-reasons-numbers-semicolons.json": {
+    "as_of": "2026-04-30",
+    "billing_term": "monthly",
+    "stop_line": 0.8,
+    "stop_line_is_default": true,
+    "payback_line_months": 12,
+    "payback_line_is_default": true,
+    "echo": {
+      "rows_received": 10,
+      "rows_used": 10,
+      "rows_rejected": 0,
+      "paying_on_as_of": 9,
+      "mrr_on_as_of": 16200,
+      "earliest_signed": "2025-01-08",
+      "latest_signed": "2025-02-24"
+    },
+    "rejected_rows": [],
+    "pending_customers": [],
+    "paused_customers": [],
+    "stop_rule": {
+      "base_verdict": "NOT_ENOUGH_HISTORY",
+      "mature_cohort_count": 1,
+      "shape_test_skipped": false,
+      "evaluated_cohorts": [
+        {
+          "quarter": "2025-Q1",
+          "n": 10,
+          "k6": 9,
+          "k12": 9,
+          "kept_share_m12": 0.9,
+          "kept_pct_m12": 90,
+          "line_pass": true,
+          "lost_1_6": 1,
+          "lost_7_12": 0,
+          "shape_pass": true,
+          "one_customer_points": 10
+        }
+      ]
+    },
+    "cohorts": [
+      {
+        "quarter": "2025-Q1",
+        "n": 10,
+        "mature": true,
+        "one_customer_points": 10,
+        "month_3": {
+          "reached": true,
+          "k": 9,
+          "n": 10,
+          "pct": 90,
+          "display": "9 of 10 (90%)"
+        },
+        "month_6": {
+          "reached": true,
+          "k": 9,
+          "n": 10,
+          "pct": 90,
+          "display": "9 of 10 (90%)"
+        },
+        "month_9": {
+          "reached": true,
+          "k": 9,
+          "n": 10,
+          "pct": 90,
+          "display": "9 of 10 (90%)"
+        },
+        "month_12": {
+          "reached": true,
+          "k": 9,
+          "n": 10,
+          "pct": 90,
+          "display": "9 of 10 (90%)"
+        },
+        "revenue_kept_month_12": {
+          "reached": true,
+          "kept_fee": 16200,
+          "starting_fee": 18000,
+          "share": 0.9,
+          "pct": 90,
+          "label": "revenue kept at starting fees, no expansion"
+        }
+      }
+    ],
+    "window": {
+      "start": "2025-04-30",
+      "end": "2026-04-30",
+      "base": 9,
+      "lost": 0,
+      "kept": 9,
+      "kept_share": 1,
+      "loss_share": 0
+    },
+    "groups": [
+      {
+        "name": "regional_3pl",
+        "kind": "segment",
+        "total_rows": 10,
+        "base": 9,
+        "lost": 0,
+        "kept": 9,
+        "kept_share": 1,
+        "kept_pct": 100,
+        "share_of_losses": 0,
+        "share_of_losses_pct": 0,
+        "share_of_base": 1,
+        "share_of_base_pct": 100,
+        "loses_more_than_share": false,
+        "line_pass": true,
+        "losses_to_fail": 2,
+        "lead_not_proof": true,
+        "too_few_customers": false,
+        "verdict": "CAPPED_TEST",
+        "verdict_note": "base has NOT_ENOUGH_HISTORY; lead, not proof (2 losses to fail); measure cost per opportunity, not growth"
+      }
+    ],
+    "money": {
+      "enabled": true,
+      "gross_margin": 0.8,
+      "months_seen": 15,
+      "paid_cac": 12000,
+      "blended_cac": null,
+      "test_cap": 60000,
+      "win_rate_floor": 0.15,
+      "win_rate_target": 0.25,
+      "whole_base": {
+        "name": "All customers (whole base)",
+        "base": 9,
+        "kept": 9,
+        "lost": 0,
+        "average_monthly_fee": 1800,
+        "monthly_margin": 1440,
+        "monthly_churn": 0,
+        "months_seen": 15,
+        "capped_ltv": 21600,
+        "required_paid_cac": 17280,
+        "payback_months": 8.333333333333334,
+        "ltv_to_paid_cac": 1.8,
+        "ltv_to_blended_cac": null,
+        "go_count": 24,
+        "stop_count": 13
+      },
+      "by_group": {
+        "regional_3pl": {
+          "name": "regional_3pl",
+          "base": 9,
+          "kept": 9,
+          "lost": 0,
+          "average_monthly_fee": 1800,
+          "monthly_margin": 1440,
+          "monthly_churn": 0,
+          "months_seen": 15,
+          "capped_ltv": 21600,
+          "required_paid_cac": 17280,
+          "payback_months": 8.333333333333334,
+          "ltv_to_paid_cac": 1.8,
+          "ltv_to_blended_cac": null,
+          "go_count": 24,
+          "stop_count": 13
+        }
+      }
+    },
+    "metrics_check": {
+      "items": [],
+      "disagreement": false,
+      "implied_annual_retention_pct": null,
+      "reported_annual_retention_pct": null,
+      "note": null
+    },
+    "handoff": {
+      "retention_playbook": {
+        "customer_segment": "regional_3pl",
+        "business_model": "saas_subscription",
+        "current_churn_rate": "0.0% monthly",
+        "churn_reasons": "setup fee of $1,200 felt high for teams under 1,500 shipments\nwarehouse staff skipped mobile scanning\nsales promised an SAP B1 connector\noperations moved back to spreadsheets",
+        "available_data_signals": "monthly starts, stop dates, monthly fee",
+        "server_loss_share_pct": 0,
+        "playbook_yearly_loss_pct": 0,
+        "use_server_figure_note": null
+      },
+      "customer_interview_kit": {
+        "interview_type": "churn",
+        "product_context": "RedTeam Case 10: Churn Reasons with Embedded Commas in Numbers, Semicolons, and Newlines",
+        "target_persona": "VP of Supply Chain at regional distribution firms",
+        "key_hypotheses": "Customers leave because setup fee of $1,200 felt high for teams under 1,500 shipments; Customers leave because warehouse staff skipped mobile scanning; Customers leave because sales promised an SAP B1 connector; Customers leave because operations moved back to spreadsheets",
+        "hypotheses_list": [
+          "Customers leave because setup fee of $1,200 felt high for teams under 1,500 shipments",
+          "Customers leave because warehouse staff skipped mobile scanning",
+          "Customers leave because sales promised an SAP B1 connector",
+          "Customers leave because operations moved back to spreadsheets"
+        ],
+        "lost_to_call": 0
+      }
+    },
+    "next_steps": {
+      "week_1_date": "2026-05-07",
+      "interviews_done_date": "2026-05-28",
+      "capped_test_start_date": "2026-06-04",
+      "decide_again_date": "2026-07-29",
+      "capped_test_groups": [
+        "regional_3pl"
+      ]
+    }
+  },
+  "rt11-blended-cac-below-paid-cac.json": {
+    "as_of": "2026-04-30",
+    "billing_term": "monthly",
+    "stop_line": 0.8,
+    "stop_line_is_default": true,
+    "payback_line_months": 12,
+    "payback_line_is_default": false,
+    "echo": {
+      "rows_received": 12,
+      "rows_used": 12,
+      "rows_rejected": 0,
+      "paying_on_as_of": 11,
+      "mrr_on_as_of": 22000,
+      "earliest_signed": "2025-01-05",
+      "latest_signed": "2025-02-24"
+    },
+    "rejected_rows": [],
+    "pending_customers": [],
+    "paused_customers": [],
+    "stop_rule": {
+      "base_verdict": "NOT_ENOUGH_HISTORY",
+      "mature_cohort_count": 1,
+      "shape_test_skipped": false,
+      "evaluated_cohorts": [
+        {
+          "quarter": "2025-Q1",
+          "n": 12,
+          "k6": 11,
+          "k12": 11,
+          "kept_share_m12": 0.9166666666666666,
+          "kept_pct_m12": 92,
+          "line_pass": true,
+          "lost_1_6": 1,
+          "lost_7_12": 0,
+          "shape_pass": true,
+          "one_customer_points": 8.3
+        }
+      ]
+    },
+    "cohorts": [
+      {
+        "quarter": "2025-Q1",
+        "n": 12,
+        "mature": true,
+        "one_customer_points": 8.3,
+        "month_3": {
+          "reached": true,
+          "k": 11,
+          "n": 12,
+          "pct": 92,
+          "display": "11 of 12 (92%)"
+        },
+        "month_6": {
+          "reached": true,
+          "k": 11,
+          "n": 12,
+          "pct": 92,
+          "display": "11 of 12 (92%)"
+        },
+        "month_9": {
+          "reached": true,
+          "k": 11,
+          "n": 12,
+          "pct": 92,
+          "display": "11 of 12 (92%)"
+        },
+        "month_12": {
+          "reached": true,
+          "k": 11,
+          "n": 12,
+          "pct": 92,
+          "display": "11 of 12 (92%)"
+        },
+        "revenue_kept_month_12": {
+          "reached": true,
+          "kept_fee": 22000,
+          "starting_fee": 24000,
+          "share": 0.9166666666666666,
+          "pct": 92,
+          "label": "revenue kept at starting fees, no expansion"
+        }
+      }
+    ],
+    "window": {
+      "start": "2025-04-30",
+      "end": "2026-04-30",
+      "base": 12,
+      "lost": 1,
+      "kept": 11,
+      "kept_share": 0.9166666666666666,
+      "loss_share": 0.08333333333333333
+    },
+    "groups": [
+      {
+        "name": "growth_saas",
+        "kind": "segment",
+        "total_rows": 12,
+        "base": 12,
+        "lost": 1,
+        "kept": 11,
+        "kept_share": 0.9166666666666666,
+        "kept_pct": 92,
+        "share_of_losses": 1,
+        "share_of_losses_pct": 100,
+        "share_of_base": 1,
+        "share_of_base_pct": 100,
+        "loses_more_than_share": false,
+        "line_pass": true,
+        "losses_to_fail": 2,
+        "lead_not_proof": true,
+        "too_few_customers": false,
+        "verdict": "CAPPED_TEST",
+        "verdict_note": "base has NOT_ENOUGH_HISTORY; lead, not proof (2 losses to fail); measure cost per opportunity, not growth"
+      }
+    ],
+    "money": {
+      "enabled": true,
+      "gross_margin": 0.8,
+      "months_seen": 15,
+      "paid_cac": 36000,
+      "blended_cac": 6000,
+      "test_cap": 90000,
+      "win_rate_floor": 0.15,
+      "win_rate_target": 0.25,
+      "whole_base": {
+        "name": "All customers (whole base)",
+        "base": 12,
+        "kept": 11,
+        "lost": 1,
+        "average_monthly_fee": 2000,
+        "monthly_margin": 1600,
+        "monthly_churn": 0.0072247233813519385,
+        "months_seen": 15,
+        "capped_ltv": 22823.434951580613,
+        "required_paid_cac": 19200,
+        "payback_months": 22.5,
+        "ltv_to_paid_cac": 0.6339843042105726,
+        "ltv_to_blended_cac": 3.8039058252634357,
+        "go_count": 32,
+        "stop_count": 18
+      },
+      "by_group": {
+        "growth_saas": {
+          "name": "growth_saas",
+          "base": 12,
+          "kept": 11,
+          "lost": 1,
+          "average_monthly_fee": 2000,
+          "monthly_margin": 1600,
+          "monthly_churn": 0.0072247233813519385,
+          "months_seen": 15,
+          "capped_ltv": 22823.434951580613,
+          "required_paid_cac": 19200,
+          "payback_months": 22.5,
+          "ltv_to_paid_cac": 0.6339843042105726,
+          "ltv_to_blended_cac": 3.8039058252634357,
+          "go_count": 32,
+          "stop_count": 18
+        }
+      }
+    },
+    "metrics_check": {
+      "items": [],
+      "disagreement": false,
+      "implied_annual_retention_pct": null,
+      "reported_annual_retention_pct": null,
+      "note": null
+    },
+    "handoff": {
+      "retention_playbook": {
+        "customer_segment": "growth_saas",
+        "business_model": "saas_subscription",
+        "current_churn_rate": "0.7% monthly",
+        "churn_reasons": "paid search leads had lower intent than founder referrals\nlong security review",
+        "available_data_signals": "monthly starts, stop dates, monthly fee",
+        "server_loss_share_pct": 8.333333333333332,
+        "playbook_yearly_loss_pct": 8.1,
+        "use_server_figure_note": null
+      },
+      "customer_interview_kit": {
+        "interview_type": "churn",
+        "product_context": "RedTeam Case 11: Blended CAC Passes Payback Line While Paid CAC Fails",
+        "target_persona": "VP of Growth at B2B software companies",
+        "key_hypotheses": "Customers leave because paid search leads had lower intent than founder referrals; Customers leave because long security review",
+        "hypotheses_list": [
+          "Customers leave because paid search leads had lower intent than founder referrals",
+          "Customers leave because long security review"
+        ],
+        "lost_to_call": 1
+      }
+    },
+    "next_steps": {
+      "week_1_date": "2026-05-07",
+      "interviews_done_date": "2026-05-28",
+      "capped_test_start_date": "2026-06-04",
+      "decide_again_date": "2026-07-29",
+      "capped_test_groups": [
+        "growth_saas"
+      ]
+    }
+  },
+  "rt12-test-cap-smaller-than-one-cac.json": {
+    "as_of": "2026-04-30",
+    "billing_term": "monthly",
+    "stop_line": 0.8,
+    "stop_line_is_default": true,
+    "payback_line_months": 12,
+    "payback_line_is_default": true,
+    "echo": {
+      "rows_received": 10,
+      "rows_used": 10,
+      "rows_rejected": 0,
+      "paying_on_as_of": 9,
+      "mrr_on_as_of": 18000,
+      "earliest_signed": "2025-01-06",
+      "latest_signed": "2025-02-25"
+    },
+    "rejected_rows": [],
+    "pending_customers": [],
+    "paused_customers": [],
+    "stop_rule": {
+      "base_verdict": "NOT_ENOUGH_HISTORY",
+      "mature_cohort_count": 1,
+      "shape_test_skipped": false,
+      "evaluated_cohorts": [
+        {
+          "quarter": "2025-Q1",
+          "n": 10,
+          "k6": 9,
+          "k12": 9,
+          "kept_share_m12": 0.9,
+          "kept_pct_m12": 90,
+          "line_pass": true,
+          "lost_1_6": 1,
+          "lost_7_12": 0,
+          "shape_pass": true,
+          "one_customer_points": 10
+        }
+      ]
+    },
+    "cohorts": [
+      {
+        "quarter": "2025-Q1",
+        "n": 10,
+        "mature": true,
+        "one_customer_points": 10,
+        "month_3": {
+          "reached": true,
+          "k": 9,
+          "n": 10,
+          "pct": 90,
+          "display": "9 of 10 (90%)"
+        },
+        "month_6": {
+          "reached": true,
+          "k": 9,
+          "n": 10,
+          "pct": 90,
+          "display": "9 of 10 (90%)"
+        },
+        "month_9": {
+          "reached": true,
+          "k": 9,
+          "n": 10,
+          "pct": 90,
+          "display": "9 of 10 (90%)"
+        },
+        "month_12": {
+          "reached": true,
+          "k": 9,
+          "n": 10,
+          "pct": 90,
+          "display": "9 of 10 (90%)"
+        },
+        "revenue_kept_month_12": {
+          "reached": true,
+          "kept_fee": 18000,
+          "starting_fee": 20000,
+          "share": 0.9,
+          "pct": 90,
+          "label": "revenue kept at starting fees, no expansion"
+        }
+      }
+    ],
+    "window": {
+      "start": "2025-04-30",
+      "end": "2026-04-30",
+      "base": 9,
+      "lost": 0,
+      "kept": 9,
+      "kept_share": 1,
+      "loss_share": 0
+    },
+    "groups": [
+      {
+        "name": "mid_bank",
+        "kind": "segment",
+        "total_rows": 10,
+        "base": 9,
+        "lost": 0,
+        "kept": 9,
+        "kept_share": 1,
+        "kept_pct": 100,
+        "share_of_losses": 0,
+        "share_of_losses_pct": 0,
+        "share_of_base": 1,
+        "share_of_base_pct": 100,
+        "loses_more_than_share": false,
+        "line_pass": true,
+        "losses_to_fail": 2,
+        "lead_not_proof": true,
+        "too_few_customers": false,
+        "verdict": "CAPPED_TEST",
+        "verdict_note": "base has NOT_ENOUGH_HISTORY; lead, not proof (2 losses to fail); measure cost per opportunity, not growth"
+      }
+    ],
+    "money": {
+      "enabled": true,
+      "gross_margin": 0.75,
+      "months_seen": 15,
+      "paid_cac": 28000,
+      "blended_cac": null,
+      "test_cap": 3000,
+      "win_rate_floor": 0.15,
+      "win_rate_target": 0.25,
+      "whole_base": {
+        "name": "All customers (whole base)",
+        "base": 9,
+        "kept": 9,
+        "lost": 0,
+        "average_monthly_fee": 2000,
+        "monthly_margin": 1500,
+        "monthly_churn": 0,
+        "months_seen": 15,
+        "capped_ltv": 22500,
+        "required_paid_cac": 18000,
+        "payback_months": 18.666666666666668,
+        "ltv_to_paid_cac": 0.8035714285714286,
+        "ltv_to_blended_cac": null,
+        "go_count": 2,
+        "stop_count": 0
+      },
+      "by_group": {
+        "mid_bank": {
+          "name": "mid_bank",
+          "base": 9,
+          "kept": 9,
+          "lost": 0,
+          "average_monthly_fee": 2000,
+          "monthly_margin": 1500,
+          "monthly_churn": 0,
+          "months_seen": 15,
+          "capped_ltv": 22500,
+          "required_paid_cac": 18000,
+          "payback_months": 18.666666666666668,
+          "ltv_to_paid_cac": 0.8035714285714286,
+          "ltv_to_blended_cac": null,
+          "go_count": 2,
+          "stop_count": 0
+        }
+      }
+    },
+    "metrics_check": {
+      "items": [],
+      "disagreement": false,
+      "implied_annual_retention_pct": null,
+      "reported_annual_retention_pct": null,
+      "note": null
+    },
+    "handoff": {
+      "retention_playbook": {
+        "customer_segment": "mid_bank",
+        "business_model": "enterprise_contract",
+        "current_churn_rate": "0.0% monthly",
+        "churn_reasons": "pilot budget expired\nprocurement froze new vendor onboarding",
+        "available_data_signals": "monthly starts, stop dates, monthly fee",
+        "server_loss_share_pct": 0,
+        "playbook_yearly_loss_pct": 0,
+        "use_server_figure_note": null
+      },
+      "customer_interview_kit": {
+        "interview_type": "churn",
+        "product_context": "RedTeam Case 12: Test Cap Smaller Than One Customer CAC",
+        "target_persona": "Chief Information Security Officer at mid-market banks",
+        "key_hypotheses": "Customers leave because pilot budget expired; Customers leave because procurement froze new vendor onboarding",
+        "hypotheses_list": [
+          "Customers leave because pilot budget expired",
+          "Customers leave because procurement froze new vendor onboarding"
+        ],
+        "lost_to_call": 0
+      }
+    },
+    "next_steps": {
+      "week_1_date": "2026-05-07",
+      "interviews_done_date": "2026-05-28",
+      "capped_test_start_date": "2026-06-04",
+      "decide_again_date": "2026-07-29",
+      "capped_test_groups": [
+        "mid_bank"
+      ]
+    }
+  },
+  "rt13-shape-test-tie-months-7-to-12.json": {
+    "as_of": "2026-04-30",
+    "billing_term": "monthly",
+    "stop_line": 0.8,
+    "stop_line_is_default": false,
+    "payback_line_months": 12,
+    "payback_line_is_default": true,
+    "echo": {
+      "rows_received": 20,
+      "rows_used": 20,
+      "rows_rejected": 0,
+      "paying_on_as_of": 16,
+      "mrr_on_as_of": 32000,
+      "earliest_signed": "2025-01-05",
+      "latest_signed": "2025-02-26"
+    },
+    "rejected_rows": [],
+    "pending_customers": [],
+    "paused_customers": [],
+    "stop_rule": {
+      "base_verdict": "NOT_ENOUGH_HISTORY",
+      "mature_cohort_count": 1,
+      "shape_test_skipped": false,
+      "evaluated_cohorts": [
+        {
+          "quarter": "2025-Q1",
+          "n": 20,
+          "k6": 17,
+          "k12": 16,
+          "kept_share_m12": 0.8,
+          "kept_pct_m12": 80,
+          "line_pass": true,
+          "lost_1_6": 3,
+          "lost_7_12": 1,
+          "shape_pass": true,
+          "one_customer_points": 5
+        }
+      ]
+    },
+    "cohorts": [
+      {
+        "quarter": "2025-Q1",
+        "n": 20,
+        "mature": true,
+        "one_customer_points": 5,
+        "month_3": {
+          "reached": true,
+          "k": 17,
+          "n": 20,
+          "pct": 85,
+          "display": "17 of 20 (85%)"
+        },
+        "month_6": {
+          "reached": true,
+          "k": 17,
+          "n": 20,
+          "pct": 85,
+          "display": "17 of 20 (85%)"
+        },
+        "month_9": {
+          "reached": true,
+          "k": 16,
+          "n": 20,
+          "pct": 80,
+          "display": "16 of 20 (80%)"
+        },
+        "month_12": {
+          "reached": true,
+          "k": 16,
+          "n": 20,
+          "pct": 80,
+          "display": "16 of 20 (80%)"
+        },
+        "revenue_kept_month_12": {
+          "reached": true,
+          "kept_fee": 32000,
+          "starting_fee": 40000,
+          "share": 0.8,
+          "pct": 80,
+          "label": "revenue kept at starting fees, no expansion"
+        }
+      }
+    ],
+    "window": {
+      "start": "2025-04-30",
+      "end": "2026-04-30",
+      "base": 18,
+      "lost": 2,
+      "kept": 16,
+      "kept_share": 0.8888888888888888,
+      "loss_share": 0.1111111111111111
+    },
+    "groups": [
+      {
+        "name": "core",
+        "kind": "segment",
+        "total_rows": 20,
+        "base": 18,
+        "lost": 2,
+        "kept": 16,
+        "kept_share": 0.8888888888888888,
+        "kept_pct": 89,
+        "share_of_losses": 1,
+        "share_of_losses_pct": 100,
+        "share_of_base": 1,
+        "share_of_base_pct": 100,
+        "loses_more_than_share": false,
+        "line_pass": true,
+        "losses_to_fail": 2,
+        "lead_not_proof": true,
+        "too_few_customers": false,
+        "verdict": "CAPPED_TEST",
+        "verdict_note": "base has NOT_ENOUGH_HISTORY; lead, not proof (2 losses to fail); measure cost per opportunity, not growth"
+      }
+    ],
+    "money": {
+      "enabled": true,
+      "gross_margin": 0.8,
+      "months_seen": 15,
+      "paid_cac": 12000,
+      "blended_cac": null,
+      "test_cap": 60000,
+      "win_rate_floor": 0.15,
+      "win_rate_target": 0.25,
+      "whole_base": {
+        "name": "All customers (whole base)",
+        "base": 18,
+        "kept": 16,
+        "lost": 2,
+        "average_monthly_fee": 2000,
+        "monthly_margin": 1600,
+        "monthly_churn": 0.009767240588880566,
+        "months_seen": 15,
+        "capped_ltv": 22426.562052027748,
+        "required_paid_cac": 19200,
+        "payback_months": 7.5,
+        "ltv_to_paid_cac": 1.8688801710023124,
+        "ltv_to_blended_cac": null,
+        "go_count": 21,
+        "stop_count": 12
+      },
+      "by_group": {
+        "core": {
+          "name": "core",
+          "base": 18,
+          "kept": 16,
+          "lost": 2,
+          "average_monthly_fee": 2000,
+          "monthly_margin": 1600,
+          "monthly_churn": 0.009767240588880566,
+          "months_seen": 15,
+          "capped_ltv": 22426.562052027748,
+          "required_paid_cac": 19200,
+          "payback_months": 7.5,
+          "ltv_to_paid_cac": 1.8688801710023124,
+          "ltv_to_blended_cac": null,
+          "go_count": 21,
+          "stop_count": 12
+        }
+      }
+    },
+    "metrics_check": {
+      "items": [],
+      "disagreement": false,
+      "implied_annual_retention_pct": null,
+      "reported_annual_retention_pct": null,
+      "note": null
+    },
+    "handoff": {
+      "retention_playbook": {
+        "customer_segment": "core",
+        "business_model": "saas_subscription",
+        "current_churn_rate": "1.0% monthly",
+        "churn_reasons": "late renewal pushback\nsecond-half champion turnover",
+        "available_data_signals": "monthly starts, stop dates, monthly fee",
+        "server_loss_share_pct": 11.11111111111111,
+        "playbook_yearly_loss_pct": 11.4,
+        "use_server_figure_note": null
+      },
+      "customer_interview_kit": {
+        "interview_type": "churn",
+        "product_context": "RedTeam Case 13: Shape Test Tie Between Months 1 to 6 and Months 7 to 12",
+        "target_persona": "VP of Customer Success at mid-market SaaS vendors",
+        "key_hypotheses": "Customers leave because late renewal pushback; Customers leave because second-half champion turnover",
+        "hypotheses_list": [
+          "Customers leave because late renewal pushback",
+          "Customers leave because second-half champion turnover"
+        ],
+        "lost_to_call": 2
+      }
+    },
+    "next_steps": {
+      "week_1_date": "2026-05-07",
+      "interviews_done_date": "2026-05-28",
+      "capped_test_start_date": "2026-06-04",
+      "decide_again_date": "2026-07-29",
+      "capped_test_groups": [
+        "core"
+      ]
+    }
+  },
+  "rt14-seasonal-boundary-exact-half.json": {
+    "as_of": "2026-04-30",
+    "billing_term": "monthly",
+    "stop_line": 0.8,
+    "stop_line_is_default": true,
+    "payback_line_months": 12,
+    "payback_line_is_default": true,
+    "echo": {
+      "rows_received": 12,
+      "rows_used": 12,
+      "rows_rejected": 0,
+      "paying_on_as_of": 11,
+      "mrr_on_as_of": 16500,
+      "earliest_signed": "2025-01-06",
+      "latest_signed": "2025-02-22"
+    },
+    "rejected_rows": [],
+    "pending_customers": [],
+    "paused_customers": [],
+    "stop_rule": {
+      "base_verdict": "NOT_ENOUGH_HISTORY",
+      "mature_cohort_count": 1,
+      "shape_test_skipped": false,
+      "evaluated_cohorts": [
+        {
+          "quarter": "2025-Q1",
+          "n": 12,
+          "k6": 11,
+          "k12": 11,
+          "kept_share_m12": 0.9166666666666666,
+          "kept_pct_m12": 92,
+          "line_pass": true,
+          "lost_1_6": 1,
+          "lost_7_12": 0,
+          "shape_pass": true,
+          "one_customer_points": 8.3
+        }
+      ]
+    },
+    "cohorts": [
+      {
+        "quarter": "2025-Q1",
+        "n": 12,
+        "mature": true,
+        "one_customer_points": 8.3,
+        "month_3": {
+          "reached": true,
+          "k": 11,
+          "n": 12,
+          "pct": 92,
+          "display": "11 of 12 (92%)"
+        },
+        "month_6": {
+          "reached": true,
+          "k": 11,
+          "n": 12,
+          "pct": 92,
+          "display": "11 of 12 (92%)"
+        },
+        "month_9": {
+          "reached": true,
+          "k": 11,
+          "n": 12,
+          "pct": 92,
+          "display": "11 of 12 (92%)"
+        },
+        "month_12": {
+          "reached": true,
+          "k": 11,
+          "n": 12,
+          "pct": 92,
+          "display": "11 of 12 (92%)"
+        },
+        "revenue_kept_month_12": {
+          "reached": true,
+          "kept_fee": 16500,
+          "starting_fee": 18000,
+          "share": 0.9166666666666666,
+          "pct": 92,
+          "label": "revenue kept at starting fees, no expansion"
+        }
+      }
+    ],
+    "window": {
+      "start": "2025-04-30",
+      "end": "2026-04-30",
+      "base": 11,
+      "lost": 0,
+      "kept": 11,
+      "kept_share": 1,
+      "loss_share": 0
+    },
+    "groups": [
+      {
+        "name": "warehouse",
+        "kind": "segment",
+        "total_rows": 12,
+        "base": 11,
+        "lost": 0,
+        "kept": 11,
+        "kept_share": 1,
+        "kept_pct": 100,
+        "share_of_losses": 0,
+        "share_of_losses_pct": 0,
+        "share_of_base": 1,
+        "share_of_base_pct": 100,
+        "loses_more_than_share": false,
+        "line_pass": true,
+        "losses_to_fail": 3,
+        "lead_not_proof": true,
+        "too_few_customers": false,
+        "verdict": "CAPPED_TEST",
+        "verdict_note": "base has NOT_ENOUGH_HISTORY; lead, not proof (3 losses to fail); measure cost per opportunity, not growth"
+      },
+      {
+        "name": "seasonal",
+        "kind": "tag",
+        "total_rows": 5,
+        "base": 4,
+        "lost": 0,
+        "kept": 4,
+        "kept_share": 1,
+        "kept_pct": 100,
+        "share_of_losses": 0,
+        "share_of_losses_pct": 0,
+        "share_of_base": 0.36363636363636365,
+        "share_of_base_pct": 36,
+        "loses_more_than_share": false,
+        "line_pass": null,
+        "losses_to_fail": null,
+        "lead_not_proof": false,
+        "too_few_customers": true,
+        "verdict": "NO_VERDICT",
+        "verdict_note": "too few customers to read"
+      },
+      {
+        "name": "steady",
+        "kind": "tag",
+        "total_rows": 5,
+        "base": 5,
+        "lost": 0,
+        "kept": 5,
+        "kept_share": 1,
+        "kept_pct": 100,
+        "share_of_losses": 0,
+        "share_of_losses_pct": 0,
+        "share_of_base": 0.45454545454545453,
+        "share_of_base_pct": 45,
+        "loses_more_than_share": false,
+        "line_pass": true,
+        "losses_to_fail": 2,
+        "lead_not_proof": true,
+        "too_few_customers": false,
+        "verdict": "CAPPED_TEST",
+        "verdict_note": "base has NOT_ENOUGH_HISTORY; lead, not proof (2 losses to fail); measure cost per opportunity, not growth"
+      },
+      {
+        "name": "untagged",
+        "kind": "tag",
+        "total_rows": 2,
+        "base": 2,
+        "lost": 0,
+        "kept": 2,
+        "kept_share": 1,
+        "kept_pct": 100,
+        "share_of_losses": 0,
+        "share_of_losses_pct": 0,
+        "share_of_base": 0.18181818181818182,
+        "share_of_base_pct": 18,
+        "loses_more_than_share": false,
+        "line_pass": null,
+        "losses_to_fail": null,
+        "lead_not_proof": false,
+        "too_few_customers": true,
+        "verdict": "NO_VERDICT",
+        "verdict_note": "too few customers to read"
+      }
+    ],
+    "money": {
+      "enabled": true,
+      "gross_margin": 0.75,
+      "months_seen": 15,
+      "paid_cac": 9000,
+      "blended_cac": null,
+      "test_cap": 54000,
+      "win_rate_floor": 0.15,
+      "win_rate_target": 0.25,
+      "whole_base": {
+        "name": "All customers (whole base)",
+        "base": 11,
+        "kept": 11,
+        "lost": 0,
+        "average_monthly_fee": 1500,
+        "monthly_margin": 1125,
+        "monthly_churn": 0,
+        "months_seen": 15,
+        "capped_ltv": 16875,
+        "required_paid_cac": 13500,
+        "payback_months": 8,
+        "ltv_to_paid_cac": 1.875,
+        "ltv_to_blended_cac": null,
+        "go_count": 27,
+        "stop_count": 16
+      },
+      "by_group": {
+        "warehouse": {
+          "name": "warehouse",
+          "base": 11,
+          "kept": 11,
+          "lost": 0,
+          "average_monthly_fee": 1500,
+          "monthly_margin": 1125,
+          "monthly_churn": 0,
+          "months_seen": 15,
+          "capped_ltv": 16875,
+          "required_paid_cac": 13500,
+          "payback_months": 8,
+          "ltv_to_paid_cac": 1.875,
+          "ltv_to_blended_cac": null,
+          "go_count": 27,
+          "stop_count": 16
+        },
+        "seasonal": {
+          "name": "seasonal",
+          "base": 4,
+          "kept": 4,
+          "lost": 0,
+          "average_monthly_fee": 1500,
+          "monthly_margin": 1125,
+          "monthly_churn": 0,
+          "months_seen": 15,
+          "capped_ltv": 16875,
+          "required_paid_cac": 13500,
+          "payback_months": 8,
+          "ltv_to_paid_cac": 1.875,
+          "ltv_to_blended_cac": null,
+          "go_count": 27,
+          "stop_count": 16
+        },
+        "steady": {
+          "name": "steady",
+          "base": 5,
+          "kept": 5,
+          "lost": 0,
+          "average_monthly_fee": 1500,
+          "monthly_margin": 1125,
+          "monthly_churn": 0,
+          "months_seen": 15,
+          "capped_ltv": 16875,
+          "required_paid_cac": 13500,
+          "payback_months": 8,
+          "ltv_to_paid_cac": 1.875,
+          "ltv_to_blended_cac": null,
+          "go_count": 27,
+          "stop_count": 16
+        },
+        "untagged": {
+          "name": "untagged",
+          "base": 2,
+          "kept": 2,
+          "lost": 0,
+          "average_monthly_fee": 1500,
+          "monthly_margin": 1125,
+          "monthly_churn": 0,
+          "months_seen": 15,
+          "capped_ltv": 16875,
+          "required_paid_cac": 13500,
+          "payback_months": 8,
+          "ltv_to_paid_cac": 1.875,
+          "ltv_to_blended_cac": null,
+          "go_count": 27,
+          "stop_count": 16
+        }
+      }
+    },
+    "metrics_check": {
+      "items": [],
+      "disagreement": false,
+      "implied_annual_retention_pct": null,
+      "reported_annual_retention_pct": null,
+      "note": null
+    },
+    "handoff": {
+      "retention_playbook": {
+        "customer_segment": "warehouse",
+        "business_model": "usage_based",
+        "current_churn_rate": "0.0% monthly",
+        "churn_reasons": "off-season staffing pauses\nshift leads reverted to paper",
+        "available_data_signals": "monthly starts, stop dates, monthly fee",
+        "server_loss_share_pct": 0,
+        "playbook_yearly_loss_pct": 0,
+        "use_server_figure_note": null
+      },
+      "customer_interview_kit": {
+        "interview_type": "churn",
+        "product_context": "RedTeam Case 14: Seasonal Tag Boundary at Exactly Half of Max Monthly Starts",
+        "target_persona": "Director of Staffing Operations at logistics employers",
+        "key_hypotheses": "Customers leave because off-season staffing pauses; Customers leave because shift leads reverted to paper",
+        "hypotheses_list": [
+          "Customers leave because off-season staffing pauses",
+          "Customers leave because shift leads reverted to paper"
+        ],
+        "lost_to_call": 0
+      }
+    },
+    "next_steps": {
+      "week_1_date": "2026-05-07",
+      "interviews_done_date": "2026-05-28",
+      "capped_test_start_date": "2026-06-04",
+      "decide_again_date": "2026-07-29",
+      "capped_test_groups": [
+        "warehouse",
+        "steady"
+      ]
+    }
+  },
+  "rt15-zero-window-churn-c-equals-zero.json": {
+    "as_of": "2026-04-30",
+    "billing_term": "monthly",
+    "stop_line": 0.8,
+    "stop_line_is_default": true,
+    "payback_line_months": 12,
+    "payback_line_is_default": true,
+    "echo": {
+      "rows_received": 10,
+      "rows_used": 10,
+      "rows_rejected": 0,
+      "paying_on_as_of": 10,
+      "mrr_on_as_of": 30000,
+      "earliest_signed": "2025-01-05",
+      "latest_signed": "2025-02-25"
+    },
+    "rejected_rows": [],
+    "pending_customers": [],
+    "paused_customers": [],
+    "stop_rule": {
+      "base_verdict": "NOT_ENOUGH_HISTORY",
+      "mature_cohort_count": 1,
+      "shape_test_skipped": false,
+      "evaluated_cohorts": [
+        {
+          "quarter": "2025-Q1",
+          "n": 10,
+          "k6": 10,
+          "k12": 10,
+          "kept_share_m12": 1,
+          "kept_pct_m12": 100,
+          "line_pass": true,
+          "lost_1_6": 0,
+          "lost_7_12": 0,
+          "shape_pass": true,
+          "one_customer_points": 10
+        }
+      ]
+    },
+    "cohorts": [
+      {
+        "quarter": "2025-Q1",
+        "n": 10,
+        "mature": true,
+        "one_customer_points": 10,
+        "month_3": {
+          "reached": true,
+          "k": 10,
+          "n": 10,
+          "pct": 100,
+          "display": "10 of 10 (100%)"
+        },
+        "month_6": {
+          "reached": true,
+          "k": 10,
+          "n": 10,
+          "pct": 100,
+          "display": "10 of 10 (100%)"
+        },
+        "month_9": {
+          "reached": true,
+          "k": 10,
+          "n": 10,
+          "pct": 100,
+          "display": "10 of 10 (100%)"
+        },
+        "month_12": {
+          "reached": true,
+          "k": 10,
+          "n": 10,
+          "pct": 100,
+          "display": "10 of 10 (100%)"
+        },
+        "revenue_kept_month_12": {
+          "reached": true,
+          "kept_fee": 30000,
+          "starting_fee": 30000,
+          "share": 1,
+          "pct": 100,
+          "label": "revenue kept at starting fees, no expansion"
+        }
+      }
+    ],
+    "window": {
+      "start": "2025-04-30",
+      "end": "2026-04-30",
+      "base": 10,
+      "lost": 0,
+      "kept": 10,
+      "kept_share": 1,
+      "loss_share": 0
+    },
+    "groups": [
+      {
+        "name": "enterprise",
+        "kind": "segment",
+        "total_rows": 10,
+        "base": 10,
+        "lost": 0,
+        "kept": 10,
+        "kept_share": 1,
+        "kept_pct": 100,
+        "share_of_losses": 0,
+        "share_of_losses_pct": 0,
+        "share_of_base": 1,
+        "share_of_base_pct": 100,
+        "loses_more_than_share": false,
+        "line_pass": true,
+        "losses_to_fail": 3,
+        "lead_not_proof": true,
+        "too_few_customers": false,
+        "verdict": "CAPPED_TEST",
+        "verdict_note": "base has NOT_ENOUGH_HISTORY; lead, not proof (3 losses to fail); measure cost per opportunity, not growth"
+      }
+    ],
+    "money": {
+      "enabled": true,
+      "gross_margin": 0.8,
+      "months_seen": 15,
+      "paid_cac": 12000,
+      "blended_cac": null,
+      "test_cap": 60000,
+      "win_rate_floor": 0.15,
+      "win_rate_target": 0.25,
+      "whole_base": {
+        "name": "All customers (whole base)",
+        "base": 10,
+        "kept": 10,
+        "lost": 0,
+        "average_monthly_fee": 3000,
+        "monthly_margin": 2400,
+        "monthly_churn": 0,
+        "months_seen": 15,
+        "capped_ltv": 36000,
+        "required_paid_cac": 28800,
+        "payback_months": 5,
+        "ltv_to_paid_cac": 3,
+        "ltv_to_blended_cac": null,
+        "go_count": 14,
+        "stop_count": 8
+      },
+      "by_group": {
+        "enterprise": {
+          "name": "enterprise",
+          "base": 10,
+          "kept": 10,
+          "lost": 0,
+          "average_monthly_fee": 3000,
+          "monthly_margin": 2400,
+          "monthly_churn": 0,
+          "months_seen": 15,
+          "capped_ltv": 36000,
+          "required_paid_cac": 28800,
+          "payback_months": 5,
+          "ltv_to_paid_cac": 3,
+          "ltv_to_blended_cac": null,
+          "go_count": 14,
+          "stop_count": 8
+        }
+      }
+    },
+    "metrics_check": {
+      "items": [],
+      "disagreement": false,
+      "implied_annual_retention_pct": null,
+      "reported_annual_retention_pct": null,
+      "note": null
+    },
+    "handoff": {
+      "retention_playbook": {
+        "customer_segment": "enterprise",
+        "business_model": "saas_subscription",
+        "current_churn_rate": "0.0% monthly",
+        "churn_reasons": "no confirmed losses yet\noccasional procurement delay",
+        "available_data_signals": "monthly starts, stop dates, monthly fee",
+        "server_loss_share_pct": 0,
+        "playbook_yearly_loss_pct": 0,
+        "use_server_figure_note": null
+      },
+      "customer_interview_kit": {
+        "interview_type": "churn",
+        "product_context": "RedTeam Case 15: Zero Window Churn Where Kept Equals Base and c Equals Zero",
+        "target_persona": "VP of Finance at mid-market SaaS firms",
+        "key_hypotheses": "Customers leave because no confirmed losses yet; Customers leave because occasional procurement delay",
+        "hypotheses_list": [
+          "Customers leave because no confirmed losses yet",
+          "Customers leave because occasional procurement delay"
+        ],
+        "lost_to_call": 0
+      }
+    },
+    "next_steps": {
+      "week_1_date": "2026-05-07",
+      "interviews_done_date": "2026-05-28",
+      "capped_test_start_date": "2026-06-04",
+      "decide_again_date": "2026-07-29",
+      "capped_test_groups": [
+        "enterprise"
+      ]
+    }
+  },
+  "rt16-revenue-vs-logo-retention-skew.json": {
+    "as_of": "2026-04-30",
+    "billing_term": "monthly",
+    "stop_line": 0.8,
+    "stop_line_is_default": false,
+    "payback_line_months": 12,
+    "payback_line_is_default": true,
+    "echo": {
+      "rows_received": 14,
+      "rows_used": 14,
+      "rows_rejected": 0,
+      "paying_on_as_of": 6,
+      "mrr_on_as_of": 60000,
+      "earliest_signed": "2025-01-05",
+      "latest_signed": "2025-02-24"
+    },
+    "rejected_rows": [],
+    "pending_customers": [],
+    "paused_customers": [],
+    "stop_rule": {
+      "base_verdict": "NOT_ENOUGH_HISTORY",
+      "mature_cohort_count": 1,
+      "shape_test_skipped": false,
+      "evaluated_cohorts": [
+        {
+          "quarter": "2025-Q1",
+          "n": 14,
+          "k6": 6,
+          "k12": 6,
+          "kept_share_m12": 0.42857142857142855,
+          "kept_pct_m12": 43,
+          "line_pass": false,
+          "lost_1_6": 8,
+          "lost_7_12": 0,
+          "shape_pass": true,
+          "one_customer_points": 7.1
+        }
+      ]
+    },
+    "cohorts": [
+      {
+        "quarter": "2025-Q1",
+        "n": 14,
+        "mature": true,
+        "one_customer_points": 7.1,
+        "month_3": {
+          "reached": true,
+          "k": 6,
+          "n": 14,
+          "pct": 43,
+          "display": "6 of 14 (43%)"
+        },
+        "month_6": {
+          "reached": true,
+          "k": 6,
+          "n": 14,
+          "pct": 43,
+          "display": "6 of 14 (43%)"
+        },
+        "month_9": {
+          "reached": true,
+          "k": 6,
+          "n": 14,
+          "pct": 43,
+          "display": "6 of 14 (43%)"
+        },
+        "month_12": {
+          "reached": true,
+          "k": 6,
+          "n": 14,
+          "pct": 43,
+          "display": "6 of 14 (43%)"
+        },
+        "revenue_kept_month_12": {
+          "reached": true,
+          "kept_fee": 60000,
+          "starting_fee": 64000,
+          "share": 0.9375,
+          "pct": 94,
+          "label": "revenue kept at starting fees, no expansion"
+        }
+      }
+    ],
+    "window": {
+      "start": "2025-04-30",
+      "end": "2026-04-30",
+      "base": 7,
+      "lost": 1,
+      "kept": 6,
+      "kept_share": 0.8571428571428571,
+      "loss_share": 0.14285714285714285
+    },
+    "groups": [
+      {
+        "name": "mixed",
+        "kind": "segment",
+        "total_rows": 14,
+        "base": 7,
+        "lost": 1,
+        "kept": 6,
+        "kept_share": 0.8571428571428571,
+        "kept_pct": 86,
+        "share_of_losses": 1,
+        "share_of_losses_pct": 100,
+        "share_of_base": 1,
+        "share_of_base_pct": 100,
+        "loses_more_than_share": false,
+        "line_pass": true,
+        "losses_to_fail": 1,
+        "lead_not_proof": true,
+        "too_few_customers": false,
+        "verdict": "CAPPED_TEST",
+        "verdict_note": "base has NOT_ENOUGH_HISTORY; lead, not proof (1 loss to fail); measure cost per opportunity, not growth"
+      }
+    ],
+    "money": {
+      "enabled": true,
+      "gross_margin": 0.8,
+      "months_seen": 15,
+      "paid_cac": 15000,
+      "blended_cac": null,
+      "test_cap": 75000,
+      "win_rate_floor": 0.15,
+      "win_rate_target": 0.25,
+      "whole_base": {
+        "name": "All customers (whole base)",
+        "base": 7,
+        "kept": 6,
+        "lost": 1,
+        "average_monthly_fee": 8642.857142857143,
+        "monthly_margin": 6914.285714285715,
+        "monthly_churn": 0.012763733707280012,
+        "months_seen": 15,
+        "capped_ltv": 94941.25340724971,
+        "required_paid_cac": 82971.42857142858,
+        "payback_months": 2.1694214876033056,
+        "ltv_to_paid_cac": 6.3294168938166475,
+        "ltv_to_blended_cac": null,
+        "go_count": 7,
+        "stop_count": 3
+      },
+      "by_group": {
+        "mixed": {
+          "name": "mixed",
+          "base": 7,
+          "kept": 6,
+          "lost": 1,
+          "average_monthly_fee": 8642.857142857143,
+          "monthly_margin": 6914.285714285715,
+          "monthly_churn": 0.012763733707280012,
+          "months_seen": 15,
+          "capped_ltv": 94941.25340724971,
+          "required_paid_cac": 82971.42857142858,
+          "payback_months": 2.1694214876033056,
+          "ltv_to_paid_cac": 6.3294168938166475,
+          "ltv_to_blended_cac": null,
+          "go_count": 7,
+          "stop_count": 3
+        }
+      }
+    },
+    "metrics_check": {
+      "items": [],
+      "disagreement": false,
+      "implied_annual_retention_pct": null,
+      "reported_annual_retention_pct": null,
+      "note": null
+    },
+    "handoff": {
+      "retention_playbook": {
+        "customer_segment": "mixed",
+        "business_model": "saas_subscription",
+        "current_churn_rate": "1.3% monthly",
+        "churn_reasons": "small accounts churned after starter trial\nenterprise accounts stayed",
+        "available_data_signals": "monthly starts, stop dates, monthly fee",
+        "server_loss_share_pct": 14.285714285714285,
+        "playbook_yearly_loss_pct": 14.5,
+        "use_server_figure_note": null
+      },
+      "customer_interview_kit": {
+        "interview_type": "churn",
+        "product_context": "RedTeam Case 16: Revenue Kept at Month 12 Diverges From Logo Retention",
+        "target_persona": "VP of Revenue at multi-tier SaaS platforms",
+        "key_hypotheses": "Customers leave because small accounts churned after starter trial; Customers leave because enterprise accounts stayed",
+        "hypotheses_list": [
+          "Customers leave because small accounts churned after starter trial",
+          "Customers leave because enterprise accounts stayed"
+        ],
+        "lost_to_call": 1
+      }
+    },
+    "next_steps": {
+      "week_1_date": "2026-05-07",
+      "interviews_done_date": "2026-05-28",
+      "capped_test_start_date": "2026-06-04",
+      "decide_again_date": "2026-07-29",
+      "capped_test_groups": [
+        "mixed"
+      ]
+    }
+  },
+  "rt17-resumed-between-checkpoints.json": {
+    "as_of": "2026-04-30",
+    "billing_term": "monthly",
+    "stop_line": 0.8,
+    "stop_line_is_default": false,
+    "payback_line_months": 12,
+    "payback_line_is_default": true,
+    "echo": {
+      "rows_received": 10,
+      "rows_used": 10,
+      "rows_rejected": 0,
+      "paying_on_as_of": 10,
+      "mrr_on_as_of": 20000,
+      "earliest_signed": "2025-01-10",
+      "latest_signed": "2025-02-25"
+    },
+    "rejected_rows": [],
+    "pending_customers": [],
+    "paused_customers": [
+      {
+        "id": "R17-JAN-01",
+        "stopped": "2025-05-10",
+        "resumed": "2025-09-01",
+        "status": "pause: came back"
+      },
+      {
+        "id": "R17-JAN-02",
+        "stopped": "2025-05-15",
+        "resumed": "2025-09-05",
+        "status": "pause: came back"
+      },
+      {
+        "id": "R17-FEB-01",
+        "stopped": "2025-06-01",
+        "resumed": "2025-10-01",
+        "status": "pause: came back"
+      }
+    ],
+    "stop_rule": {
+      "base_verdict": "NOT_ENOUGH_HISTORY",
+      "mature_cohort_count": 1,
+      "shape_test_skipped": false,
+      "evaluated_cohorts": [
+        {
+          "quarter": "2025-Q1",
+          "n": 10,
+          "k6": 7,
+          "k12": 10,
+          "kept_share_m12": 1,
+          "kept_pct_m12": 100,
+          "line_pass": true,
+          "lost_1_6": 3,
+          "lost_7_12": -3,
+          "shape_pass": true,
+          "one_customer_points": 10
+        }
+      ]
+    },
+    "cohorts": [
+      {
+        "quarter": "2025-Q1",
+        "n": 10,
+        "mature": true,
+        "one_customer_points": 10,
+        "month_3": {
+          "reached": true,
+          "k": 10,
+          "n": 10,
+          "pct": 100,
+          "display": "10 of 10 (100%)"
+        },
+        "month_6": {
+          "reached": true,
+          "k": 7,
+          "n": 10,
+          "pct": 70,
+          "display": "7 of 10 (70%)"
+        },
+        "month_9": {
+          "reached": true,
+          "k": 10,
+          "n": 10,
+          "pct": 100,
+          "display": "10 of 10 (100%)"
+        },
+        "month_12": {
+          "reached": true,
+          "k": 10,
+          "n": 10,
+          "pct": 100,
+          "display": "10 of 10 (100%)"
+        },
+        "revenue_kept_month_12": {
+          "reached": true,
+          "kept_fee": 20000,
+          "starting_fee": 20000,
+          "share": 1,
+          "pct": 100,
+          "label": "revenue kept at starting fees, no expansion"
+        }
+      }
+    ],
+    "window": {
+      "start": "2025-04-30",
+      "end": "2026-04-30",
+      "base": 10,
+      "lost": 0,
+      "kept": 10,
+      "kept_share": 1,
+      "loss_share": 0
+    },
+    "groups": [
+      {
+        "name": "plant_ops",
+        "kind": "segment",
+        "total_rows": 10,
+        "base": 10,
+        "lost": 0,
+        "kept": 10,
+        "kept_share": 1,
+        "kept_pct": 100,
+        "share_of_losses": 0,
+        "share_of_losses_pct": 0,
+        "share_of_base": 1,
+        "share_of_base_pct": 100,
+        "loses_more_than_share": false,
+        "line_pass": true,
+        "losses_to_fail": 3,
+        "lead_not_proof": true,
+        "too_few_customers": false,
+        "verdict": "CAPPED_TEST",
+        "verdict_note": "base has NOT_ENOUGH_HISTORY; lead, not proof (3 losses to fail); measure cost per opportunity, not growth"
+      }
+    ],
+    "money": {
+      "enabled": true,
+      "gross_margin": 0.8,
+      "months_seen": 15,
+      "paid_cac": 12000,
+      "blended_cac": null,
+      "test_cap": 60000,
+      "win_rate_floor": 0.15,
+      "win_rate_target": 0.25,
+      "whole_base": {
+        "name": "All customers (whole base)",
+        "base": 10,
+        "kept": 10,
+        "lost": 0,
+        "average_monthly_fee": 2000,
+        "monthly_margin": 1600,
+        "monthly_churn": 0,
+        "months_seen": 15,
+        "capped_ltv": 24000,
+        "required_paid_cac": 19200,
+        "payback_months": 7.5,
+        "ltv_to_paid_cac": 2,
+        "ltv_to_blended_cac": null,
+        "go_count": 21,
+        "stop_count": 12
+      },
+      "by_group": {
+        "plant_ops": {
+          "name": "plant_ops",
+          "base": 10,
+          "kept": 10,
+          "lost": 0,
+          "average_monthly_fee": 2000,
+          "monthly_margin": 1600,
+          "monthly_churn": 0,
+          "months_seen": 15,
+          "capped_ltv": 24000,
+          "required_paid_cac": 19200,
+          "payback_months": 7.5,
+          "ltv_to_paid_cac": 2,
+          "ltv_to_blended_cac": null,
+          "go_count": 21,
+          "stop_count": 12
+        }
+      }
+    },
+    "metrics_check": {
+      "items": [],
+      "disagreement": false,
+      "implied_annual_retention_pct": null,
+      "reported_annual_retention_pct": null,
+      "note": null
+    },
+    "handoff": {
+      "retention_playbook": {
+        "customer_segment": "plant_ops",
+        "business_model": "saas_subscription",
+        "current_churn_rate": "0.0% monthly",
+        "churn_reasons": "seasonal pause during summer shutdown\ntemporary budget freeze",
+        "available_data_signals": "monthly starts, stop dates, monthly fee",
+        "server_loss_share_pct": 0,
+        "playbook_yearly_loss_pct": 0,
+        "use_server_figure_note": null
+      },
+      "customer_interview_kit": {
+        "interview_type": "churn",
+        "product_context": "RedTeam Case 17: Customers Stopped Before Month 6 and Resumed Before Month 9",
+        "target_persona": "VP of Operations at manufacturing software customers",
+        "key_hypotheses": "Customers leave because seasonal pause during summer shutdown; Customers leave because temporary budget freeze",
+        "hypotheses_list": [
+          "Customers leave because seasonal pause during summer shutdown",
+          "Customers leave because temporary budget freeze"
+        ],
+        "lost_to_call": 0
+      }
+    },
+    "next_steps": {
+      "week_1_date": "2026-05-07",
+      "interviews_done_date": "2026-05-28",
+      "capped_test_start_date": "2026-06-04",
+      "decide_again_date": "2026-07-29",
+      "capped_test_groups": [
+        "plant_ops"
+      ]
+    }
+  },
+  "rt18-metrics-missing-fields-and-disagreement.json": {
+    "as_of": "2026-04-30",
+    "billing_term": "monthly",
+    "stop_line": 0.8,
+    "stop_line_is_default": true,
+    "payback_line_months": 12,
+    "payback_line_is_default": true,
+    "echo": {
+      "rows_received": 10,
+      "rows_used": 10,
+      "rows_rejected": 0,
+      "paying_on_as_of": 9,
+      "mrr_on_as_of": 18000,
+      "earliest_signed": "2025-01-06",
+      "latest_signed": "2025-02-25"
+    },
+    "rejected_rows": [],
+    "pending_customers": [],
+    "paused_customers": [],
+    "stop_rule": {
+      "base_verdict": "NOT_ENOUGH_HISTORY",
+      "mature_cohort_count": 1,
+      "shape_test_skipped": false,
+      "evaluated_cohorts": [
+        {
+          "quarter": "2025-Q1",
+          "n": 10,
+          "k6": 9,
+          "k12": 9,
+          "kept_share_m12": 0.9,
+          "kept_pct_m12": 90,
+          "line_pass": true,
+          "lost_1_6": 1,
+          "lost_7_12": 0,
+          "shape_pass": true,
+          "one_customer_points": 10
+        }
+      ]
+    },
+    "cohorts": [
+      {
+        "quarter": "2025-Q1",
+        "n": 10,
+        "mature": true,
+        "one_customer_points": 10,
+        "month_3": {
+          "reached": true,
+          "k": 9,
+          "n": 10,
+          "pct": 90,
+          "display": "9 of 10 (90%)"
+        },
+        "month_6": {
+          "reached": true,
+          "k": 9,
+          "n": 10,
+          "pct": 90,
+          "display": "9 of 10 (90%)"
+        },
+        "month_9": {
+          "reached": true,
+          "k": 9,
+          "n": 10,
+          "pct": 90,
+          "display": "9 of 10 (90%)"
+        },
+        "month_12": {
+          "reached": true,
+          "k": 9,
+          "n": 10,
+          "pct": 90,
+          "display": "9 of 10 (90%)"
+        },
+        "revenue_kept_month_12": {
+          "reached": true,
+          "kept_fee": 18000,
+          "starting_fee": 20000,
+          "share": 0.9,
+          "pct": 90,
+          "label": "revenue kept at starting fees, no expansion"
+        }
+      }
+    ],
+    "window": {
+      "start": "2025-04-30",
+      "end": "2026-04-30",
+      "base": 9,
+      "lost": 0,
+      "kept": 9,
+      "kept_share": 1,
+      "loss_share": 0
+    },
+    "groups": [
+      {
+        "name": "core",
+        "kind": "segment",
+        "total_rows": 10,
+        "base": 9,
+        "lost": 0,
+        "kept": 9,
+        "kept_share": 1,
+        "kept_pct": 100,
+        "share_of_losses": 0,
+        "share_of_losses_pct": 0,
+        "share_of_base": 1,
+        "share_of_base_pct": 100,
+        "loses_more_than_share": false,
+        "line_pass": true,
+        "losses_to_fail": 2,
+        "lead_not_proof": true,
+        "too_few_customers": false,
+        "verdict": "CAPPED_TEST",
+        "verdict_note": "base has NOT_ENOUGH_HISTORY; lead, not proof (2 losses to fail); measure cost per opportunity, not growth"
+      }
+    ],
+    "money": {
+      "enabled": true,
+      "gross_margin": 0.8,
+      "months_seen": 15,
+      "paid_cac": 12000,
+      "blended_cac": null,
+      "test_cap": 60000,
+      "win_rate_floor": 0.15,
+      "win_rate_target": 0.25,
+      "whole_base": {
+        "name": "All customers (whole base)",
+        "base": 9,
+        "kept": 9,
+        "lost": 0,
+        "average_monthly_fee": 2000,
+        "monthly_margin": 1600,
+        "monthly_churn": 0,
+        "months_seen": 15,
+        "capped_ltv": 24000,
+        "required_paid_cac": 19200,
+        "payback_months": 7.5,
+        "ltv_to_paid_cac": 2,
+        "ltv_to_blended_cac": null,
+        "go_count": 21,
+        "stop_count": 12
+      },
+      "by_group": {
+        "core": {
+          "name": "core",
+          "base": 9,
+          "kept": 9,
+          "lost": 0,
+          "average_monthly_fee": 2000,
+          "monthly_margin": 1600,
+          "monthly_churn": 0,
+          "months_seen": 15,
+          "capped_ltv": 24000,
+          "required_paid_cac": 19200,
+          "payback_months": 7.5,
+          "ltv_to_paid_cac": 2,
+          "ltv_to_blended_cac": null,
+          "go_count": 21,
+          "stop_count": 12
+        }
+      }
+    },
+    "metrics_check": {
+      "items": [
+        {
+          "name": "logo churn",
+          "value": 0.03,
+          "counts": "customers",
+          "period": "month",
+          "status": "ok",
+          "note": "logo churn: 0.03 (counts customers, period month)"
+        },
+        {
+          "name": "annual customer retention",
+          "value": 0.88,
+          "counts": "customers",
+          "period": "year",
+          "status": "ok",
+          "note": "annual customer retention: 0.88 (counts customers, period year)"
+        },
+        {
+          "name": "net retention",
+          "value": 1.08,
+          "counts": "revenue",
+          "period": null,
+          "status": "not_read",
+          "note": "net retention (1.08): not read: give whether it counts customers or revenue, and over what period"
+        },
+        {
+          "name": "headline retention",
+          "value": 0.92,
+          "counts": null,
+          "period": "year",
+          "status": "not_read",
+          "note": "headline retention (0.92): not read: give whether it counts customers or revenue, and over what period"
+        },
+        {
+          "name": "board deck churn",
+          "value": 0.05,
+          "counts": null,
+          "period": null,
+          "status": "not_read",
+          "note": "board deck churn (0.05): not read: give whether it counts customers or revenue, and over what period"
+        }
+      ],
+      "disagreement": true,
+      "implied_annual_retention_pct": 69.38423609954377,
+      "reported_annual_retention_pct": 88,
+      "note": "Monthly customer churn of 0.03% compounds to 69.4% yearly retention ((1 - churn)^12), compared with reported yearly customer retention of 88%. These two figures measure different things or disagree: write the definition next to each."
+    },
+    "handoff": {
+      "retention_playbook": {
+        "customer_segment": "core",
+        "business_model": "saas_subscription",
+        "current_churn_rate": "0.0% monthly",
+        "churn_reasons": "reporting definitions mixed gross and net retention\nchampion left",
+        "available_data_signals": "monthly starts, stop dates, monthly fee",
+        "server_loss_share_pct": 0,
+        "playbook_yearly_loss_pct": 0,
+        "use_server_figure_note": null
+      },
+      "customer_interview_kit": {
+        "interview_type": "churn",
+        "product_context": "RedTeam Case 18: Metrics With Missing Fields and Disagreement Over Two Points",
+        "target_persona": "VP of Finance at Series B SaaS companies",
+        "key_hypotheses": "Customers leave because reporting definitions mixed gross and net retention; Customers leave because champion left",
+        "hypotheses_list": [
+          "Customers leave because reporting definitions mixed gross and net retention",
+          "Customers leave because champion left"
+        ],
+        "lost_to_call": 0
+      }
+    },
+    "next_steps": {
+      "week_1_date": "2026-05-07",
+      "interviews_done_date": "2026-05-28",
+      "capped_test_start_date": "2026-06-04",
+      "decide_again_date": "2026-07-29",
+      "capped_test_groups": [
+        "core"
+      ]
+    }
+  }
+}
