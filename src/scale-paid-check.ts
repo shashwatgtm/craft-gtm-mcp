@@ -325,7 +325,7 @@ export function generateScalePaidCheck(input: ScalePaidCheckInput): ScalePaidChe
   const rawCustomers = Array.isArray(input?.customers) ? input.customers : [];
   const rowsReceived = rawCustomers.length;
   if (rowsReceived > 2000) {
-    const refusalText = `Your list has ${rowsReceived} rows. This check takes up to 2,000 customers. Split the list by segment and run each part.`;
+    const refusalText = `Your list has ${rowsReceived.toLocaleString("en-US")} rows. This check takes up to 2,000 customers. Split the list by segment and run each part.`;
     return {
       text: refusalText,
       structuredContent: {},

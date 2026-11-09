@@ -336,7 +336,7 @@ test("Spec Section 1 and Section 4 (Fix 4): 2,000 rows run; 2,001 rows return on
   //   * rows_rejected = 0 (rows_used = 2000)
   //   * pending count = 111 (all floor(2000 / 18) = 111 rows stopped on "2026-05-10").
   // - Expected for 2,001 rows:
-  //   * Refusal text only: "Your list has 2001 rows. This check takes up to 2,000 customers. Split the list by segment and run each part."
+  //   * Refusal text only: "Your list has 2,001 rows. This check takes up to 2,000 customers. Split the list by segment and run each part."
   //   * No figures returned.
   const segments = ["core", "scale", "edge"];
   function buildRows(count) {
@@ -388,7 +388,7 @@ test("Spec Section 1 and Section 4 (Fix 4): 2,000 rows run; 2,001 rows return on
     customers: buildRows(2001),
   });
   const expectedRefusal =
-    "Your list has 2001 rows. This check takes up to 2,000 customers. Split the list by segment and run each part.";
+    "Your list has 2,001 rows. This check takes up to 2,000 customers. Split the list by segment and run each part.";
   assert.equal(res2001.isError, true);
   assert.equal(res2001.text, expectedRefusal);
   assert.equal(res2001.content[0].text, expectedRefusal);

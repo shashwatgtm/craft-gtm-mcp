@@ -129,7 +129,7 @@ function checkRequiredInputs(
   const problems: string[] = [];
   if (args) {
     if (name === "scale_paid_check") {
-      if (!Array.isArray(args.customers) || args.customers.length < 1 || args.customers.length > 2000) {
+      if (!Array.isArray(args.customers) || args.customers.length < 1) {
         problems.push("customers must be an array of 1 to 2000 items");
       }
     }
@@ -201,11 +201,12 @@ export function createServer(): Server {
         return {
           content: [{ type: "text", text: inputEvidence.notice + (inputEvidence.notice ? "\n\n" : "") + spcResult.text }],
           structuredContent: spcResult.structuredContent,
+          ...(spcResult.isError ? { isError: true } : {}),
         };
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
         return {
-          content: [{ type: "text", text: `Error executing ${escapeText(String(name))}: ${errorMessage}` }],
+          content: [{ type: "text", text: `Scale Paid Check: ${errorMessage}` }],
           isError: true,
         };
       }

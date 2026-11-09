@@ -150,3 +150,18 @@ test('Scale Paid never appends a region question or regional advice, for absent,
   assert.equal(r.content[0].text,generateScalePaidCheck(args).text);
  }
 });
+
+test('server and direct calls keep the 2,000 limit and return the plain 2,001 and equivalent oversized messages',async()=>{
+ for(const n of [2000,2001,2100]){
+  const args=base({customers:rows(n)});
+  const direct=generateScalePaidCheck(args),server=await call(args);
+  assert.equal(server.content[0].text,direct.text);
+  assert.equal(server.isError,n>2000?true:undefined);
+  if(n>2000){
+   assert.equal(direct.text,`Your list has ${n.toLocaleString('en-US')} rows. This check takes up to 2,000 customers. Split the list by segment and run each part.`);
+   assert.deepEqual(server.structuredContent,{});
+  }else assert.equal(server.structuredContent.echo.rows_used,2000);
+ }
+ for(const customers of [[], 'a customer list']) assert.equal((await call(base({customers}))).isError,true);
+ for(const paid_cac of [0,-5000]) assert.equal((await call(base({paid_cac}))).isError,true);
+});
