@@ -33,7 +33,7 @@ test('W2: shape-only base holds cap passing groups; early losses and annual bill
   const r=run({customers});
   assert.equal(r.structuredContent.stop_rule.base_verdict,'HOLD');
   assert.ok(r.structuredContent.groups.every(g=>g.verdict==='CAPPED_TEST'));
-  assert.match(r.text.split('\n')[2],/Base verdict: \*\*HOLD/);
+  assert.match(r.text.split('\n')[2],/Base verdict: \*\*Hold/);
   assert.ok(run({customers,billing_term:'annual'}).structuredContent.groups.every(g=>g.verdict==='SCALE'));
  }
  const early=rows(80).map((r,i)=>({...r,...(i%20===0?{stopped:'2025-10-01'}:{})}));
@@ -103,5 +103,14 @@ test('the other eight tools preserve full main response bytes for absent, affirm
  for(const c of cases){
   const result=await handler({method:'tools/call',params:{name:c.tool,arguments:c.args}});
   assert.equal(createHash('sha256').update(JSON.stringify(result)).digest('hex'),c.sha256,c.tool);
+ }
+});
+
+test('readable labels replace code words in exact, equivalent and failing buyer inputs',()=>{
+ for (const changes of [{}, {customers:rows(8),stop_line:0.6}, {customers:rows(40).map((r,i)=>({...r,...(i<20?{stopped:'2026-02-01'}:{})}))}]) {
+  const r=run(changes);
+  assert.doesNotMatch(r.text,/\b(?:SCALE|CAPPED_TEST|HOLD|NO_VERDICT|NOT_ENOUGH_HISTORY|PASS|FAIL)\b|\b[a-z]+(?:_[a-z0-9]+)+\b/);
+  assert.match(r.text,/Your keep line: (?:80|60)% of customers still paying at month 12/);
+  assert.ok(['SCALE','CAPPED_TEST','HOLD'].includes(r.structuredContent.groups[0].verdict));
  }
 });

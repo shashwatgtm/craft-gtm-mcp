@@ -125,6 +125,17 @@ function isPayingOn(c, dateStr) {
     }
     return dateStr < c.stopped;
 }
+/** Human labels belong only to the readable answer; machine fields stay unchanged. */
+function buyerWords(text) {
+    const labels = {
+        NOT_ENOUGH_HISTORY: "Not enough data yet", NO_VERDICT: "Not enough data yet",
+        CAPPED_TEST: "Small capped test", SCALE: "Scale", HOLD: "Hold", PASS: "Pass", FAIL: "Fail",
+        lost_1_6: "lost in months 1 to 6", lost_7_12: "lost in months 7 to 12",
+        as_of: "the check date", monthly_fee: "monthly fee", stop_line: "keep line",
+        payback_line_months: "payback months",
+    };
+    return text.replace(/\b(?:NOT_ENOUGH_HISTORY|NO_VERDICT|CAPPED_TEST|SCALE|HOLD|PASS|FAIL|lost_1_6|lost_7_12|as_of|monthly_fee|stop_line|payback_line_months)\b/g, word => labels[word]);
+}
 function refusal(text) {
     return { text, structuredContent: {}, content: [{ type: "text", text }], isError: true, toString() { return text; } };
 }
@@ -788,18 +799,15 @@ export function generateScalePaidCheck(input) {
         }
     }
     lines.push("");
-    lines.push("### Decision lines and defaults used");
-    if (stopLineIsDefault && paybackLineIsDefault) {
-        lines.push(`- Both lines used defaults: stop_line = ${stopLine.toFixed(2)} (${Math.round(stopLine * 100)}% kept at month 12) and payback_line_months = ${paybackLineMonths} months. The stop_line of 0.80 and payback line of 12 are Shashwat's example lines for a $36,000 contract, not a benchmark.`);
-    }
-    else if (stopLineIsDefault) {
-        lines.push(`- Default stop_line = ${stopLine.toFixed(2)} (${Math.round(stopLine * 100)}% kept at month 12) was used; payback_line_months = ${paybackLineMonths} months was supplied by you. The stop_line of 0.80 is Shashwat's example line for a $36,000 contract, not a benchmark.`);
-    }
-    else if (paybackLineIsDefault) {
-        lines.push(`- Default payback_line_months = ${paybackLineMonths} months was used; stop_line = ${stopLine.toFixed(2)} (${Math.round(stopLine * 100)}% kept at month 12) was supplied by you. The payback line of 12 months is Shashwat's example line for a $36,000 contract, not a benchmark.`);
+    lines.push("### Your decision lines");
+    lines.push(`- Your keep line: ${Math.round(stopLine * 100)}% of customers still paying at month 12.`);
+    lines.push(`- Your payback line: ${paybackLineMonths} months.`);
+    if (stopLineIsDefault || paybackLineIsDefault) {
+        const examples = [stopLineIsDefault ? "80% kept at month 12" : "", paybackLineIsDefault ? "12 month payback" : ""].filter(Boolean);
+        lines.push(`- You did not supply ${stopLineIsDefault && paybackLineIsDefault ? "either line" : stopLineIsDefault ? "a keep line" : "a payback line"}, so ${examples.join(" and ")} ${examples.length === 1 ? "is an example line" : "are example lines"}. These are examples, not benchmarks. Give your own lines and run it again.`);
     }
     else {
-        lines.push(`- No defaults used: you supplied stop_line = ${stopLine.toFixed(2)} (${Math.round(stopLine * 100)}% kept at month 12) and payback_line_months = ${paybackLineMonths} months.`);
+        lines.push("- You supplied both decision lines. No defaults used.");
     }
     lines.push("");
     if (metricNotes.length > 0) {
@@ -955,18 +963,17 @@ export function generateScalePaidCheck(input) {
     // 8. The handoff strings
     lines.push("## Handoff");
     lines.push("");
-    lines.push("Exact strings passed from step 1 (server arithmetic) to step 2 (retention_playbook) and step 3 (customer_interview_kit):");
-    lines.push(`- retention_playbook.customer_segment: "${playbookArgs.customer_segment}"`);
-    lines.push(`- retention_playbook.business_model: "${playbookArgs.business_model}"`);
-    lines.push(`- retention_playbook.current_churn_rate: "${playbookArgs.current_churn_rate}"`);
-    lines.push(`- retention_playbook.churn_reasons: "${playbookArgs.churn_reasons}"`);
-    lines.push(`- retention_playbook.available_data_signals: "${playbookArgs.available_data_signals}"`);
-    lines.push(`- customer_interview_kit.interview_type: "${interviewKitArgs.interview_type}"`);
-    lines.push(`- customer_interview_kit.product_context: "${interviewKitArgs.product_context}"`);
-    lines.push(`- customer_interview_kit.target_persona: "${interviewKitArgs.target_persona}"`);
-    lines.push(`- customer_interview_kit.key_hypotheses: "${interviewKitArgs.key_hypotheses}"`);
+    lines.push("Inputs used for the retention draft and interview guide:");
+    lines.push(`- Retention draft, customer group: "${playbookArgs.customer_segment}"`);
+    lines.push(`- Business model: "${playbookArgs.business_model.replace(/_/g, " ")}"`);
+    lines.push(`- Current churn rate: "${playbookArgs.current_churn_rate}"`);
+    lines.push(`- Churn reasons: "${playbookArgs.churn_reasons}"`);
+    lines.push(`- Available data: "${playbookArgs.available_data_signals}"`);
+    lines.push(`- Interview type: "${interviewKitArgs.interview_type}"`);
+    lines.push(`- Product: "${interviewKitArgs.product_context}"`);
+    lines.push(`- Person to interview: "${interviewKitArgs.target_persona}"`);
     for (let i = 0; i < prefixedHypothesesList.length; i++) {
-        lines.push(`- hypothesis_${i + 1}: "${prefixedHypothesesList[i]}"`);
+        lines.push(`- Hypothesis ${i + 1}: "${prefixedHypothesesList[i]}"`);
     }
     lines.push("");
     // 9. Dated next steps (from as_of)
@@ -989,7 +996,7 @@ export function generateScalePaidCheck(input) {
     lines.push("## Reading the answer");
     lines.push("");
     lines.push(`The conclusion needs review if younger cohorts cross 12 months of history after ${asOf}, if paused or stopped accounts resume payment, or if audited paid CAC and gross margin differ from the figures supplied (${rowsUsed} of ${rowsReceived} customer rows used).`);
-    const finalText = stripDashes(lines.join("\n")).replace(/0 of 0 \(0%\)/g, "no customers in this window");
+    const finalText = buyerWords(stripDashes(lines.join("\n"))).replace(/0 of 0 \(0%\)/g, "no customers in this window");
     const structuredContent = {
         as_of: asOf,
         billing_term: billingTerm,

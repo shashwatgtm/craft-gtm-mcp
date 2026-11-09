@@ -490,7 +490,7 @@ test("11. a SCALE path and a HOLD path with full money and payback arithmetic", 
 
   assert.match(res.text, /rerun the cohorts every quarter, and stop if payback passes the line/);
   assert.match(res.text, /This group loses more than its share: 100% of losses from 33% of customers\./);
-  assert.match(res.text, /Shashwat's example lines for a \$36,000 contract, not a benchmark/);
+  assert.match(res.text, /These are examples, not benchmarks/);
   assert.doesNotMatch(res.text, /you have product[- ]market fit/i);
   assert.doesNotMatch(res.text, /[\u2014\u2013]/);
 });
@@ -577,7 +577,7 @@ test("14. Firstwork churn_reasons produce three '### Reason' headings in the pla
     expectedReasons.join("\n")
   );
   assert.ok(
-    res.text.includes(`- retention_playbook.churn_reasons: "${expectedReasons.join("\n")}"`),
+    res.text.includes(`- Churn reasons: "${expectedReasons.join("\n")}"`),
     "Handoff section must show the newline-joined churn_reasons string"
   );
 

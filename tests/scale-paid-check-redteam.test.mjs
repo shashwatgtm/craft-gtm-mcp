@@ -254,12 +254,12 @@ test("Spec Section 2 (Fix 2): a resume date after as_of and a stop date after as
   ]);
   assert.ok(
     res.text.includes(
-      "- BAD_STOP_AFTER (row 2): rejected because stopped (2026-07-05) is after as_of (2026-06-30)."
+      "- BAD_STOP_AFTER (row 2): rejected because stopped (2026-07-05) is after the check date (2026-06-30)."
     )
   );
   assert.ok(
     res.text.includes(
-      "- BAD_RESUME_AFTER (row 3): rejected because resumed (2026-07-10) is after as_of (2026-06-30)."
+      "- BAD_RESUME_AFTER (row 3): rejected because resumed (2026-07-10) is after the check date (2026-06-30)."
     )
   );
 });
