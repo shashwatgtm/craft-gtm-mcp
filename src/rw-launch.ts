@@ -1486,7 +1486,7 @@ export function writeCrisisPlan(args: {
   const prod = productParts(args.company);
   const cname = args.company.trim();
   const cnamePlain = unescapeMd(cname);
-  const plainName = !/[,:;]/.test(cnamePlain) && !/^(?:a|an|the|our|my)\b/i.test(cnamePlain) && (/^[A-Z0-9]/.test(cnamePlain) ? cnamePlain.split(/\s+/).length <= 6 : cnamePlain.split(/\s+/).length === 1) ? cname : null;
+  const plainName = !/[,:;]/.test(cnamePlain) && (!/^(?:a|an|the|our|my)\b/i.test(cnamePlain) || /^The(?: [A-Z][A-Za-z0-9&'.-]*){1,5}$/.test(cnamePlain)) && (/^[A-Z0-9]/.test(cnamePlain) ? cnamePlain.split(/\s+/).length <= 6 : cnamePlain.split(/\s+/).length === 1) ? cname : null;
   const N = prod.name ?? plainName ?? 'your company';
   const ctx = readContext({ model: args.business_model, vertical: args.industry, sector: args.your_sector }, { seller: [cleanCompanyName(args.company)], context: [args.potential_crises, args.compliance_requirements] });
   const model = wordingModel(ctx, !!args.business_model);
