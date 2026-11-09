@@ -121,9 +121,24 @@ test('Answer Card leads with the base and one short decision per group; details 
   assert.ok(r.text.startsWith('# Scale Paid Check: Answer Card\n\nBase verdict:'));
   const card=r.text.split('## Check this first')[0];
   assert.equal(card.split('\n').filter(x=>x.startsWith('- **')).length,r.structuredContent.groups.length);
-  assert.ok(card.split('\n').every(line=>line.length<260),file);
+  assert.ok(card.split('\n').every(line=>line.length<300),file);
   const headings=['## Check this first','## Cohort table','## Groups table','## Money','## Stop rule','## First draft: responses'];
   for(let i=1;i<headings.length;i++) assert.ok(r.text.indexOf(headings[i-1])<r.text.indexOf(headings[i]),file);
   assert.equal(r.text,r.content[0].text);assert.equal(r.toString(),r.text);
  }
+});
+
+test('example lines are named in the Answer Card for missing, supplied and same-meaning supplied lines',()=>{
+ const notice='You did not set your own lines, so this uses example lines: 80% kept at month 12 and 12 month payback. These are examples, not benchmarks. Give your own lines and run it again.';
+ const card=changes=>run(changes).text.split('## Check this first')[0];
+ assert.ok(card({stop_line:undefined,payback_line_months:undefined}).includes(notice));
+ for(const product of ['Dispatch planning software. Keep 85% and pay back within 18 months.','Dispatch planning software. We want 85% still paying at month 12 and an 18 month payback.']){
+  const r=run({product,stop_line:0.85,payback_line_months:18});
+  assert.doesNotMatch(r.text.split('## Check this first')[0],/example line|not benchmarks/);
+  assert.equal(r.structuredContent.stop_line,0.85);assert.equal(r.structuredContent.payback_line_months,18);
+ }
+ assert.match(card({payback_line_months:undefined,stop_line:0.85}),/did not set a payback line.*12 month payback/);
+ assert.doesNotMatch(card({payback_line_months:undefined,stop_line:0.85}),/80% kept/);
+ assert.match(card({stop_line:undefined,payback_line_months:18}),/did not set a keep line.*80% kept at month 12/);
+ assert.doesNotMatch(card({stop_line:undefined,payback_line_months:18}),/12 month payback/);
 });

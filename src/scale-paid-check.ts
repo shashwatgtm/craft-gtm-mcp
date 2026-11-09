@@ -966,6 +966,15 @@ export function generateScalePaidCheck(input: ScalePaidCheckInput): ScalePaidChe
         : "Losses speed up in months 7 to 12."
       : "Both latest signing quarters pass your checks.";
   lines.push(`Base verdict: **${baseVerdict}**. ${baseReason}`);
+  if (stopLineIsDefault || paybackLineIsDefault) {
+    const explanation = stopLineIsDefault && paybackLineIsDefault
+      ? "You did not set your own lines, so this uses example lines: 80% kept at month 12 and 12 month payback."
+      : stopLineIsDefault
+        ? "You did not set a keep line, so this uses an example line: 80% kept at month 12."
+        : "You did not set a payback line, so this uses an example line: 12 month payback.";
+    lines.push(`${explanation} These are examples, not benchmarks. Give your own lines and run it again.`);
+  }
+
   for (const g of groups) {
     if (g.too_few_customers) {
       lines.push(`- **${g.name}: ${g.verdict}.** ${g.base} customers with a full year of history. Too few customers to read.`);
