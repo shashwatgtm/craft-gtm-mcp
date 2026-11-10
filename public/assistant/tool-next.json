@@ -22,6 +22,27 @@
       }
     },
     {
+      "tool": "scale_paid_check",
+      "questions": [
+        "Should we scale paid now?",
+        "Is churn too high to spend more on ads?"
+      ],
+      "next_tool": "customer_interview_kit",
+      "why": "Test the suspected churn cause with the customer.",
+      "repository": "craft-gtm-mcp",
+      "slug": "scale-paid-check",
+      "title": "Scale Paid Check",
+      "job": "Should we scale paid now, run a capped test, or hold spend?",
+      "url": "https://craft-gtm.gtmhelix.com/tools/scale-paid-check/",
+      "source_page": "public/tools/scale-paid-check/index.html",
+      "job_table": "https://tools.gtmhelix.com/tools/#craft-gtm",
+      "next": {
+        "tool": "customer_interview_kit",
+        "title": "Customer Interview Kit",
+        "url": "https://craft-gtm.gtmhelix.com/tools/customer-interview-kit/"
+      }
+    },
+    {
       "tool": "launch_commander",
       "questions": [
         "How do I turn the release date and goals into a launch timeline?",
