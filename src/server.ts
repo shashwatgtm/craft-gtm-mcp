@@ -36,7 +36,7 @@ import { generateCRAFTAnalyzer } from "./craft-analyzer.js";
 import { generateScalePaidCheck } from "./scale-paid-check.js";
 
 export const SERVER_NAME = "craft-gtm-mcp";
-export const SERVER_VERSION = "2.2.23";
+export const SERVER_VERSION = "2.2.24";
 
 // Every tool only builds text from its inputs: no storage, no network, no side effects.
 const TOOL_TITLES: Record<string, string> = {

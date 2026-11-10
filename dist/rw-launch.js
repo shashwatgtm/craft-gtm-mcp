@@ -254,6 +254,29 @@ function capabilityPieces(desc) {
     // a part of two words or more that comes twice is listed once; a one word item is kept where the caller put it (by position)
     return pieces.filter((x) => x.split(/\s+/).length <= 24).filter((x, i, a) => x.split(/\s+/).length < 2 || a.findIndex((y) => y.toLowerCase() === x.toLowerCase()) === i);
 }
+/** Channel list negation belongs to the whole list until a new clause affirms channels. */
+function launchChannels(text) {
+    if (!/\b(?:not|no|never|without|exclude|avoid|cannot)\b|(?:don['’]t|can['’]t)/i.test(text)) {
+        return { available: splitTopLevel(text), restricted: false };
+    }
+    const available = [];
+    for (const clause of text.split(/[;.!?\n]|\bbut\b/i)) {
+        let excluded = false;
+        for (const raw of clause.split(/,|\s+(?:and|or|nor)\s+/i)) {
+            let part = raw.trim().replace(/^(?:and|or|nor)\s+/i, '');
+            if (!part)
+                continue;
+            if (/^(?:(?:we|our team|I)\s+)?(?:do not|does not|don['’]t|cannot|can['’]t|never|not|no|without|exclude|avoid)\b/i.test(part))
+                excluded = true;
+            else if (/^(?:we|our team|I)\s+(?:use|can use|have|will use)\b/i.test(part))
+                excluded = false;
+            part = part.replace(/^(?:we|our team|I)\s+(?:use|can use|have|will use)\s+/i, '');
+            if (!excluded && part)
+                available.push(part);
+        }
+    }
+    return { available, restricted: true };
+}
 // A contract sold to a buying committee (services, connectivity, investment, hardware plus software) has no landing page, blog or in-app
 // message as its launch channels: each software launch task is swapped for the sales-led task that does the same job.
 const CONTRACT_SWAP = {
@@ -609,9 +632,11 @@ This is a readiness review, not an acquisition schedule. No new pilot commitment
         };
     })() : null;
     // channels: the ones named, else the sector's own
-    const channelsGiven = args.available_channels ? splitTopLevel(args.available_channels).map((c) => (c.toLowerCase() === 'linkedin' ? 'LinkedIn' : c)) : [];
+    const channelReading = launchChannels(args.available_channels ?? '');
+    const channelsGiven = channelReading.available.map((c) => (c.toLowerCase() === 'linkedin' ? 'LinkedIn' : c));
+    const channelsUnconfirmed = channelReading.restricted && !channelsGiven.length;
     const segChannels = segmentKinds(args.target_segments).flatMap((k) => k.channels ?? []).filter((c, i, a) => a.indexOf(c) === i).slice(0, 4);
-    const shownChannels = channelsGiven.length ? channelsGiven : layer ? layer.channels : pb ? pb.channels : segChannels.length ? segChannels : salesLed ? ['account-based outreach to named buyers', 'LinkedIn posts from your experts and customers', 'executive roundtable or briefing'] : ['email', 'LinkedIn', 'blog'];
+    const shownChannels = channelsGiven.length ? channelsGiven : channelsUnconfirmed ? ['channels still to confirm'] : layer ? layer.channels : pb ? pb.channels : segChannels.length ? segChannels : salesLed ? ['account-based outreach to named buyers', 'LinkedIn posts from your experts and customers', 'executive roundtable or briefing'] : ['email', 'LinkedIn', 'blog'];
     const filterWords = (channelsGiven.length ? channelsGiven : ['email', 'linkedin', 'blog']).map((c) => c.toLowerCase());
     const adoption = pb ? pb.adoption.measure : 'product or service usage';
     const c = { N: prod.name ?? 'your solution', NS: prod.name ?? 'Your solution', segs, segList, segRef: segs.length <= 3 ? segList : 'the target segments', segEach: segs.length <= 3 ? `each of ${segList}` : 'each target segment', buyer, channels: shownChannels, channelList: channelsGiven.length ? andList(channelsGiven) : 'the channels listed under Channels and budget', mode, caps, adoption, goals, ctx, launchWord: LAUNCH_WORD[launchType] };
@@ -629,7 +654,7 @@ This is a readiness review, not an acquisition schedule. No new pilot commitment
     };
     const keepTask = (task) => {
         const t = task.toLowerCase();
-        if (channelsGiven.length) {
+        if (channelsGiven.length || channelsUnconfirmed) {
             const allowed = channelsGiven.join(' ').toLowerCase();
             const families = [/\b(?:email|newsletter)\b/, /\b(?:social|linkedin|twitter|facebook|instagram)\b/, /\b(?:webinar|event|roundtable)\b/, /\b(?:pr|press|journalist)\b/, /\b(?:paid|ads|retargeting)\b/, /\b(?:blog|article|content syndication)\b/, /\b(?:partner|co-marketing)\b/, /\b(?:notification|in-app)\b/];
             if (families.some(re => re.test(t) && !re.test(allowed)))
@@ -853,7 +878,7 @@ This is a readiness review, not an acquisition schedule. No new pilot commitment
         well_funded: ['multi-channel paid campaigns', 'large events', 'a PR agency', 'account-based programmes'],
     };
     const tacticList = channelsGiven.length ? channelsGiven.map(ch => `prepare and verify the message for ${ch}`) : (tactics[budgetLevel] || tactics.moderate);
-    out.push(`${channelsGiven.length ? `You can use ${andList(channelsGiven)}.` : `The channels are the usual ones for ${ctx.v ? `${ctx.v.name} buyers` : 'this kind of buyer'}: ${andList(shownChannels)}.`} At a ${readableChoice(budgetLevel)} budget, ${channelsGiven.length ? andList(tacticList) : `prioritise ${andList(tacticList)}`}.`);
+    out.push(channelsUnconfirmed ? 'The channels you named are excluded. Confirm an available channel and its owner before scheduling outreach or assigning channel spend.' : `${channelsGiven.length ? `You can use ${andList(channelsGiven)}.` : `The channels are the usual ones for ${ctx.v ? `${ctx.v.name} buyers` : 'this kind of buyer'}: ${andList(shownChannels)}.`} At a ${readableChoice(budgetLevel)} budget, ${channelsGiven.length ? andList(tacticList) : `prioritise ${andList(tacticList)}`}.`);
     out.push('');
     // ---- timeline ----
     if (dated || taskCapacity > 0) {
@@ -1161,7 +1186,16 @@ export function writeRetentionPlaybook(args) {
     const choice = args.business_model;
     const csTeamSize = args.cs_team_size || 'unknown';
     const capacity = CAPACITY[csTeamSize] || { highTouch: 0, scaledTouch: 0, automated: 0 };
-    const reasonNotes = (args.churn_reasons || '').split(/[;\n]/).map(x => x.trim()).filter(Boolean);
+    const reasonNotes = (args.churn_reasons || '').split(/[;\n]/).map(x => x.trim()).filter(Boolean).flatMap(note => {
+        // Split only a list of distinct, recognised causes. Causal clauses and scoped denials stay whole.
+        if (/^(?:no|not|neither|we do not)\b/i.test(note))
+            return [note];
+        const parts = splitTopLevel(note.replace(/\s+and\s+/gi, ', ')).map(p => p.replace(/^(?:and|or)\s+/i, '').trim());
+        if (parts.length < 2 || parts.some(p => /^(?:so|because|which|that|with|where|while|then|but|therefore)\b/i.test(p)))
+            return [note];
+        const kinds = parts.map(kindOfReason);
+        return kinds.every(k => k !== 'other') && new Set(kinds).size === parts.length ? parts : [note];
+    });
     const unresolved = reasonNotes.filter(x => /\b(?:unknown|unconfirmed|not (?:yet )?(?:known|confirmed|established)|no evidence)\b/i.test(x) || readSignal(x, /\b(?:training gaps?|training problems?|training issues?)\b/i).state === 'negated');
     const reasons = reasonNotes.filter(x => !unresolved.includes(x));
     const trainingObserved = reasons.some(x => hasSignal(x, /\b(?:training gaps?|training problems?|training issues?|lack of training|insufficient training)\b/i));
@@ -1592,7 +1626,7 @@ export function writeCrisisPlan(args) {
     const prod = productParts(args.company);
     const cname = args.company.trim();
     const cnamePlain = unescapeMd(cname);
-    const plainName = !/[,:;]/.test(cnamePlain) && !/^(?:a|an|the|our|my)\b/i.test(cnamePlain) && (/^[A-Z0-9]/.test(cnamePlain) ? cnamePlain.split(/\s+/).length <= 6 : cnamePlain.split(/\s+/).length === 1) ? cname : null;
+    const plainName = !/[,:;]/.test(cnamePlain) && (!/^(?:a|an|the|our|my)\b/i.test(cnamePlain) || /^The(?: [A-Z][A-Za-z0-9&'.-]*){1,5}$/.test(cnamePlain)) && (/^[A-Z0-9]/.test(cnamePlain) ? cnamePlain.split(/\s+/).length <= 6 : cnamePlain.split(/\s+/).length === 1) ? cname : null;
     const N = prod.name ?? plainName ?? 'your company';
     const ctx = readContext({ model: args.business_model, vertical: args.industry, sector: args.your_sector }, { seller: [cleanCompanyName(args.company)], context: [args.potential_crises, args.compliance_requirements] });
     const model = wordingModel(ctx, !!args.business_model);

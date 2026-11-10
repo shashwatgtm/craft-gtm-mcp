@@ -1,4 +1,3 @@
-import { SOFTWARE_REFERRAL } from './software-policy.js';
 import { readableChoice } from './utils.js';
 import { readContext, splitItems, q, cleanCompanyName, lcFirst } from './context.js';
 import { playbookFor, kindsNote } from './sector-playbooks.js';
@@ -55,7 +54,7 @@ export function generatePartnerArchitect(args) {
             overview: 'Partners purchase licenses/subscriptions at discount and resell to end customers. Full sales cycle ownership.',
             tiers: [
                 { name: 'Authorized', requirements: ['Sign partner agreement', 'Complete basic certification', '0 deals closed'], benefits: ['Partner portal access', 'Basic sales materials', 'Deal registration'], commission: `${money(dealSize * 0.15)} (15% discount)`, support: 'Email support, monthly newsletter' },
-                { name: 'Silver', requirements: ['3+ deals/quarter', '1 certified seller', 'Demo environment active'], benefits: ['Co-marketing funds ($500/q)', 'Lead sharing', 'Priority support'], commission: `${money(dealSize * 0.20)} (20% discount)`, support: SOFTWARE_REFERRAL },
+                { name: 'Silver', requirements: ['3+ deals/quarter', '1 certified seller', 'Demo environment active'], benefits: ['Co-marketing funds ($500/q)', 'Lead sharing', 'Priority support'], commission: `${money(dealSize * 0.20)} (20% discount)`, support: 'Partner manager, monthly pipeline review' },
                 { name: 'Gold', requirements: ['10+ deals/quarter', '3 certified staff', 'Joint business plan'], benefits: ['Co-marketing funds ($2K/q)', 'Exec sponsor', 'Product roadmap input', 'Event sponsorship'], commission: `${money(dealSize * 0.25)} (25% discount)`, support: 'Dedicated partner manager, weekly syncs' },
                 { name: 'Platinum', requirements: ['25+ deals/quarter', '5 certified staff', 'Exclusivity in territory (optional)'], benefits: ['Custom pricing', 'Co-development opportunities', 'Advisory board seat', 'First access to features'], commission: `${money(dealSize * 0.30)} (30% discount)`, support: 'Strategic partnership team, exec alignment' }
             ],
@@ -121,7 +120,9 @@ export function generatePartnerArchitect(args) {
     // a figure is a number that is not part of a word (3PL, 4G and CPaaS hold no target)
     const goalHasFigure = /(?<![A-Za-z0-9])\d[\d,.]*(?![A-Za-z0-9])|\b(?:zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|twenty|fifty|hundred)\s+(?:(?:qualified|referral|new|active|paid|closed|sourced)\s+)*(?:partners?|deals?|accounts?|customers?|introductions?|referrals?)\b/i.test(args.partner_goals.replace(/\bno numeric target given\b/gi, ''));
     const exampleDeals = 10;
-    const pm = partnerModel.replace(/_/g, ' ');
+    const pm = partnerModel === 'agency_si' ? 'agency and systems integration' : partnerModel.replace(/_/g, ' ');
+    const programArticle = /^[aeiou]/i.test(pm) ? 'an' : 'a';
+    const outreachPartners = [...new Set(goalSegments.flatMap(g => g.partners.split(', ').slice(0, 2)))];
     const company = stripEnd(args.company);
     const label = productLabel(args.product, args.company);
     const startsWithCompany = label.name !== null && label.name.toLowerCase() === company.toLowerCase();
@@ -163,7 +164,7 @@ Qualify one introduction: the buyer confirms an approval or workflow problem, th
 
 **Commercial confirmation:** ${terms}
 
-This is a ${pm} partner program for ${offer}. ${dealLine} You can support partners at a ${capacity} level.
+This is ${programArticle} ${pm} partner program for ${offer}. ${dealLine} You can support partners at a ${capacity} level.
 
 **Your stated goal:** ${q(args.partner_goals)}
 
@@ -246,7 +247,7 @@ Subject: ${cap1(pm)} partnership with ${company}
 
 Hello,
 
-${startsWithCompany && !label.rest ? `I am writing from ${company} to ask whether you would partner with us.` : `I am writing from ${company} about ${offerInEmail}.`}${goalClean && goalClean.length <= 240 ? ` Our goal is ${goalInEmail}.` : goalSegments.length ? ` We are looking for partners whose clients include ${listAnd(goalSegments.map((g) => g.name))}.` : ''}${goalSegments.length ? ` We are looking for partners such as ${listAnd(goalSegments[0].partners.split(', ').slice(0, 2))} that already serve clients in ${listAnd(goalSegments.map((g) => g.name.replace(/public sector/, 'public bodies')))}.${goalSegments.find((g) => g.risks) ? ` Clients in ${goalSegments.find((g) => g.risks).name} are often dealing with ${goalSegments.find((g) => g.risks).risks}.` : ''}` : ''}${prodKinds.some((k) => !k.fromName) ? ` ${cap1(startsWithCompany && !label.rest ? 'our product' : offerInEmail)} works with ${listAnd(prodKinds.filter((k) => !k.fromName).map((k) => k.does))}, which is the part your clients would use.` : pb && ctx.v && pb.pains[0] ? ` Many buyers in ${ctx.v.name} are dealing with ${lc(stripEnd(pb.pains[0]))}, and we would like to check whether ${startsWithCompany && !label.rest ? 'our product' : offerInEmail} fits the work your clients need to do.` : ''}${pb && ctx.v ? ` The people who decide on this are usually ${listAnd(ctx.v.buyerRoles.slice(0, 3))}.` : ''} ${{
+${startsWithCompany && !label.rest ? `I am writing from ${company} to ask whether you would partner with us.` : `I am writing from ${company} about ${offerInEmail}.`}${goalClean && goalClean.length <= 240 ? ` Our goal is ${goalInEmail}.` : goalSegments.length ? ` We are looking for partners whose clients include ${listAnd(goalSegments.map((g) => g.name))}.` : ''}${goalSegments.length ? ` We are looking for partners such as ${listAnd(outreachPartners)} that already serve clients in ${listAnd(goalSegments.map((g) => g.name.replace(/public sector/, 'public bodies')))}.${goalSegments.find((g) => g.risks) ? ` Clients in ${goalSegments.find((g) => g.risks).name} are often dealing with ${goalSegments.find((g) => g.risks).risks}.` : ''}` : ''}${prodKinds.some((k) => !k.fromName) ? ` ${cap1(startsWithCompany && !label.rest ? 'our product' : offerInEmail)} works with ${listAnd(prodKinds.filter((k) => !k.fromName).map((k) => k.does))}, which is the part your clients would use.` : pb && ctx.v && pb.pains[0] ? ` Many buyers in ${ctx.v.name} are dealing with ${lc(stripEnd(pb.pains[0]))}, and we would like to check whether ${startsWithCompany && !label.rest ? 'our product' : offerInEmail} fits the work your clients need to do.` : ''}${pb && ctx.v ? ` The people who decide on this are usually ${listAnd(ctx.v.buyerRoles.slice(0, 3))}.` : ''} ${{
         reseller: 'As a partner you can grow your revenue by offering it alongside your own services.',
         referral: 'Our team would run the sale after an accepted introduction. Before any referral, we would agree qualification, attribution and any fee in writing.',
         integration_tech: 'A deeper integration would add to the value of both products for the customers we share.',
