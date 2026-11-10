@@ -1,6 +1,6 @@
 # CRAFT GTM
 
-> CRAFT GTM is a free web app and AI connector with eight planning tools, by Shashwat Ghosh of Helix GTM Consulting, for founders and CMOs. Give it your metrics, launch date, customers or competitors, and it returns a product-market fit scorecard, a launch plan, playbooks or battle cards. Add https://craft-gtm.gtmhelix.com/mcp in Claude, ChatGPT, Cursor, VS Code and Windsurf, no sign-in.
+> CRAFT GTM is a free web app and AI connector with nine planning tools, by Shashwat Ghosh of Helix GTM Consulting, for founders and CMOs. Give it your metrics, launch date, customers or competitors, and it returns a product-market fit scorecard, a launch plan, playbooks or battle cards. Add https://craft-gtm.gtmhelix.com/mcp in Claude, ChatGPT, Cursor, VS Code and Windsurf, no sign-in.
 
 - Web app (no sign-in): https://craft-gtm.gtmhelix.com/
 - MCP server URL (Streamable HTTP, no sign-in, read-only tools): https://craft-gtm.gtmhelix.com/mcp
@@ -30,7 +30,7 @@
 
 ### What is CRAFT GTM?
 
-CRAFT GTM is a free web app and AI connector with eight planning tools, by Shashwat Ghosh of Helix GTM Consulting, for founders and CMOs. Give it your metrics, launch date, customers or competitors, and it returns a product-market fit scorecard, a launch plan, playbooks or battle cards. Add https://craft-gtm.gtmhelix.com/mcp in Claude, ChatGPT, Cursor, VS Code and Windsurf, no sign-in.
+CRAFT GTM is a free web app and AI connector with nine planning tools, by Shashwat Ghosh of Helix GTM Consulting, for founders and CMOs. Give it your metrics, launch date, customers or competitors, and it returns a product-market fit scorecard, a launch plan, playbooks or battle cards. Add https://craft-gtm.gtmhelix.com/mcp in Claude, ChatGPT, Cursor, VS Code and Windsurf, no sign-in.
 
 ### Is CRAFT GTM free, and do I need an account?
 
