@@ -44,6 +44,7 @@ Files changed:
 - `discovery-20261111/state.json`
 - `public/connect/index.html`
 - `public/docs/index.html`
+- `public/faq/index.html`
 - `public/index.html`
 - `public/llms.txt`
 - `public/sitemap.xml`
