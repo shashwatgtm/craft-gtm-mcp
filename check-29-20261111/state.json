@@ -8,13 +8,15 @@
     "Retention projections gated on additional cuts, opening ARR and unchanged expansion",
     "Missing, zero, small percentages, hiring targets and micro rates fixed",
     "Guide known answer and all nine existing tool responses verified",
-    "Browser checked at 375 and 1440 pixels; screenshots captured"
+    "Browser checked at 375 and 1440 pixels; screenshots captured",
+    "Contradictory retention cannot drive expansion, projections or spending advice",
+    "Industry is forwarded through the existing sector reader; tied years are described honestly"
   ],
   "items_left": [
     "Complete final full suite comparison",
     "Complete CHECK-REPORT.md and final push"
   ],
-  "updated_at": "2026-11-11T13:25:52+05:30",
+  "updated_at": "2026-11-11T13:31:54+05:30",
   "code_repository": "shashwatgtm/craft-gtm-mcp",
   "code_branch": "codex/check-29-20261111",
   "builder_commit": "3c94ae8a103ca0d429701ba39ae037a7489cdfb6",
@@ -22,7 +24,7 @@
   "hub_branch": "codex/check-29-20261111",
   "checks": {
     "build": "pass",
-    "focused_tests": "42 passed",
+    "focused_tests": "45 passed",
     "existing_tools": "9 definitions and 9 response bytes unchanged",
     "browser": "375px and 1440px passed"
   },

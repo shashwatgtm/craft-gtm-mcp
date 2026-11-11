@@ -38,8 +38,8 @@ for (const [sector,exact,same,opposite] of sectors) test(`pricing adversarial ex
 });
 
 test('pricing mentions, uncertain plans, free units and questions never invent a current contract',()=>{
- for(const sentence of ['Our usage dashboard helps customers manage seats','Do we charge per seat or per transaction?','We may charge per seat next year','We bill a flat platform fee','We charge per AI agent','We bill on usage, not without seats','We bill per seat unless usage rises','Billed by hours worked','We sell a block of credits']) assert.equal(readPricingUnit(sentence),'unclear',sentence);
- for(const sentence of ['We switched from per seat to usage','We moved from seat pricing to usage billing','We charge per shipment with seat management included','We license software per shipment','We licence the platform per shipment','We bill per shipment and manage seats','We bill per shipment, with seat management included','Customers can cut seats, but we bill per shipment']) assert.equal(readPricingUnit(sentence),'usage',sentence);
+ for(const sentence of ['Our usage dashboard helps customers manage seats','Do we charge per seat or per transaction?','We may charge per seat next year','We are moving from per seat to per API call','We switched from seats to usage but reverted to per seat','We bill a flat platform fee','We charge per AI agent','We bill on usage, not without seats','We bill per seat unless usage rises','Billed by hours worked','We sell a block of credits']) assert.equal(readPricingUnit(sentence),'unclear',sentence);
+ for(const sentence of ['We billed per seat last year; now we bill per shipment','Seat pricing was retired; we bill per shipment','We switched from per seat to usage','We moved from seat pricing to usage billing','We charge per shipment with seat management included','We license software per shipment','We licence the platform per shipment','We bill per shipment and manage seats','We bill per shipment, with seat management included','Customers can cut seats, but we bill per shipment']) assert.equal(readPricingUnit(sentence),'usage',sentence);
  for(const sentence of ['We charge per seat with unlimited usage','We bill for seats and include usage analytics','We bill per seat, but the usage fee is waived','We bill per seat and no transaction fee']) assert.equal(readPricingUnit(sentence),'seat',sentence);
  for(const sentence of ['We charge per seat plus per API call','Not only per seat but also per API call','We charge per seat plus a platform fee']) assert.equal(readPricingUnit(sentence),'hybrid',sentence);
  for(const sentence of ['We do not charge per seat and per user','Neither seats nor usage: a fixed yearly subscription','We never bill by headcount']) assert.equal(readPricingUnit(sentence),'unclear',sentence);
@@ -179,4 +179,34 @@ test('zero accounts, target, buyer saving and seller cost preserve their literal
  assert.equal(seg({seller_loaded_cost_per_year:0,seller_ramp_months:0,sales_cycle_days:0,ramped_deals_per_seller_per_year:12}).seller_capacity.payback_on_seller_cost_months,0);
  assert.equal(seg({buyer_cost_per_seat_per_year:0}).seat_cut.buyer_saving,0);
  assert.equal(seg({buyer_cost_per_seat_per_year:0}).seat_cut.share_of_buyer_saving,null);
+});
+
+test('retention signal extracts carry the supplied industry without changing the playbook',()=>{
+ const extract=industry=>generateSegmentCheck({product:'Operations platform',industry,confirmed:{segment_split:true,seat_cut:true},segments:[{name:'Operations teams',logo_retention_percent:89,monthly_logo_churn_percent:1,pricing_unit:'seat'}]}).text;
+ for(const industry of ['telecom','telecommunications']) assert.match(extract(industry),/service quality and repair time/);
+ assert.match(extract('cybersecurity'),/findings or threats handled/);
+ assert.doesNotMatch(extract('cybersecurity'),/service quality and repair time/);
+});
+
+test('later-years comparison never claims a leader through a tied year',()=>{
+ for(const scale of [1,2]){
+  const r=generateSegmentCheck({product:'Dispatch planning',gross_margin_percent:50,tracks_expansion:true,confirmed:{segment_split:true},segments:[{name:'Large carriers',acv:20000*scale,cac:5000*scale,gross_retention_percent:0,net_retention_percent:0},{name:'Regional carriers',acv:20000*scale,cac:10000*scale,gross_retention_percent:100,net_retention_percent:100}]});
+  assert.match(r.text,/Regional carriers first leads at year 3. Any intervening ties do not count as a lead/);
+  assert.doesNotMatch(r.text,/Large carriers.*through year 2/);
+ }
+ const same=result({}, {tracks_expansion:true});assert.doesNotMatch(same.text,/first leads at year/);
+});
+
+
+test('contradictory gross and net retention remain evidence, but cannot drive projections or expansion',()=>{
+ for(const [gross,net] of [[92,88],[91,87]]){
+  const r=result({gross_retention_percent:gross,net_retention_percent:net},{tracks_expansion:true});
+  const s=r.structuredContent.segments[0];
+  assert.equal(s.retention_and_payback.gross_retention_percent,gross);assert.equal(s.retention_and_payback.net_retention_percent,net);
+  assert.equal(s.retention_and_payback.expansion_points,null);
+  assert.equal(s.retention_and_payback.gross_profit_per_cac_dollar.on_net_retention,null);
+  assert.equal(s.seat_cut.gross_retention_after_percent,null);assert.equal(s.seat_cut.net_retention_after_percent,null);assert.equal(s.seat_cut.gates.net_before,null);
+  assert.match(r.text,/net retention .* is below gross retention/);assert.doesNotMatch(r.text,/Keep new acquisition spend off/);
+ }
+ const s=seg({gross_retention_percent:88,net_retention_percent:104});assert.equal(s.retention_and_payback.expansion_points,16);assert.equal(s.seat_cut.net_retention_after_percent,94);
 });

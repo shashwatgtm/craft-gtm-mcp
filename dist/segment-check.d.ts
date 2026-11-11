@@ -67,7 +67,7 @@ export declare function paybackMonthsOnGrossProfit(cac: number, arr: number, mar
 export declare function retainedYears(retentionShare: number, years: number): number;
 /** Cumulative gross profit per dollar of CAC by the end of a year, undiscounted, at one flat yearly retention. */
 export declare function grossProfitPerCacDollar(acv: number, marginShare: number, cac: number, retentionShare: number, years: number): number;
-/** The first year (2 to maxYears) in which the year one leader no longer leads. Null when the lead holds. */
+/** The first year (2 to maxYears) in which the other segment strictly leads. Ties do not count. */
 export declare function leadChangeYear(valueA: (years: number) => number, valueB: (years: number) => number, maxYears?: number): {
     firstLeader: "a" | "b" | "tie";
     changeYear: number | null;

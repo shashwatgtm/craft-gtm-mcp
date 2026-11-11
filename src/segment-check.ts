@@ -8,6 +8,7 @@
 // They are not duplicated here: the tool prints the exact inputs to send to each and carries back the named result
 // fields the chat supplies. The retention playbook runs on this server and is called directly.
 import { generateRetentionPlaybook } from "./retention-playbook.js";
+import { detectVertical } from "./verticals.js";
 
 export interface SegmentInput {
   name: string;
@@ -95,7 +96,7 @@ export function grossProfitPerCacDollar(acv: number, marginShare: number, cac: n
   return ((acv * marginShare) / cac) * retainedYears(retentionShare, years);
 }
 
-/** The first year (2 to maxYears) in which the year one leader no longer leads. Null when the lead holds. */
+/** The first year (2 to maxYears) in which the other segment strictly leads. Ties do not count. */
 export function leadChangeYear(valueA: (years: number) => number, valueB: (years: number) => number, maxYears = 15): { firstLeader: "a" | "b" | "tie"; changeYear: number | null } {
   const lead = (y: number): "a" | "b" | "tie" => { const a = valueA(y), b = valueB(y); return Math.abs(a - b) < 1e-12 ? "tie" : a > b ? "a" : "b"; };
   const firstLeader = lead(1);
@@ -148,7 +149,7 @@ const LEAD = "(?:per|each|every|number of|by the|(?:pay|pays|paid|charge|charges
 const BILLING = /\b(?:pay|pays|paid|charge|charges|charged|bill|bills|billed|billing|price|priced|prices|pricing|fee|fees|licen[cs]e|licen[cs]es|licen[cs]ed|cost|costs|subscription)\b/i;
 const SEAT_WORDS = new RegExp("\\b" + LEAD + "[- ](?:named[- ])?" + SEAT_NOUN + "\\b" + NOT_WORK + "|\\b(?:seat|user|headcount)[- ](?:based|pricing|billing|fees?|count)\\b", "i");
 const USAGE_WORDS = new RegExp("\\b" + LEAD + "[- ](?:[a-z]+[- ]){0,2}?" + USAGE_NOUN + "\\b|\\b" + USAGE_NOUN + "[- ](?:based|volume)\\b|\\b(?:volume|outcome)[- ]based\\b", "i");
-const NEGATORS = /\b(?:not|no|never|neither|nor|unlimited|without|instead of|rather than|no longer|away from|stopped|dropped|ended|removed|scrapped)\b|n't\b/i;
+const NEGATORS = /\b(?:not|no|never|neither|nor|unlimited|without|instead of|rather than|no longer|away from|stopped|dropped|ended|removed|scrapped|retired)\b|n't\b/i;
 
 /** A conservative current billing reader. Mentions, questions and future plans are not a pricing contract. */
 export function readPricingUnit(sentence: string | undefined): PricingUnit {
@@ -158,11 +159,12 @@ export function readPricingUnit(sentence: string | undefined): PricingUnit {
   // Preserve an explicit present contract and discard a later plan. Otherwise a future price is unknown.
   plain = plain.replace(/[,;]\s*(?:(?:we are |we're )?(?:moving|switching|planning)|(?:we )?(?:will|may|might|plan to))\b.*$/i, "");
   plain = plain.replace(/\b(?:we )?(?:switched|moved|changed) (?:our pricing )?from .+? to /gi, "We bill on ");
+  if (/\b(?:(?:moving|switching|transitioning) from|reverted|reverting)\b/i.test(plain)) return "unclear";
   plain = plain.replace(/\bnot only\b/gi, "");
   const clauses = plain.split(/(?<!\d)[.;:]|[.;:](?!\d)|[,()]|\bbut\b|\bonly\b|\bjust\b|\bhowever\b|\bthough\b|\bwith\b|\band(?=\s+(?:now|we|they|instead|then|it|customers|clients|each|every|bill|charge|price|pay|sell|moved|switched|include|includes|provide|manage|no|not|unlimited)\b)/i);
   let seat = false, usage = false, fixed = false;
   for (const clause of clauses) {
-    if (/\b(?:will|would|may|might|could|plan|planning|next year|next quarter|used to|previously|formerly)\b/i.test(clause)) continue;
+    if (/\b(?:will|would|may|might|could|plan|planning|next year|next quarter|used to|previously|formerly|last year|last quarter)\b/i.test(clause)) continue;
     // A statement denying an entire price, including a denial after its unit, is not evidence for it.
     if (NEGATORS.test(clause) || /\b(?:free|included|waived|not used|not charged)\b/i.test(clause)) continue;
     const bills = BILLING.test(clause);
@@ -209,6 +211,10 @@ const miss = (needs: string): string => `Missing: needs ${needs}`;
 
 function given(v: unknown): number | undefined {
   return typeof v === "number" && Number.isFinite(v) ? v : undefined;
+}
+function retentionConsistent(s: SegmentInput): boolean {
+  const grr = given(s.gross_retention_percent), nrr = given(s.net_retention_percent);
+  return grr === undefined || nrr === undefined || nrr >= grr;
 }
 function text(v: unknown): string | undefined {
   return typeof v === "string" && v.trim() ? v.trim() : undefined;
@@ -397,7 +403,7 @@ export function generateSegmentCheck(input: SegmentCheckInput): SegmentCheckResu
     const payback = acv !== undefined && cac !== undefined ? paybackMonths(cac, acv) : null;
     const paybackOnProfit = acv !== undefined && cac !== undefined && margin !== undefined && margin > 0 ? paybackMonthsOnGrossProfit(cac, acv, margin) : null;
     const series = (r: number | undefined): Record<number, number> | null => {
-      if (acv === undefined || cac === undefined || cac === 0 || margin === undefined || r === undefined) return null;
+      if (!retentionConsistent(s) || acv === undefined || cac === undefined || cac === 0 || margin === undefined || r === undefined) return null;
       const out: Record<number, number> = {};
       for (let y = 1; y <= 15; y++) out[y] = grossProfitPerCacDollar(acv, margin, cac, r / 100, y);
       return out;
@@ -411,7 +417,7 @@ export function generateSegmentCheck(input: SegmentCheckInput): SegmentCheckResu
     return {
       name, s, unit, unitSource, unitConflict, seatShare, payback, paybackOnProfit,
       perCac: { gross: series(grr), net: series(nrr), yearOne: acv !== undefined && cac !== undefined && cac > 0 && margin !== undefined ? (acv * margin) / cac : null },
-      expansionPoints: grr !== undefined && nrr !== undefined ? nrr - grr : null,
+      expansionPoints: retentionConsistent(s) && grr !== undefined && nrr !== undefined ? nrr - grr : null,
       missing,
     };
   });
@@ -465,7 +471,7 @@ export function generateSegmentCheck(input: SegmentCheckInput): SegmentCheckResu
   }
   for (const w of worked) {
     const nrr = given(w.s.net_retention_percent);
-    if (nrr !== undefined && nrr < 100) notes.push(`${w.name}: net retention is ${pct(nrr)}, under 100%, so this base shrinks without new sales. More spend buys more of what leaves. Fix retention before scaling acquisition here.`);
+    if (retentionConsistent(w.s) && nrr !== undefined && nrr < 100) notes.push(`${w.name}: net retention is ${pct(nrr)}, under 100%, so this base shrinks without new sales. More spend buys more of what leaves. Fix retention before scaling acquisition here.`);
   }
 
   // ----- seat cut model (pause three) -----
@@ -482,14 +488,14 @@ export function generateSegmentCheck(input: SegmentCheckInput): SegmentCheckResu
     const basisReady = basis.additional && basis.openingArr;
     const proposedLoss = w.seatShare === null || (arrShare === undefined && !noSeatLoss) ? null : noSeatLoss ? 0 : retentionPointsLost(arrShare! / 100, cutShare, w.seatShare);
     const impossible = proposedLoss !== null && ((grr !== undefined && proposedLoss > grr) || (nrr !== undefined && proposedLoss > nrr));
-    const lostPoints = impossible || (!noSeatLoss && !basisReady) ? null : proposedLoss;
+    const lostPoints = !retentionConsistent(s) || impossible || (!noSeatLoss && !basisReady) ? null : proposedLoss;
     const grrAfter = lostPoints === null || grr === undefined ? null : grr - lostPoints;
     const nrrAfter = lostPoints === null || nrr === undefined || (!noSeatLoss && !basis.expansionUnchanged) ? null : nrr - lostPoints;
-    const retentionNeeds = impossible ? "a cut consistent with retained revenue; this cut exceeds what remains" : basis.alreadyIncluded ? "an additional cut outside reported retention; these cuts are already counted" : !basis.additional ? "written confirmation that these additional cuts are not included in reported retention" : !basis.openingArr ? "affected revenue as a share of opening ARR, using the retention cohort and period" : "reported retention";
+    const retentionNeeds = !retentionConsistent(s) ? "consistent gross and net retention for the same cohort and period; net cannot be below gross" : impossible ? "a cut consistent with retained revenue; this cut exceeds what remains" : basis.alreadyIncluded ? "an additional cut outside reported retention; these cuts are already counted" : !basis.additional ? "written confirmation that these additional cuts are not included in reported retention" : !basis.openingArr ? "affected revenue as a share of opening ARR, using the retention cohort and period" : "reported retention";
     const gate = (value: number | null | undefined, line: number | undefined): "pass" | "fail" | null => (value === null || value === undefined || line === undefined ? null : value + 1e-9 >= line ? "pass" : "fail");
     const gates = {
-      gross_before: gate(grr, given(s.gross_retention_gate_percent)), gross_after: gate(grrAfter, given(s.gross_retention_gate_percent)),
-      net_before: gate(nrr, given(s.net_retention_gate_percent)), net_after: gate(nrrAfter, given(s.net_retention_gate_percent)),
+      gross_before: gate(retentionConsistent(s) ? grr : null, given(s.gross_retention_gate_percent)), gross_after: gate(grrAfter, given(s.gross_retention_gate_percent)),
+      net_before: gate(retentionConsistent(s) ? nrr : null, given(s.net_retention_gate_percent)), net_after: gate(nrrAfter, given(s.net_retention_gate_percent)),
       logo: gate(logo, given(s.logo_retention_gate_percent)),
     };
     // The rate that replaces the seat revenue, when the work each seat did is known.
@@ -540,7 +546,7 @@ export function generateSegmentCheck(input: SegmentCheckInput): SegmentCheckResu
     const churn = `${(Math.round(monthlyRate * 10) / 10).toFixed(1)}% monthly`;
     const models = w.unit === "seat" ? ["saas_subscription"] : w.unit === "usage" ? ["usage_based"] : ["saas_subscription", "usage_based"];
     const runs = models.map((model) => {
-      const answer = stripDashes(generateRetentionPlaybook({ customer_segment: w.name, business_model: model, current_churn_rate: churn, ...(text(w.s.churn_reasons) ? { churn_reasons: text(w.s.churn_reasons)! } : {}), product, ...(text(input.industry) ? { industry: text(input.industry)! } : {}) } as Parameters<typeof generateRetentionPlaybook>[0]));
+      const answer = stripDashes(generateRetentionPlaybook({ customer_segment: w.name, business_model: model, current_churn_rate: churn, ...(text(w.s.churn_reasons) ? { churn_reasons: text(w.s.churn_reasons)! } : {}), product, ...(text(input.industry) ? { industry: detectVertical(input.industry)?.id ?? text(input.industry)! } : {}) } as Parameters<typeof generateRetentionPlaybook>[0]));
       return { model, churn, health: playbookSection(answer, "Health score"), reach: model === "usage_based" ? playbookSection(answer, "When to reach out") : null };
     });
     return { name: w.name, runs };
@@ -740,7 +746,7 @@ export function generateSegmentCheck(input: SegmentCheckInput): SegmentCheckResu
   // ----- role lines -----
   const fastest = withPayback.length > 0 ? [...withPayback].sort((a, b) => a.payback! - b.payback!)[0] : null;
   const seatExposed = worked.filter((_, i) => { const c = seatCut[i] as any; return c.state === "worked" && c.lostPoints !== null && c.lostPoints > 0; });
-  const under100 = worked.filter((w) => given(w.s.net_retention_percent) !== undefined && w.s.net_retention_percent! < 100);
+  const under100 = worked.filter((w) => retentionConsistent(w.s) && given(w.s.net_retention_percent) !== undefined && w.s.net_retention_percent! < 100);
   const sellerPays = capacity.filter((c) => c.core?.paybackOnSellerCostMonths != null).sort((a, b) => a.core!.paybackOnSellerCostMonths! - b.core!.paybackOnSellerCostMonths!)[0] ?? null;
   lines.push("## Your next action");
   lines.push("");
