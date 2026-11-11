@@ -358,5 +358,284 @@ export const tools: Tool[] = [
       },
       required: ["product", "business_model", "billing_term", "as_of", "customers", "churn_reasons", "interview_persona"]
     }
+  },
+  {
+    "name": "segment_and_seat_cut_check",
+    "description": "Helps you decide which customer segment to back, and whether your pricing is safe if AI cuts seats: it takes each segment's ACV, sales cycle, accounts, deal source and CAC, its logo, gross and net retention, how you charge in your own words, and your seller ramp, cost and qualified demand, and returns one page per segment with payback, gross profit per dollar of CAC, seller capacity after ramp and cycle, and the renewal if customers cut a share of seats. Ask the person to confirm the segment split, their own win rate and what customers can cut before marking each as confirmed; anything not confirmed or not given is shown as missing, never guessed.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "product": {
+          "type": "string",
+          "description": "What you sell, in one line"
+        },
+        "gross_margin_percent": {
+          "type": "number",
+          "description": "Gross margin as a percent (for example 72). Needed for payback and every profit sum",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "tracks_expansion": {
+        "type": "boolean",
+        "description": "Optional: true only if the company tracks expansion account by account. It adds a later years table below the pages. Payback on CAC and ARR always leads"
+      },
+      "business_stage": {
+          "type": "string",
+          "description": "Optional: funding stage, passed to the motion first draft (for example series-a)"
+        },
+        "industry": {
+          "type": "string",
+          "description": "Optional: your industry, passed to the motion first draft"
+        },
+        "segments": {
+          "type": "array",
+          "description": "One item per customer segment (1 to 4). Split by who signs, how they find you, sales cycle and contract value",
+          "minItems": 1,
+          "maxItems": 4,
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "The segment in your own words (for example 'banks and insurers with 200 to 2,000 contact centre agents')"
+              },
+              "acv": {
+                "type": "number",
+                "description": "Average contract value per year, in dollars",
+                "minimum": 0
+              },
+              "sales_cycle_days": {
+                "type": "number",
+                "description": "Days from first meeting to signature",
+                "minimum": 0
+              },
+              "accounts": {
+                "type": "number",
+                "description": "Number of accounts that could buy in this segment",
+                "minimum": 0
+              },
+              "deal_source": {
+                "type": "string",
+                "description": "Where most deals in this segment come from (for example inbound, outbound, referrals, partnerships or mixed)"
+              },
+              "cac": {
+                "type": "number",
+                "description": "Cost to win one customer in this segment, in dollars",
+                "minimum": 0
+              },
+              "logo_retention_percent": {
+                "type": "number",
+                "description": "Share of customers still paying after a year, as a percent (for example 89)",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "gross_retention_percent": {
+                "type": "number",
+                "description": "Gross revenue retention as a percent: opening revenue less churn and downgrades, over opening revenue (for example 92). It cannot pass 100",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "net_retention_percent": {
+                "type": "number",
+                "description": "Net revenue retention as a percent: gross retention plus expansion (for example 108)",
+                "minimum": 0,
+                "maximum": 300
+              },
+              "monthly_logo_churn_percent": {
+                "type": "number",
+                "description": "Optional: share of customers lost in a month, as a percent (for example 2.5). Used for the simple lifetime sum; left out, yearly logo retention is used",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "pricing_unit_in_writing": {
+                "type": "string",
+                "description": "What you bill on, in your own words (for example 'per agent seat, billed yearly' or 'per resolved contact')"
+              },
+              "pricing_unit": {
+                "type": "string",
+                "description": "Optional: the pricing unit, if you want to state it directly. It overrides the reading of your sentence",
+                "enum": [
+                  "seat",
+                  "usage",
+                  "hybrid"
+                ]
+              },
+              "seat_share_of_acv_percent": {
+                "type": "number",
+                "description": "Optional, for a mix of seats and usage: the percent of the contract billed on seats (for example 60)",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "what_customers_can_cut": {
+                "type": "string",
+                "description": "What a customer can cut, and when, in your own words (for example 'seats, at each yearly renewal')"
+              },
+              "icp_match_percent": {
+                "type": "number",
+                "description": "Optional: percent of accounts that match your ideal customer profile, passed to the sizing first draft",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "year_one_share_percent": {
+                "type": "number",
+                "description": "Optional: the year one share you assume, as a percent, passed to the sizing first draft",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "win_rate_percent": {
+                "type": "number",
+                "description": "Your own win rate: the percent of qualified opportunities you win in this segment, from your closed deals (for example 33). Used only when the person has confirmed it",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "year_one_customer_target": {
+                "type": "number",
+                "description": "Optional: new customers you want from this segment in year one. Left out, the customer count from the sizing first draft is used",
+                "minimum": 0
+              },
+              "seller_ramp_months": {
+                "type": "number",
+                "description": "Months before a new seller carries a full pipeline",
+                "minimum": 0,
+                "maximum": 24
+              },
+              "seller_loaded_cost_per_year": {
+                "type": "number",
+                "description": "Full yearly cost of one seller, in dollars",
+                "minimum": 0
+              },
+              "ramped_deals_per_seller_per_year": {
+                "type": "number",
+                "description": "Deals a fully ramped seller closes in a year in this segment, from your own record",
+                "minimum": 0
+              },
+              "monthly_qualified_demand": {
+                "type": "number",
+                "description": "Qualified opportunities assigned to sellers each month in this segment",
+                "minimum": 0
+              },
+              "seat_cut_percent": {
+                "type": "number",
+                "description": "Optional: the percent of seats a customer could cut if AI does more of the work (for example 25). Used only when the person has confirmed it",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "arr_share_cutting_percent": {
+                "type": "number",
+                "description": "Optional: the percent of this segment's revenue held by accounts that would make that cut (for example 32)",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "seats_per_account": {
+                "type": "number",
+                "description": "Optional: seats in an average account",
+                "minimum": 0
+              },
+              "work_units_per_seat_per_year": {
+                "type": "number",
+                "description": "Optional: units of work one seat handles in a year (for example contacts, shipments or claims)",
+                "minimum": 0
+              },
+              "buyer_cost_per_seat_per_year": {
+                "type": "number",
+                "description": "Optional: what one seat costs the buyer in a year, in salary and overhead, in dollars",
+                "minimum": 0
+              },
+              "usage_price_per_unit": {
+                "type": "number",
+                "description": "Optional: a price per unit of work you want to test, in dollars",
+                "minimum": 0
+              },
+              "run_cost_per_unit": {
+                "type": "number",
+                "description": "Optional: your cost to run one unit of work, in dollars",
+                "minimum": 0
+              },
+              "gross_retention_gate_percent": {
+                "type": "number",
+                "description": "Optional: your own gross retention line for releasing more money (for example 90)",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "net_retention_gate_percent": {
+                "type": "number",
+                "description": "Optional: your own net retention line (for example 100)",
+                "minimum": 0,
+                "maximum": 300
+              },
+              "logo_retention_gate_percent": {
+                "type": "number",
+                "description": "Optional: your own logo retention line (for example 85)",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "churn_reasons": {
+                "type": "string",
+                "description": "Optional: why customers in this segment leave or shrink, in their words, separated by semicolons"
+              },
+              "motion_lead": {
+                "type": "string",
+                "description": "Optional: the lead motion from the EPIC audit on GTM Alpha, as it came back"
+              },
+              "motion_score": {
+                "type": "number",
+                "description": "Optional: the score of that lead motion, 1 to 10",
+                "minimum": 0,
+                "maximum": 10
+              },
+              "motion_reason": {
+                "type": "string",
+                "description": "Optional: the audit's reason line for the lead motion, as it came back"
+              },
+              "sizing_tam": {
+                "type": "number",
+                "description": "Optional: TAM in dollars from the sizing calculator on ICP Intelligence",
+                "minimum": 0
+              },
+              "sizing_sam": {
+                "type": "number",
+                "description": "Optional: SAM in dollars from the sizing calculator",
+                "minimum": 0
+              },
+              "sizing_som": {
+                "type": "number",
+                "description": "Optional: year one SOM in dollars from the sizing calculator",
+                "minimum": 0
+              },
+              "sizing_year_one_customers": {
+                "type": "number",
+                "description": "Optional: customers needed in year one, from the sizing calculator",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "name"
+            ]
+          }
+        },
+        "confirmed": {
+          "type": "object",
+          "description": "What the person has confirmed. Set each to true only after asking them. Until the segment split is confirmed no sum runs",
+          "properties": {
+            "segment_split": {
+              "type": "boolean",
+              "description": "The person confirmed the segments are how their closed deals really divide"
+            },
+            "win_rate": {
+              "type": "boolean",
+              "description": "The person confirmed the win rates are their own, from closed deals"
+            },
+            "seat_cut": {
+              "type": "boolean",
+              "description": "The person confirmed what customers can cut, and the share of seats to test"
+            }
+          }
+        }
+      },
+      "required": [
+        "product",
+        "segments"
+      ]
+    }
   }
 ];

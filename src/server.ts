@@ -34,6 +34,7 @@ import { generateCrisisPlanner } from "./crisis-planner.js";
 import { generateCompetitiveIntel } from "./competitive-intel.js";
 import { generateCRAFTAnalyzer } from "./craft-analyzer.js";
 import { generateScalePaidCheck } from "./scale-paid-check.js";
+import { generateSegmentCheck, type SegmentCheckInput } from "./segment-check.js";
 
 export const SERVER_NAME = "craft-gtm-mcp";
 export const SERVER_VERSION = "2.2.24";
@@ -48,7 +49,8 @@ const TOOL_TITLES: Record<string, string> = {
   "crisis_planner": "Crisis Planner",
   "competitive_intel": "Competitive Intel",
   "craft_gtm_analyzer": "CRAFT GTM Analyzer",
-  "scale_paid_check": "Scale Paid Check"
+  "scale_paid_check": "Scale Paid Check",
+  "segment_and_seat_cut_check": "Segment and Seat Cut Check"
 };
 
 export const listedTools = tools.map((tool) => {
@@ -209,6 +211,33 @@ export function createServer(): Server {
           content: [{ type: "text", text: `Scale Paid Check: ${errorMessage}` }],
           isError: true,
         };
+      }
+    }
+    // Segment and Seat Cut Check follows the Scale Paid Check path: the answer is exact sums in a fixed reading order, so the
+    // copy wrappers stay off it; the input guard, the required input check, the software policy and escaping stay on.
+    if (name === "segment_and_seat_cut_check") {
+      let typed = cleanDeep(request.params.arguments);
+      const inputEvidence = guardInputs(typed, listedTools.find(t => t.name === name)?.inputSchema);
+      typed = inputEvidence.args as typeof typed;
+      const problem = checkRequiredInputs(name, typed as Record<string, unknown> | undefined);
+      if (problem || inputEvidence.stop) {
+        return {
+          content: [{ type: "text", text: (problem || "Missing required input. Supply the missing evidence before continuing.") + (inputEvidence.notice ? "\n\n" + inputEvidence.notice : "") }],
+          isError: true,
+        };
+      }
+      const advice = softwareAdvice(typed);
+      if (advice) return { content: [{ type: "text", text: advice }] };
+      try {
+        const result = generateSegmentCheck(escapeDeep(typed) as unknown as SegmentCheckInput);
+        return {
+          content: [{ type: "text", text: inputEvidence.notice + (inputEvidence.notice ? "\n\n" : "") + result.text }],
+          structuredContent: result.structuredContent,
+          ...(result.isError ? { isError: true } : {}),
+        };
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        return { content: [{ type: "text", text: `Segment and Seat Cut Check: ${errorMessage}` }], isError: true };
       }
     }
     // Run 20 (D086): the one place where a tools/call reaches a tool, on both the hosted path (netlify/functions/mcp.mjs and
