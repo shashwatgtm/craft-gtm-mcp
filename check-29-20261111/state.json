@@ -1,6 +1,6 @@
 {
-  "status": "in_progress",
-  "current_item": "Final full suite and report",
+  "status": "closed",
+  "current_item": "Complete",
   "items_done": [
     "Read common rules, checker brief and all builder notes",
     "Pricing reader attacked across nine verticals and hardened",
@@ -10,13 +10,12 @@
     "Guide known answer and all nine existing tool responses verified",
     "Browser checked at 375 and 1440 pixels; screenshots captured",
     "Contradictory retention cannot drive expansion, projections or spending advice",
-    "Industry is forwarded through the existing sector reader; tied years are described honestly"
+    "Industry is forwarded through the existing sector reader; tied years are described honestly",
+    "Final full suite completed: no new failures relative to untouched Fable",
+    "CHECK-REPORT.md completed with findings, formulas, exact remaining failures and release holds"
   ],
-  "items_left": [
-    "Complete final full suite comparison",
-    "Complete CHECK-REPORT.md and final push"
-  ],
-  "updated_at": "2026-11-11T13:31:54+05:30",
+  "items_left": [],
+  "updated_at": "2026-11-11T13:40:01+05:30",
   "code_repository": "shashwatgtm/craft-gtm-mcp",
   "code_branch": "codex/check-29-20261111",
   "builder_commit": "3c94ae8a103ca0d429701ba39ae037a7489cdfb6",
@@ -26,8 +25,21 @@
     "build": "pass",
     "focused_tests": "45 passed",
     "existing_tools": "9 definitions and 9 response bytes unchanged",
-    "browser": "375px and 1440px passed"
+    "browser": "375px and 1440px passed",
+    "full_suite": {
+      "tests": 8418,
+      "pass": 8323,
+      "fail": 28,
+      "skip": 67,
+      "new_checker_failures": 0,
+      "already_failing_on_main": 21,
+      "builder_inventory_pin_failures": 7
+    },
+    "current_dist": "228 committed compiled files match a fresh build",
+    "whole_tool_definitions": "10 definitions unchanged byte for byte from Fable"
   },
   "no_merge": true,
-  "no_deploy": true
+  "no_deploy": true,
+  "checked_code_commit": "0a846c16e5bc298b39458798d8b68b0f015d147c",
+  "report": "check-29-20261111/CHECK-REPORT.md"
 }
