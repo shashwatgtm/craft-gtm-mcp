@@ -90,3 +90,5 @@ Individual plugin install instructions remain specific to the plugin.
 
 - [All Helix tools](https://tools.gtmhelix.com/tools/): 49 tools and 37 different skills, 86 in all, in six connectors and nine plugins.
 - [Check your B2B product market fit](https://craft-gtm.gtmhelix.com/tools/pmf-scorecard/): Use this product market fit scorecard to review the metrics you already track for one B2B segment. Enter the period with retention, revenue and customer evidence, read each dimension separately, then investigate the gaps. The result helps plan the next check. It does not prove that the product has market fit.
+
+- [Scale Paid Check Site](https://helix-scale-paid-check.shashwat-helix-gtm.chatgpt.site/): Choose paid payback, customer staying power or capped lifetime value before increasing paid ads.
