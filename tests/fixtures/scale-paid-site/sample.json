@@ -1,0 +1,1171 @@
+{
+  "product": "Frontline hiring service from accepted offer to first shift",
+  "business_model": "saas_subscription",
+  "billing_term": "monthly",
+  "as_of": "2026-09-30",
+  "customers": [
+    {
+      "id": "FW001",
+      "signed": "2025-04-05",
+      "segment": "Regional staffing agency",
+      "monthly_fee": 3000,
+      "stopped": "2025-06-20",
+      "monthly_starts": [
+        2,
+        2,
+        3,
+        8,
+        12,
+        14,
+        14,
+        12,
+        8,
+        4,
+        2,
+        2
+      ]
+    },
+    {
+      "id": "FW002",
+      "signed": "2025-05-10",
+      "segment": "Regional staffing agency",
+      "monthly_fee": 3000,
+      "stopped": "2025-10-15",
+      "monthly_starts": [
+        2,
+        2,
+        3,
+        8,
+        12,
+        14,
+        14,
+        12,
+        8,
+        4,
+        2,
+        2
+      ]
+    },
+    {
+      "id": "FW003",
+      "signed": "2025-06-01",
+      "segment": "Regional staffing agency",
+      "monthly_fee": 3000,
+      "stopped": "2026-04-20",
+      "monthly_starts": [
+        10,
+        11,
+        10,
+        12,
+        11,
+        10,
+        11,
+        12,
+        10,
+        11,
+        10,
+        11
+      ]
+    },
+    {
+      "id": "FW004",
+      "signed": "2025-04-08",
+      "segment": "Regional staffing agency",
+      "monthly_fee": 3000,
+      "monthly_starts": [
+        2,
+        2,
+        3,
+        8,
+        12,
+        14,
+        14,
+        12,
+        8,
+        4,
+        2,
+        2
+      ]
+    },
+    {
+      "id": "FW005",
+      "signed": "2025-04-15",
+      "segment": "Regional staffing agency",
+      "monthly_fee": 3000,
+      "monthly_starts": [
+        10,
+        11,
+        10,
+        12,
+        11,
+        10,
+        11,
+        12,
+        10,
+        11,
+        10,
+        11
+      ]
+    },
+    {
+      "id": "FW006",
+      "signed": "2025-04-22",
+      "segment": "Regional staffing agency",
+      "monthly_fee": 3000,
+      "monthly_starts": [
+        10,
+        11,
+        10,
+        12,
+        11,
+        10,
+        11,
+        12,
+        10,
+        11,
+        10,
+        11
+      ]
+    },
+    {
+      "id": "FW007",
+      "signed": "2025-05-02",
+      "segment": "Regional staffing agency",
+      "monthly_fee": 3000,
+      "monthly_starts": [
+        2,
+        2,
+        3,
+        8,
+        12,
+        14,
+        14,
+        12,
+        8,
+        4,
+        2,
+        2
+      ]
+    },
+    {
+      "id": "FW008",
+      "signed": "2025-05-14",
+      "segment": "Regional staffing agency",
+      "monthly_fee": 3000,
+      "monthly_starts": [
+        10,
+        11,
+        10,
+        12,
+        11,
+        10,
+        11,
+        12,
+        10,
+        11,
+        10,
+        11
+      ]
+    },
+    {
+      "id": "FW009",
+      "signed": "2025-05-20",
+      "segment": "Regional staffing agency",
+      "monthly_fee": 3000,
+      "monthly_starts": [
+        10,
+        11,
+        10,
+        12,
+        11,
+        10,
+        11,
+        12,
+        10,
+        11,
+        10,
+        11
+      ]
+    },
+    {
+      "id": "FW010",
+      "signed": "2025-06-03",
+      "segment": "Regional staffing agency",
+      "monthly_fee": 3000,
+      "monthly_starts": [
+        2,
+        2,
+        3,
+        8,
+        12,
+        14,
+        14,
+        12,
+        8,
+        4,
+        2,
+        2
+      ]
+    },
+    {
+      "id": "FW011",
+      "signed": "2025-06-11",
+      "segment": "Regional staffing agency",
+      "monthly_fee": 3000,
+      "monthly_starts": [
+        10,
+        11,
+        10,
+        12,
+        11,
+        10,
+        11,
+        12,
+        10,
+        11,
+        10,
+        11
+      ]
+    },
+    {
+      "id": "FW012",
+      "signed": "2025-06-25",
+      "segment": "Regional staffing agency",
+      "monthly_fee": 3000,
+      "monthly_starts": [
+        10,
+        11,
+        10,
+        12,
+        11,
+        10,
+        11,
+        12,
+        10,
+        11,
+        10,
+        11
+      ]
+    },
+    {
+      "id": "FW013",
+      "signed": "2025-07-02",
+      "segment": "Regional staffing agency",
+      "monthly_fee": 3000,
+      "stopped": "2025-08-25",
+      "monthly_starts": [
+        2,
+        2,
+        3,
+        8,
+        12,
+        14,
+        14,
+        12,
+        8,
+        4,
+        2,
+        2
+      ]
+    },
+    {
+      "id": "FW014",
+      "signed": "2025-08-01",
+      "segment": "Regional staffing agency",
+      "monthly_fee": 3000,
+      "stopped": "2026-04-10",
+      "monthly_starts": [
+        2,
+        2,
+        3,
+        8,
+        12,
+        14,
+        14,
+        12,
+        8,
+        4,
+        2,
+        2
+      ]
+    },
+    {
+      "id": "FW015",
+      "signed": "2025-09-01",
+      "segment": "Regional staffing agency",
+      "monthly_fee": 3000,
+      "stopped": "2026-06-20",
+      "monthly_starts": [
+        10,
+        11,
+        10,
+        12,
+        11,
+        10,
+        11,
+        12,
+        10,
+        11,
+        10,
+        11
+      ]
+    },
+    {
+      "id": "FW016",
+      "signed": "2025-07-07",
+      "segment": "Regional staffing agency",
+      "monthly_fee": 3000,
+      "monthly_starts": [
+        2,
+        2,
+        3,
+        8,
+        12,
+        14,
+        14,
+        12,
+        8,
+        4,
+        2,
+        2
+      ]
+    },
+    {
+      "id": "FW017",
+      "signed": "2025-07-14",
+      "segment": "Regional staffing agency",
+      "monthly_fee": 3000,
+      "monthly_starts": [
+        10,
+        11,
+        10,
+        12,
+        11,
+        10,
+        11,
+        12,
+        10,
+        11,
+        10,
+        11
+      ]
+    },
+    {
+      "id": "FW018",
+      "signed": "2025-07-21",
+      "segment": "Regional staffing agency",
+      "monthly_fee": 3000,
+      "monthly_starts": [
+        10,
+        11,
+        10,
+        12,
+        11,
+        10,
+        11,
+        12,
+        10,
+        11,
+        10,
+        11
+      ]
+    },
+    {
+      "id": "FW019",
+      "signed": "2025-07-28",
+      "segment": "Regional staffing agency",
+      "monthly_fee": 3000,
+      "monthly_starts": [
+        2,
+        2,
+        3,
+        8,
+        12,
+        14,
+        14,
+        12,
+        8,
+        4,
+        2,
+        2
+      ]
+    },
+    {
+      "id": "FW020",
+      "signed": "2025-08-04",
+      "segment": "Regional staffing agency",
+      "monthly_fee": 3000,
+      "monthly_starts": [
+        10,
+        11,
+        10,
+        12,
+        11,
+        10,
+        11,
+        12,
+        10,
+        11,
+        10,
+        11
+      ]
+    },
+    {
+      "id": "FW021",
+      "signed": "2025-08-12",
+      "segment": "Regional staffing agency",
+      "monthly_fee": 3000,
+      "monthly_starts": [
+        10,
+        11,
+        10,
+        12,
+        11,
+        10,
+        11,
+        12,
+        10,
+        11,
+        10,
+        11
+      ]
+    },
+    {
+      "id": "FW022",
+      "signed": "2025-08-19",
+      "segment": "Regional staffing agency",
+      "monthly_fee": 3000,
+      "monthly_starts": [
+        2,
+        2,
+        3,
+        8,
+        12,
+        14,
+        14,
+        12,
+        8,
+        4,
+        2,
+        2
+      ]
+    },
+    {
+      "id": "FW023",
+      "signed": "2025-08-26",
+      "segment": "Regional staffing agency",
+      "monthly_fee": 3000,
+      "monthly_starts": [
+        10,
+        11,
+        10,
+        12,
+        11,
+        10,
+        11,
+        12,
+        10,
+        11,
+        10,
+        11
+      ]
+    },
+    {
+      "id": "FW024",
+      "signed": "2025-09-03",
+      "segment": "Regional staffing agency",
+      "monthly_fee": 3000,
+      "monthly_starts": [
+        10,
+        11,
+        10,
+        12,
+        11,
+        10,
+        11,
+        12,
+        10,
+        11,
+        10,
+        11
+      ]
+    },
+    {
+      "id": "FW025",
+      "signed": "2025-09-10",
+      "segment": "Regional staffing agency",
+      "monthly_fee": 3000,
+      "monthly_starts": [
+        2,
+        2,
+        3,
+        8,
+        12,
+        14,
+        14,
+        12,
+        8,
+        4,
+        2,
+        2
+      ]
+    },
+    {
+      "id": "FW026",
+      "signed": "2025-09-17",
+      "segment": "Regional staffing agency",
+      "monthly_fee": 3000,
+      "monthly_starts": [
+        10,
+        11,
+        10,
+        12,
+        11,
+        10,
+        11,
+        12,
+        10,
+        11,
+        10,
+        11
+      ]
+    },
+    {
+      "id": "FW027",
+      "signed": "2024-10-01",
+      "segment": "Regional staffing agency",
+      "monthly_fee": 3000,
+      "stopped": "2025-03-15",
+      "monthly_starts": [
+        2,
+        2,
+        3,
+        8,
+        12,
+        14,
+        14,
+        12,
+        8,
+        4,
+        2,
+        2
+      ]
+    },
+    {
+      "id": "FW028",
+      "signed": "2024-10-09",
+      "segment": "Regional staffing agency",
+      "monthly_fee": 3000,
+      "stopped": "2025-05-20",
+      "monthly_starts": [
+        2,
+        2,
+        3,
+        8,
+        12,
+        14,
+        14,
+        12,
+        8,
+        4,
+        2,
+        2
+      ]
+    },
+    {
+      "id": "FW029",
+      "signed": "2024-10-17",
+      "segment": "Regional staffing agency",
+      "monthly_fee": 3000,
+      "stopped": "2025-07-30",
+      "monthly_starts": [
+        10,
+        11,
+        10,
+        12,
+        11,
+        10,
+        11,
+        12,
+        10,
+        11,
+        10,
+        11
+      ]
+    },
+    {
+      "id": "FW030",
+      "signed": "2024-10-25",
+      "segment": "Regional staffing agency",
+      "monthly_fee": 3000,
+      "stopped": "2025-09-01",
+      "monthly_starts": [
+        10,
+        11,
+        10,
+        12,
+        11,
+        10,
+        11,
+        12,
+        10,
+        11,
+        10,
+        11
+      ]
+    },
+    {
+      "id": "FW031",
+      "signed": "2024-11-04",
+      "segment": "Regional staffing agency",
+      "monthly_fee": 3000,
+      "stopped": "2025-11-20",
+      "monthly_starts": [
+        2,
+        2,
+        3,
+        8,
+        12,
+        14,
+        14,
+        12,
+        8,
+        4,
+        2,
+        2
+      ]
+    },
+    {
+      "id": "FW032",
+      "signed": "2024-11-12",
+      "segment": "Regional staffing agency",
+      "monthly_fee": 3000,
+      "stopped": "2026-01-12",
+      "monthly_starts": [
+        2,
+        2,
+        3,
+        8,
+        12,
+        14,
+        14,
+        12,
+        8,
+        4,
+        2,
+        2
+      ]
+    },
+    {
+      "id": "FW033",
+      "signed": "2024-11-20",
+      "segment": "Regional staffing agency",
+      "monthly_fee": 3000,
+      "stopped": "2026-02-18",
+      "monthly_starts": [
+        2,
+        2,
+        3,
+        8,
+        12,
+        14,
+        14,
+        12,
+        8,
+        4,
+        2,
+        2
+      ]
+    },
+    {
+      "id": "FW034",
+      "signed": "2024-11-28",
+      "segment": "Regional staffing agency",
+      "monthly_fee": 3000,
+      "stopped": "2026-03-09",
+      "monthly_starts": [
+        2,
+        2,
+        3,
+        8,
+        12,
+        14,
+        14,
+        12,
+        8,
+        4,
+        2,
+        2
+      ]
+    },
+    {
+      "id": "FW035",
+      "signed": "2024-12-06",
+      "segment": "Regional staffing agency",
+      "monthly_fee": 3000,
+      "stopped": "2026-05-14",
+      "monthly_starts": [
+        2,
+        2,
+        3,
+        8,
+        12,
+        14,
+        14,
+        12,
+        8,
+        4,
+        2,
+        2
+      ]
+    },
+    {
+      "id": "FW036",
+      "signed": "2024-12-14",
+      "segment": "Regional staffing agency",
+      "monthly_fee": 3000,
+      "stopped": "2025-12-03",
+      "monthly_starts": [
+        10,
+        11,
+        10,
+        12,
+        11,
+        10,
+        11,
+        12,
+        10,
+        11,
+        10,
+        11
+      ]
+    },
+    {
+      "id": "FW037",
+      "signed": "2024-12-22",
+      "segment": "Regional staffing agency",
+      "monthly_fee": 3000,
+      "stopped": "2026-06-25",
+      "monthly_starts": [
+        10,
+        11,
+        10,
+        12,
+        11,
+        10,
+        11,
+        12,
+        10,
+        11,
+        10,
+        11
+      ]
+    },
+    {
+      "id": "FW038",
+      "signed": "2025-01-06",
+      "segment": "Regional staffing agency",
+      "monthly_fee": 3000,
+      "monthly_starts": [
+        2,
+        2,
+        3,
+        8,
+        12,
+        14,
+        14,
+        12,
+        8,
+        4,
+        2,
+        2
+      ]
+    },
+    {
+      "id": "FW039",
+      "signed": "2025-01-13",
+      "segment": "Regional staffing agency",
+      "monthly_fee": 3000,
+      "monthly_starts": [
+        2,
+        2,
+        3,
+        8,
+        12,
+        14,
+        14,
+        12,
+        8,
+        4,
+        2,
+        2
+      ]
+    },
+    {
+      "id": "FW040",
+      "signed": "2025-01-20",
+      "segment": "Regional staffing agency",
+      "monthly_fee": 3000,
+      "monthly_starts": [
+        2,
+        2,
+        3,
+        8,
+        12,
+        14,
+        14,
+        12,
+        8,
+        4,
+        2,
+        2
+      ]
+    },
+    {
+      "id": "FW041",
+      "signed": "2025-01-27",
+      "segment": "Regional staffing agency",
+      "monthly_fee": 3000,
+      "monthly_starts": [
+        2,
+        2,
+        3,
+        8,
+        12,
+        14,
+        14,
+        12,
+        8,
+        4,
+        2,
+        2
+      ]
+    },
+    {
+      "id": "FW042",
+      "signed": "2025-02-03",
+      "segment": "Regional staffing agency",
+      "monthly_fee": 3000,
+      "monthly_starts": [
+        2,
+        2,
+        3,
+        8,
+        12,
+        14,
+        14,
+        12,
+        8,
+        4,
+        2,
+        2
+      ]
+    },
+    {
+      "id": "FW043",
+      "signed": "2025-02-10",
+      "segment": "Regional staffing agency",
+      "monthly_fee": 3000,
+      "monthly_starts": [
+        2,
+        2,
+        3,
+        8,
+        12,
+        14,
+        14,
+        12,
+        8,
+        4,
+        2,
+        2
+      ]
+    },
+    {
+      "id": "FW044",
+      "signed": "2025-02-17",
+      "segment": "Regional staffing agency",
+      "monthly_fee": 3000,
+      "monthly_starts": [
+        10,
+        11,
+        10,
+        12,
+        11,
+        10,
+        11,
+        12,
+        10,
+        11,
+        10,
+        11
+      ]
+    },
+    {
+      "id": "FW045",
+      "signed": "2025-02-24",
+      "segment": "Regional staffing agency",
+      "monthly_fee": 3000,
+      "monthly_starts": [
+        10,
+        11,
+        10,
+        12,
+        11,
+        10,
+        11,
+        12,
+        10,
+        11,
+        10,
+        11
+      ]
+    },
+    {
+      "id": "FW046",
+      "signed": "2025-03-03",
+      "segment": "Regional staffing agency",
+      "monthly_fee": 3000,
+      "monthly_starts": [
+        10,
+        11,
+        10,
+        12,
+        11,
+        10,
+        11,
+        12,
+        10,
+        11,
+        10,
+        11
+      ]
+    },
+    {
+      "id": "FW047",
+      "signed": "2025-03-10",
+      "segment": "Regional staffing agency",
+      "monthly_fee": 3000,
+      "monthly_starts": [
+        10,
+        11,
+        10,
+        12,
+        11,
+        10,
+        11,
+        12,
+        10,
+        11,
+        10,
+        11
+      ]
+    },
+    {
+      "id": "FW048",
+      "signed": "2025-03-17",
+      "segment": "Regional staffing agency",
+      "monthly_fee": 3000,
+      "monthly_starts": [
+        10,
+        11,
+        10,
+        12,
+        11,
+        10,
+        11,
+        12,
+        10,
+        11,
+        10,
+        11
+      ]
+    },
+    {
+      "id": "FW049",
+      "signed": "2025-03-24",
+      "segment": "Regional staffing agency",
+      "monthly_fee": 3000,
+      "monthly_starts": [
+        10,
+        11,
+        10,
+        12,
+        11,
+        10,
+        11,
+        12,
+        10,
+        11,
+        10,
+        11
+      ]
+    },
+    {
+      "id": "FW050",
+      "signed": "2025-03-31",
+      "segment": "Regional staffing agency",
+      "monthly_fee": 3000,
+      "monthly_starts": [
+        10,
+        11,
+        10,
+        12,
+        11,
+        10,
+        11,
+        12,
+        10,
+        11,
+        10,
+        11
+      ]
+    },
+    {
+      "id": "FW051",
+      "signed": "2025-01-02",
+      "segment": "Regional staffing agency",
+      "monthly_fee": 3000,
+      "monthly_starts": [
+        10,
+        11,
+        10,
+        12,
+        11,
+        10,
+        11,
+        12,
+        10,
+        11,
+        10,
+        11
+      ]
+    },
+    {
+      "id": "FW052",
+      "signed": "2025-02-05",
+      "segment": "Regional staffing agency",
+      "monthly_fee": 3000,
+      "monthly_starts": [
+        10,
+        11,
+        10,
+        12,
+        11,
+        10,
+        11,
+        12,
+        10,
+        11,
+        10,
+        11
+      ]
+    },
+    {
+      "id": "FW053",
+      "signed": "2025-03-05",
+      "segment": "Regional staffing agency",
+      "monthly_fee": 3000,
+      "monthly_starts": [
+        10,
+        11,
+        10,
+        12,
+        11,
+        10,
+        11,
+        12,
+        10,
+        11,
+        10,
+        11
+      ]
+    },
+    {
+      "id": "FW054",
+      "signed": "2024-12-02",
+      "segment": "Regional staffing agency",
+      "monthly_fee": 3000,
+      "monthly_starts": [
+        10,
+        11,
+        10,
+        12,
+        11,
+        10,
+        11,
+        12,
+        10,
+        11,
+        10,
+        11
+      ]
+    },
+    {
+      "id": "FW055",
+      "signed": "2024-11-06",
+      "segment": "Regional staffing agency",
+      "monthly_fee": 3000,
+      "monthly_starts": [
+        10,
+        11,
+        10,
+        12,
+        11,
+        10,
+        11,
+        12,
+        10,
+        11,
+        10,
+        11
+      ]
+    },
+    {
+      "id": "FW056",
+      "signed": "2024-10-12",
+      "segment": "Regional staffing agency",
+      "monthly_fee": 3000,
+      "monthly_starts": [
+        10,
+        11,
+        10,
+        12,
+        11,
+        10,
+        11,
+        12,
+        10,
+        11,
+        10,
+        11
+      ]
+    }
+  ],
+  "metrics": [
+    {
+      "name": "Churn",
+      "value": 2,
+      "counts": "customers",
+      "period": "month"
+    },
+    {
+      "name": "Retention",
+      "value": 78,
+      "counts": "customers",
+      "period": "year"
+    },
+    {
+      "name": "NPS",
+      "value": 41
+    }
+  ],
+  "gross_margin": 0.7,
+  "paid_cac": 35000,
+  "blended_cac": 15000,
+  "test_cap": 60000,
+  "win_rate_floor": 0.15,
+  "win_rate_target": 0.28,
+  "churn_reasons": "hiring volume is seasonal and the agency pauses in quiet months, recruiters go back to chasing documents by phone, the background check vendor is not connected",
+  "interview_persona": "Head of Recruiting Operations at a regional staffing agency"
+}
