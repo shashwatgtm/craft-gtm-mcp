@@ -87,7 +87,14 @@ export declare function sellerCapacity(rampMonths: number, cycleDays: number, ra
 export declare function renewalAfterSeatCut(acv: number, seatCutShare: number, seatShare: number): number;
 /** Points of gross (and net) retention lost when accounts holding a share of ARR each cut a share of seats. */
 export declare function retentionPointsLost(arrShareCutting: number, seatCutShare: number, seatShare: number): number;
-/** Read seat, usage or hybrid from a written pricing sentence. A unit that is only mentioned to deny it does not count. */
+/** A conservative current billing reader. Mentions, questions and future plans are not a pricing contract. */
 export declare function readPricingUnit(sentence: string | undefined): PricingUnit;
+/** Evidence for subtracting a fresh cut from a reported retention cohort. Unclear wording holds the projection. */
+export declare function readSeatCutBasis(sentence: string | undefined): {
+    additional: boolean;
+    openingArr: boolean;
+    expansionUnchanged: boolean;
+    alreadyIncluded: boolean;
+};
 export declare function generateSegmentCheck(input: SegmentCheckInput): SegmentCheckResult;
 //# sourceMappingURL=segment-check.d.ts.map

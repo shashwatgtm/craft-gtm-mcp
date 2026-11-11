@@ -52,7 +52,7 @@ export function sellerCapacity(rampMonths, cycleDays, rampedDealsPerYear, acv, l
     const sellingMonths = Math.max(0, 12 - rampMonths - cycleMonths);
     const dealsYearOne = rampedDealsPerYear === undefined ? null : (sellingMonths * rampedDealsPerYear) / 12;
     const acvBooked = dealsYearOne === null || acv === undefined ? null : dealsYearOne * acv;
-    const paybackOnSellerCostMonths = dealsYearOne === null || dealsYearOne <= 0 || acv === undefined || loadedCost === undefined || marginShare === undefined
+    const paybackOnSellerCostMonths = dealsYearOne === null || dealsYearOne <= 0 || acv === undefined || loadedCost === undefined || marginShare === undefined || marginShare <= 0
         ? null : loadedCost / dealsYearOne / ((acv * marginShare) / 12);
     return { cycleMonths, sellingMonths, dealsYearOne, acvBooked, paybackOnSellerCostMonths };
 }
@@ -70,40 +70,40 @@ const SEAT_NOUN = "(?:user|agent|licen[cs]e|login|head|employee|rep|analyst|oper
 const USAGE_NOUN = "(?:transaction|shipment|api call|call|resolution|contact|interaction|conversation|message|minute|gb|gigabyte|invoice|claim|document|order|delivery|deliverie|alert|event|verification|payment|ticket|outcome|query|querie|token|run|task|parcel|load|booking|sms|session|scan|check|loan|application|device|endpoint|sim|line|connection|trip|consignment|payslip|hire|placement|incident|asset|credit|request|job|visit)s?";
 const NOT_WORK = "(?![- ](?:resolution|resolved|completed|conversation|task|run|action|outcome)s?\\b)";
 const LEAD = "(?:per|each|every|number of|by the|(?:pay|pays|paid|charge|charges|charged|bill|bills|billed|price|priced|prices|license|licensed)\\s+(?:for|on|by)(?:\\s+the)?)";
-const SEAT_WORDS = new RegExp("\\bseats?\\b|\\bheadcount\\b|\\blicen[cs]es?\\b|\\b" + LEAD + "[- ](?:named[- ])?" + SEAT_NOUN + "\\b" + NOT_WORK + "|\\b" + SEAT_NOUN + "[- ](?:based|count)\\b", "i");
-const USAGE_WORDS = new RegExp("\\busage\\b|\\bconsumption\\b|\\bconsumed\\b|\\bmetered\\b|\\bpay as you go\\b|\\b" + LEAD + "[- ](?:[a-z]+[- ]){0,2}?" + USAGE_NOUN + "\\b|\\b" + USAGE_NOUN + "[- ](?:based|volume)\\b|\\bvolume of\\b|\\b(?:volume|outcome)[- ]based\\b", "i");
-const HYBRID_WORDS = /\bhybrid\b|\bplatform fee\b|\bbase fee plus\b/i;
+const BILLING = /\b(?:pay|pays|paid|charge|charges|charged|bill|bills|billed|billing|price|priced|prices|pricing|fee|fees|licen[cs]e|licen[cs]es|licen[cs]ed|cost|costs|subscription)\b/i;
+const SEAT_WORDS = new RegExp("\\b" + LEAD + "[- ](?:named[- ])?" + SEAT_NOUN + "\\b" + NOT_WORK + "|\\b(?:seat|user|headcount)[- ](?:based|pricing|billing|fees?|count)\\b", "i");
+const USAGE_WORDS = new RegExp("\\b" + LEAD + "[- ](?:[a-z]+[- ]){0,2}?" + USAGE_NOUN + "\\b|\\b" + USAGE_NOUN + "[- ](?:based|volume)\\b|\\b(?:volume|outcome)[- ]based\\b", "i");
 const NEGATORS = /\b(?:not|no|never|neither|nor|unlimited|without|instead of|rather than|no longer|away from|stopped|dropped|ended|removed|scrapped)\b|n't\b/i;
-// A clause ends at punctuation, at "but", "only", "just", "however", "though", or at "and" when a new statement starts.
-const CLAUSE_END = /[.;,:()]|\bbut\b|\bonly\b|\bjust\b|\bhowever\b|\bthough\b|\band(?=\s+(?:now|we|they|instead|then|it|customers|clients|each|every|bill|charge|price|pay|sell|moved|switched)\b)/i;
-/** Read seat, usage or hybrid from a written pricing sentence. A unit that is only mentioned to deny it does not count. */
+/** A conservative current billing reader. Mentions, questions and future plans are not a pricing contract. */
 export function readPricingUnit(sentence) {
     if (typeof sentence !== "string" || !sentence.trim())
         return "unclear";
-    const plain = sentence.replace(/\\/g, "").replace(/&#39;|&#x27;|&apos;|\u2019/g, "'");
-    const clauses = plain.split(new RegExp(CLAUSE_END.source, "gi")).map((c) => (c ?? "").trim()).filter(Boolean);
-    let seat = false, usage = false, hybrid = false;
+    let plain = sentence.replace(/\\/g, "").replace(/&#39;|&#x27;|&apos;|\u2019/g, "'").replace(/&quot;/g, '"');
+    if (/\?|\b(?:whether|unless|not without)\b/i.test(plain))
+        return "unclear";
+    // Preserve an explicit present contract and discard a later plan. Otherwise a future price is unknown.
+    plain = plain.replace(/[,;]\s*(?:(?:we are |we're )?(?:moving|switching|planning)|(?:we )?(?:will|may|might|plan to))\b.*$/i, "");
+    plain = plain.replace(/\b(?:we )?(?:switched|moved|changed) (?:our pricing )?from .+? to /gi, "We bill on ");
+    plain = plain.replace(/\bnot only\b/gi, "");
+    const clauses = plain.split(/(?<!\d)[.;:]|[.;:](?!\d)|[,()]|\bbut\b|\bonly\b|\bjust\b|\bhowever\b|\bthough\b|\bwith\b|\band(?=\s+(?:now|we|they|instead|then|it|customers|clients|each|every|bill|charge|price|pay|sell|moved|switched|include|includes|provide|manage|no|not|unlimited)\b)/i);
+    let seat = false, usage = false, fixed = false;
     for (const clause of clauses) {
-        const affirmed = (words) => {
-            const all = new RegExp(words.source, "gi");
-            let m;
-            while ((m = all.exec(clause)) !== null) {
-                // A denial counts only when it stands before the unit in the same clause.
-                if (!NEGATORS.test(clause.slice(0, m.index)))
-                    return true;
-                if (m[0].length === 0)
-                    all.lastIndex++;
-            }
-            return false;
-        };
-        if (affirmed(SEAT_WORDS))
+        if (/\b(?:will|would|may|might|could|plan|planning|next year|next quarter|used to|previously|formerly)\b/i.test(clause))
+            continue;
+        // A statement denying an entire price, including a denial after its unit, is not evidence for it.
+        if (NEGATORS.test(clause) || /\b(?:free|included|waived|not used|not charged)\b/i.test(clause))
+            continue;
+        const bills = BILLING.test(clause);
+        const agentIsSoftware = /\b(?:ai|software|autonomous) agents?\b/i.test(clause) && !/\b(?:resolution|resolved|task|action|outcome|conversation)\b/i.test(clause);
+        if (!agentIsSoftware && (SEAT_WORDS.test(clause) || (bills && /\b(?:(?:users?|seats?|named|personal|employees?|agents?|developers?|analysts?) licen[cs]es?|(?:bill(?:ing|ed)?|pric(?:ing|ed|e)|charge[sd]?|pay[sd]?) (?:follows? |on |by )?(?:the )?(?:seats?|headcount))\b/i.test(clause))))
             seat = true;
-        if (affirmed(USAGE_WORDS))
+        const billingClause = clause.replace(/\busage (?:analytics|reporting|dashboard|management|monitoring)\b/gi, "");
+        if (USAGE_WORDS.test(billingClause) || (bills && /\b(?:usage|consumption|consumed|metered|pay as you go|volume of)\b/i.test(billingClause)))
             usage = true;
-        if (affirmed(HYBRID_WORDS))
-            hybrid = true;
+        if (bills && /\b(?:platform|base) fee\b|\b(?:fixed|flat) fee (?:plus|and)\b/i.test(clause))
+            fixed = true;
     }
-    if (hybrid || (seat && usage))
+    if (seat && (usage || fixed))
         return "hybrid";
     if (seat)
         return "seat";
@@ -111,9 +111,23 @@ export function readPricingUnit(sentence) {
         return "usage";
     return "unclear";
 }
+/** Evidence for subtracting a fresh cut from a reported retention cohort. Unclear wording holds the projection. */
+export function readSeatCutBasis(sentence) {
+    const plain = (typeof sentence === "string" ? sentence : "").replace(/\\/g, "").toLowerCase();
+    const alreadyIncluded = /\b(?:already|fully) (?:included|reflected|counted) in (?:our |the )?(?:reported|current) retention\b/.test(plain)
+        || /\b(?:reported|current) retention (?:already )?includes? (?:these |the )?(?:seat )?cuts?\b/.test(plain);
+    // Match complete assertions, not keywords in a question, uncertainty or denial.
+    const clauses = plain.split(/[.;]/).filter(c => !/[?]|\b(?:may|might|could|whether|not sure|not unchanged|not fixed|not constant|not outside|not beyond|not on top of|not additional|not incremental|not future|no additional|no incremental|no future|not not included)\b/.test(c));
+    return {
+        alreadyIncluded,
+        additional: !alreadyIncluded && clauses.some(c => /\b(?:additional|incremental|future) (?:seat )?(?:cuts?|reductions?)\b/.test(c) && /\b(?:not included in|not reflected in|outside|on top of|beyond) (?:our |the )?(?:reported|current) retention\b/.test(c)),
+        openingArr: clauses.some(c => /\b(?:share of|against|of|based on) (?:the )?(?:opening|beginning|start of period) (?:arr|revenue)\b/.test(c) && !/\b(?:not|never|instead of|rather than)\b/.test(c)),
+        expansionUnchanged: clauses.some(c => /\bexpansion(?: revenue| dollars)? (?:stays|is|remains|held|will remain) (?:unchanged|fixed|constant)\b/.test(c) && !/\b(?:not|never)\b/.test(c)),
+    };
+}
 // ---------- formatting (display only; every sum uses full precision) ----------
 const money = (n) => `$${Math.round(n).toLocaleString("en-US")}`;
-const rate = (n) => `$${n.toFixed(3).replace(/(\.\d\d)0$/, "$1")}`;
+const rate = (n) => `$${Number(n.toPrecision(8)).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 16 })}`;
 const perDollar = (n) => `$${n.toFixed(2)}`;
 const one = (n) => (Math.round(n * 10) / 10).toFixed(1).replace(/\.0$/, "");
 const months = (n) => `${(Math.round(n * 10) / 10).toFixed(1)} months`;
@@ -129,7 +143,7 @@ function given(v) {
 function text(v) {
     return typeof v === "string" && v.trim() ? v.trim() : undefined;
 }
-const UNIT_WORDS = { seat: "seats", usage: "usage", hybrid: "a mix of seats and usage", unclear: "not clear" };
+const UNIT_WORDS = { seat: "seats", usage: "usage", hybrid: "a price with a seat share", unclear: "not clear" };
 const YEARS_SHOWN = [1, 3, 5, 7, 10];
 function refusal(message) {
     return { text: message, structuredContent: {}, isError: true };
@@ -158,20 +172,31 @@ export function generateSegmentCheck(input) {
     const problems = [];
     const names = new Set();
     const marginPercent = given(input.gross_margin_percent);
-    if (marginPercent !== undefined && (marginPercent <= 1 || marginPercent > 100))
-        problems.push("Gross margin: write it as a percent between 1 and 100, for example 72 for 72%.");
+    if (marginPercent !== undefined && (marginPercent < 0 || marginPercent > 100))
+        problems.push("Gross margin: write it as a percent between 0 and 100, for example 72 for 72%.");
+    if (rawSegments.some((s) => !s || typeof s !== "object" || Array.isArray(s)))
+        return refusal("Give each segment as a named set of numbers.");
     rawSegments.forEach((s, i) => {
         const label = text(s?.name) ?? `Segment ${i + 1}`;
+        for (const [key, value] of Object.entries(s)) {
+            if (typeof value === "number" && !Number.isFinite(value))
+                problems.push(`${label}: ${key.replace(/_/g, " ")} must be a finite number.`);
+        }
         if (!text(s?.name))
             problems.push(`Segment ${i + 1} has no name. Name each segment in your own words.`);
         else if (names.has(label.toLowerCase()))
             problems.push(`Two segments are both called "${label}". Give each segment its own name.`);
         names.add(label.toLowerCase());
-        const positive = [["acv", "ACV"], ["sales_cycle_days", "sales cycle"], ["accounts", "accounts"], ["cac", "CAC"], ["seller_loaded_cost_per_year", "seller loaded cost"], ["ramped_deals_per_seller_per_year", "ramped deals per seller"], ["monthly_qualified_demand", "monthly qualified demand"], ["seats_per_account", "seats per account"], ["work_units_per_seat_per_year", "work units per seat"], ["buyer_cost_per_seat_per_year", "buyer cost per seat"], ["usage_price_per_unit", "usage price"], ["year_one_customer_target", "year one customer target"]];
+        const positive = [["acv", "ACV"], ["seats_per_account", "seats per account"], ["work_units_per_seat_per_year", "work units per seat"]];
         for (const [key, word] of positive) {
             const v = given(s?.[key]);
             if (v !== undefined && v <= 0)
                 problems.push(`${label}: ${word} must be more than 0.`);
+        }
+        for (const key of ["accounts", "seller_loaded_cost_per_year", "buyer_cost_per_seat_per_year", "sales_cycle_days", "cac", "ramped_deals_per_seller_per_year", "monthly_qualified_demand", "usage_price_per_unit", "year_one_customer_target", "sizing_tam", "sizing_sam", "sizing_som", "sizing_year_one_customers"]) {
+            const v = given(s[key]);
+            if (v !== undefined && v < 0)
+                problems.push(`${label}: ${key.replace(/_/g, " ")} cannot be negative.`);
         }
         const ramp = given(s?.seller_ramp_months);
         if (ramp !== undefined && (ramp < 0 || ramp > 24))
@@ -183,8 +208,8 @@ export function generateSegmentCheck(input) {
             const v = given(s?.[key]);
             if (v === undefined)
                 return;
-            if (v <= 1 || v > max)
-                problems.push(`${label}: write ${word} as a percent between 1 and ${max}, for example ${example}.`);
+            if (v < 0 || v > max)
+                problems.push(`${label}: write ${word} as a percent between 0 and ${max}, for example ${example}.`);
         };
         percent("logo_retention_percent", "logo retention", 100, "89 for 89%");
         percent("gross_retention_percent", "gross revenue retention", 100, "92 for 92% (it cannot pass 100)");
@@ -197,13 +222,17 @@ export function generateSegmentCheck(input) {
         percent("gross_retention_gate_percent", "the gross retention gate", 100, "90 for 90%");
         percent("net_retention_gate_percent", "the net retention gate", 300, "100 for 100%");
         percent("logo_retention_gate_percent", "the logo retention gate", 100, "85 for 85%");
+        if (given(s.win_rate_percent) === 0)
+            problems.push(`${label}: your win rate must be above 0 to plan wins.`);
         const share = given(s?.year_one_share_percent);
-        if (share !== undefined && (share <= 0 || share > 100))
-            problems.push(`${label}: write the year one share as a percent above 0 and up to 100, for example 2 for 2%.`);
+        if (share !== undefined && (share < 0 || share > 100))
+            problems.push(`${label}: write the year one share as a percent between 0 and 100, for example 2 for 2%.`);
         const churn = given(s?.monthly_logo_churn_percent);
-        if (churn !== undefined && (churn <= 0 || churn >= 100))
-            problems.push(`${label}: write monthly logo churn as a percent above 0, for example 2.5 for 2.5% a month.`);
+        if (churn !== undefined && (churn < 0 || churn > 100))
+            problems.push(`${label}: write monthly logo churn as a percent between 0 and 100, for example 2.5 for 2.5% a month.`);
     });
+    if (marginPercent === undefined && input.gross_margin_percent != null)
+        problems.push("Gross margin must be a finite number.");
     if (problems.length > 0)
         return refusal(`Segment and Seat Cut Check cannot run yet:\n${problems.map((p) => `- ${p}`).join("\n")}`);
     const margin = marginPercent === undefined ? undefined : marginPercent / 100;
@@ -213,6 +242,7 @@ export function generateSegmentCheck(input) {
         seat_cut: input.confirmed?.seat_cut === true,
     };
     const product = text(input.product) ?? "your product";
+    const confirmationNote = "Confirmation is reported by the calling chat. This server cannot verify that a person said yes. The chat must ask the person about each input and leave its confirmation false until they answer. Changing the inputs requires asking again. Percentages are literal: 0.5 means 0.5%, not 50%.";
     // ----- the handoff strings: the one value that passes on is the segment split (ACV and accounts) -----
     const handoffs = rawSegments.map((s) => {
         const name = text(s.name);
@@ -253,6 +283,7 @@ export function generateSegmentCheck(input) {
         lines.push("# Segment and Seat Cut Check: confirm three things before the sums");
         lines.push("");
         lines.push("No sum has been run. The answer is only as good as the split, so a person confirms it first.");
+        lines.push(confirmationNote);
         lines.push("");
         lines.push("## Confirm the segment split");
         lines.push("");
@@ -282,7 +313,7 @@ export function generateSegmentCheck(input) {
         lines.push("When the person has confirmed the split, run this check again with the split marked confirmed. Mark the win rate and the seat cut confirmed only when the person has confirmed each one. Anything not confirmed stays out of the sums.");
         return {
             text: stripDashes(lines.join("\n")),
-            structuredContent: { tool: "segment_and_seat_cut_check", stage: "waiting_for_confirmation", confirmed, segments: rawSegments.map((s) => ({ name: text(s.name), acv: given(s.acv) ?? null, sales_cycle_days: given(s.sales_cycle_days) ?? null, accounts: given(s.accounts) ?? null, deal_source: text(s.deal_source) ?? null, cac: given(s.cac) ?? null })), handoffs },
+            structuredContent: { tool: "segment_and_seat_cut_check", stage: "waiting_for_confirmation", confirmed, confirmation_evidence: "caller_attestation_only", segments: rawSegments.map((s) => ({ name: text(s.name), acv: given(s.acv) ?? null, sales_cycle_days: given(s.sales_cycle_days) ?? null, accounts: given(s.accounts) ?? null, deal_source: text(s.deal_source) ?? null, cac: given(s.cac) ?? null })), handoffs },
         };
     }
     // ----- the sums, per segment -----
@@ -298,9 +329,9 @@ export function generateSegmentCheck(input) {
         const unitConflict = !!chosen && read !== "unclear" && read !== chosen;
         const seatShare = unit === "seat" ? 1 : unit === "usage" ? 0 : unit === "hybrid" ? (given(s.seat_share_of_acv_percent) !== undefined ? s.seat_share_of_acv_percent / 100 : null) : null;
         const payback = acv !== undefined && cac !== undefined ? paybackMonths(cac, acv) : null;
-        const paybackOnProfit = acv !== undefined && cac !== undefined && margin !== undefined ? paybackMonthsOnGrossProfit(cac, acv, margin) : null;
+        const paybackOnProfit = acv !== undefined && cac !== undefined && margin !== undefined && margin > 0 ? paybackMonthsOnGrossProfit(cac, acv, margin) : null;
         const series = (r) => {
-            if (acv === undefined || cac === undefined || margin === undefined || r === undefined)
+            if (acv === undefined || cac === undefined || cac === 0 || margin === undefined || r === undefined)
                 return null;
             const out = {};
             for (let y = 1; y <= 15; y++)
@@ -321,7 +352,7 @@ export function generateSegmentCheck(input) {
             missing.push("the pricing unit in writing (seats or usage)");
         return {
             name, s, unit, unitSource, unitConflict, seatShare, payback, paybackOnProfit,
-            perCac: { gross: series(grr), net: series(nrr), yearOne: acv !== undefined && cac !== undefined && margin !== undefined ? (acv * margin) / cac : null },
+            perCac: { gross: series(grr), net: series(nrr), yearOne: acv !== undefined && cac !== undefined && cac > 0 && margin !== undefined ? (acv * margin) / cac : null },
             expansionPoints: grr !== undefined && nrr !== undefined ? nrr - grr : null,
             missing,
         };
@@ -367,7 +398,7 @@ export function generateSegmentCheck(input) {
                     leadChanges.push({ basis, first_leader: first.name, other: other.name, change_year: change.changeYear });
                     laterNotes.push(change.changeYear === null
                         ? `On ${basis} retention, ${first.name} returns more gross profit per dollar of CAC than ${other.name} in every year to year 15.`
-                        : `On ${basis} retention, ${first.name} returns more gross profit per dollar of CAC than ${other.name} through year ${change.changeYear - 1}; ${other.name} leads from year ${change.changeYear}.`);
+                        : `On ${basis} retention, ${first.name} returns more gross profit per dollar of CAC than ${other.name} at year one; ${other.name} first leads at year ${change.changeYear}. Any intervening ties do not count as a lead.`);
                 }
             }
         if (worked.length === 2 && worked[0].perCac.gross && worked[1].perCac.gross && margin !== undefined) {
@@ -397,9 +428,15 @@ export function generateSegmentCheck(input) {
             return { name: w.name, state: "no_cut_given" };
         const cutShare = cut / 100;
         const renewalByUnit = acv === undefined ? null : { seat: renewalAfterSeatCut(acv, cutShare, 1), usage: renewalAfterSeatCut(acv, cutShare, 0), own: w.seatShare === null ? null : renewalAfterSeatCut(acv, cutShare, w.seatShare) };
-        const lostPoints = arrShare === undefined || w.seatShare === null ? null : retentionPointsLost(arrShare / 100, cutShare, w.seatShare);
+        const basis = readSeatCutBasis(s.what_customers_can_cut);
+        const noSeatLoss = w.seatShare === 0 || cut === 0 || arrShare === 0;
+        const basisReady = basis.additional && basis.openingArr;
+        const proposedLoss = w.seatShare === null || (arrShare === undefined && !noSeatLoss) ? null : noSeatLoss ? 0 : retentionPointsLost(arrShare / 100, cutShare, w.seatShare);
+        const impossible = proposedLoss !== null && ((grr !== undefined && proposedLoss > grr) || (nrr !== undefined && proposedLoss > nrr));
+        const lostPoints = impossible || (!noSeatLoss && !basisReady) ? null : proposedLoss;
         const grrAfter = lostPoints === null || grr === undefined ? null : grr - lostPoints;
-        const nrrAfter = lostPoints === null || nrr === undefined ? null : nrr - lostPoints;
+        const nrrAfter = lostPoints === null || nrr === undefined || (!noSeatLoss && !basis.expansionUnchanged) ? null : nrr - lostPoints;
+        const retentionNeeds = impossible ? "a cut consistent with retained revenue; this cut exceeds what remains" : basis.alreadyIncluded ? "an additional cut outside reported retention; these cuts are already counted" : !basis.additional ? "written confirmation that these additional cuts are not included in reported retention" : !basis.openingArr ? "affected revenue as a share of opening ARR, using the retention cohort and period" : "reported retention";
         const gate = (value, line) => (value === null || value === undefined || line === undefined ? null : value + 1e-9 >= line ? "pass" : "fail");
         const gates = {
             gross_before: gate(grr, given(s.gross_retention_gate_percent)), gross_after: gate(grrAfter, given(s.gross_retention_gate_percent)),
@@ -421,23 +458,23 @@ export function generateSegmentCheck(input) {
         const usageRevenue = price === undefined || unitsMoved === null ? null : price * unitsMoved;
         const shareOfSaving = usageRevenue === null || buyerSaving === null || buyerSaving <= 0 ? null : usageRevenue / buyerSaving;
         const timesSeatRevenue = usageRevenue === null || revenueLost === null || revenueLost <= 0 ? null : usageRevenue / revenueLost;
-        const usageMargin = price === undefined || runCost === undefined ? null : (price - runCost) / price;
-        return { name: w.name, state: "worked", cut, arrShare, renewalByUnit, lostPoints, grrAfter, nrrAfter, gates, seatsCut, pricePerSeat, revenueLost, unitsMoved, recoverRate, keepProfitRate, buyerSaving, savingPerUnit, price, usageRevenue, shareOfSaving, timesSeatRevenue, usageMargin };
+        const usageMargin = price === undefined || price === 0 || runCost === undefined ? null : (price - runCost) / price;
+        return { name: w.name, state: "worked", basis, retentionNeeds, impossible, cut, arrShare, renewalByUnit, lostPoints, grrAfter, nrrAfter, gates, seatsCut, pricePerSeat, revenueLost, unitsMoved, recoverRate, keepProfitRate, buyerSaving, savingPerUnit, price, usageRevenue, shareOfSaving, timesSeatRevenue, usageMargin };
     });
     // ----- seller capacity (pause two guards every sum that uses the win rate) -----
     const capacity = worked.map((w) => {
         const s = w.s;
         const ramp = given(s.seller_ramp_months), cycle = given(s.sales_cycle_days);
         const win = confirmed.win_rate ? given(s.win_rate_percent) : undefined;
-        const target = given(s.year_one_customer_target) ?? given(s.sizing_year_one_customers);
-        const targetSource = given(s.year_one_customer_target) !== undefined ? "your own target" : given(s.sizing_year_one_customers) !== undefined ? "the sizing first draft" : null;
+        const target = given(s.year_one_customer_target);
+        const targetSource = target !== undefined ? "your own target" : null;
         const core = ramp !== undefined && cycle !== undefined ? sellerCapacity(ramp, cycle, given(s.ramped_deals_per_seller_per_year), given(s.acv), given(s.seller_loaded_cost_per_year), margin) : null;
-        const sellersForTarget = core?.dealsYearOne && target !== undefined ? target / core.dealsYearOne : null;
+        const sellersForTarget = target === 0 ? 0 : core?.dealsYearOne && target !== undefined ? target / core.dealsYearOne : null;
         const opportunitiesForTarget = target !== undefined && win !== undefined ? target / (win / 100) : null;
         const budgetForTarget = target !== undefined && given(s.cac) !== undefined ? target * s.cac : null;
         const pipelineForTarget = opportunitiesForTarget !== null && given(s.acv) !== undefined ? opportunitiesForTarget * s.acv : null;
         const ramped = given(s.ramped_deals_per_seller_per_year), demand = given(s.monthly_qualified_demand);
-        const opportunitiesPerSellerMonth = ramped !== undefined && win !== undefined ? ramped / 12 / (win / 100) : null;
+        const opportunitiesPerSellerMonth = ramped !== undefined && ramped > 0 && win !== undefined ? ramped / 12 / (win / 100) : null;
         const sellersDemandCarries = opportunitiesPerSellerMonth !== null && demand !== undefined ? demand / opportunitiesPerSellerMonth : null;
         const winsFromDemand = core !== null && demand !== undefined && win !== undefined ? demand * core.sellingMonths * (win / 100) : null;
         return { name: w.name, ramp, cycle, win, winGiven: given(s.win_rate_percent), target, targetSource, core, sellersForTarget, opportunitiesForTarget, budgetForTarget, pipelineForTarget, opportunitiesPerSellerMonth, sellersDemandCarries, winsFromDemand, demand, ramped };
@@ -454,11 +491,14 @@ export function generateSegmentCheck(input) {
         const churn = `${(Math.round(monthlyRate * 10) / 10).toFixed(1)}% monthly`;
         const models = w.unit === "seat" ? ["saas_subscription"] : w.unit === "usage" ? ["usage_based"] : ["saas_subscription", "usage_based"];
         const runs = models.map((model) => {
-            const answer = stripDashes(generateRetentionPlaybook({ customer_segment: w.name, business_model: model, current_churn_rate: churn, ...(text(w.s.churn_reasons) ? { churn_reasons: text(w.s.churn_reasons) } : {}), product }));
+            const answer = stripDashes(generateRetentionPlaybook({ customer_segment: w.name, business_model: model, current_churn_rate: churn, ...(text(w.s.churn_reasons) ? { churn_reasons: text(w.s.churn_reasons) } : {}), product, ...(text(input.industry) ? { industry: text(input.industry) } : {}) }));
             return { model, churn, health: playbookSection(answer, "Health score"), reach: model === "usage_based" ? playbookSection(answer, "When to reach out") : null };
         });
         return { name: w.name, runs };
     });
+    const hasNonFinite = (value) => typeof value === "number" ? !Number.isFinite(value) : Array.isArray(value) ? value.some(hasNonFinite) : value !== null && typeof value === "object" ? Object.values(value).some(hasNonFinite) : false;
+    if (hasNonFinite([worked, seatCut, capacity]))
+        return refusal("These numbers are too large for reliable sums. Check the amounts and units, then run the check again.");
     // =====================  the answer, in reading order  =====================
     const lines = [];
     const head = `| Line | ${worked.map((w) => w.name).join(" | ")} |`;
@@ -473,7 +513,7 @@ export function generateSegmentCheck(input) {
     lines.push("");
     lines.push(head, rule);
     lines.push(row("Payback on CAC and ARR", (w) => (w.payback === null ? miss("ACV and CAC") : months(w.payback))));
-    lines.push(row("Payback on gross profit", (w) => (w.paybackOnProfit === null ? miss("ACV, CAC and gross margin") : months(w.paybackOnProfit))));
+    lines.push(row("Payback on gross profit", (w) => (w.paybackOnProfit === null ? (margin === 0 ? "No payback at zero gross margin" : miss("ACV, CAC and gross margin")) : months(w.paybackOnProfit))));
     lines.push(row("Logo retention a year", (w) => v(given(w.s.logo_retention_percent), pct, "logo retention")));
     lines.push(row("Gross revenue retention", (w) => v(given(w.s.gross_retention_percent), pct, "gross revenue retention")));
     lines.push(row("Net revenue retention", (w) => v(given(w.s.net_retention_percent), pct, "net revenue retention")));
@@ -498,8 +538,8 @@ export function generateSegmentCheck(input) {
         lines.push(row("Share of seats cut", (_w, i) => (seatCut[i].state === "worked" ? pct(seatCut[i].cut) : miss("the share of seats customers could cut"))));
         lines.push(row("Renewal of one account", (w, i) => { const c = seatCut[i]; return c.state !== "worked" ? miss("the seat cut share") : c.renewalByUnit === null ? miss("ACV") : c.renewalByUnit.own === null ? miss("the pricing unit, and the seat share when it is a mix") : `${money(c.renewalByUnit.own)}, from ${money(w.s.acv)}`; }));
         lines.push(row("Logo retention after the cut", (w, i) => (seatCut[i].state !== "worked" ? miss("the seat cut share") : v(given(w.s.logo_retention_percent), (n) => `${pct(n)}, unchanged`, "logo retention"))));
-        lines.push(row("Gross retention after the cut", (_w, i) => { const c = seatCut[i]; return c.state !== "worked" ? miss("the seat cut share") : c.grrAfter === null ? miss("gross retention and the share of revenue in accounts that cut") : `${pct(c.grrAfter)}, down ${points(c.lostPoints)}`; }));
-        lines.push(row("Net retention after the cut", (_w, i) => { const c = seatCut[i]; return c.state !== "worked" ? miss("the seat cut share") : c.nrrAfter === null ? miss("net retention and the share of revenue in accounts that cut") : pct(c.nrrAfter); }));
+        lines.push(row("Gross retention after the cut", (_w, i) => { const c = seatCut[i]; return c.state !== "worked" ? miss("the seat cut share") : c.grrAfter === null ? miss(c.retentionNeeds + ", gross retention and the share of revenue in accounts that cut") : `${pct(c.grrAfter)}, down ${points(c.lostPoints)}`; }));
+        lines.push(row("Net retention after the cut", (_w, i) => { const c = seatCut[i]; return c.state !== "worked" ? miss("the seat cut share") : c.nrrAfter === null ? miss(c.lostPoints === null ? c.retentionNeeds : "net retention and written confirmation that expansion revenue stays unchanged") : pct(c.nrrAfter); }));
         lines.push("");
         for (let i = 0; i < worked.length; i++) {
             const c = seatCut[i], w = worked[i];
@@ -507,10 +547,10 @@ export function generateSegmentCheck(input) {
                 continue;
             const g = c.gates;
             if (c.lostPoints === 0) {
-                lines.push(`- ${w.name}: no part of this contract is billed on seats, so a seat cut does not move the renewal. What moves it is the volume of work, so watch volume per account.`);
+                lines.push(`- ${w.name}: no additional seat revenue loss is modelled. With usage pricing no part of this contract is billed on seats; the renewal shown assumes work volume and price stay unchanged. A fall in work volume is outside this seat cut scenario.`);
                 continue;
             }
-            lines.push(`- ${w.name}: the customer stays, so logo retention does not move. Gross retention shows the cut first. Selling ${points(c.lostPoints)} of expansion elsewhere would put net retention back where it was while gross stayed at ${pct(c.grrAfter)}, so watch gross beside net.`);
+            lines.push(`- ${w.name}: the customer stays, so logo retention does not move. Gross retention shows the cut first. Selling ${points(c.lostPoints)} of expansion elsewhere would put net retention back where it was while gross stayed at ${c.grrAfter === null ? "Missing until gross retention is supplied" : pct(c.grrAfter)}, so watch gross beside net.`);
             if (g.gross_after !== null || g.net_after !== null) {
                 const part = (label, before, after, line) => (after === null ? null : `${label} gate of ${pct(line)}: ${before === after ? `${after === "pass" ? "passes" : "fails"} before and after` : `${before === "pass" ? "passes" : "fails"} today, ${after === "pass" ? "passes" : "fails"} after the cut`}`);
                 const parts = [part("gross retention", g.gross_before, g.gross_after, given(w.s.gross_retention_gate_percent)), part("net retention", g.net_before, g.net_after, given(w.s.net_retention_gate_percent))].filter(Boolean);
@@ -518,8 +558,10 @@ export function generateSegmentCheck(input) {
             }
         }
         lines.push("");
-        lines.push("How to read it: this is a scenario on your own ratio, added on top of the retention you reported. AI takes short, easy work first, so a quarter of the work is rarely a quarter of the seats. The test works with or without AI: when the customer gets the result you sell, which billed unit shrinks?");
+        lines.push("How to read it: this is an additional cut scenario, not a forecast. In what customers can cut, state that the additional cut is not included in reported retention, that affected revenue is a share of opening ARR for the same cohort and period, and whether expansion revenue stays unchanged. Otherwise the retention projection stays Missing. Never subtract a cut already counted in gross retention again from either gross or net. The same loss is applied once to each measure because both use opening ARR; net is gross plus expansion. The account renewal also assumes its ACV is before this proposed cut. AI takes short, easy work first, so a quarter of the work is rarely a quarter of the seats. The test works with or without AI: when the customer gets the result you sell, which billed unit shrinks?");
     }
+    lines.push("");
+    lines.push(confirmationNote);
     lines.push("");
     lines.push("## Check this first");
     lines.push("");
@@ -528,9 +570,9 @@ export function generateSegmentCheck(input) {
     lines.push(...splitTable());
     lines.push("");
     lines.push(`- Gross margin used in every profit sum: ${margin === undefined ? miss("gross margin") : pct(marginPercent)}.`);
-    lines.push("- Segment split: confirmed by you.");
-    lines.push(`- Your own win rate: ${confirmed.win_rate ? "confirmed by you" : "not confirmed, so every sum that uses a win rate is held back"}.`);
-    lines.push(`- What customers can cut: ${confirmed.seat_cut ? "confirmed by you" : "not confirmed, so the seat cut sums are held back"}.`);
+    lines.push("- Segment split: the caller reports confirmation.");
+    lines.push(`- Your own win rate: ${confirmed.win_rate ? "the caller reports confirmation" : "not confirmed, so every sum that uses a win rate is held back"}.`);
+    lines.push(`- What customers can cut: ${confirmed.seat_cut ? "the caller reports confirmation" : "not confirmed, so the seat cut sums are held back"}.`);
     for (const w of worked)
         if (w.missing.length > 0)
             lines.push(`- ${w.name}, Missing: ${[...new Set(w.missing)].join(", ")}.`);
@@ -547,7 +589,7 @@ export function generateSegmentCheck(input) {
         lines.push("### Retention and payback");
         lines.push("");
         lines.push(`- Payback on CAC and ARR: ${w.payback === null ? miss("ACV and CAC") : `${months(w.payback)} (${money(s.cac)} CAC over ${money(s.acv / 12)} of contract revenue a month)`}.`);
-        lines.push(`- Payback on gross profit: ${w.paybackOnProfit === null ? miss("ACV, CAC and gross margin") : `${months(w.paybackOnProfit)} (${money(s.cac)} CAC over ${money((s.acv * margin) / 12)} of gross profit a month, at your ${pct(marginPercent)} margin)`}.`);
+        lines.push(`- Payback on gross profit: ${w.paybackOnProfit === null ? (margin === 0 ? "No payback at zero gross margin" : miss("ACV, CAC and gross margin")) : `${months(w.paybackOnProfit)} (${money(s.cac)} CAC over ${money((s.acv * margin) / 12)} of gross profit a month, at your ${pct(marginPercent)} margin)`}.`);
         lines.push(`- Retention: logo ${v(given(s.logo_retention_percent), pct, "logo retention")}; gross ${v(given(s.gross_retention_percent), pct, "gross revenue retention")}; net ${v(given(s.net_retention_percent), pct, "net revenue retention")}; expansion ${w.expansionPoints === null ? miss("gross and net retention") : points(w.expansionPoints)}.`);
         lines.push("");
         lines.push("### Seller capacity");
@@ -558,10 +600,10 @@ export function generateSegmentCheck(input) {
             lines.push(`- Selling months left in year one: ${one(cap.core.sellingMonths)} (12, less ${one(cap.ramp)} of ramp, less a ${one(cap.core.cycleMonths)} month sales cycle before the first close).`);
             lines.push(`- Deals one new seller closes in year one: ${cap.core.dealsYearOne === null ? miss("the deals a ramped seller closes in a year, from your own hiring record") : `${count(cap.core.dealsYearOne)} (${one(cap.core.sellingMonths)} months at ${count(cap.ramped)} a year)`}.`);
             lines.push(`- Contract value one seller books in year one: ${cap.core.acvBooked === null ? miss("ramped deals per seller and ACV") : money(cap.core.acvBooked)}.`);
-            lines.push(`- Payback on the seller's cost, per deal: ${cap.core.paybackOnSellerCostMonths === null ? miss("ramped deals per seller, loaded cost, ACV and gross margin") : `${months(cap.core.paybackOnSellerCostMonths)} (${money(s.seller_loaded_cost_per_year)} over ${count(cap.core.dealsYearOne)} deals, over ${money((s.acv * margin) / 12)} of gross profit a month per deal)`}.`);
+            lines.push(`- Payback on the seller's cost, per deal: ${cap.core.paybackOnSellerCostMonths === null ? (cap.core.dealsYearOne === 0 ? "No payback in this plan: no deals close in year one" : margin === 0 ? "No payback at zero gross margin" : miss("ramped deals per seller, loaded cost, ACV and gross margin")) : `${months(cap.core.paybackOnSellerCostMonths)} (${money(s.seller_loaded_cost_per_year)} over ${count(cap.core.dealsYearOne)} deals, over ${money((s.acv * margin) / 12)} of gross profit a month per deal)`}.`);
         }
-        lines.push(`- Year one customer target: ${cap.target === undefined ? miss("your own target, or the customer count from the sizing first draft") : `${count(cap.target)}, from ${cap.targetSource}`}.`);
-        lines.push(`- Sellers that target needs, all hired on day one: ${cap.sellersForTarget === null ? miss("the target and year one deals per seller") : count(cap.sellersForTarget)}.`);
+        lines.push(`- Year one customer target: ${cap.target === undefined ? miss("your own year one customer target") : `${count(cap.target)}, from ${cap.targetSource}`}.`);
+        lines.push(`- Sellers that target needs, all hired on day one: ${cap.sellersForTarget === null ? (cap.core?.dealsYearOne === 0 && cap.target !== undefined ? "The target cannot be met by sellers with no year one closes" : miss("the target and year one deals per seller")) : count(cap.sellersForTarget)}.`);
         lines.push(`- CAC budget that target implies: ${cap.budgetForTarget === null ? miss("the target and CAC") : `${money(cap.budgetForTarget)} (${count(cap.target)} customers at ${money(s.cac)})`}.`);
         if (!confirmed.win_rate)
             lines.push("- Waiting for you: qualified opportunities needed, pipeline needed, and the sellers your demand can carry all use a win rate. They run only after a person confirms the win rate is your own.");
@@ -583,7 +625,7 @@ export function generateSegmentCheck(input) {
             lines.push(`- ${miss("the share of seats customers could cut")}.`);
         else {
             lines.push(`- Renewal of one account if ${pct(c.cut)} of seats go: ${c.renewalByUnit === null ? miss("ACV") : `on seats ${money(c.renewalByUnit.seat)}; on usage ${money(c.renewalByUnit.usage)}, because that bill follows the work done and not the seat count${c.renewalByUnit.own === null ? "" : `; on your pricing ${money(c.renewalByUnit.own)}`}`}.`);
-            lines.push(`- Across the base: ${c.lostPoints === null ? miss("the share of revenue in accounts that would cut, and the pricing unit") : `accounts holding ${pct(c.arrShare)} of revenue each cutting ${pct(c.cut)} of seats takes ${points(c.lostPoints)} off gross and net retention`}${c.grrAfter === null ? "" : `: gross ${pct(s.gross_retention_percent)} to ${pct(c.grrAfter)}`}${c.nrrAfter === null ? "" : `, net ${pct(s.net_retention_percent)} to ${pct(c.nrrAfter)}`}.`);
+            lines.push(`- Across the base: ${c.lostPoints === null ? miss(c.retentionNeeds + ", the share of revenue in accounts that would cut, and the pricing unit") : `accounts holding ${c.arrShare === undefined ? "an unspecified share" : pct(c.arrShare)} of revenue each cutting ${pct(c.cut)} of seats takes ${points(c.lostPoints)} off gross retention${c.basis.expansionUnchanged ? " and the same points off net, with expansion revenue held fixed" : "; net retention waits for confirmation that expansion revenue stays unchanged"}`}${c.grrAfter === null ? "" : `: gross ${pct(s.gross_retention_percent)} to ${pct(c.grrAfter)}`}${c.nrrAfter === null ? "" : `, net ${pct(s.net_retention_percent)} to ${pct(c.nrrAfter)}`}.`);
             if (c.seatsCut !== null && c.pricePerSeat !== null)
                 lines.push(`- Seats: ${count(s.seats_per_account)} at ${money(c.pricePerSeat)} each; ${count(c.seatsCut)} cut; revenue lost ${c.revenueLost === null ? miss("ACV") : money(c.revenueLost)} a year.`);
             if (c.recoverRate !== null)
@@ -640,7 +682,7 @@ export function generateSegmentCheck(input) {
     if (playbooks.some((p) => p.runs.length > 0)) {
         lines.push("## First draft: signals to watch for your pricing unit (from the retention playbook)");
         lines.push("");
-        lines.push("The playbook does not model a seat cut or a price change; the sums above do that. It is carried here only for the signals that fit how you charge. Its weights are illustrations.");
+        lines.push("The playbook does not model a seat cut or a price change; the sums above do that. It is carried here only for the signals that fit how you charge. Its weights are illustrations, not a retention forecast or a gate for spending.");
         lines.push("");
         for (const p of playbooks)
             for (const run of p.runs) {
@@ -677,18 +719,19 @@ export function generateSegmentCheck(input) {
     lines.push("## Your next action");
     lines.push("");
     lines.push(`Founder: back one segment on retention and payback, not on a score. ${fastest ? `${fastest.name} pays back fastest at ${months(fastest.payback)}` : "Payback is Missing until ACV and CAC are in"}. Write the gross and net retention lines that release the next money before you spend it.`);
-    lines.push(`CEO: decide whether the pricing unit changes, and when. ${seatExposed.length > 0 ? `${seatExposed.map((w) => w.name).join(" and ")} ${seatExposed.length === 1 ? "loses" : "lose"} gross retention when seats are cut` : confirmed.seat_cut ? "No segment showed a seat cut loss on the figures given" : "The seat cut sums are waiting for a confirmed cut"}. Put a usage meter into new contracts first, and move existing accounts one renewal before their seats shrink, not when procurement asks.`);
-    lines.push(`CMO: set one motion per segment and check each against how the last 20 deals in that segment arrived. ${under100.length > 0 ? `Keep new acquisition spend off ${under100.map((w) => w.name).join(" and ")} until net retention is back at 100%.` : "No segment is under 100% net retention on the figures given."}`);
+    lines.push(`CEO: decide whether the pricing unit changes, and when. ${seatExposed.length > 0 ? `${seatExposed.map((w) => w.name).join(" and ")} ${seatExposed.length === 1 ? "loses" : "lose"} gross retention when seats are cut` : confirmed.seat_cut ? "The seat cut loss is Missing or zero; Missing does not establish that pricing is safe" : "The seat cut sums are waiting for a confirmed cut"}. Put a usage meter into new contracts first, and move existing accounts one renewal before their seats shrink, not when procurement asks.`);
+    lines.push(`CMO: set one motion per segment and check each against how the last 20 deals in that segment arrived. ${under100.length > 0 ? `Keep new acquisition spend off ${under100.map((w) => w.name).join(" and ")} until net retention is back at 100%.` : "Check every segment with Missing net retention before releasing acquisition spend; reported rates alone do not fill those gaps."}`);
     lines.push(`CRO: place sellers where one seller earns back its cost soonest${sellerPays ? `: ${sellerPays.name}, at ${months(sellerPays.core.paybackOnSellerCostMonths)} per deal` : " (Missing until ramp, ramped deals, loaded cost and margin are in)"}. Hire behind the written gate, and size the team from qualified demand, not from a market share.`);
     lines.push(`Demand generation head: set budget per segment from payback and the CAC budget each target implies, and report qualified opportunities assigned to sellers every month. ${fastest ? `Watch CAC on ${fastest.name}: a faster payback holds only while CAC holds at volume.` : "Report CAC per segment, not blended."}`);
     lines.push("");
     lines.push("## Reading the answer");
     lines.push("");
-    lines.push("Same inputs give the same page, so rerun it each quarter with new retention figures and before each renewal season with a new seat cut share, then compare line by line. The seat cut is added on top of the retention you reported. The motion and size lines are first drafts from other Helix tools, carried as passed and never recomputed here. If gross retention sits under your gate while net retention looks sound, that is the moment for a second pair of eyes: book 45 minutes at https://calendly.com/shashwat-gtmhelix/45min");
+    lines.push("Same inputs give the same page, so rerun it each quarter with new retention figures and before each renewal season with a new seat cut share, then compare line by line. Retention projections require a fresh cut outside reported retention and a share of opening ARR. Usage renewals assume unchanged work volume and rates. The motion and size lines are first drafts from other Helix tools, carried as passed and never recomputed here. If gross retention sits under your gate while net retention looks sound, that is the moment for a second pair of eyes: book 45 minutes at https://calendly.com/shashwat-gtmhelix/45min");
     const structuredContent = {
         tool: "segment_and_seat_cut_check",
         stage: "worked",
         confirmed,
+        confirmation_evidence: "caller_attestation_only",
         gross_margin_percent: marginPercent ?? null,
         segments: worked.map((w, i) => {
             const c = seatCut[i], cap = capacity[i];
@@ -725,6 +768,8 @@ export function generateSegmentCheck(input) {
                 },
                 seat_cut: c.state !== "worked" ? { state: c.state } : {
                     state: "worked",
+                    retention_basis: c.basis,
+                    retention_projection_missing_reason: c.lostPoints === null ? c.retentionNeeds : c.nrrAfter === null ? "Net retention needs its reported rate and unchanged expansion revenue" : null,
                     seat_cut_percent: c.cut,
                     renewal_per_account: c.renewalByUnit === null ? null : { on_seats: round4(c.renewalByUnit.seat), on_usage: round4(c.renewalByUnit.usage), on_your_pricing: round4(c.renewalByUnit.own) },
                     retention_points_lost: round4(c.lostPoints),
@@ -732,13 +777,13 @@ export function generateSegmentCheck(input) {
                     net_retention_after_percent: round4(c.nrrAfter),
                     gates: c.gates,
                     seats_cut: round4(c.seatsCut),
-                    price_per_seat: round4(c.pricePerSeat),
+                    price_per_seat: c.pricePerSeat,
                     revenue_lost_per_account: round4(c.revenueLost),
                     work_units_moved: round4(c.unitsMoved),
-                    usage_rate_that_recovers_revenue: round4(c.recoverRate),
-                    usage_rate_that_keeps_gross_profit_before_run_cost: round4(c.keepProfitRate),
+                    usage_rate_that_recovers_revenue: c.recoverRate,
+                    usage_rate_that_keeps_gross_profit_before_run_cost: c.keepProfitRate,
                     buyer_saving: round4(c.buyerSaving),
-                    buyer_saving_per_unit: round4(c.savingPerUnit),
+                    buyer_saving_per_unit: c.savingPerUnit,
                     revenue_at_your_usage_price: round4(c.usageRevenue),
                     share_of_buyer_saving: round4(c.shareOfSaving),
                     times_seat_revenue: round4(c.timesSeatRevenue),
@@ -753,6 +798,8 @@ export function generateSegmentCheck(input) {
         warnings,
         handoffs,
     };
+    if (hasNonFinite(structuredContent))
+        return refusal("These numbers are too large for reliable sums. Check the amounts and units, then run the check again.");
     return { text: stripDashes(lines.join("\n")), structuredContent };
 }
 //# sourceMappingURL=segment-check.js.map

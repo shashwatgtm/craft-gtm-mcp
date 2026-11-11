@@ -167,7 +167,7 @@ test("hand-worked set A: logistics software on dispatcher seats", () => {
   const res = generateSegmentCheck({
     product: "Dispatch planning software for road freight", gross_margin_percent: 75, confirmed: { segment_split: true, win_rate: true, seat_cut: true },
     segments: [{ name: "Mid-size road carriers", acv: 48000, sales_cycle_days: 90, accounts: 3000, deal_source: "outbound", cac: 30000, logo_retention_percent: 90, gross_retention_percent: 88, net_retention_percent: 104,
-      pricing_unit_in_writing: "We charge per dispatcher seat, billed yearly", what_customers_can_cut: "dispatcher seats at renewal", win_rate_percent: 25, year_one_customer_target: 24,
+      pricing_unit_in_writing: "We charge per dispatcher seat, billed yearly", what_customers_can_cut: "dispatcher seats at renewal. Additional seat cuts not included in reported retention. Affected revenue is a share of opening ARR. Expansion revenue stays unchanged.", win_rate_percent: 25, year_one_customer_target: 24,
       seller_ramp_months: 3, seller_loaded_cost_per_year: 180000, ramped_deals_per_seller_per_year: 12, monthly_qualified_demand: 16,
       seat_cut_percent: 20, arr_share_cutting_percent: 50, seats_per_account: 40, work_units_per_seat_per_year: 2500 }],
   });
@@ -216,7 +216,7 @@ test("hand-worked set C: security software on a mix of seats and usage", () => {
   const res = generateSegmentCheck({
     product: "Threat detection for mid-size enterprises", gross_margin_percent: 80, confirmed: { segment_split: true, seat_cut: true, win_rate: true },
     segments: [{ name: "Mid-size enterprises with a security operations centre", acv: 80000, sales_cycle_days: 60, cac: 50000, logo_retention_percent: 93, gross_retention_percent: 91, net_retention_percent: 110,
-      pricing_unit_in_writing: "Priced per analyst seat plus a fee per endpoint protected", seat_share_of_acv_percent: 60, seller_ramp_months: 1.5, ramped_deals_per_seller_per_year: 10,
+      pricing_unit_in_writing: "Priced per analyst seat plus a fee per endpoint protected", what_customers_can_cut: "Additional seat cuts not included in reported retention. Affected revenue is a share of opening ARR. Expansion revenue stays unchanged.", seat_share_of_acv_percent: 60, seller_ramp_months: 1.5, ramped_deals_per_seller_per_year: 10,
       seat_cut_percent: 25, arr_share_cutting_percent: 40, gross_retention_gate_percent: 88, net_retention_gate_percent: 105 }],
   });
   const s = res.structuredContent.segments[0];
@@ -266,7 +266,7 @@ test("free text: the pricing sentence is read the same way for exact, same-meani
     assert.equal(readPricingUnit(sentence), expected, `${vertical}: "${sentence}"`);
     // And through the server, where the sentence is escaped first.
     const res = await call({ product: `${vertical} product`, confirmed: { segment_split: true, seat_cut: true },
-      segments: [{ name: `${vertical} buyers`, acv: 40000, cac: 20000, gross_retention_percent: 90, net_retention_percent: 100, pricing_unit_in_writing: sentence, seat_cut_percent: 20, arr_share_cutting_percent: 50 }] });
+      segments: [{ name: `${vertical} buyers`, acv: 40000, cac: 20000, gross_retention_percent: 90, net_retention_percent: 100, pricing_unit_in_writing: sentence, what_customers_can_cut: "Additional seat cuts not included in reported retention. Affected revenue is a share of opening ARR. Expansion revenue stays unchanged.", seat_cut_percent: 20, arr_share_cutting_percent: 50 }] });
     assert.ok(!res.isError, `${vertical}: "${sentence}" ${res.content[0].text.slice(0, 200)}`);
     const s = res.structuredContent.segments[0];
     assert.equal(s.pricing_unit.read_as, expected, `${vertical} via server: "${sentence}"`);
@@ -328,10 +328,10 @@ test("missing means missing: no figure is filled in", () => {
   assert.doesNotMatch(res.text, /Later years/);
 });
 
-test("refusals: a percent typed as a fraction, an impossible retention and too many segments are refused in plain words", async () => {
+test("literal percentages are preserved; impossible retention and too many segments are refused in plain words", async () => {
   const fraction = await call({ product: "Billing software", segments: [{ name: "Clinics", logo_retention_percent: 0.89 }] });
-  assert.equal(fraction.isError, true);
-  assert.match(fraction.content[0].text, /write logo retention as a percent between 1 and 100, for example 89 for 89%/);
+  assert.ok(!fraction.isError);
+  assert.match(fraction.content[0].text, /0.5 means 0.5%/);
   const over = await call({ product: "Billing software", segments: [{ name: "Clinics", gross_retention_percent: 104 }] });
   assert.equal(over.isError, true);
   const many = generateSegmentCheck({ product: "Billing software", segments: [1, 2, 3, 4, 5].map((n) => ({ name: `Segment ${n}` })) });

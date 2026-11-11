@@ -1,0 +1,31 @@
+{
+  "status": "in_progress",
+  "current_item": "Final full suite and report",
+  "items_done": [
+    "Read common rules, checker brief and all builder notes",
+    "Pricing reader attacked across nine verticals and hardened",
+    "All three pauses made honest as caller attestations",
+    "Retention projections gated on additional cuts, opening ARR and unchanged expansion",
+    "Missing, zero, small percentages, hiring targets and micro rates fixed",
+    "Guide known answer and all nine existing tool responses verified",
+    "Browser checked at 375 and 1440 pixels; screenshots captured"
+  ],
+  "items_left": [
+    "Complete final full suite comparison",
+    "Complete CHECK-REPORT.md and final push"
+  ],
+  "updated_at": "2026-11-11T13:25:52+05:30",
+  "code_repository": "shashwatgtm/craft-gtm-mcp",
+  "code_branch": "codex/check-29-20261111",
+  "builder_commit": "3c94ae8a103ca0d429701ba39ae037a7489cdfb6",
+  "hub_repository": "shashwatgtm/gtmhelix-tools-hub",
+  "hub_branch": "codex/check-29-20261111",
+  "checks": {
+    "build": "pass",
+    "focused_tests": "42 passed",
+    "existing_tools": "9 definitions and 9 response bytes unchanged",
+    "browser": "375px and 1440px passed"
+  },
+  "no_merge": true,
+  "no_deploy": true
+}

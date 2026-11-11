@@ -18,7 +18,7 @@
       "net_retention_percent": 108,
       "monthly_logo_churn_percent": 1,
       "pricing_unit_in_writing": "per agent seat, billed yearly",
-      "what_customers_can_cut": "agent seats, at each yearly renewal",
+      "what_customers_can_cut": "agent seats, at each yearly renewal. Additional seat cuts not included in reported retention. Affected revenue is a share of opening ARR. Expansion revenue stays unchanged.",
       "icp_match_percent": 25,
       "year_one_share_percent": 2,
       "win_rate_percent": 33.333333333333336,
@@ -38,7 +38,8 @@
       "sizing_tam": 360000000,
       "sizing_sam": 90000000,
       "sizing_som": 1800000,
-      "sizing_year_one_customers": 30
+      "sizing_year_one_customers": 30,
+      "year_one_customer_target": 30
     },
     {
       "name": "Digital native: consumer brands with 50 to 300 support agents",
@@ -52,7 +53,7 @@
       "net_retention_percent": 92,
       "monthly_logo_churn_percent": 2.5,
       "pricing_unit_in_writing": "per agent seat, billed yearly",
-      "what_customers_can_cut": "agent seats, at each yearly renewal",
+      "what_customers_can_cut": "agent seats, at each yearly renewal. Additional seat cuts not included in reported retention. Affected revenue is a share of opening ARR. Expansion revenue stays unchanged.",
       "icp_match_percent": 20,
       "year_one_share_percent": 3,
       "logo_retention_gate_percent": 85,
@@ -66,5 +67,9 @@
       "sizing_year_one_customers": 72
     }
   ],
-  "confirmed": { "segment_split": true, "win_rate": true, "seat_cut": true }
+  "confirmed": {
+    "segment_split": true,
+    "win_rate": true,
+    "seat_cut": true
+  }
 }
