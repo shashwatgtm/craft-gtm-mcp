@@ -284,20 +284,132 @@
 <script src="/assets/analytics.js?v=2eb2d1413a" data-privacy="/privacy/" defer></script>
 <script src="/assets/look.js?v=c79f7e788f" defer></script>
 <script src="https://gtmhelix.com/journey/history.js" defer></script>
+<style>
+.hx-look .hero.sp-hero{padding:clamp(18px,2vw,28px) 0 clamp(22px,2.4vw,32px)}
+.hx-look .sp-hero .eyebrow{margin:0 0 8px}
+.hx-look .sp-hero h1{max-width:none;font-size:clamp(34px,3.6vw,52px);margin:0}
+.hx-look .sp-hero .sub{margin:10px 0 0;max-width:none;font-size:clamp(16px,1.3vw,19px);color:#5A4B4E}
+.sp-grid{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:20px;margin-top:clamp(16px,1.8vw,24px);align-items:stretch;position:relative;z-index:1}
+.sp-card{background:#FFFDF9;border:1px solid #E3D3CA;border-radius:16px;box-shadow:0 10px 28px rgba(60,38,34,.08);padding:clamp(16px,1.6vw,24px);min-width:0}
+.hx-look .sp-card h2{font-size:clamp(20px,1.7vw,25px);line-height:1.2;margin:0 0 4px;max-width:none}
+.hx-look .sp-card p,.hx-look .sp-hero .sp-card h2{max-width:none}
+.sp-card .sp-note{margin:0 0 14px;color:#5A4B4E;font-size:15px;line-height:1.45}
+.sp-fields{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.sp-field{display:flex;flex-direction:column;justify-content:flex-end;gap:6px;min-width:0}
+.sp-field label{font-size:14px;line-height:1.3;font-weight:600;color:#1D1416}
+.sp-field label span{font-weight:400;color:#5A4B4E}
+.sp-field input{width:100%;min-height:48px;padding:10px 12px;border:1.5px solid #D9C6BC;border-radius:12px;background:#FFFDF9;color:#1D1416;font:500 17px/1.2 inherit;font-family:inherit;box-sizing:border-box}
+.sp-field input::placeholder{color:#A2918F;opacity:1}
+.sp-field input:focus{border-color:#641220;box-shadow:0 0 0 3px rgba(100,18,32,.14);outline:0}
+.sp-out{margin-top:14px;min-height:112px;border-radius:12px;background:#F3EADF;padding:14px 16px;display:flex;flex-direction:column;justify-content:center;gap:4px}
+.sp-out:empty{background:none;border:1.5px dashed #E3D3CA}
+.sp-out p{margin:0}
+.sp-out .sp-nojs{color:#5A4B4E;font-size:15px}
+.sp-out .sp-nojs a{color:#641220;text-decoration:underline}
+.sp-big{font-family:var(--display,Fraunces,Georgia,serif);font-size:clamp(24px,2.3vw,32px);line-height:1.15;color:#1D1416;font-weight:600}
+.sp-line{font-size:15.5px;line-height:1.4;color:#1D1416}
+.sp-verdict{font-size:16px;line-height:1.4;font-weight:600}
+.sp-verdict.sp-ok{color:#1F5C3A}
+.sp-verdict.sp-over{color:#641220}
+.sp-sum{font-size:13.5px;color:#5A4B4E;line-height:1.4}
+.sp-list{display:flex;flex-direction:column}
+.sp-acts{display:flex;flex-wrap:wrap;gap:10px;margin:2px 0 12px}
+.hx-look .sp-acts a.hx-btn{display:inline-flex;align-items:center;justify-content:center;text-align:center;flex:1 1 190px;min-height:48px;padding:10px 16px;text-decoration:none}
+.hx-look .sp-acts a.hx-btn.sp-ghost{background:#FFFDF9;color:#641220}
+.hx-look .sp-acts a.hx-btn.sp-ghost:hover,.hx-look .sp-acts a.hx-btn.sp-ghost:focus-visible{background:#F3EADF;color:#4D0D18}
+.sp-small{margin:0 0 6px;font-size:14.5px;line-height:1.45;color:#5A4B4E}
+.sp-small a,.sp-book a{color:#641220;text-decoration:underline;text-underline-offset:3px}
+.sp-book{margin:auto 0 0;padding-top:12px;border-top:1px solid #EADFD6;font-size:15px;line-height:1.45;color:#1D1416}
+.hx-look .sp-below .hx-section{padding-top:clamp(32px,4vw,56px)}
+.sp-defs{list-style:none;margin:0;padding:0;display:grid;gap:10px;max-width:78ch}
+.sp-defs li{margin:0;padding:12px 16px;background:#FFFDF9;border:1px solid #EADFD6;border-radius:12px;line-height:1.5}
+.sp-two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 40px}
+.sp-two .hx-section{min-width:0}
+@media (max-width:900px){
+.sp-grid{grid-template-columns:minmax(0,1fr);gap:14px}
+.sp-two{grid-template-columns:minmax(0,1fr)}
+}
+@media (max-width:640px){
+.hx-look .hero.sp-hero{padding:14px 0 22px}
+.hx-look .sp-hero h1{font-size:30px;line-height:1.1}
+.hx-look .sp-hero .sub{font-size:15.5px;margin-top:6px}
+.sp-card{padding:14px}
+.hx-look .sp-card h2{font-size:19px}
+.sp-card .sp-note{margin-bottom:10px;font-size:14.5px}
+.sp-fields{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.sp-field label{font-size:13.5px}
+.sp-field input{min-height:44px;font-size:16px}
+.sp-out{min-height:104px;margin-top:10px;padding:12px}
+}
+</style>
 </head>
 <body>
 <a class="hx-skip" href="#main">Skip to content</a>
 <header class="hx9-gh"><div class="hx-wrap hx9-row1"><a class="hx9-logo" href="https://gtmhelix.com/" aria-label="Helix GTM Consulting home"><span class="hx9-mark" aria-hidden="true">h</span><span class="hx9-word">Helix GTM</span></a><nav class="hx9-nav" aria-label="Helix GTM Consulting"><a href="https://gtmhelix.com/#start">Start here</a><a href="https://tools.gtmhelix.com/tools/" class="hx9-on">All tools</a><a href="https://gtmhelix.com/writing/">Writing</a><a href="https://gtmhelix.com/guides/">Guides</a><a href="https://gtmhelix.com/about/">About</a></nav><a class="hx-btn btn-sm hx9-cta" href="https://gtmhelix.com/lets-get-started/">Work with Shashwat</a><details class="hx9-menu"><summary>Menu</summary><nav class="hx9-menu-nav" aria-label="Helix GTM Consulting menu"><div class="hx9-menu-site" role="group" aria-label="This site"><span class="hx9-menu-lbl" aria-hidden="true">On this site</span><a href="/#tools" class="hx9-on">Tools on this site</a><a href="#site-release">Run Scale Paid Check</a><a href="/docs/">How it works</a><a href="/faq/">FAQ</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></div><a href="https://gtmhelix.com/#start">Start here</a><a href="https://tools.gtmhelix.com/tools/" class="hx9-on">All tools</a><a href="https://gtmhelix.com/writing/">Writing</a><a href="https://gtmhelix.com/guides/">Guides</a><a href="https://gtmhelix.com/about/">About</a></nav></details></div></header><div class="hx9-row2"><div class="hx-wrap hx9-row2-in"><span class="tag">CRAFT GTM</span><nav class="hx9-crumbs" aria-label="Breadcrumb"><a href="https://gtmhelix.com/">Helix GTM Consulting</a><span class="hx9-sep" aria-hidden="true">/</span><a href="https://tools.gtmhelix.com/tools/">All tools</a><span class="hx9-sep" aria-hidden="true">/</span><a href="/">CRAFT GTM</a><span class="hx9-sep" aria-hidden="true">/</span><span aria-current="page">Scale Paid Check</span></nav><nav class="hx9-site" aria-label="This site"><a href="/#tools" class="hx9-on">Tools on this site</a><a href="#site-release">Run Scale Paid Check</a><a href="/docs/">How it works</a><a href="/faq/">FAQ</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></nav></div></div>
 <main id="main">
-<section class="hero" aria-labelledby="h1"><div class="wrap"><p class="eyebrow"><span class="tag">Scale Paid Check</span></p><h1 id="h1">Should we put more money into paid ads?</h1><p class="sub">Check whether the customers you win stay, segment by segment, before you scale.</p><p class="hx-for">For a founder or CEO, CMO, performance marketing head or finance head. Ask your marketing operations person to prepare the customer list.</p></div></section>
-<div class="hx-body"><section class="hx-section" id="site-release"><h2>Run the check in its ChatGPT Site</h2><p>Choose a measure, set your decision lines and read a result calculated from your inputs. This is a one way review for your paid budget decision.</p>
-<p><a class="hx-btn" href="https://helix-scale-paid-check.shashwat-helix-gtm.chatgpt.site">Open Scale Paid Check in ChatGPT</a></p></section>
-<section class="hx-section"><h2>Pick the measure you need</h2><ol class="hx-prose"><li><strong>CAC and ARR payback:</strong> give paid acquisition cost, average ARR and the longest payback you accept. Gross margin adds payback after margin. No upload.</li><li><strong>Do customers stay past payback?</strong> add your customer list and set the share that must still pay at month 12. See the keep checks, cohorts, segment split and payback checkpoints.</li><li><strong>Does lifetime value justify the cost?</strong> for companies that track expansion. Add one time fees and current recurring fees, gross margin and the value to cost ratio you require. No ratio is chosen for you.</li></ol></section>
-<section class="hx-section"><h2>Read the rows before the verdict</h2><p>Check rows received, used and rejected before approving a budget. Then read the whole list, each segment and each activity tag. A pass on fewer than 15 customers is a lead, not proof. Without paid cost and margin, a passing group cannot earn Scale.</p><p>Use a code or random name for each account. Remove real names and contact details. The file is parsed in the browser and refused if a cell looks like an email or phone number. The route calculates once and does not store or log your inputs.</p></section>
-<section class="hx-section"><h2>What to do next</h2><p>Choose founder or CEO, CMO, performance marketing head or finance head for a fixed next step for each verdict. Hold the increase for a failing group. Keep a small test within an agreed cap. Review the customer counts and money inputs before any increase.</p><p>This check does not decide where the money should go instead. <a href="https://calendly.com/shashwat-gtmhelix/45min">Book 45 minutes with Shashwat</a> to discuss reaching the segment that stays through ABM, hyper personalised email or spending the budget you have. The Site prepares a note with verdicts and counts only when you tick attach my result. Nothing personal goes in a URL.</p></section>
-<section class="hx-section"><h2>Why come back?</h2><p>Run the check again when younger cohorts reach month 12, paused customers return, a retention change has had time to work, or a fixed test gives you audited paid costs and win rates. The same inputs and check date give the same result.</p></section>
-<section class="hx-section"><h2>Method and author</h2><p>Method source: <a href="https://gtmhelix.com/guides/04-b2b-product-market-fit-scorecard-before-scaling-demand/">Guide 04: checking customer staying power before scaling paid</a>.</p><p>Shashwat Ghosh, Co Founder and Fractional CMO, Helix GTM Consulting. <a href="https://gtmhelix.com/about/">About Shashwat</a>.</p></section>
-<section class="hx-section" id="faq"><h2>Questions before you start</h2><details class="hx-faq-item"><summary>What can I measure?</summary><p>Choose CAC and ARR payback without a customer list, check whether customers stay past payback, or compare lifetime value with paid cost if you track expansion. Only the third measure uses lifetime value.</p></details><details class="hx-faq-item"><summary>Who is this for?</summary><p>A founder or CEO, CMO, performance marketing head or finance head. A marketing operations person prepares the customer list.</p></details><details class="hx-faq-item"><summary>What should I remove from the file?</summary><p>Remove customer names, company names, contact names, emails and phone numbers. Use random account codes. The Site checks all sheets for email and phone details before sending any rows.</p></details><details class="hx-faq-item"><summary>Are the example decision lines benchmarks?</summary><p>No. The 80% keep line at month 12 and 12 month payback are Shashwat's example lines. Set your own before running. The value to cost ratio has no default.</p></details><details class="hx-faq-item"><summary>What does the result tell me?</summary><p>Check rows received, used and rejected first. Then read the whole list and each group. Groups earn Scale, Small capped test, Hold or Not enough data yet. A small sample is a lead, not proof.</p></details><details class="hx-faq-item"><summary>Does this tell me where the budget should go instead?</summary><p>No. Book 45 minutes with Shashwat to discuss ABM, hyper personalised email or how to spend the available budget. Attach only verdicts and counts if you choose to.</p></details></section></div></main>
+<section class="hero sp-hero" aria-labelledby="h1"><div class="wrap"><p class="eyebrow"><span class="tag">Scale Paid Check</span></p><h1 id="h1">Should we put more money into paid ads?</h1><p class="sub">Type three numbers and see your payback now. Add your customer list to check who stays.</p>
+<div class="sp-grid">
+<section class="sp-card" id="site-release" aria-labelledby="sp-calc-h"><h2 id="sp-calc-h">Get an answer now, no upload: CAC and ARR payback</h2><p class="sp-note">Use one currency for both amounts. Nothing leaves this page.</p>
+<form class="sp-fields" id="sp-form" onsubmit="return false" autocomplete="off">
+<div class="sp-field"><label for="sp-cac">Paid CAC per new customer</label><input id="sp-cac" name="cac" type="text" inputmode="decimal" placeholder="35,000"></div>
+<div class="sp-field"><label for="sp-arr">Average ARR per new customer</label><input id="sp-arr" name="arr" type="text" inputmode="decimal" placeholder="36,000"></div>
+<div class="sp-field"><label for="sp-limit">Longest payback you accept <span>(months)</span></label><input id="sp-limit" name="limit" type="text" inputmode="decimal" placeholder="12"></div>
+<div class="sp-field"><label for="sp-margin">Gross margin % <span>(optional)</span></label><input id="sp-margin" name="margin" type="text" inputmode="decimal" placeholder="70"></div>
+</form>
+<div class="sp-out" id="sp-out" role="status" aria-live="polite"><p class="sp-nojs">Turn on JavaScript to see the answer, or <a href="https://helix-scale-paid-check.shashwat-helix-gtm.chatgpt.site">open the Site</a>.</p></div>
+</section>
+<section class="sp-card sp-list" aria-labelledby="sp-list-h"><h2 id="sp-list-h">Have your customer list? Check who stays</h2><p class="sp-note">See which segments still pay at month 12 before you scale.</p>
+<p class="sp-acts"><a class="hx-btn" href="https://helix-scale-paid-check.shashwat-helix-gtm.chatgpt.site">Upload your customer list</a><a class="hx-btn sp-ghost" href="/tools/scale-paid-check/scale-paid-sample-customer-list.xlsx" download>Download the sample sheet</a></p>
+<p class="sp-small">Use codes, not customer names. Nothing you send is stored.</p>
+<p class="sp-small">The upload opens in the ChatGPT Site and is refused if it holds emails or phone numbers. Sample also as <a href="/tools/scale-paid-check/scale-paid-sample-customer-list.csv" download>CSV</a>.</p>
+<p class="sp-book">Where should the money go instead? <a href="https://calendly.com/shashwat-gtmhelix/45min">Book 45 minutes with Shashwat</a></p>
+</section>
+</div></div></section>
+<div class="hx-body sp-below"><div class="sp-two"><section class="hx-section"><h2>The three measures</h2><ul class="sp-defs"><li><strong>CAC and ARR payback:</strong> months to earn back the paid cost of one new customer. No upload.</li><li><strong>Do customers stay past payback?</strong> the share of your customer list still paying at month 12, by cohort and segment.</li><li><strong>Does lifetime value justify the cost?</strong> for companies that track expansion. You set the value to cost ratio; none is chosen for you.</li></ul></section>
+<section class="hx-section"><h2>What the verdicts mean</h2><ul class="sp-defs"><li><strong>Scale:</strong> the group passes your lines, with paid cost and margin given.</li><li><strong>Small capped test:</strong> keep a small test within an agreed cap.</li><li><strong>Hold:</strong> hold the increase for a failing group.</li><li><strong>Not enough data yet:</strong> a pass on fewer than 15 customers is a lead, not proof.</li></ul></section></div>
+<section class="hx-section" id="faq"><h2>Questions before you start</h2><details class="hx-faq-item"><summary>What can I measure?</summary><p>Choose CAC and ARR payback without a customer list, check whether customers stay past payback, or compare lifetime value with paid cost if you track expansion. Only the third measure uses lifetime value.</p></details><details class="hx-faq-item"><summary>Who is this for?</summary><p>A founder or CEO, CMO, performance marketing head or finance head. A marketing operations person prepares the customer list.</p></details><details class="hx-faq-item"><summary>What should I remove from the file?</summary><p>Remove customer names, company names, contact names, emails and phone numbers. Use random account codes. The Site checks all sheets for email and phone details before sending any rows.</p></details><details class="hx-faq-item"><summary>Are the example decision lines benchmarks?</summary><p>No. The 80% keep line at month 12 and 12 month payback are Shashwat's example lines. Set your own before running. The value to cost ratio has no default.</p></details><details class="hx-faq-item"><summary>What does the result tell me?</summary><p>Check rows received, used and rejected first. Then read the whole list and each group. Groups earn Scale, Small capped test, Hold or Not enough data yet. A small sample is a lead, not proof.</p></details><details class="hx-faq-item"><summary>Does this tell me where the budget should go instead?</summary><p>No. Book 45 minutes with Shashwat to discuss ABM, hyper personalised email or how to spend the available budget. Attach only verdicts and counts if you choose to.</p></details><details class="hx-faq-item"><summary>How is the payback on this page worked out?</summary><p>Payback months = paid CAC ÷ (ARR ÷ 12). With gross margin, payback months = paid CAC ÷ (ARR ÷ 12 × margin). The answer is rounded to one decimal and compared with the longest payback you accept. With a margin, the verdict uses payback after margin. The sum runs in your browser; nothing is sent.</p></details><details class="hx-faq-item"><summary>What does each measure need from me?</summary><p>CAC and ARR payback: give paid acquisition cost, average ARR and the longest payback you accept. Gross margin adds payback after margin. No upload.</p><p>Do customers stay past payback? Add your customer list and set the share that must still pay at month 12. See the keep checks, cohorts, segment split and payback checkpoints.</p><p>Does lifetime value justify the cost? Add one time fees and current recurring fees, gross margin and the value to cost ratio you require. No ratio is chosen for you.</p></details><details class="hx-faq-item"><summary>How should I read the rows before the verdict?</summary><p>Check rows received, used and rejected before approving a budget. Then read the whole list, each segment and each activity tag. A pass on fewer than 15 customers is a lead, not proof. Without paid cost and margin, a passing group cannot earn Scale.</p></details><details class="hx-faq-item"><summary>What happens to my file?</summary><p>Use a code or random name for each account. Remove real names and contact details. The file is parsed in the browser and refused if a cell looks like an email or phone number. The route calculates once and does not store or log your inputs.</p></details><details class="hx-faq-item"><summary>What do I do after the verdict?</summary><p>In the Site, choose founder or CEO, CMO, performance marketing head or finance head for a fixed next step for each verdict. Hold the increase for a failing group. Keep a small test within an agreed cap. Review the customer counts and money inputs before any increase.</p><p>This check does not decide where the money should go instead. <a href="https://calendly.com/shashwat-gtmhelix/45min">Book 45 minutes with Shashwat</a> to discuss reaching the segment that stays through ABM, hyper personalised email or spending the budget you have. The Site prepares a note with verdicts and counts only when you tick attach my result. Nothing personal goes in a URL.</p></details><details class="hx-faq-item"><summary>Why come back?</summary><p>Run the check again when younger cohorts reach month 12, paused customers return, a retention change has had time to work, or a fixed test gives you audited paid costs and win rates. The same inputs and check date give the same result.</p></details></section>
+<section class="hx-section"><h2>Method and author</h2><p>Method source: <a href="https://gtmhelix.com/guides/04-b2b-product-market-fit-scorecard-before-scaling-demand/">Guide 04: checking customer staying power before scaling paid</a>.</p><p>Shashwat Ghosh, Co Founder and Fractional CMO, Helix GTM Consulting. <a href="https://gtmhelix.com/about/">About Shashwat</a>.</p></section></div>
+<script>
+(function(){
+  var out=document.getElementById('sp-out');
+  if(!out)return;
+  var ids=['sp-cac','sp-arr','sp-limit','sp-margin'];
+  function num(id){
+    var el=document.getElementById(id);
+    var s=(el&&el.value||'').replace(/[\s,]/g,'').replace(/^[^\d.\-]+/,'').replace(/%$/,'');
+    if(!/^(\d+\.?\d*|\.\d+)$/.test(s))return null;
+    var n=parseFloat(s);
+    return isFinite(n)&&n>0?n:null;
+  }
+  function r1(x){return Math.round((x+Number.EPSILON)*10)/10;}
+  function calc(cac,arr,limit,margin){
+    if(cac===null||arr===null)return null;
+    var res={plain:r1(cac*12/arr),after:null,verdict:null,gap:null};
+    if(margin!==null&&margin<=100)res.after=r1(cac*12*100/(arr*margin));
+    if(limit!==null){
+      var used=res.after!==null?res.after:res.plain;
+      res.gap=r1(used-limit);
+      res.verdict=res.gap>0?'over':'within';
+    }
+    return res;
+  }
+  window.spPayback=calc;
+  function p(cls,text){var e=document.createElement('p');e.className=cls;e.textContent=text;return e;}
+  function show(){
+    var res=calc(num('sp-cac'),num('sp-arr'),num('sp-limit'),num('sp-margin'));
+    out.textContent='';
+    if(!res)return;
+    out.appendChild(p('sp-big','Payback: '+res.plain.toFixed(1)+' months'));
+    if(res.after!==null)out.appendChild(p('sp-line','After gross margin: '+res.after.toFixed(1)+' months'));
+    if(res.verdict==='within')out.appendChild(p('sp-verdict sp-ok','Within your limit.'));
+    if(res.verdict==='over')out.appendChild(p('sp-verdict sp-over','Over your limit by '+res.gap.toFixed(1)+' months.'));
+    out.appendChild(p('sp-sum',res.after!==null?'Sum: CAC ÷ (ARR ÷ 12 × margin). The verdict uses payback after margin.':'Sum: CAC ÷ (ARR ÷ 12).'));
+  }
+  for(var i=0;i<ids.length;i++){var el=document.getElementById(ids[i]);if(el){el.addEventListener('input',show);el.addEventListener('change',show);}}
+  show();
+})();
+</script>
+</main>
 <footer class="hx-footer">
         <div class="hx-wrap">
             
