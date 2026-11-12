@@ -3,7 +3,10 @@ import assert from 'node:assert/strict';
 import {readFileSync, existsSync} from 'node:fs';
 const alpha = existsSync(new URL('../netlify/functions/mcp-sse.js', import.meta.url));
 const {default: handler} = await import(alpha ? '../netlify/functions/mcp-sse.js' : '../netlify/functions/mcp.mjs');
-const cases = JSON.parse(readFileSync(new URL('./fixtures/round5-reader-cases.json', import.meta.url)));
+// The tenth tool (segment_and_seat_cut_check, 12 Nov 2026) has its own fixture: the guide 29 inputs. It is not added to
+// round5-reader-cases.json, which also seeds the region, binding and software suites the tenth tool is not built for.
+const {_note: _segNote, ...segmentArgs} = JSON.parse(readFileSync(new URL('./fixtures/segment-check/guide-29-inputs.json', import.meta.url)));
+const cases = [...JSON.parse(readFileSync(new URL('./fixtures/round5-reader-cases.json', import.meta.url))), {tool: 'segment_and_seat_cut_check', args: segmentArgs}];
 const frozen = JSON.parse(readFileSync(new URL('./fixtures/release-production-tools.json', import.meta.url))).tools_list;
 const names = entries => entries.map(c => c.tool || c.name).sort();
 test('structural fixtures cover the complete frozen and actual tools inventory exactly once', async () => {

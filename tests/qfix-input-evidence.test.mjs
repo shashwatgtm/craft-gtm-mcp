@@ -6,7 +6,9 @@ const alpha=existsSync(new URL('../netlify/functions/mcp-sse.js',import.meta.url
 const {default:handler}=await import(alpha?'../netlify/functions/mcp-sse.js':'../netlify/functions/mcp.mjs');
 const rpc=async(method,params={})=> (await (await handler(new Request('https://local.invalid/mcp',{method:'POST',headers:{'content-type':'application/json',accept:'application/json, text/event-stream'},body:JSON.stringify({jsonrpc:'2.0',id:1,method,params})}))).json());
 const tools=(await rpc('tools/list')).result.tools;
-const bases=JSON.parse(readFileSync(new URL('./fixtures/round5-reader-cases.json',import.meta.url)));
+// The tenth tool's base is its own guide 29 fixture (see release-answer-structure.test.mjs), 12 Nov 2026.
+const {_note:_segNote,...segmentArgs}=JSON.parse(readFileSync(new URL('./fixtures/segment-check/guide-29-inputs.json',import.meta.url)));
+const bases=[...JSON.parse(readFileSync(new URL('./fixtures/round5-reader-cases.json',import.meta.url))),{tool:'segment_and_seat_cut_check',args:segmentArgs}];
 const source=new URL(alpha?'../netlify/lib/input-evidence.js':'../src/input-evidence.ts',import.meta.url);
 const moduleURL=new URL(alpha?'../netlify/lib/input-evidence.js':'../dist/input-evidence.js',import.meta.url);
 const plain=['none','none yet','(none yet)','n/a','na','not applicable','tbd','unknown','not sure','no idea','-','','empty'];

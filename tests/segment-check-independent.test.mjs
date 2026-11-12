@@ -162,7 +162,7 @@ test('all existing tool definitions and all nine answers remain byte identical t
  const fixture=JSON.parse(readFileSync(new URL('./fixtures/segment-check/existing-tool-responses.json',import.meta.url)));
  assert.equal(new Set(fixture.cases.map(c=>c.tool)).size,9);
  const frozen=JSON.parse(readFileSync(new URL('./fixtures/release-production-tools.json',import.meta.url))).tools_list.tools;
- assert.deepEqual(listedTools.filter(t=>t.name!=='segment_and_seat_cut_check'),frozen);
+ assert.deepEqual(listedTools.filter(t=>t.name!=='segment_and_seat_cut_check'),frozen.filter(t=>t.name!=='segment_and_seat_cut_check'));
  for(const c of fixture.cases){const r=await createServer()._requestHandlers.get('tools/call')({method:'tools/call',params:{name:c.tool,arguments:structuredClone(c.args)}});assert.equal(createHash('sha256').update(JSON.stringify(r)).digest('hex'),c.sha256,c.tool);}
 });
 

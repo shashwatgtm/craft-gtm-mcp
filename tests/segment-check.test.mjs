@@ -363,7 +363,7 @@ test("tools/list grows by exactly one and every existing tool is unchanged", asy
   assert.equal(listed.length, before.length + 1);
   assert.equal(before.length, 9);
   assert.equal(listed.at(-1).name, TOOL);
-  for (const old of production) {
+  for (const old of production.filter((t) => t.name !== TOOL)) {
     const now = before.find((t) => t.name === old.name);
     assert.ok(now, `${old.name} is still listed`);
     assert.equal(now.description, old.description, `${old.name} description`);
