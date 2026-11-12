@@ -1,0 +1,19 @@
+{
+ "_note": "Answers of the live epic_audit (gtmalpha.gtmhelix.com) and tam_sam_som_calculator (icp-intelligence.gtmhelix.com) on 11 Nov 2026 for the handoff inputs of guide 29. Recorded from the servers, not typed from the guide.",
+ "epic_regulated": {
+  "lead_motion": "Ecosystem and ABM",
+  "lead_score": 9,
+  "reason": "Ecosystem and ABM scores 9 of 10: Series A starting point 5; ACV above 50,000 US dollars (E +2); Deal cycle above 90 days (E +2)."
+ },
+ "epic_digital": {
+  "lead_motion": "Inbound and Outbound",
+  "lead_score": 7,
+  "reason": "Inbound and Outbound scores 7 of 10: Series A starting point 6; NRR below 100 percent (leaky bucket: fix retention before scaling acquisition) (I -1); TAM above 10,000 accounts (I +2)."
+ },
+ "size_regulated": {
+  "printed": "### **TAM = $360.0M**\n### **SAM = $90.0M**\n### **SOM = $1.8M**\n- **Deals Needed**: ~30 closed customers\n- **Pipeline Required**: $5.4M (SOM × 3, a 1 in 3 win rate) (Example figure: replace with your own)"
+ },
+ "size_digital": {
+  "printed": "### **TAM = $216.0M**\n### **SAM = $43.2M**\n### **SOM = $1.3M**\n- **Deals Needed**: ~72 closed customers\n- **Pipeline Required**: $3.9M (SOM × 3, a 1 in 3 win rate) (Example figure: replace with your own)"
+ }
+}
