@@ -1,10 +1,11 @@
 # CRAFT GTM
 
-> CRAFT GTM is a free web app and AI connector with ten planning tools, by Shashwat Ghosh of Helix GTM Consulting, for founders and CMOs. Give it your metrics, launch date, customers or competitors, and it returns a product-market fit scorecard, a launch plan, playbooks or battle cards. Add https://craft-gtm.gtmhelix.com/mcp in Claude, ChatGPT, Cursor, VS Code and Windsurf, no sign-in.
+> CRAFT GTM is a free web app and AI connector with ten planning tools, by Shashwat Ghosh of Helix GTM Consulting, for founders and CMOs. Give it your metrics, launch date, customers or competitors, and it returns a product-market fit scorecard, a launch plan, playbooks or battle cards. Add https://craft-gtm.gtmhelix.com/mcp in Claude, ChatGPT, Cursor, VS Code and Windsurf, no sign-in. In ChatGPT, you can also install the Helix GTM Planning plugin from the ChatGPT plugin directory: https://chatgpt.com/plugins/plugin_asdk_app_6ae0ff9b14e88191af87f46ab0b5f6b4
 
 - Web app (no sign-in): https://craft-gtm.gtmhelix.com/
 - MCP server URL (Streamable HTTP, no sign-in, read-only tools): https://craft-gtm.gtmhelix.com/mcp
 - Connect to Claude, ChatGPT, Cursor, VS Code, Windsurf: https://craft-gtm.gtmhelix.com/connect/
+- Use it in ChatGPT: install the Helix GTM Planning plugin from the ChatGPT plugin directory: https://chatgpt.com/plugins/plugin_asdk_app_6ae0ff9b14e88191af87f46ab0b5f6b4
 - Docs (MCP and REST, every field): https://craft-gtm.gtmhelix.com/docs/
 - FAQ: https://craft-gtm.gtmhelix.com/faq/
 - Privacy policy: https://craft-gtm.gtmhelix.com/privacy/
@@ -31,7 +32,7 @@
 
 ### What is CRAFT GTM?
 
-CRAFT GTM is a free web app and AI connector with ten planning tools, by Shashwat Ghosh of Helix GTM Consulting, for founders and CMOs. Give it your metrics, launch date, customers or competitors, and it returns a product-market fit scorecard, a launch plan, playbooks or battle cards. Add https://craft-gtm.gtmhelix.com/mcp in Claude, ChatGPT, Cursor, VS Code and Windsurf, no sign-in.
+CRAFT GTM is a free web app and AI connector with ten planning tools, by Shashwat Ghosh of Helix GTM Consulting, for founders and CMOs. Give it your metrics, launch date, customers or competitors, and it returns a product-market fit scorecard, a launch plan, playbooks or battle cards. Add https://craft-gtm.gtmhelix.com/mcp in Claude, ChatGPT, Cursor, VS Code and Windsurf, no sign-in. In ChatGPT, you can also install the Helix GTM Planning plugin from the ChatGPT plugin directory: https://chatgpt.com/plugins/plugin_asdk_app_6ae0ff9b14e88191af87f46ab0b5f6b4
 
 ### Is CRAFT GTM free, and do I need an account?
 
