@@ -1,6 +1,6 @@
 # CRAFT GTM
 
-> CRAFT GTM is a free web app and AI connector with nine planning tools, by Shashwat Ghosh of Helix GTM Consulting, for founders and CMOs. Give it your metrics, launch date, customers or competitors, and it returns a product-market fit scorecard, a launch plan, playbooks or battle cards. Add https://craft-gtm.gtmhelix.com/mcp in Claude, ChatGPT, Cursor, VS Code and Windsurf, no sign-in.
+> CRAFT GTM is a free web app and AI connector with ten planning tools, by Shashwat Ghosh of Helix GTM Consulting, for founders and CMOs. Give it your metrics, launch date, customers or competitors, and it returns a product-market fit scorecard, a launch plan, playbooks or battle cards. Add https://craft-gtm.gtmhelix.com/mcp in Claude, ChatGPT, Cursor, VS Code and Windsurf, no sign-in.
 
 - Web app (no sign-in): https://craft-gtm.gtmhelix.com/
 - MCP server URL (Streamable HTTP, no sign-in, read-only tools): https://craft-gtm.gtmhelix.com/mcp
@@ -25,12 +25,13 @@
 - [Crisis Planner](https://craft-gtm.gtmhelix.com/tools/crisis-planner/) (`crisis_planner`): Generate crisis playbooks. Know your risks? Get specific playbooks. Not sure what to plan for? The tool uses a default set of common crises for your industry (not ranked by likelihood).
 - [Competitive Intel](https://craft-gtm.gtmhelix.com/tools/competitive-intel/) (`competitive_intel`): Generate battle cards. If you know your strengths/weaknesses, get complete battle cards. If you only know competitors and win/loss stories, we'll derive your positioning.
 - [CRAFT GTM Analyzer](https://craft-gtm.gtmhelix.com/tools/craft-gtm-analyzer/) (`craft_gtm_analyzer`): Analyze a GTM document against the CRAFT framework. Parses the content, identifies gaps, scores each dimension and suggests sections to add.
+- [Segment and Seat Cut Check](https://craft-gtm.gtmhelix.com/tools/segment-and-seat-cut-check/) (`segment_and_seat_cut_check`): Helps you decide which customer segment to back, and whether your pricing is safe if AI cuts seats. Per segment it works payback on CAC and ARR, logo, gross and net retention, seller capacity and the renewal after a seat cut, exactly from your own numbers. Use in chat; there is no form.
 
 ## Questions and answers
 
 ### What is CRAFT GTM?
 
-CRAFT GTM is a free web app and AI connector with nine planning tools, by Shashwat Ghosh of Helix GTM Consulting, for founders and CMOs. Give it your metrics, launch date, customers or competitors, and it returns a product-market fit scorecard, a launch plan, playbooks or battle cards. Add https://craft-gtm.gtmhelix.com/mcp in Claude, ChatGPT, Cursor, VS Code and Windsurf, no sign-in.
+CRAFT GTM is a free web app and AI connector with ten planning tools, by Shashwat Ghosh of Helix GTM Consulting, for founders and CMOs. Give it your metrics, launch date, customers or competitors, and it returns a product-market fit scorecard, a launch plan, playbooks or battle cards. Add https://craft-gtm.gtmhelix.com/mcp in Claude, ChatGPT, Cursor, VS Code and Windsurf, no sign-in.
 
 ### Is CRAFT GTM free, and do I need an account?
 
@@ -88,7 +89,7 @@ Individual plugin install instructions remain specific to the plugin.
 
 ## Buyer routes
 
-- [All Helix tools](https://tools.gtmhelix.com/tools/): 49 tools and 37 different skills, 86 in all, in six connectors and nine plugins.
+- [All Helix tools](https://tools.gtmhelix.com/tools/): 52 tools and 37 different skills, 89 in all, in six connectors and nine plugins.
 - [Check your B2B product market fit](https://craft-gtm.gtmhelix.com/tools/pmf-scorecard/): Use this product market fit scorecard to review the metrics you already track for one B2B segment. Enter the period with retention, revenue and customer evidence, read each dimension separately, then investigate the gaps. The result helps plan the next check. It does not prove that the product has market fit.
 
 - [Scale Paid Check Site](https://helix-scale-paid-check.shashwat-helix-gtm.chatgpt.site/): Choose paid payback, customer staying power or capped lifetime value before increasing paid ads.
