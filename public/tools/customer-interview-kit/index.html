@@ -31,7 +31,7 @@
 <link rel="stylesheet" href="/assets/helix.css?v=5a5090e11c">
 <link rel="stylesheet" href="/assets/jtbd.css?v=c58d595f2b">
 <link rel="stylesheet" href="/assets/helix-report.css?v=f78ed582b4">
-<link rel="stylesheet" href="/assets/helix-look.css?v=a433d954b5">
+<link rel="stylesheet" href="/assets/helix-look.css?v=9b219b40a1">
 <script type="application/ld+json">
 {
  "@context": "https://schema.org",
@@ -252,7 +252,7 @@
 }
 </script>
 <script src="/assets/analytics.js?v=2eb2d1413a" data-privacy="/privacy/" defer></script>
-<script src="/assets/look.js?v=c79f7e788f" defer></script>
+<script src="/assets/look.js?v=27a748b492" defer></script>
 <script src="https://gtmhelix.com/journey/history.js" defer></script>
 </head>
 <body>
@@ -278,12 +278,13 @@
   <h2 id="sample-h">What you get</h2>
   <p class="hx-sample-note">This sample is a made up example, built from the inputs behind <em>Fill in an example</em>. It shows part of one section of the answer.</p>
   <div class="hxr-body hx-result-body hx-sample-body"><h3 class="hxr-h3">Five questions to test the supplied hypothesis</h3>
-<p>Hypothesis to test, not a fact: &quot;No hypothesis supplied; first agree what decision this interview should inform&quot;.</p>
+<p>Hypothesis to test, not a fact: &quot;Brands churn when field reps stop logging orders in the first 60 days&quot;.</p>
 <ol>
 <li value="1">Walk me through the last incident or task, if any, from the first signal until it ended. What happened, and what record could we look at?</li>
 <li value="2">At each handoff, who sent what to whom, and what happened next?</li>
 <li value="3">How did people decide who owned the next action? Describe what you observed, including where ownership was clear.</li>
 <li value="4">How did you handle a similar situation before this process or product? What was different, if anything?</li>
+<li value="5">Tell me about a case that does not fit this hypothesis. What happened differently, and what would make you reject the hypothesis?</li>
 </ol></div>
   <p class="hx-sample-more"><a href="#ex-h">See the full example answer</a> or <a href="#run">run it with your own details</a>.</p>
 </section>
@@ -305,7 +306,7 @@
     </div>
     
   </form>
-  <script type="application/json" data-example>{"interview_type": "churn", "product_context": "Field sales app for consumer goods brands and their distributors", "target_persona": "Head of Sales Operations", "industry": "enterprise_software", "product_complexity": "moderate"}</script></div>
+  <script type="application/json" data-example>{"interview_type": "churn", "product_context": "Field sales app for consumer goods brands and their distributors", "target_persona": "Head of Sales Operations", "industry": "enterprise_software", "product_complexity": "moderate", "key_hypotheses": "Brands churn when field reps stop logging orders in the first 60 days"}</script></div>
 </section>
 
 <section class="hx-section hx-wash" id="result" aria-live="polite" aria-labelledby="result-h" hidden>
@@ -327,7 +328,7 @@
 
 <section class="hx-section" aria-labelledby="ex-h">
   <h2 id="ex-h">Example answer</h2>
-  <p class="hx-prose">Generated on 2 November 2026 from this branch, with the inputs behind <em>Fill in an example</em>. Your own inputs give a different result.</p>
+  <p class="hx-prose">Generated on 12 November 2026 from this branch, with the inputs behind <em>Fill in an example</em>. Your own inputs give a different result.</p>
   <article class="hxr hxr-example" aria-labelledby="ex-t">
     <header class="hxr-head">
       <p class="hxr-tag">CRAFT GTM report</p>
@@ -337,7 +338,7 @@
     <div class="hxr-actions"><button type="button" class="hx-btn hx-btn-ghost" data-print>Print or save as PDF</button></div>
     <details class="hx-run"><summary>Show the full result</summary><div class="hxr-body hx-result-body hx-output"><h4 class="hxr-h2">Customer Interview Kit</h4>
 <h5 class="hxr-h3">Five questions to test the supplied hypothesis</h5>
-<p>Hypothesis to test, not a fact: &quot;No hypothesis supplied; first agree what decision this interview should inform&quot;.</p>
+<p>Hypothesis to test, not a fact: &quot;Brands churn when field reps stop logging orders in the first 60 days&quot;.</p>
 <ol>
 <li value="1">Walk me through the last incident or task, if any, from the first signal until it ended. What happened, and what record could we look at?</li>
 <li value="2">At each handoff, who sent what to whom, and what happened next?</li>
@@ -351,13 +352,14 @@
 <h5 class="hxr-h3">CHURN Interview</h5>
 <p><strong>Target Persona:</strong> Head of Sales Operations<br><strong>Product Context:</strong> Field sales app for consumer goods brands and their distributors<br><strong>Industry:</strong> enterprise software<br><strong>Complexity Level:</strong> moderate</p>
 <p><em>Sector: read from your inputs as vertical SaaS, FMCG retail execution. Business model: not stated. Tell us how you charge and the plan will adjust.</em></p>
-<p>Billing dependent steps are conditional: trials, seats and recurring renewals require a subscription; a statement of work requires a services contract; site or link commitments require connectivity billing. Confirm the applicable choice before using those steps.</p>
+<p>Any priced offer below requires a written quote and buyer agreement.</p>
 <hr>
 <h5 class="hxr-h3">Pre-Interview Checklist</h5>
 <ul>
 <li>[ ] Reviewed persona&#39;s LinkedIn/background</li>
 <li>[ ] Know the measures this person is judged on (secondary sales, productive calls and lines per call) and use them as the buyer does</li>
-<li>[ ] Tested recording equipment</li>
+<li>[ ] Agreed whether the participant permits recording and how notes may be used</li>
+<li>[ ] Tested recording equipment if recording is permitted</li>
 <li>[ ] Prepared note-taking template</li>
 <li>[ ] Sent calendar invite with clear agenda</li>
 <li>[ ] Confirmed interview timing (45-60 min recommended)</li>
@@ -369,6 +371,7 @@
 <li value="1">Understand the current reality and challenges of: Head of Sales Operations</li>
 <li value="2">Understand true reasons for leaving</li>
 <li value="3">Gather stories and quotes for internal use</li>
+<li value="4">Validate/invalidate key hypotheses</li>
 </ol>
 <hr>
 <h5 class="hxr-h3">Opening (5 min)</h5>
@@ -385,7 +388,7 @@
 <ol>
 <li value="1">What was the primary reason you decided to cancel?</li>
 <li value="2">Were there any secondary reasons?</li>
-<li value="3">What did you switch to? What made that option better?</li>
+<li value="3">What did you switch to, if anything? Which tradeoffs influenced that choice?</li>
 <li value="4">Was there anything we could have done to keep you?</li>
 <li value="5">Did you feel you got value from the product?</li>
 </ol>
@@ -402,16 +405,16 @@
 <li value="3">What share of your outlets does a rep cover in a typical beat, and who plans the beats?</li>
 <li value="4">How are trade schemes communicated to reps and checked at the outlet?</li>
 <li value="5">Which distributor systems (DMS) and ERP must the sales app work with?</li>
-<li value="6">How do National Sales Head, Head of Distribution and Regional Sales Manager take part in this decision, and who has the final say?</li>
+<li value="6">Who takes part in this decision, and who has the final say? Check whether any of these roles are involved: National Sales Head, Head of Distribution and Regional Sales Manager.</li>
 </ol>
 <h6 class="hxr-h4">Questions for an operations leader (Head of Sales Operations)</h6>
 <ol>
-<li value="1">Walk me through a normal day, and then a bad one: what breaks first when volumes or plans change?</li>
+<li value="1">Walk me through a normal day and a day when volumes or plans changed. What, if anything, became harder or stopped working?</li>
 <li value="2">Which numbers do you look at every morning, and who produces them?</li>
-<li value="3">Where does work get done twice, or by hand, because two systems do not agree?</li>
-<li value="4">What would your team have to give up or learn for a new tool to work, and what would they push back on?</li>
+<li value="3">Where, if anywhere, is work repeated or done by hand? What caused that in the last example?</li>
+<li value="4">What would your team need to change or learn to use a new tool, if anything? What would make the change worthwhile or unacceptable?</li>
 </ol>
-<p><em>Who usually decides in this sector: The National Sales Head or Managing Director signs; the Head of Sales Operations champions; regional managers and field reps use it; distributors hold the stock and order data; IT checks the ERP and DMS integration.</em></p>
+<p><em>Buying roles to check with the participant: National Sales Head, Head of Sales Operations, Head of Distribution, Regional Sales Manager, Managing Director, CIO. The interviewer should record who actually owns the problem, approves spending and reviews a change; titles alone do not establish authority.</em></p>
 <p><em>Words this buyer uses: distributor, outlet, beat plan, secondary sales, general trade, SKU, order capture, retail execution, DMS, trade scheme. Use them where they are true for the person you interview.</em></p>
 <hr>
 <h5 class="hxr-h3">Probing Questions (Use as needed)</h5>
@@ -433,47 +436,35 @@
 </ul>
 <p><strong>Always end with:</strong> &quot;Is there anything I should have asked but didn&#39;t?&quot;</p>
 <hr>
-<h5 class="hxr-h3">Note-Taking Template</h5>
-<pre><code>INTERVIEW: CHURN | Head of Sales Operations
-DATE: _______________
-DURATION: _______________
-
-CONTEXT:
-- Company/Role: 
-- Experience level:
-- Current solution:
-
-KEY QUOTES:
-1. &quot;_______________&quot; (re: ___)
-2. &quot;_______________&quot; (re: ___)
-3. &quot;_______________&quot; (re: ___)
-
-PAIN POINTS IDENTIFIED:
-- [ ] _______________
-- [ ] _______________
-- [ ] _______________
-
-NEEDS/WANTS:
-- Must have:
-- Nice to have:
-- Unexpected:
-
-
-
-FOLLOW-UP ACTIONS:
-- [ ] _______________
-- [ ] _______________</code></pre>
+<h5 class="hxr-h3">Hypothesis Validation Questions</h5>
+<h6 class="hxr-h4">Hypothesis 1: &quot;Brands churn when field reps stop logging orders in the first 60 days&quot;</h6>
+<div class="hx-table"><table><thead><tr><th>To Validate</th><th>Ask</th></tr></thead><tbody><tr><td>Open without the hypothesis</td><td>&quot;Walk me through how this works for you today. What, if anything, slows it down?&quot;</td></tr><tr><td>Test it, after they have described the work</td><td>&quot;Some teams say: &#39;Brands churn when field reps stop logging orders in the first 60 days&#39;. How close is that to your experience, if at all?&quot;</td></tr><tr><td>Understand severity, only if they confirm it</td><td>&quot;What does it cost you (time, rework, money or risk), and who feels it first?&quot;</td></tr><tr><td>Find a real case, only if they confirm it</td><td>&quot;Tell me about the last time it happened. What did you do, and who was involved?&quot;</td></tr><tr><td>Find counter-evidence</td><td>&quot;What would make this NOT true for you, and where have you seen the opposite?&quot;</td></tr></tbody></table></div>
+<hr>
+<h5 class="hxr-h3">Interview record to collect</h5>
+<p>The interviewer should record the date, duration and participant role for this churn interview with Head of Sales Operations. None of those records is created by this guide.</p>
+<p>Keep each exact quote with its source and context. Separate what the person observed from your interpretation. Record both evidence for the hypothesis and observations that contradict it; a blank record is not confirmation.</p>
+<p>Before the next synthesis meeting, the research owner should check the notes against the recording, where permission allows. Give each follow up an owner, due date and specific observation to collect. The decision owner should state which finding would change the hypothesis before using the interview to justify a plan.</p>
 <hr>
 <h5 class="hxr-h3">Synthesis Framework</h5>
 <p>After conducting multiple interviews, map findings to:</p>
 <h6 class="hxr-h4">ICP Signals</h6>
 <p>Tally the Count column as &quot;interviews that said it, out of the interviews you ran&quot;.</p>
-<div class="hx-table"><table><thead><tr><th>Signal</th><th>Count</th><th>Implication</th></tr></thead><tbody><tr><td>Most common pain point</td><td></td><td>Include in messaging</td></tr><tr><td>Most common objection</td><td></td><td>Address proactively</td></tr><tr><td>Most requested feature</td><td></td><td>Product input</td></tr></tbody></table></div>
+<div class="hx-table"><table><thead><tr><th>Signal</th><th>Count</th><th>Implication</th></tr></thead><tbody><tr><td>Most common pain point</td><td>Not counted</td><td>Check the interview sample before using in messaging</td></tr><tr><td>Most common objection</td><td>Not counted</td><td>Confirm the objection before drafting a response</td></tr><tr><td>Most requested feature</td><td>Not counted</td><td>Product input to validate</td></tr></tbody></table></div>
 <h6 class="hxr-h4">Persona Insights</h6>
-<div class="hx-table"><table><thead><tr><th>Attribute</th><th>Pattern</th><th>Source Quotes</th></tr></thead><tbody><tr><td>Goals</td><td></td><td></td></tr><tr><td>Challenges</td><td></td><td></td></tr><tr><td>Decision criteria</td><td></td><td></td></tr><tr><td>Information sources</td><td></td><td></td></tr></tbody></table></div>
+<div class="hx-table"><table><thead><tr><th>Attribute</th><th>Pattern</th><th>Source Quotes</th></tr></thead><tbody><tr><td>Goals</td><td>Not recorded</td><td>Confirm with the participant before drawing a conclusion</td></tr><tr><td>Challenges</td><td>Not recorded</td><td>Confirm with the participant before drawing a conclusion</td></tr><tr><td>Decision criteria</td><td>Not recorded</td><td>Confirm with the participant before drawing a conclusion</td></tr><tr><td>Information sources</td><td>Not recorded</td><td>Confirm with the participant before drawing a conclusion</td></tr></tbody></table></div>
 <hr>
 <p><em>Interview kit generated for churn interviews using the CRAFT GTM framework</em><br><em>Customized for vertical SaaS, FMCG retail execution at moderate complexity level</em></p>
-<p>Suggested timings, lengths and counts: adjust them to your own.</p></div></details>
+<p>Suggested timings, lengths and counts: adjust them to your own.</p>
+<h5 class="hxr-h3">Reading the answer</h5>
+<p>These questions support testing “Field sales app for consumer goods brands and their distributors”. They are not customer observations, and a small interview sample cannot establish prevalence. The conclusion needs review if a recent customer example contradicts the hypothesis or identifies a different owner of the work.</p>
+<h5 class="hxr-h3">Decisions by role</h5>
+<p>Proposed owners. Confirm the named person before acting. Supplied statements below are inputs to check, not established findings.</p>
+<p>Founder: ask the researcher to seek an example that contradicts “Field sales app for consumer goods brands and their distributors”; decide what evidence would end this investigation before collecting more favourable stories.</p>
+<p>CEO: confirm the decision and research time allowed for “churn” with the research owner; review evidence before funding a wider intervention.</p>
+<p>CMO: recruit people matching “Head of Sales Operations” and people who rejected the approach; check that the sample is not only enthusiastic customers.</p>
+<p>CRO: ask “Head of Sales Operations” to walk through the last relevant case and who approved it; record whether a step stalled and why, without suggesting an answer.</p>
+<p>Demand generation head: test invitations for “Head of Sales Operations” with the researcher; check role and recent experience before counting a completed interview.</p>
+<p>Region context: Which region applies: India, Southeast Asia, Middle East, UK, Western Europe or North America? Add it to your description and rerun.</p></div></details>
     <footer class="hxr-foot"><span>Built by Shashwat Ghosh</span><span>https://craft-gtm.gtmhelix.com/tools/customer-interview-kit/</span></footer>
   </article>
   <p class="figcap">How the answer is laid out, using the sections the tool prints. Probing Questions are used as needed inside the core block; the kit recommends 45 to 60 minutes in all. Example figure: replace with your own.</p>
