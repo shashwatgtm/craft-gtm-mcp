@@ -733,7 +733,7 @@ export function generateSegmentCheck(input) {
     lines.push("");
     lines.push("## Reading the answer");
     lines.push("");
-    lines.push("Same inputs give the same page, so rerun it each quarter with new retention figures and before each renewal season with a new seat cut share, then compare line by line. Retention projections require a fresh cut outside reported retention and a share of opening ARR. Usage renewals assume unchanged work volume and rates. The motion and size lines are first drafts from other Helix tools, carried as passed and never recomputed here. If gross retention sits under your gate while net retention looks sound, that is the moment for a second pair of eyes: book 45 minutes at https://calendly.com/shashwat-gtmhelix/45min");
+    lines.push("Same inputs give the same page, so rerun it each quarter with new retention figures and before each renewal season with a new seat cut share, then compare line by line. Retention projections require a fresh cut outside reported retention and a share of opening ARR. Usage renewals assume unchanged work volume and rates. The motion and size lines are first drafts from other Helix tools, carried as passed and never recomputed here. The conclusion needs review if your seat cut share, retention figures or segment CAC change, or if a segment's payback moves past your gate. If gross retention sits under your gate while net retention looks sound, that is the moment for a second pair of eyes: book 45 minutes at https://calendly.com/shashwat-gtmhelix/45min");
     const structuredContent = {
         tool: "segment_and_seat_cut_check",
         stage: "worked",

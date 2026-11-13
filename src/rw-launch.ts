@@ -1841,7 +1841,8 @@ ${audiences([[enterprise ? 'Technology or service owners at customers' : 'Custom
   };
 
   const out: string[] = [];
-  out.push(`# Crisis response plan: ${N}`);
+  // No clear company name (a description such as "a field sales software company that ..."): the title reads "for your company", not ": your company" (13 Nov 2026).
+  out.push(N === 'your company' ? '# Crisis response plan for your company' : `# Crisis response plan: ${N}`);
   out.push('');
   out.push(readLine(ctx, model, true));
   out.push('');

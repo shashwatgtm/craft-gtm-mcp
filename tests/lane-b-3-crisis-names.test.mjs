@@ -12,6 +12,6 @@ for(const f of facts.filter(f=>['saas','ites','telecom'].includes(f.id))){
     assert.equal(out,generateCrisisPlanner({...base,company}));
    }
   }
-  const out=generateCrisisPlanner({...base,company:'The company handles branch network outages'});assert.ok(out.startsWith('# Crisis response plan: your company\n'));
+  const out=generateCrisisPlanner({...base,company:'The company handles branch network outages'});assert.ok(out.startsWith('# Crisis response plan for your company\n'));
  });
 }
