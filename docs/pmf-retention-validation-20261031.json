@@ -1,0 +1,68 @@
+{
+  "date": "2026-10-31",
+  "baseCommit": "dc32735a239d90066bcaf9b69de1f783f847d913",
+  "runtime": {
+    "os": "Windows",
+    "node": "v24.19.0",
+    "typescript": "5.9.3",
+    "mcpSdk": "1.32.2",
+    "dependencyVersionsMatched": 145
+  },
+  "baselineFull": {
+    "tests": 1193,
+    "pass": 1126,
+    "fail": 0,
+    "skipped": 67,
+    "rawLog": "baseline-full-20261031.tap",
+    "sha256": "76f5c9aef948c0a7b011412da20c622e625cfa233e69a7b9974695f78c6613e1"
+  },
+  "skipReasons": {
+    "privatePool": 63,
+    "absentTool": 4,
+    "details": [
+      "Private scenario pool requires run20/eval/builders20.mjs plus run20/run21/run22 scenario modules and private fetched pages. One helper accepts HELIX_WORK; another hardcodes a Linux work root. These inputs are outside the repository.",
+      "Two content_repurposer checks, one proposal_section_writer check and one impact_full_audit check skip because those tools do not exist in this repository."
+    ]
+  },
+  "host": "NOT_TESTED: actual ChatGPT widget host",
+  "deployment": "NOT_PERFORMED: owner gate",
+  "kind": "pmf-retention-text-fix",
+  "branch": "codex/pmf-retention-fix-20261031",
+  "pullRequest": "https://github.com/shashwatgtm/craft-gtm-mcp/pull/6",
+  "build": {
+    "status": "PASS",
+    "command": "npm run build",
+    "log": "retention-fix-build-20261031.log"
+  },
+  "focused": {
+    "tests": 11,
+    "pass": 11,
+    "fail": 0,
+    "skipped": 0,
+    "rawLog": "retention-focused-final-20261031.tap",
+    "sha256": "05513bb2d1cd84f5436b5911e854c5ba06c16868b978133d7132434eb8631dd8"
+  },
+  "fullSuite": {
+    "tests": 1204,
+    "pass": 1137,
+    "fail": 0,
+    "skipped": 67,
+    "rawLog": "retention-full-20261031.tap",
+    "sha256": "81edf5e91ca43ba428377f71fe71152b6113386acf03ceb2dcdb76bdf4e94043"
+  },
+  "localHttp": {
+    "baselineDefectReproduced": "PASS",
+    "weakRetentionAction": "PASS",
+    "scoresAndOtherTextUnchanged": "PASS"
+  },
+  "initialFocused": {
+    "tests": 10,
+    "pass": 7,
+    "fail": 3,
+    "skipped": 0,
+    "rawLog": "retention-focused-20261031.tap",
+    "sha256": "967acbb3e02c4f7f995c9992db76f0b52cd58647ad1bacad51b16f2432b12903"
+  },
+  "testCorrections": "Existing display rounds values to one decimal; standalone NRR is not parsed. Explicit rounded display expectations and supported full phrase corrected; separate unsupported-NRR characterization added. Production parser/scoring unchanged.",
+  "sourceSha256": "6bd4ad8880877b7e6d1e9380a40d868afad1fb776a669bc5421e1fa523a2214a"
+}
