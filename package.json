@@ -2,7 +2,7 @@
   "name": "@shashwatgtmalpha/craft-gtm-mcp",
   "version": "2.2.24",
   "mcpName": "io.github.shashwatgtm/craft-gtm-mcp",
-  "description": "CRAFT GTM Framework MCP server: product-market fit, launch, interview, retention, partner, crisis and competitive planning tools. Runs locally over stdio (npm) or hosted over Streamable HTTP.",
+  "description": "Ten CRAFT planning tools for product market fit, launches, retention, paid acquisition, segment choices and seat pricing. Available over stdio or hosted Streamable HTTP.",
   "main": "dist/index.js",
   "bin": {
     "craft-gtm-mcp": "./dist/index.js"
@@ -25,14 +25,18 @@
     "strategy",
     "claude",
     "anthropic",
-    "ai-tools"
+    "ai-tools",
+    "model-context-protocol",
+    "paid-acquisition",
+    "customer-retention",
+    "segment-selection"
   ],
   "author": "Shashwat Ghosh <shashwat@gtmhelix.com> (https://gtmhelix.com/about/)",
-  "homepage": "https://tools.gtmhelix.com/connectors/",
+  "homepage": "https://craft-gtm.gtmhelix.com/",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/shashwatgtm/craft-gtm-mcp"
+    "url": "git+https://github.com/shashwatgtm/craft-gtm-mcp.git"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.32.2",
