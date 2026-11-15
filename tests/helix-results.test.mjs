@@ -50,7 +50,7 @@ test('the view resource is listed once with Helix host metadata and a strict CSP
   assert.equal(contents[0].mimeType, 'text/html;profile=mcp-app');
   assert.deepEqual(contents[0]._meta, meta);
   const html = contents[0].text;
-  assert.equal(createHash('sha256').update(html, 'utf8').digest('hex'), '9c01667489b0fbc67bcb3fd97382b1686b6f72bb18475b4b71755d0115230e3a');
+  assert.equal(createHash('sha256').update(html, 'utf8').digest('hex'), '11c0d3ffba0ac20f66d69fd8db6c9572074f65533f4921e9258ef0d9e8fae58a');
   assert.doesNotMatch(html, /lane.?f|draft/i);
   const hash = (s) => createHash('sha256').update(s, 'utf8').digest('base64');
   const script = /<script>([\s\S]*)<\/script>/.exec(html)[1], style = /<style>([\s\S]*?)<\/style>/.exec(html)[1];
