@@ -9,7 +9,7 @@
         "current_metrics": "MRR: $50000; ACV: $24000; monthly logo churn: 2%; NPS: 35 from 12 replies; CAC: $18000; LTV: unknown; activation: 60%; annual logo retention: 78%",
         "business_model": "saas"
       },
-      "sha256": "df9d516f291029db43b2c6491c1ba2688d63babe1d38eb622529304d7f686205"
+      "sha256": "ac0b5bc99f18370dc5630f550197c92fe173fbba8e14e9900f9a73fca2d8a207"
     },
     {
       "tool": "launch_commander",

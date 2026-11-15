@@ -7,7 +7,7 @@
       "current_metrics": "MRR: $50000; ACV: $24000; monthly logo churn: 2%; NPS: 35 from 12 replies; CAC: $18000; LTV: unknown; activation: 60%; annual logo retention: 78%",
       "business_model": "saas"
     },
-    "sha256": "df9d516f291029db43b2c6491c1ba2688d63babe1d38eb622529304d7f686205"
+    "sha256": "ac0b5bc99f18370dc5630f550197c92fe173fbba8e14e9900f9a73fca2d8a207"
   },
   {
     "tool": "pmf_scorecard",
@@ -17,7 +17,7 @@
       "current_metrics": "MRR: $50000; ACV: $24000; monthly logo churn: 2%; NPS: 35 from 12 replies; CAC: $18000; LTV: unknown; activation: 60%; annual logo retention: 78%",
       "business_model": "saas"
     },
-    "sha256": "cd5c668c0b6a39695f71c022c37139aeba29cf5e6e22ccfcf762978a949cead7"
+    "sha256": "680ed0c391a22ff62bff302b4f69d8612bc99204361dc02a7ef713cddf8245f7"
   },
   {
     "tool": "pmf_scorecard",
@@ -27,7 +27,7 @@
       "current_metrics": "MRR: $50000; ACV: $24000; monthly logo churn: 2%; NPS: 35 from 12 replies; CAC: $18000; LTV: unknown; activation: 60%; annual logo retention: 78%",
       "business_model": "saas"
     },
-    "sha256": "0ca247e944a67ff9d6b2b08c883fe50b2092c2a482d8f7cb70b34e9ec0d2b22c"
+    "sha256": "2284ea77c2a634d6c3a48b2a790587d6051b432f9ae38d3b1c4dde86c2914c60"
   },
   {
     "tool": "launch_commander",
