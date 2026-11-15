@@ -4,16 +4,21 @@ Prepared from main `dc32735a239d90066bcaf9b69de1f783f847d913`. Draft only. GTM P
 
 The existing `pmf_scorecard` call now supplies an additive MCP Apps resource and a structured result from the same calculation as its text response. All eight tool names and input schemas stay unchanged. The form starts empty, uses only existing arguments, and calls only the existing tool. It preserves missing-data, example-benchmark, business-model and parser qualifications. Rendering uses inert text nodes. No external requests or persistent browser storage are introduced.
 
-The widget's empty action list uses neutral wording. The existing text response still contains the known weak-retention fallback defect because this branch preserves legacy text. A separate draft on `codex/pmf-retention-fix-20261031` prepares the server text correction. Do not treat this widget as a fix to deployed text. Resolving that defect before any widget release is an owner gate.
+The widget's empty action list uses neutral wording. The existing text response still contains the known weak-retention fallback defect because this branch preserves legacy text. Separate draft [#6](https://github.com/shashwatgtm/craft-gtm-mcp/pull/6) on `codex/pmf-retention-fix-20261031` prepares the server text correction. Do not treat this widget as a fix to deployed text. Resolving that defect before any widget release is an owner gate.
 
-## Current validation checkpoint
+## Final local validation
 
 Windows Node 24.19.0, TypeScript 5.9.3, MCP SDK 1.32.2. All 145 installed package versions match this repository's lockfile. Dependencies were copied ordinarily from the existing craft-gtm-mcp cache into the isolated candidate. No junction or elevation was used. A prior npm ci attempt was interrupted without output after registry access failed in coordinator preflight.
 
 * `npm run build`: PASS.
 * `node --test --test-isolation=none tests/pmf-ui-model.test.mjs tests/pmf-ui-sdk.test.mjs`: 70 PASS, 0 FAIL. Includes 23 frozen legacy-text fixtures checked directly and again through the real in-memory MCP SDK, complete names/schema parity, resource read/list, error behavior and literal input handling.
-* Full suite and refreshed simulated browser checks: pending at this initial draft checkpoint. The final receipt will replace this status.
+* Complete suite: 1263 total, 1196 PASS, 0 FAIL, 67 SKIP. Main comparison: 1193 total, 1126 PASS, 0 FAIL, 67 SKIP.
+* Simulated browser: 28 PASS, 0 FAIL. Real local Chrome and in-memory MCP SDK tools/call behind a simulated parent; not ChatGPT. Empty and populated captures at 320, 768 and 1280 pixels. Final capture waits for fonts and iframe height.
+* The 67 skips are 63 private-pool cases with external scenario modules/data absent from the repository, plus 4 tests of tools absent from GTM. See pmf-widget-validation-20261031.json.
+* The first browser run failed a newly added label regex that treated parentheses as grouping. It now checks the literal Retention (%) label; no product change. The original failure output was retained.
 * Actual ChatGPT host: NOT_TESTED. No candidate endpoint or connection was created.
+
+Raw logs and screenshots remain in the local audit folder `heavy-run-20261029/widget-builds-20261030/pmf-scorecard`; the JSON receipt records their hashes. The workspace search found none of the required private pool modules, so those 63 checks could not be enabled. The test runner reports are overlapping checks, not additive test totals.
 
 ## Later host test pack and release gate
 
