@@ -177,7 +177,9 @@ export function generatePMFScorecard(args) {
         recommendations.push(`RETENTION: not given, so it is not scored. ${contract ? 'Give the share of contract value renewed over the last twelve months' : 'Give the share of customers (or of revenue) still with you after twelve months, and say which one it is'}.`);
     }
     if (retentionScore.label === 'CRITICAL' || retentionScore.label === 'DEVELOPING') {
-        recommendations.push('RETENTION: Check the cohort and period, investigate lost customers or revenue, and assign an owner to the recovery plan. Confirm renewal evidence before scaling.');
+        recommendations.push(contract
+            ? 'RETENTION: Review the contract value not renewed in the period. Group the reasons for losses or reductions and assign an owner to each renewal at risk. Confirm the period, whether the rate measures customers or revenue, and the renewal evidence before scaling.'
+            : 'RETENTION: Review the customers or revenue lost from the same starting cohort. Group the reasons and assign an owner to address the largest source of loss. Confirm the period, whether the rate measures customers, gross revenue or net revenue, and the renewal evidence before scaling.');
     }
     const acvNote = metrics.acv !== undefined ? ` You gave an annual contract value of ${money('acv', metrics.acv)}: LTV is that value times your gross margin times the years a contract lasts, and CAC is your sales and marketing cost divided by the contracts won in the same period.` : '';
     if (ltvCacScore.label === 'MISSING') {
