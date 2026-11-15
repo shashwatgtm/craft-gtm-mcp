@@ -1,0 +1,76 @@
+{
+  "tool": "pmf_scorecard",
+  "fields": {
+    "product": {
+      "label": "Product"
+    },
+    "target_market": {
+      "label": "Benchmark market",
+      "choices": [
+        "enterprise_saas",
+        "smb_saas",
+        "consumer",
+        "marketplace",
+        "fintech",
+        "logistics_tech",
+        "vertical_saas",
+        "ai_native",
+        "ites",
+        "telecom",
+        "software",
+        "cybersecurity",
+        "other"
+      ]
+    },
+    "current_metrics": {
+      "label": "Metrics, units and measurement periods",
+      "long": true
+    },
+    "time_in_market": {
+      "label": "Time in market",
+      "choices": [
+        "pre_launch",
+        "0_6_months",
+        "6_12_months",
+        "1_2_years",
+        "2_plus_years"
+      ]
+    },
+    "customer_feedback": {
+      "label": "Customer feedback",
+      "long": true
+    },
+    "business_model": {
+      "label": "Business model",
+      "choices": [
+        "saas",
+        "services",
+        "connectivity",
+        "transactions",
+        "marketplace",
+        "hardware_software",
+        "investment"
+      ]
+    },
+    "your_sector": {
+      "label": "Sector",
+      "choices": [
+        "logistics_tech",
+        "fintech",
+        "saas",
+        "vertical_saas",
+        "ai_native",
+        "ites",
+        "telecom",
+        "software",
+        "cybersecurity",
+        "other"
+      ]
+    }
+  },
+  "required": [
+    "product",
+    "target_market",
+    "current_metrics"
+  ]
+}

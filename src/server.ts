@@ -21,15 +21,11 @@ import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
-  ListResourcesRequestSchema,
-  ReadResourceRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
 
 import { tools } from "./tools.js";
 import { cleanDeep, escapeDeep, escapeText } from "./escape-inputs.js";
-import { buildPMFScorecard } from "./pmf-scorecard.js";
-import { pmfWidgetResult } from "./pmf-result.js";
-import { PMF_UI_HTML, PMF_UI_URI, PMF_UI_MIME, PMF_UI_META } from "./pmf-ui.js";
+import { generatePMFScorecard } from "./pmf-scorecard.js";
 import { generateLaunchCommander } from "./launch-commander.js";
 import { generateCustomerInterviewKit } from "./interview-kit.js";
 import { generateRetentionPlaybook } from "./retention-playbook.js";
@@ -62,7 +58,6 @@ export const listedTools = tools.map((tool) => {
   return {
     ...tool,
     title,
-    ...(tool.name === 'pmf_scorecard' ? { _meta: { ui: { resourceUri: PMF_UI_URI } } } : {}),
     annotations: {
       title,
       readOnlyHint: true,
@@ -173,7 +168,6 @@ export function createServer(): Server {
     {
       capabilities: {
         tools: {},
-        resources: {},
       },
     }
   );
@@ -183,14 +177,6 @@ export function createServer(): Server {
 
   server.setRequestHandler(ListToolsRequestSchema, async () => {
     return { tools: [...listedTools, ...(BUILD_PROFILE.profile === "wave" ? waveTools : []), ...(BUILD_PROFILE.profile === "wave" ? reserveTools() : [])] };
-  });
-
-  server.setRequestHandler(ListResourcesRequestSchema, async () => ({
-    resources: [{ uri: PMF_UI_URI, name: "PMF Scorecard", mimeType: PMF_UI_MIME, _meta: PMF_UI_META }]
-  }));
-  server.setRequestHandler(ReadResourceRequestSchema, async (request) => {
-    if (request.params.uri !== PMF_UI_URI) throw new Error("Unknown resource");
-    return { contents: [{ uri: PMF_UI_URI, mimeType: PMF_UI_MIME, text: PMF_UI_HTML, _meta: PMF_UI_META }] };
   });
 
   // Call tool handler
@@ -276,12 +262,10 @@ export function createServer(): Server {
 
     try {
       let result: string;
-      let pmf: ReturnType<typeof buildPMFScorecard> | undefined;
 
       switch (name) {
         case "pmf_scorecard":
-          pmf = buildPMFScorecard(args as Parameters<typeof buildPMFScorecard>[0]);
-          result = pmf.text;
+          result = generatePMFScorecard(args as Parameters<typeof generatePMFScorecard>[0]);
           break;
         case "launch_commander":
           result = generateLaunchCommander(args as Parameters<typeof generateLaunchCommander>[0]);
@@ -320,7 +304,6 @@ export function createServer(): Server {
             text: inputEvidence.notice + (inputEvidence.notice ? '\n\n' : '') + withReadingGuide(name, holdBuyerCopy(name, args, result), args as Record<string,unknown>) + regionNotes(typed),
           },
         ],
-        ...(pmf ? pmfWidgetResult(pmf.result, args, typed, result) : {}),
       };
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
