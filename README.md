@@ -3,7 +3,7 @@
 
 ## Use it hosted (no install)
 
-Add `https://craft-gtm.gtmhelix.com/mcp` as a Streamable HTTP connector. It needs no sign in. On 15 November 2026 the hosted server reported version 2.2.24 and 10 tools. [Connection instructions](https://craft-gtm.gtmhelix.com/connect/). You can also open the [web app](https://craft-gtm.gtmhelix.com/).
+Add `https://craft-gtm.gtmhelix.com/mcp` as a Streamable HTTP connector. It needs no sign in. The hosted endpoint always runs the newest version (2.2.24) available on this site. It listed 10 tools on 15 November 2026. [Connection instructions](https://craft-gtm.gtmhelix.com/connect/). You can also open the [web app](https://craft-gtm.gtmhelix.com/).
 
 For a local stdio connection, run `npx -y @shashwatgtmalpha/craft-gtm-mcp`. On 15 November 2026 the latest published npm version was 2.2.23. Check the available version with `npm view @shashwatgtmalpha/craft-gtm-mcp version`.
 
