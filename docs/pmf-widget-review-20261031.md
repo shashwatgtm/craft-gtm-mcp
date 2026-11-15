@@ -20,6 +20,8 @@ Windows Node 24.19.0, TypeScript 5.9.3, MCP SDK 1.32.2. All 145 installed packag
 
 Raw logs and screenshots remain in the local audit folder `heavy-run-20261029/widget-builds-20261030/pmf-scorecard`; the JSON receipt records their hashes. The workspace search found none of the required private pool modules, so those 63 checks could not be enabled. The test runner reports are overlapping checks, not additive test totals.
 
+Final delivery verification detected that the first PowerShell console transfer to GitHub replaced some non-ASCII characters. The tested local UTF-8 files were unchanged. The draft was corrected using ASCII-escaped JSON transport, followed by Git blob comparison of every changed file. Validation applies to those exact local bytes, not the earlier incorrectly encoded draft commits.
+
 ## Later host test pack and release gate
 
 An owner-approved isolated HTTPS endpoint must serve this exact candidate with dependencies and the existing transport. An owner-approved ChatGPT test connection must discover the eight tools and PMF UI resource. This run does not create or deploy either.
