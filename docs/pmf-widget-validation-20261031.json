@@ -1,0 +1,105 @@
+{
+  "date": "2026-10-31",
+  "baseCommit": "dc32735a239d90066bcaf9b69de1f783f847d913",
+  "runtime": {
+    "os": "Windows",
+    "node": "v24.19.0",
+    "typescript": "5.9.3",
+    "mcpSdk": "1.32.2",
+    "dependencyVersionsMatched": 145
+  },
+  "baselineFull": {
+    "tests": 1193,
+    "pass": 1126,
+    "fail": 0,
+    "skipped": 67,
+    "rawLog": "baseline-full-20261031.tap",
+    "sha256": "76f5c9aef948c0a7b011412da20c622e625cfa233e69a7b9974695f78c6613e1"
+  },
+  "skipReasons": {
+    "privatePool": 63,
+    "absentTool": 4,
+    "details": [
+      "Private scenario pool requires run20/eval/builders20.mjs plus run20/run21/run22 scenario modules and private fetched pages. One helper accepts HELIX_WORK; another hardcodes a Linux work root. These inputs are outside the repository.",
+      "Two content_repurposer checks, one proposal_section_writer check and one impact_full_audit check skip because those tools do not exist in this repository."
+    ]
+  },
+  "host": "NOT_TESTED: actual ChatGPT widget host",
+  "deployment": "NOT_PERFORMED: owner gate",
+  "kind": "pmf-widget",
+  "branch": "codex/pmf-widget-20261031",
+  "pullRequest": "https://github.com/shashwatgtm/craft-gtm-mcp/pull/5",
+  "build": {
+    "status": "PASS",
+    "command": "npm run build",
+    "log": "widget-build-20261031.log"
+  },
+  "focused": {
+    "tests": 70,
+    "pass": 70,
+    "fail": 0,
+    "skipped": 0,
+    "rawLog": "widget-focused-20261031.tap",
+    "sha256": "bb827d32ec4cf56114632f4d84ed567914bba043803e608f2d0c6d92c1372b4e"
+  },
+  "fullSuite": {
+    "tests": 1263,
+    "pass": 1196,
+    "fail": 0,
+    "skipped": 67,
+    "rawLog": "widget-full-20261031.tap",
+    "sha256": "36a774e3594d763ade1cb1c6114a4683b379b7c122b10c2fe1cc87d3362c1f95"
+  },
+  "browser": {
+    "status": "PASS",
+    "checks": 28,
+    "scope": "local MCP Apps host simulation backed by real in-memory SDK tools/call; not actual ChatGPT",
+    "command": "node scripts/check-pmf-browser.mjs with existing Chrome and playwright-core paths",
+    "log": "widget-browser-capture-final-20261031.log",
+    "initialFailure": "New test regex omitted literal parentheses. Corrected to literal includes. Original failure retained in widget-browser-20261031.log.",
+    "captureCorrection": "Screenshot review found an initial empty narrow capture cropped before iframe resize settled. Final harness waits for fonts and natural iframe height. Same setContent/srcdoc route; no server navigation."
+  },
+  "sourceHashes": {
+    "src/pmf-scorecard.ts": "61a67928961f730b4128dc234f8a5e1a7f97680e07bf78ba74ee16e32a3768a4",
+    "src/server.ts": "430d32e43be3925fe1597e32d7fdd2d585c6aa6e38768b218df47e398f5b645f",
+    "src/pmf-result.ts": "6666ff9f032fbcdf9a48602f22b5850bb609752174a28bf04255966ebd0e3a6b",
+    "src/pmf-ui.ts": "e6f8750e0c5d08b046262444a71b8e92b74547d76e4dc16628e33a098f8ba71b",
+    "ui/pmf-scorecard.html": "bc3714ff206e6e124ea2a0029b74ce11a676b797ca6df2f217cda2fdde173522",
+    "src/tools.ts": "9bf1bcc8476119df14ce68d30495af53a14e8a26b5acf1e085aa87e6de0071ce",
+    "package.json": "fc9aaf24783e6935d5f661abca4ab193409f6e6579b13a5563653f4d8df42f2a",
+    "package-lock.json": "27759c2b84a487ec734ebf78c805c1ed18c0b63adef1ab806a1049f9b2f8c7d9"
+  },
+  "screenshots": {
+    "docs/review-assets/pmf-scorecard-20261031/empty-320.png": {
+      "sha256": "6156256b4e3cb4e1d5635dac0a8405b78f0718501215ec0da77e7f870220213c",
+      "width": 320,
+      "height": 1864
+    },
+    "docs/review-assets/pmf-scorecard-20261031/empty-768.png": {
+      "sha256": "5a8e9d0931c66505a50e453e8d75d1a0abe41537acca78798a6e693623cca475",
+      "width": 768,
+      "height": 1404
+    },
+    "docs/review-assets/pmf-scorecard-20261031/empty-1280.png": {
+      "sha256": "5d61dd80827a041176ed3e029b8d3f62631f943b84625aef0c62bdea41183203",
+      "width": 1280,
+      "height": 1409
+    },
+    "docs/review-assets/pmf-scorecard-20261031/populated-320.png": {
+      "sha256": "3327f558530d9c645e1b8a150394a8a36f278a5d4e121649cde34847e28ee6a7",
+      "width": 320,
+      "height": 4498
+    },
+    "docs/review-assets/pmf-scorecard-20261031/populated-768.png": {
+      "sha256": "58172e096cf6d4cc25fa435eb8acc27ed25d55f5051ce925c29b163b242387d5",
+      "width": 768,
+      "height": 3250
+    },
+    "docs/review-assets/pmf-scorecard-20261031/populated-1280.png": {
+      "sha256": "a1266c0dd63636a316f8eb3c9a9bbf5135976bcb6e70913c628b31087524a4f8",
+      "width": 1280,
+      "height": 3164
+    }
+  },
+  "knownLegacyDefect": "Existing PMF text still has weak-retention all-well fallback. Widget action panel neutral. Separate draft #6 fixes text; integration and host verification required before release."
+}

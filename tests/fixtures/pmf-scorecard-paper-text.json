@@ -1,0 +1,230 @@
+{
+  "baseline": "d603c4501380c8e2cbbeee317d9b56b312d1025d",
+  "originalPr": "68e85f1088f6208c7f365e8108498a1a60359d03",
+  "cases": [
+    {
+      "label": "complete",
+      "args": {
+        "product": "User supplied product",
+        "target_market": "enterprise_saas",
+        "current_metrics": "Churn: 1%, NPS: 70, LTV: 5000, CAC: 1000, Retention: 95%, Activation: 80%"
+      },
+      "textSha256": "4ce6207020ff24003f687ef9e0f60dc9a1042f5dc2ce02ce6ebec6a111edb954",
+      "isError": false
+    },
+    {
+      "label": "sparse",
+      "args": {
+        "product": "User supplied product",
+        "target_market": "enterprise_saas",
+        "current_metrics": "NPS: 80"
+      },
+      "textSha256": "4281e9b396737e55767db8e75f8c94e78d45932656d2b39d589e7a0cc37c13c6",
+      "isError": false
+    },
+    {
+      "label": "none parsed",
+      "args": {
+        "product": "User supplied product",
+        "target_market": "enterprise_saas",
+        "current_metrics": "Customer satisfaction is not measured"
+      },
+      "textSha256": "432038888bdb5726e0938bceb31f3da8af4c2cb0a6e56261483754abd42a0699",
+      "isError": false
+    },
+    {
+      "label": "services",
+      "args": {
+        "product": "User supplied product",
+        "target_market": "enterprise_saas",
+        "current_metrics": "Churn: 1%, NPS: 70, LTV: 5000, CAC: 1000, Retention: 95%, Activation: 80%",
+        "business_model": "services"
+      },
+      "textSha256": "4ce6207020ff24003f687ef9e0f60dc9a1042f5dc2ce02ce6ebec6a111edb954",
+      "isError": false
+    },
+    {
+      "label": "connectivity",
+      "args": {
+        "product": "User supplied product",
+        "target_market": "enterprise_saas",
+        "current_metrics": "Churn: 1%, NPS: 70, LTV: 5000, CAC: 1000, Retention: 95%, Activation: 80%",
+        "business_model": "connectivity"
+      },
+      "textSha256": "4ce6207020ff24003f687ef9e0f60dc9a1042f5dc2ce02ce6ebec6a111edb954",
+      "isError": false
+    },
+    {
+      "label": "investment",
+      "args": {
+        "product": "User supplied product",
+        "target_market": "enterprise_saas",
+        "current_metrics": "Churn: 1%, NPS: 70, LTV: 5000, CAC: 1000, Retention: 95%, Activation: 80%",
+        "business_model": "investment"
+      },
+      "textSha256": "4ce6207020ff24003f687ef9e0f60dc9a1042f5dc2ce02ce6ebec6a111edb954",
+      "isError": false
+    },
+    {
+      "label": "alias",
+      "args": {
+        "product": "User supplied product",
+        "target_market": "ai_native",
+        "current_metrics": "Churn: 1%, NPS: 70, LTV: 5000, CAC: 1000, Retention: 95%, Activation: 80%"
+      },
+      "textSha256": "47b6b092d5d48aa92fd3fc3465324a52ace45f58dda3d46df211e14bb1b69ffb",
+      "isError": false
+    },
+    {
+      "label": "generic alias",
+      "args": {
+        "product": "User supplied product",
+        "target_market": "telecom",
+        "current_metrics": "Churn: 1%, NPS: 70, LTV: 5000, CAC: 1000, Retention: 95%, Activation: 80%"
+      },
+      "textSha256": "58c5a6a76ede440c4e69fea641a6aebcce93686cf4eb4602265dc6ceb306b5d7",
+      "isError": false
+    },
+    {
+      "label": "zeros",
+      "args": {
+        "product": "User supplied product",
+        "target_market": "enterprise_saas",
+        "current_metrics": "Churn: 0%, NPS: 0, LTV: 0, CAC: 0, Retention: 0%, Activation: 0%"
+      },
+      "textSha256": "022a395d6e14b751eb3c0ba5c7e690f6684c13839a378d098a25e4c2780815f3",
+      "isError": false
+    },
+    {
+      "label": "zero CAC",
+      "args": {
+        "product": "User supplied product",
+        "target_market": "enterprise_saas",
+        "current_metrics": "LTV: 5000, CAC: 0"
+      },
+      "textSha256": "5d79f67c1d0e0a7f5807f02f43aa26230831926506921b45e575283d4b784e21",
+      "isError": false
+    },
+    {
+      "label": "zero LTV",
+      "args": {
+        "product": "User supplied product",
+        "target_market": "enterprise_saas",
+        "current_metrics": "LTV: 0, CAC: 1000"
+      },
+      "textSha256": "00afa5bdc046c2032a77ef15b3f74c70dd1de26d0512ef1d42512ec245e13b0a",
+      "isError": false
+    },
+    {
+      "label": "negative NPS",
+      "args": {
+        "product": "User supplied product",
+        "target_market": "enterprise_saas",
+        "current_metrics": "NPS: -30"
+      },
+      "textSha256": "5b35c35ab760ffd28fa7fdc132b3edfc8d094303da9ec51afc33f23f5c650475",
+      "isError": false
+    },
+    {
+      "label": "rate labels",
+      "args": {
+        "product": "User supplied product",
+        "target_market": "enterprise_saas",
+        "current_metrics": "Churn rate 2%, NPS 60, Retention rate 90%, Activation rate 70%"
+      },
+      "textSha256": "607140d1b3bec576b55f63a998b95be8bd3fca3851c37e7cbc90b7500708ec07",
+      "isError": false
+    },
+    {
+      "label": "annual churn",
+      "args": {
+        "product": "User supplied product",
+        "target_market": "enterprise_saas",
+        "current_metrics": "Annual churn: 12%, NPS: 70"
+      },
+      "textSha256": "97a16aa91c2cf05a30803f3d41dbe3e94e1780a5f4699e51811a38651c4dbe10",
+      "isError": false
+    },
+    {
+      "label": "first match",
+      "args": {
+        "product": "User supplied product",
+        "target_market": "enterprise_saas",
+        "current_metrics": "NPS: 30; NPS: 90; MRR: $5K; ARR: $2M"
+      },
+      "textSha256": "84950e29e24586be65c9c9054a37771ab992a0af2ce2f29a7f924eb30ca61023",
+      "isError": false
+    },
+    {
+      "label": "unsupported metric",
+      "args": {
+        "product": "User supplied product",
+        "target_market": "enterprise_saas",
+        "current_metrics": "NPS: 45; sales cycle: 100 days"
+      },
+      "textSha256": "7b3b017294ff77fd896a046649886e477c93ec86f1c40d335786d5ebf52290f5",
+      "isError": false
+    },
+    {
+      "label": "feedback",
+      "args": {
+        "product": "User supplied product",
+        "target_market": "enterprise_saas",
+        "current_metrics": "Churn: 1%, NPS: 70, LTV: 5000, CAC: 1000, Retention: 95%, Activation: 80%",
+        "customer_feedback": "Setup is slow; reporting is useful; Revenue grew 30%"
+      },
+      "textSha256": "4ce6207020ff24003f687ef9e0f60dc9a1042f5dc2ce02ce6ebec6a111edb954",
+      "isError": false
+    },
+    {
+      "label": "missing churn and retention",
+      "args": {
+        "product": "User supplied product",
+        "target_market": "enterprise_saas",
+        "current_metrics": "NPS: 80, LTV: 6000, CAC: 1000, Activation: 90%"
+      },
+      "textSha256": "fed46d92e3b87fa6fc538961de210aeb697bb99c1718229457ae6ab1f19ae537",
+      "isError": false
+    },
+    {
+      "label": "market smb",
+      "args": {
+        "product": "User supplied product",
+        "target_market": "smb_saas",
+        "current_metrics": "Churn: 1%, NPS: 70, LTV: 5000, CAC: 1000, Retention: 95%, Activation: 80%"
+      },
+      "textSha256": "bd4809546ce723dfb23576624e9d9c94c44c7458647a58254b1c8acbe4f5f2c3",
+      "isError": false
+    },
+    {
+      "label": "market consumer",
+      "args": {
+        "product": "User supplied product",
+        "target_market": "consumer",
+        "current_metrics": "Churn: 1%, NPS: 70, LTV: 5000, CAC: 1000, Retention: 95%, Activation: 80%"
+      },
+      "textSha256": "d387a3d09d6f269a551d199927601f9abcb57297f5d38e41645063b3f620e6ef",
+      "isError": false
+    },
+    {
+      "label": "market marketplace",
+      "args": {
+        "product": "User supplied product",
+        "target_market": "marketplace",
+        "current_metrics": "Churn: 1%, NPS: 70, LTV: 5000, CAC: 1000, Retention: 95%, Activation: 80%"
+      },
+      "textSha256": "e4a2ca04aa302e48458fd96850810768abc1d39f4b9ff7062f9a2a5c17ef5f5b",
+      "isError": false
+    },
+    {
+      "label": "market fintech",
+      "args": {
+        "product": "User supplied product",
+        "target_market": "fintech",
+        "current_metrics": "Churn: 1%, NPS: 70, LTV: 5000, CAC: 1000, Retention: 95%, Activation: 80%"
+      },
+      "textSha256": "91a80746aedca61b93685c688e97087c6087523c105623b36676ff235bb9dd4a",
+      "isError": false
+    }
+  ]
+}
