@@ -122,14 +122,16 @@ export function generatePMFScorecard(args: {
     .filter(s => s.label !== 'MISSING' && s.label !== 'EARLY SIGNAL');
   const overallScore = scoredDimensions.length > 0 
     ? Math.round(scoredDimensions.reduce((sum, s) => sum + s.score, 0) / scoredDimensions.length * 10) / 10
-    : 0;
+    : null;
   
   // Determine PMF stage
   let pmfStage = 'Pre-PMF';
   let pmfAnalysis = '';
   // Host review 29 Oct 2026: a high score says the supplied figures meet the example benchmarks, never that fit is proven,
   // and it does not advise scaling while a dimension is missing.
-  if (overallScore >= 8) {
+  if (overallScore === null) {
+    pmfStage = 'MISSING';
+  } else if (overallScore >= 8) {
     pmfStage = 'Strong PMF';
     pmfAnalysis = scoredDimensions.length < dimensionCount
       ? 'The figures you gave score strongly against the example benchmarks. Fill the missing data below before treating this as a reason to scale.'
@@ -152,7 +154,7 @@ export function generatePMFScorecard(args: {
   // The stage name, the score and the thresholds above are unchanged.
   const basis = `Based on ${scoredDimensions.length} of ${dimensionCount} dimensions${activationApplies ? '' : ' (Activation is not applicable to this business model and is left out)'}.`;
   if (scoredDimensions.length === 0) {
-    pmfAnalysis = 'Not scored yet: none of your metrics matched. Add the missing ones listed below.';
+    pmfAnalysis = 'No dimension was scored. Supply monthly churn with its measurement period, or retention for a defined cohort and period.';
   } else if (scoredDimensions.length < 3) {
     pmfAnalysis = 'Too few metrics to judge fit yet: add the missing ones listed below.';
   }
@@ -256,6 +258,8 @@ export function generatePMFScorecard(args: {
   // Every benchmark below is an example figure: the column header carries the block label.
   const dimensionHeader = `| Metric | Your Value | Score | Benchmark (${EXAMPLE_FIGURES.replace(/\.$/, '')}) | Status |`;
 
+  const displayScore = (row: {label: string; score: number}) =>
+    row.label === 'MISSING' ? 'MISSING' : row.score + '/10';
   return benchmarkNotice + `# Product-Market Fit Scorecard
 ## ${productHead.short}
 
@@ -271,7 +275,7 @@ ${ctx.line}
 
 | Stage | Score | Status |
 |-------|-------|--------|
-| **${pmfStage}** | **${overallScore}/10** | ${criticalRows.length ? 'No' : overallScore >= 7 ? 'Yes' : overallScore >= 5 ? 'Note' : 'No'} |
+| **${pmfStage}** | **${overallScore === null ? 'MISSING' : overallScore + '/10'}** | ${overallScore === null ? 'Awaiting evidence' : criticalRows.length ? 'No' : overallScore >= 7 ? 'Yes' : overallScore >= 5 ? 'Note' : 'No'} |
 
 ${basis}
 ${pmfAnalysis}
@@ -289,7 +293,7 @@ Each score and status compares your value with an example benchmark. ${rangeNote
 ### 1. Customer Retention (Churn)
 ${dimensionHeader}
 |--------|-----------|-------|-----------|--------|
-| ${churnLabel} | ${metrics.churn !== undefined ? pct(metrics.churn) + '%' + (months && months > 1 ? ` (${monthlyShown}% monthly equivalent)` : '') : 'NOT PROVIDED'} | ${churnScore.score}/10 | ${months ? `Monthly example: healthy up to ${pct(churnRange.medium)}%, excellent up to ${pct(churnRange.low)}%` : 'Period needed before comparison'} | ${churnScore.label} |
+| ${churnLabel} | ${metrics.churn !== undefined ? pct(metrics.churn) + '%' + (months && months > 1 ? ` (${monthlyShown}% monthly equivalent)` : '') : 'NOT PROVIDED'} | ${displayScore(churnScore)} | ${months ? `Monthly example: healthy up to ${pct(churnRange.medium)}%, excellent up to ${pct(churnRange.low)}%` : 'Period needed before comparison'} | ${churnScore.label} |
 
 **Analysis:** ${churnPeriodNote || churnScore.analysis}
 
@@ -298,7 +302,7 @@ ${dimensionHeader}
 ### 2. Customer Satisfaction (NPS)
 ${dimensionHeader}
 |--------|-----------|-------|-----------|--------|
-| NPS Score | ${metrics.nps !== undefined ? metrics.nps : 'NOT PROVIDED'} | ${earlyNPS ? 'Not scored' : npsScore.score + '/10'} | ${earlyNPS ? 'At least 30 responses needed before a status' : `healthy from ${b.nps.medium}, excellent from ${b.nps.high}`} | ${npsScore.label} |
+| NPS Score | ${metrics.nps !== undefined ? metrics.nps : 'NOT PROVIDED'} | ${earlyNPS ? 'Not scored' : displayScore(npsScore)} | ${earlyNPS ? 'At least 30 responses needed before a status' : `healthy from ${b.nps.medium}, excellent from ${b.nps.high}`} | ${npsScore.label} |
 
 **Analysis:** ${npsScore.analysis}
 ${disappointmentScore ? `
@@ -319,7 +323,7 @@ ${dimensionHeader}
 |--------|-----------|-------|-----------|--------|
 | LTV | ${metrics.ltv !== undefined ? money('ltv', metrics.ltv) : 'NOT PROVIDED'} | - | - | - |
 | CAC | ${metrics.cac !== undefined ? money('cac', metrics.cac) : 'NOT PROVIDED'} | - | - | - |
-| LTV:CAC Ratio | ${metrics.ltvCacRatio !== undefined ? metrics.ltvCacRatio.toFixed(1) + 'x' : 'NOT PROVIDED'} | ${ltvCacScore.score}/10 | healthy from ${b.ltvCac.medium}x, excellent from ${b.ltvCac.high}x | ${ltvCacScore.label} |
+| LTV:CAC Ratio | ${metrics.ltvCacRatio !== undefined ? metrics.ltvCacRatio.toFixed(1) + 'x' : 'NOT PROVIDED'} | ${displayScore(ltvCacScore)} | healthy from ${b.ltvCac.medium}x, excellent from ${b.ltvCac.high}x | ${ltvCacScore.label} |
 
 **Analysis:** ${ltvCacScore.analysis}
 
@@ -328,7 +332,7 @@ ${dimensionHeader}
 ### 4. ${retentionLabel}
 ${dimensionHeader}
 |--------|-----------|-------|-----------|--------|
-| ${retentionLabel} | ${metrics.retentionRate !== undefined ? pct(metrics.retentionRate) + '%' : 'NOT PROVIDED'} | ${retentionScore.score}/10 | healthy from ${b.retention.medium}%, excellent from ${b.retention.high}% | ${retentionScore.label} |
+| ${retentionLabel} | ${metrics.retentionRate !== undefined ? pct(metrics.retentionRate) + '%' : 'NOT PROVIDED'} | ${displayScore(retentionScore)} | healthy from ${b.retention.medium}%, excellent from ${b.retention.high}% | ${retentionScore.label} |
 
 **Analysis:** ${retentionScore.analysis}
 
@@ -339,7 +343,7 @@ This comparison uses the selected market's example retention ranges. Confirm a m
 ### 5. Activation
 ${activationApplies ? `${dimensionHeader}
 |--------|-----------|-------|-----------|--------|
-| Activation Rate | ${metrics.activationRate !== undefined ? pct(metrics.activationRate) + '%' : 'NOT PROVIDED'} | ${activationScore.score}/10 | healthy from ${b.activation.medium}%, excellent from ${b.activation.high}% | ${activationScore.label} |
+| Activation Rate | ${metrics.activationRate !== undefined ? pct(metrics.activationRate) + '%' : 'NOT PROVIDED'} | ${displayScore(activationScore)} | healthy from ${b.activation.medium}%, excellent from ${b.activation.high}% | ${activationScore.label} |
 
 **Analysis:** ${activationScore.analysis}` : `**Not applicable to this business model.** Activation measures how soon a new software customer reaches first value. It is not scored here and is left out of the average.${metrics.activationRate !== undefined ? ` You gave an activation figure of ${pct(metrics.activationRate)}%: it is shown but not scored.` : ''}`}
 
