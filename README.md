@@ -1,4 +1,7 @@
 # @shashwatgtmalpha/craft-gtm-mcp v2.2.25
+
+By Helix GTM Consulting (https://gtmhelix.com), built by Shashwat Ghosh, Co-Founder and Fractional CMO.
+
 **CRAFT GTM Framework MCP Server**: a complete redesign with metric parsing, context-aware outputs, and a structured draft with placeholders where your inputs give no fact.
 
 ## Use it hosted (no install)
