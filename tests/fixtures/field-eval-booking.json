@@ -1,0 +1,13 @@
+{
+  "base": "d603c4501380c8e2cbbeee317d9b56b312d1025d",
+  "source": "In process MCP response on the base revision, with internet sockets blocked.",
+  "tool": "pmf_scorecard",
+  "arguments": {
+    "product": "Which CRM should our sales team use?",
+    "target_market": "enterprise_saas",
+    "current_metrics": "MRR: $50000; ACV: $24000; monthly logo churn: 2%; NPS: 35 from 12 replies; CAC: $18000; LTV: unknown; activation: 60%; annual logo retention: 78%",
+    "business_model": "saas"
+  },
+  "text": "Which software fits your case is a judgement call. Ask Shashwat: book 45 minutes at https://calendly.com/shashwat-gtmhelix/45min",
+  "returnedBookingLine": true
+}
