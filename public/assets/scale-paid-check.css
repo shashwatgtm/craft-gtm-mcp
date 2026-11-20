@@ -1,0 +1,57 @@
+/* Scale Paid Check page styles. Moved out of the page so the site's Content-Security-Policy (style-src 'self') allows them. */
+.hx-look .hero.sp-hero{padding:clamp(18px,2vw,28px) 0 clamp(22px,2.4vw,32px)}
+.hx-look .sp-hero .eyebrow{margin:0 0 8px}
+.hx-look .sp-hero h1{max-width:none;font-size:clamp(34px,3.6vw,52px);margin:0}
+.hx-look .sp-hero .sub{margin:10px 0 0;max-width:none;font-size:clamp(16px,1.3vw,19px);color:#5A4B4E}
+.sp-grid{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:20px;margin-top:clamp(16px,1.8vw,24px);align-items:stretch;position:relative;z-index:1}
+.sp-card{background:#FFFDF9;border:1px solid #E3D3CA;border-radius:16px;box-shadow:0 10px 28px rgba(60,38,34,.08);padding:clamp(16px,1.6vw,24px);min-width:0}
+.hx-look .sp-card h2{font-size:clamp(20px,1.7vw,25px);line-height:1.2;margin:0 0 4px;max-width:none}
+.hx-look .sp-card p,.hx-look .sp-hero .sp-card h2{max-width:none}
+.sp-card .sp-note{margin:0 0 14px;color:#5A4B4E;font-size:15px;line-height:1.45}
+.sp-fields{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.sp-field{display:flex;flex-direction:column;justify-content:flex-end;gap:6px;min-width:0}
+.sp-field label{font-size:14px;line-height:1.3;font-weight:600;color:#1D1416}
+.sp-field label span{font-weight:400;color:#5A4B4E}
+.sp-field input{width:100%;min-height:48px;padding:10px 12px;border:1.5px solid #D9C6BC;border-radius:12px;background:#FFFDF9;color:#1D1416;font:500 17px/1.2 inherit;font-family:inherit;box-sizing:border-box}
+.sp-field input::placeholder{color:#A2918F;opacity:1}
+.sp-field input:focus{border-color:#641220;box-shadow:0 0 0 3px rgba(100,18,32,.14);outline:0}
+.sp-out{margin-top:14px;min-height:112px;border-radius:12px;background:#F3EADF;padding:14px 16px;display:flex;flex-direction:column;justify-content:center;gap:4px}
+.sp-out:empty{background:none;border:1.5px dashed #E3D3CA}
+.sp-out p{margin:0}
+.sp-out .sp-nojs{color:#5A4B4E;font-size:15px}
+.sp-out .sp-nojs a{color:#641220;text-decoration:underline}
+.sp-big{font-family:var(--display,Fraunces,Georgia,serif);font-size:clamp(24px,2.3vw,32px);line-height:1.15;color:#1D1416;font-weight:600}
+.sp-line{font-size:15.5px;line-height:1.4;color:#1D1416}
+.sp-verdict{font-size:16px;line-height:1.4;font-weight:600}
+.sp-verdict.sp-ok{color:#1F5C3A}
+.sp-verdict.sp-over{color:#641220}
+.sp-sum{font-size:13.5px;color:#5A4B4E;line-height:1.4}
+.sp-list{display:flex;flex-direction:column}
+.sp-acts{display:flex;flex-wrap:wrap;gap:10px;margin:2px 0 12px}
+.hx-look .sp-acts a.hx-btn{display:inline-flex;align-items:center;justify-content:center;text-align:center;flex:1 1 190px;min-height:48px;padding:10px 16px;text-decoration:none}
+.hx-look .sp-acts a.hx-btn.sp-ghost{background:#FFFDF9;color:#641220}
+.hx-look .sp-acts a.hx-btn.sp-ghost:hover,.hx-look .sp-acts a.hx-btn.sp-ghost:focus-visible{background:#F3EADF;color:#4D0D18}
+.sp-small{margin:0 0 6px;font-size:14.5px;line-height:1.45;color:#5A4B4E}
+.sp-small a,.sp-book a{color:#641220;text-decoration:underline;text-underline-offset:3px}
+.sp-book{margin:auto 0 0;padding-top:12px;border-top:1px solid #EADFD6;font-size:15px;line-height:1.45;color:#1D1416}
+.hx-look .sp-below .hx-section{padding-top:clamp(32px,4vw,56px)}
+.sp-defs{list-style:none;margin:0;padding:0;display:grid;gap:10px;max-width:78ch}
+.sp-defs li{margin:0;padding:12px 16px;background:#FFFDF9;border:1px solid #EADFD6;border-radius:12px;line-height:1.5}
+.sp-two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 40px}
+.sp-two .hx-section{min-width:0}
+@media (max-width:900px){
+.sp-grid{grid-template-columns:minmax(0,1fr);gap:14px}
+.sp-two{grid-template-columns:minmax(0,1fr)}
+}
+@media (max-width:640px){
+.hx-look .hero.sp-hero{padding:14px 0 22px}
+.hx-look .sp-hero h1{font-size:30px;line-height:1.1}
+.hx-look .sp-hero .sub{font-size:15.5px;margin-top:6px}
+.sp-card{padding:14px}
+.hx-look .sp-card h2{font-size:19px}
+.sp-card .sp-note{margin-bottom:10px;font-size:14.5px}
+.sp-fields{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.sp-field label{font-size:13.5px}
+.sp-field input{min-height:44px;font-size:16px}
+.sp-out{min-height:104px;margin-top:10px;padding:12px}
+}
