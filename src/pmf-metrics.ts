@@ -38,7 +38,11 @@ export function readPMFMetrics(rawInput: string): MetricReading {
   const unsupported = /\d[\d,]*(?:\.\d+)?\s*(?:lakhs?|lacs?|crores?|thousand|million|billion|basis\s+points?|bps)\b|\d(?:\.\d+)?e[+-]?\d+\b|\d[\d,]*(?:\.\d+)?\s*(?:[kmb]\b)?\s*%?\s*(?:to|[-–—])\s*(?:(?:USD|INR|GBP|EUR|CAD|SGD)\s*|[$£€₹]\s*)?[+-]?\d|\bas\s+a\s+fraction\b/i.exec(numericText);
   if(unsupported){result.issues.push('Unsupported numeric unit or interval: "'+unsupported[0]+'". Supply one confirmed scalar in ordinary currency units or percent, with its measurement period. No numeric prefix has been scored.');return result;}
 
+  // A ratio owns its entire span: its CAC token is never an acquisition cost.
+  const ratioLabel = 'ltv\\s*(?:-\\s*to\\s*-|to|/|:)\\s*cac(?:\\s+ratio)?';
+  const ratioSpans = [...raw.matchAll(new RegExp('\\b'+ratioLabel+'\\b\\s*(?::|=|is|of|was)?\\s*([+-]?\\d+(?:\\.\\d+)?)', 'gi'))].map(m => [m.index!, m.index! + m[0].length]);
   const definitions: [string, string, number, number][] = [
+    ['ltvCacRatio', ratioLabel, 0, Infinity],
     ['churn', '(?:(?:monthly|annual|yearly|quarterly)\\s+)?(?:logo\\s+)?churn(?:\\s+rates?)?', 0, 100],
     ['nps', '(?:nps|net promoter score)', -100, 100],
     ['ltv', '(?:ltv|(?:customer )?lifetime value)', 0, Infinity], ['cac', '(?:cac|customer acquisition cost)', 0, Infinity],
@@ -60,6 +64,7 @@ export function readPMFMetrics(rawInput: string): MetricReading {
     }
     for (const match of matches) {
       const index = match.index ?? 0;
+      if (['ltv','cac'].includes(key) && ratioSpans.some(([start,end]) => index >= start && index < end)) continue;
       const before = raw.slice(0,index).split(/[;\n]|(?<!\d)\.(?!\d)/).pop() ?? '';
       const after = raw.slice(index + match[0].length).split(/[;\n]|,(?!\d)|(?<!\d)\.(?!\d)/)[0];
       // A transport-escaped sentence stop can leave its escape after splitting.

@@ -6,11 +6,11 @@ export function satisfactionEvidence(raw) {
         result.sample = Number(count[1]);
         result.sampleBasis = count[2] || 'responses';
     }
-    const a = /([+-]?\d+(?:\.\d+)?)\s*%\s*(?:of\s+(?:the\s+)?(?:users|customers|respondents|responses)\s+)?(?:(?:are|were|would be|said they would be)\s+)?["“']?very\s+disappointed/gi;
-    const b = /very\s+disappointed["”']?\s*(?:share|score|responses|users)?\s*(?::|=|is|was|at)?\s*([+-]?\d+(?:\.\d+)?)\s*%/gi;
+    const a = /([+-]?\d+(?:\.\d+)?)\s*%[^;\n.!?%]{0,160}?["“']?very\s+disappointed/gi;
+    const b = /very\s+disappointed["”']?[^;\n.!?%]{0,160}?([+-]?\d+(?:\.\d+)?)\s*%/gi;
     for (const match of [...text.matchAll(a), ...text.matchAll(b)]) {
         const before = text.slice(0, match.index).split(/[;\n,.]/).pop() || '';
-        if (/\b(?:target|goal|hypothetical|assumed|not|forecast|projected)\b/i.test(before)) {
+        if (/\b(?:target|goal|hypothetical|assumed|not|forecast|projected)\b/i.test(before) || /\b(?:target|goal|hypothetical|assumed|not|never|forecast|projected)\b/i.test(match[0])) {
             result.issue = 'Very disappointed share is not an observed value. Supply the actual survey result and response count.';
             continue;
         }

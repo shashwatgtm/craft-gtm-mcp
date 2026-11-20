@@ -1,0 +1,12 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {readPMFMetrics} from '../dist/pmf-metrics.js';
+import {satisfactionEvidence} from '../dist/satisfaction-evidence.js';
+import {generatePMFScorecard} from '../dist/pmf-scorecard.js';
+for(const label of ['LTV to CAC','LTV/CAC','LTV/CAC ratio is','LTV:CAC','LTV-to-CAC'])test(label+' is a ratio, not CAC',()=>{const r=readPMFMetrics(label+' 3.6');assert.equal(r.values.ltvCacRatio,3.6);assert.equal(r.values.cac,undefined);assert.deepEqual(r.issues,[]);});
+test('bare acquisition cost remains money',()=>assert.equal(readPMFMetrics('CAC $1,200').values.cac,1200));
+test('ratio does not hide separately supplied CAC',()=>{const r=readPMFMetrics('LTV to CAC 3.6; CAC $1,200');assert.equal(r.values.cac,1200);assert.equal(r.values.ltvCacRatio,3.6);});
+for(const s of ['46% very disappointed without the product','46% say they would be very disappointed without the product','Very disappointed without the product: 46%'])test(s,()=>assert.equal(satisfactionEvidence(s).share,46));
+for(const s of ['Target LTV to CAC 3.6','LTV:CAC 3.6; LTV:CAC 4.2'])test('refuse '+s,()=>assert.ok(readPMFMetrics(s).issues.length));
+for(const s of ['46% say they would not be very disappointed','Target: 46% very disappointed'])test('refuse '+s,()=>assert.ok(satisfactionEvidence(s).issue));
+for(const current_metrics of ['LTV to CAC 3.6, CAC payback 11 months, 46% very disappointed without the product.','LTV/CAC ratio is 3.6; 46% say they would be very disappointed without the product.'])test('full scorecard: '+current_metrics,()=>{const out=generatePMFScorecard({product:'Example workflow software',target_market:'enterprise_saas',current_metrics});assert.match(out,/LTV:CAC Ratio \| 3\.6x/);assert.match(out,/CAC \| NOT PROVIDED/);assert.match(out,/46% very disappointed/);});
