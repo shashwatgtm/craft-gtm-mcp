@@ -20,18 +20,18 @@ if(tools.some(t=>t.name==='pmf_scorecard')){
  const base=bases.find(c=>c.tool==='pmf_scorecard').args;
  for(const n of [0,1,12,29])test(`RTM05 NPS from ${n} responses is an unscored early signal`,async()=>{
   const answer=await call('pmf_scorecard',{...base,current_metrics:`NPS 72 from ${n} responses; 39% of users very disappointed; monthly churn 15%`});
-  assert.match(answer,/early signal/i);assert.match(answer,/\| NPS Score[^\n]*Not scored/);assert.doesNotMatch(answer,/\| NPS Score[^\n]*(?:EXCELLENT|9\/10)/);assert.match(answer,/39% very disappointed is below the 40% comparison line/);
+  assert.match(answer,/early signal/i);assert.match(answer,/\| NPS Score[^\n]*Not scored/);assert.doesNotMatch(answer,/\| NPS Score[^\n]*(?:EXCELLENT|9\/10)/);assert.match(answer,/39% very disappointed is in the borderline band \(35% to 45%\)/);
  });
- for(const [share,word] of [[39,'below'],[40,'meets'],[41,'meets']])test(`RTM05 disappointment ${share}% uses the 40% boundary`,async()=>{
+ for(const share of [39,40,41])test(`RTM05 disappointment ${share}% stays in the approved borderline band`,async()=>{
   const answer=await call('pmf_scorecard',{...base,current_metrics:`NPS 72 from 30 responses; ${share}% of users very disappointed; monthly churn 15%`});
-  assert.match(answer,new RegExp(`${share}% very disappointed (?:is )?${word} the 40% comparison line`));assert.match(answer,/\| NPS Score[^\n]*EXCELLENT/);
+  assert.match(answer,new RegExp(`${share}% very disappointed is in the borderline band` ));assert.match(answer,/\| NPS Score[^\n]*EXCELLENT/);
  });
  test('RTM05 target and impossible disappointment shares cannot become survey facts',async()=>{
   for(const value of ['target 70% of users very disappointed','very disappointed: 101%','40% very disappointed; 10% very disappointed'])assert.match(await call('pmf_scorecard',{...base,current_metrics:'NPS 72 from 12 responses; '+value}),/Cannot score these metrics/);
  });
  test('RTM05 response count takes precedence over the size of the customer base',async()=>{
   const answer=await call('pmf_scorecard',{...base,current_metrics:'5000 customers; NPS 72 from 12 responses; 40 percent of users very disappointed'});
-  assert.match(answer,/early signal/i);assert.match(answer,/40% very disappointed meets the 40% comparison line/);assert.doesNotMatch(answer,/\| NPS Score[^\n]*EXCELLENT/);
+  assert.match(answer,/early signal/i);assert.match(answer,/40% very disappointed is in the borderline band \(35% to 45%\)/);assert.doesNotMatch(answer,/\| NPS Score[^\n]*EXCELLENT/);
  });
 }
 if(tools.some(t=>t.name==='impact_pinpoint_value')){

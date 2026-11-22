@@ -1,3 +1,4 @@
+// 22 Nov 2026 approved S3/S4: only PMF rows in the other-tools fixture were refreshed; Scale Paid and all other outputs remain pinned.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';

@@ -1302,7 +1302,7 @@
         "current_metrics": "MRR: $50000; ACV: $24000; monthly logo churn: 2%; NPS: 35 from 12 replies; CAC: $18000; LTV: unknown; activation: 60%; annual logo retention: 78%",
         "business_model": "saas"
       },
-      "sha256": "8f987f4639c32df5dcd2292eb1673ab4bdb5c92f5aac4448246e2ae6a3c88020"
+      "sha256": "5ec9f1232a152cda3603b3d383f5de4ea39dbaf1cac653a71a1a3df55549ea98"
     },
     {
       "tool": "pmf_scorecard",
@@ -1313,7 +1313,7 @@
         "current_metrics": "MRR: $50000; ACV: $24000; monthly logo churn: 2%; NPS: 35 from 12 replies; CAC: $18000; LTV: unknown; activation: 60%; annual logo retention: 78%",
         "business_model": "saas"
       },
-      "sha256": "16c7bf22ce1c6f5bb37239e5f92e99aca39888800b7c3299b987a5f8d7848a62"
+      "sha256": "b42a5c7700a53d370a8b19783f153afa980fc01447e4f0d5aab1ed7e7f5a6a4a"
     },
     {
       "tool": "pmf_scorecard",
@@ -1324,7 +1324,7 @@
         "current_metrics": "MRR: $50000; ACV: $24000; monthly logo churn: 2%; NPS: 35 from 12 replies; CAC: $18000; LTV: unknown; activation: 60%; annual logo retention: 78%",
         "business_model": "saas"
       },
-      "sha256": "3ab5f1fc2668450ab6e856a9a2d6b73ba030d832a3f7f6881e497e6dcfae7643"
+      "sha256": "a0c54c6c842c7dd5eb427c992531133abbef2c282723e922c11ed15726a873e9"
     },
     {
       "tool": "pmf_scorecard",
@@ -1335,7 +1335,7 @@
         "current_metrics": "MRR: $50000; ACV: $24000; monthly logo churn: 2%; NPS: 35 from 12 replies; CAC: $18000; LTV: unknown; activation: 60%; annual logo retention: 78%",
         "business_model": "saas"
       },
-      "sha256": "2129ca9007c20e48c58cbad4e3b4c18b2ba619f52ffa924fa5b52b4e7c4189b8"
+      "sha256": "224806cf1874cbf56c4e4797ed649d55734d7a1040ecacd192dbbf1f4de72098"
     },
     {
       "tool": "pmf_scorecard",
@@ -1346,7 +1346,7 @@
         "current_metrics": "MRR: $50000; ACV: $24000; monthly logo churn: 2%; NPS: 35 from 12 replies; CAC: $18000; LTV: unknown; activation: 60%; annual logo retention: 78%",
         "business_model": "saas"
       },
-      "sha256": "6fa9083d69646dff6ab2585ea0f968f55a2fbead97433e0a1f58799c0e3b3a58"
+      "sha256": "609fd38141041a25b7b706c9254e484473f5285565078d1e85f6e50fe71a57f3"
     },
     {
       "tool": "pmf_scorecard",
@@ -1357,7 +1357,7 @@
         "current_metrics": "MRR: $50000; ACV: $24000; monthly logo churn: 2%; NPS: 35 from 12 replies; CAC: $18000; LTV: unknown; activation: 60%; annual logo retention: 78%",
         "business_model": "saas"
       },
-      "sha256": "b941e28da13478f5b7b16f00081d892c51a0c347f30847870ea773d570c2f8f2"
+      "sha256": "a70e0117af19749d7f88f3c589a946a8ee6f1644f507fc0572543dc3c54db590"
     },
     {
       "tool": "pmf_scorecard",
@@ -1368,7 +1368,7 @@
         "current_metrics": "MRR: $50000; ACV: $24000; monthly logo churn: 2%; NPS: 35 from 12 replies; CAC: $18000; LTV: unknown; activation: 60%; annual logo retention: 78%",
         "business_model": "saas"
       },
-      "sha256": "79e56c6786f414e5183fa33e6194c449e17e58da7331ce881077a7388c386c40"
+      "sha256": "70526cb5d8a2cebf52b3e38191eea82c224424857285e33f41fd5e1149ed6602"
     },
     {
       "tool": "pmf_scorecard",
@@ -1379,7 +1379,7 @@
         "current_metrics": "MRR: $50000; ACV: $24000; monthly logo churn: 2%; NPS: 35 from 12 replies; CAC: $18000; LTV: unknown; activation: 60%; annual logo retention: 78%",
         "business_model": "saas"
       },
-      "sha256": "0856c7cc19c5508f3bb5607aa026498519b9ab5d65479bdb3004eaf8e3c0456c"
+      "sha256": "abab35fa43ce05a67e9d17ca96f1b5aa1d7ee83c03c5ac043fbfca78bd1ccdbc"
     },
     {
       "tool": "pmf_scorecard",
@@ -1390,7 +1390,7 @@
         "current_metrics": "MRR: $50000; ACV: $24000; monthly logo churn: 2%; NPS: 35 from 12 replies; CAC: $18000; LTV: unknown; activation: 60%; annual logo retention: 78%",
         "business_model": "saas"
       },
-      "sha256": "e3bdf1bc583775d9dfd30a2616b9185acc3151f27e47de577dec21bf3ac40aec"
+      "sha256": "fe63557991a793b3b198e2f05cdd5aa3eb262384a523d7075aea1960cccc29cc"
     },
     {
       "tool": "launch_commander",

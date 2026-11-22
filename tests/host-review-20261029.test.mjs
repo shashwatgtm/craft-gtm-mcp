@@ -17,7 +17,7 @@ const call = async (name, args) => {
 const pmf = (metrics) => call("pmf_scorecard", { product: "Northwind CRM, synthetic review scenario only", target_market: "smb_saas", current_metrics: metrics, business_model: "saas" });
 
 test("pmf_scorecard: a strong score is a rule score, not proof, and with a dimension missing it does not advise scaling", async () => {
-  const t = await pmf("Synthetic figures only: monthly churn 3%; NPS 45; CAC $500; LTV $3000; retention 92%");
+  const t = await pmf("Synthetic figures only: monthly churn 0.5%; NPS 45; CAC $500; LTV $3000; retention 92%");
   assert.match(t, /\*\*Strong PMF\*\*/);
   assert.match(t, /It is a rule score from the figures you supplied, not proof of product-market fit\./);
   assert.match(t, /Fill the missing data below before treating this as a reason to scale\./);
@@ -25,15 +25,15 @@ test("pmf_scorecard: a strong score is a rule score, not proof, and with a dimen
 });
 
 test("pmf_scorecard: with every dimension scored, a strong score still asks for a check before scaling", async () => {
-  const t = await pmf("Synthetic figures only: monthly churn 2%; NPS 65; CAC $500; LTV $3000; retention 95%; activation 75%");
+  const t = await pmf("Synthetic figures only: monthly churn 0.5%; NPS 65; CAC $500; LTV $3000; retention 95%; activation 75%");
   assert.match(t, /Check them against your own history and customer evidence before you scale\./);
 });
 
-test("pmf_scorecard: 'activation rate 70%', 'churn rate 3%' and 'retention rate 92%' are read as figures (W6 eval finding 1)", async () => {
-  const t = await pmf("Synthetic figures only: monthly churn rate 3%; NPS 45; CAC $500; LTV $3000; retention rate 92%; activation rate 70%");
+test("pmf_scorecard: 'activation rate 70%', 'churn rate 3%' and 'retention rate 70%' are read as figures (W6 eval finding 1)", async () => {
+  const t = await pmf("Synthetic figures only: monthly churn rate 3%; NPS 45; CAC $500; LTV $3000; retention rate 70%; activation rate 70%");
   assert.match(t, /\| Activation Rate \| 70% \|/);
-  assert.match(t, /\| Monthly Churn \| 3% \|/);
-  assert.match(t, /\| Retention Rate \| 92% \|/);
+  assert.match(t, /\| Monthly Churn \| 3%[^|]*\|/);
+  assert.match(t, /\| Retention Rate \| 70% \|/);
   assert.match(t, /Based on 5 of 5 dimensions\./);
   assert.doesNotMatch(t, /NOT PROVIDED/);
 });
@@ -47,7 +47,7 @@ test("pmf_scorecard: with churn and retention missing, Priority Actions asks for
 });
 
 test("pmf_scorecard: F1 healthy control: no critical row and no unsupported blanket verdict", async () => {
-  const t = await pmf("Synthetic figures only: monthly churn 2%; NPS 65; CAC $500; LTV $3000; retention 95%; activation 75%");
+  const t = await pmf("Synthetic figures only: monthly churn 0.5%; NPS 65; CAC $500; LTV $3000; retention 95%; activation 75%");
   assert.match(t, /No priority action was triggered by the supplied figures\. Check each dimension, its period and customer evidence before deciding whether to scale\./);
   assert.doesNotMatch(t, /focus on scaling/i);
 });

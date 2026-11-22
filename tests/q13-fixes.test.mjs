@@ -34,7 +34,8 @@ test('RC-06 and RC-19: CRAFT check reads "led by", word-number targets and Weeks
 test('RC-19 and RC-22: readPMFMetrics parses word-number metrics and parenthetical actual values after negated bounds', () => {
   const r1 = readPMFMetrics('Twelve-month gross retention is ninety-two percent; ninety-four out of a hundred accounts renew each year; monthly logo churn is zero point five percent; net promoter score is fifty-eight; lifetime value is four times customer acquisition cost ($140,000 vs $35,000).');
   assert.equal(r1.issues.length, 0);
-  assert.equal(r1.values.retentionRate, 92);
+  assert.equal(r1.values.grossRetention, 92);
+  assert.equal(r1.values.retentionRate, undefined, 'Gross retention must not become net or logo retention');
   assert.equal(r1.values.churn, 0.5);
   assert.equal(r1.values.nps, 58);
   assert.equal(r1.values.ltv, 140000);

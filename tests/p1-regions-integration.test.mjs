@@ -1,3 +1,4 @@
+// 22 Nov 2026 approved S3/S4: only PMF expected answers were refreshed; other tools and the historical tool contract remain pinned.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync,writeFileSync} from 'node:fs';
