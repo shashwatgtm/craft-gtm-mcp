@@ -51,7 +51,10 @@ export function readPMFMetrics(rawInput) {
         ['mrr', '(?:mrr|monthly recurring revenue)', 0, Infinity],
         ['arr', '(?:arr|annual recurring revenue)', 0, Infinity],
         ['acv', '(?:acv|annual contract value|average contract value)', 0, Infinity],
-        ['retentionRate', '(?:(?:net revenue|gross revenue|net|gross|customer|logo)\\s+)?retention(?:\\s+rates?)?|nrr', 0, Infinity],
+        // Stop-the-harm S4 (22 Nov 2026): gross retention (GRR) is its own measure, so a typed GRR is scored and never
+        // read as a second, conflicting value of net revenue retention.
+        ['grossRetention', '(?:gross revenue retention|gross retention|grr)(?:\\s+rates?)?', 0, 100],
+        ['retentionRate', '(?:(?:net revenue|net|customer|logo)\\s+)?(?<!gross\\s)(?<!gross revenue\\s)retention(?:\\s+rates?)?|nrr', 0, Infinity],
         ['activationRate', 'activation(?:\\s+rates?)?', 0, 100],
     ];
     for (const [key, label, min, max] of definitions) {
@@ -60,7 +63,7 @@ export function readPMFMetrics(rawInput) {
         const pattern = new RegExp('\\b(' + label + ')\\b\\s*(?::|=|is|of|was)?\\s*' + unit + '\\s*([+-]?\\d[\\d,]*(?:\\.\\d+)?)\\s*(?:([kmb])\\b)?\\s*(%)?' + (money ? '\\s*(?:' + currency + ')?' : ''), 'gi');
         const matches = [...raw.matchAll(pattern)];
         // Common percentage-first forms remain scoped to the named measure.
-        if (!matches.length && ['churn', 'retentionRate', 'activationRate'].includes(key)) {
+        if (!matches.length && ['churn', 'retentionRate', 'grossRetention', 'activationRate'].includes(key)) {
             const reversed = new RegExp('([+-]?\\d+(?:\\.\\d+)?)\\s*%\\s*(' + label + ')\\b', 'gi');
             for (const m of raw.matchAll(reversed)) {
                 const fake = [m[0], m[2], m[1], undefined, '%'];

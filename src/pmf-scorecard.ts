@@ -25,6 +25,9 @@ export function generatePMFScorecard(args: {
   for (const key of ['churn','nps','ltv','cac','mrr','arr','acv','retentionRate','activationRate','ltvCacRatio'] as const) delete metrics[key];
   Object.assign(metrics, reading.values);
   metrics.retentionIsNet = reading.retentionIsNet;
+  // Stop-the-harm S4 (22 Nov 2026): gross retention is read on its own and scored; it is never shown as "NOT PROVIDED".
+  const grossRetention: number | undefined = reading.values.grossRetention;
+  delete (metrics as unknown as Record<string, unknown>).grossRetention;
   if (metrics.ltv !== undefined && metrics.cac !== undefined && metrics.cac > 0) metrics.ltvCacRatio = metrics.ltv / metrics.cac;
   const money = (key: string, value: number) => {
     const amount = value.toLocaleString('en-US'), currency = reading.currencies[key];
@@ -96,7 +99,10 @@ export function generatePMFScorecard(args: {
   const activationApplies = !(ctx.model === 'services' || ctx.model === 'connectivity' || ctx.model === 'investment');
   const satisfaction = satisfactionEvidence(args.current_metrics);
   if (satisfaction.issue) return benchmarkNotice + "# Cannot score these metrics\n\n" + satisfaction.issue;
-  const disappointmentScore = satisfaction.share === undefined ? null : {score: satisfaction.share >= 40 ? 7 : 3, label: satisfaction.share >= 40 ? "MEETS 40% LINE" : "CRITICAL", analysis: `${satisfaction.share}% very disappointed ${satisfaction.share >= 40 ? "meets" : "is below"} the 40% comparison line. This survey signal alone does not prove fit.`};
+  // Stop-the-harm S3 (22 Nov 2026): a band, not a cliff. 35% to 45% reads "borderline", so the verdict word cannot flip
+  // between 39% and 41%. The survey is one input; it cannot block or grant the verdict on its own.
+  const surveyBand = satisfaction.share === undefined ? null : satisfaction.share > 45 ? 'meets' : satisfaction.share >= 35 ? 'borderline' : 'below';
+  const disappointmentScore = satisfaction.share === undefined ? null : {score: surveyBand === 'meets' ? 7 : surveyBand === 'borderline' ? 5 : 3, label: surveyBand === 'meets' ? "MEETS 40% LINE" : surveyBand === 'borderline' ? "BORDERLINE" : "CRITICAL", analysis: `${satisfaction.share}% very disappointed ${surveyBand === 'meets' ? "is above" : surveyBand === 'borderline' ? "is in the borderline band (35% to 45%) around" : "is below"} the 40% comparison line. This survey signal alone does not prove or rule out fit.`};
   const dimensionCount = (activationApplies ? 5 : 4) + (disappointmentScore ? 1 : 0);
   
   // Score each dimension
@@ -106,15 +112,35 @@ export function generatePMFScorecard(args: {
   const monthlyChurn = metrics.churn === undefined || !months ? undefined
     : months === 1 ? metrics.churn : (1 - (1 - metrics.churn / 100) ** (1 / months)) * 100;
   const monthlyShown = monthlyChurn === undefined ? '' : Number(monthlyChurn.toFixed(2)).toString();
-  const churnScore = scoreMetric(monthlyChurn, churnRange, false);
+  let churnScore = scoreMetric(monthlyChurn, churnRange, false);
+  // Stop-the-harm S4 (22 Nov 2026): churn above 1.5% a month (about 16.6% of customers a year) is never labelled excellent,
+  // whatever the example range for the market says.
+  if (churnScore.label === 'EXCELLENT' && monthlyChurn !== undefined && monthlyChurn > 1.5) {
+    churnScore = { score: 7, label: 'GOOD', analysis: `${Number(monthlyChurn.toFixed(2))}% a month is within this market's example range, but it compounds to about ${((1 - (1 - monthlyChurn / 100) ** 12) * 100).toFixed(1)}% of customers lost in a year, so it is not rated excellent.` };
+  }
   const churnPeriodNote = metrics.churn !== undefined && !months
     ? 'Period not supplied. This churn figure is listed but not scored; confirm whether it is monthly, quarterly or annual.'
     : metrics.churn !== undefined && months && months > 1 ? `Your ${months === 12 ? 'annual' : 'quarterly'} churn remains ${pct(metrics.churn)}%. Monthly equivalent: (1 − (1 − ${pct(metrics.churn)} / 100)^(1/${months})) × 100 = ${monthlyShown}%. This assumes a constant monthly loss rate. The monthly equivalent is compared with the existing monthly example range: healthy up to ${pct(churnRange.medium)}%, excellent up to ${pct(churnRange.low)}%.` : '';
   const earlyNPS = metrics.nps !== undefined && satisfaction.sample !== undefined && satisfaction.sample < 30;
   const npsScore = earlyNPS ? {score: 0, label: "EARLY SIGNAL", analysis: `NPS ${metrics.nps} from ${satisfaction.sample} ${satisfaction.sampleBasis}. Below 30 responses, treat this as an early signal, not a status. It is not scored and is excluded from the fit average. Confirm the response count, cohort and collection period.`} : scoreMetric(metrics.nps, b.nps, true);
   const ltvCacScore = scoreMetric(metrics.ltvCacRatio, b.ltvCac, true, metrics.ltvCacRatio?.toFixed(1), 'x');
-  const retentionLabel = reading.retentionBasis === 'logo' ? 'Logo Retention' : reading.retentionBasis === 'gross_revenue' ? 'Gross Revenue Retention' : metrics.retentionIsNet ? 'Net Revenue Retention' : 'Retention Rate';
-  const retentionScore = scoreMetric(metrics.retentionRate, b.retention, true, undefined, '%');
+  // Stop-the-harm S4 (22 Nov 2026): when gross retention is given beside net revenue retention, gross is scored (it shows the
+  // loss without expansion) and net is shown beside it. Net revenue retention under 100% is never rated good or excellent.
+  const netRetention = metrics.retentionIsNet ? metrics.retentionRate : undefined;
+  const useGross = grossRetention !== undefined && (metrics.retentionRate === undefined || metrics.retentionIsNet);
+  const retentionValue = useGross ? grossRetention : metrics.retentionRate;
+  const retentionLabel = useGross ? 'Gross Revenue Retention' : reading.retentionBasis === 'logo' ? 'Logo Retention' : reading.retentionBasis === 'gross_revenue' ? 'Gross Revenue Retention' : metrics.retentionIsNet ? 'Net Revenue Retention' : 'Retention Rate';
+  let retentionScore = scoreMetric(retentionValue, b.retention, true, undefined, '%');
+  if (!useGross && netRetention !== undefined && netRetention < 100 && retentionScore.score > 5) {
+    retentionScore = { score: 5, label: 'BELOW 100%', analysis: `Net revenue retention of ${pct(netRetention)}% is under 100%: revenue from existing customers is shrinking, so it is not rated good or excellent.` };
+  }
+  const netRetentionNote = useGross && netRetention !== undefined
+    ? `\nNet revenue retention you gave: ${pct(netRetention)}%. It is shown, not scored: gross retention is scored because it shows the loss before expansion.${netRetention < 100 ? ' Net revenue retention under 100% means revenue from existing customers is shrinking.' : ''}\n`
+    : '';
+  const yearlyChurn = monthlyChurn === undefined ? undefined : (1 - (1 - monthlyChurn / 100) ** 12) * 100;
+  const yearlyChurnNote = months === 1 && yearlyChurn !== undefined && metrics.churn !== undefined
+    ? ` A monthly churn of ${pct(metrics.churn)}% compounds to about ${yearlyChurn.toFixed(1)}% of customers lost in a year (1 − (1 − ${pct(metrics.churn)} / 100)^12).`
+    : '';
   const activationScore = scoreMetric(metrics.activationRate, b.activation, true, undefined, '%');
   
   // Calculate overall PMF score
@@ -143,7 +169,8 @@ export function generatePMFScorecard(args: {
   } else {
     pmfAnalysis = 'Early stage: more data is needed, or a pivot if the numbers you have are weak.';
   }
-  const criticalRows = [churnScore, npsScore, ltvCacScore, retentionScore, ...(activationApplies ? [activationScore] : []), ...(disappointmentScore ? [disappointmentScore] : [])].filter(s => s.label === 'CRITICAL');
+  // Stop-the-harm S3 (22 Nov 2026): the survey cannot block the verdict on its own, so it is left out of the blocking rows.
+  const criticalRows = [churnScore, npsScore, ltvCacScore, retentionScore, ...(activationApplies ? [activationScore] : [])].filter(s => s.label === 'CRITICAL');
   if (criticalRows.length) {
     pmfStage = 'Searching for PMF';
     pmfAnalysis = 'A CRITICAL dimension blocks a fit verdict. Resolve the priority actions before treating the average as evidence to scale.';
@@ -155,6 +182,36 @@ export function generatePMFScorecard(args: {
     pmfAnalysis = 'Not scored yet: none of your metrics matched. Add the missing ones listed below.';
   } else if (scoredDimensions.length < 3) {
     pmfAnalysis = 'Too few metrics to judge fit yet: add the missing ones listed below.';
+  }
+
+  // Stop-the-harm S3 and S4 (22 Nov 2026): the verdict word. Facts that cannot both be true get no verdict; fewer than
+  // three scored dimensions, or fewer than 30 customers, give "Too early to call" in the headline, never "Yes".
+  const disagreements: string[] = [];
+  const retentionForPair = useGross ? grossRetention : (!metrics.retentionIsNet ? metrics.retentionRate : undefined);
+  if (monthlyChurn !== undefined && retentionForPair !== undefined && metrics.churn !== undefined) {
+    const keptInAYear = (1 - monthlyChurn / 100) ** 12 * 100;
+    if (Math.abs(keptInAYear - retentionForPair) > 10) {
+      disagreements.push(`${churnLabel.toLowerCase()} of ${pct(metrics.churn)}% means keeping about ${keptInAYear.toFixed(1)}% of customers over a year, but ${retentionLabel.toLowerCase()} is given as ${pct(retentionForPair)}%`);
+    }
+  }
+  if ((args.time_in_market || '').toLowerCase() === 'pre_launch' && ((metrics.arr ?? 0) > 0 || (metrics.mrr ?? 0) > 0)) {
+    disagreements.push(`the product is marked as pre-launch, but recurring revenue is given (${metrics.arr !== undefined ? 'ARR ' + money('arr', metrics.arr) : 'MRR ' + money('mrr', metrics.mrr!)})`);
+  }
+  const COUNT_WORDS: Record<string, number> = { one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10, eleven: 11, twelve: 12, thirteen: 13, fourteen: 14, fifteen: 15, sixteen: 16, seventeen: 17, eighteen: 18, nineteen: 19, twenty: 20 };
+  const countMatch = `${args.current_metrics} ${args.product}`.match(/\b(\d[\d,]*|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty)\s+(?:[a-z-]+\s+){0,2}(?:customers|clients|logos)\b/i);
+  const customerCount = countMatch ? (COUNT_WORDS[countMatch[1].toLowerCase()] ?? Number(countMatch[1].replace(/,/g, ''))) : undefined;
+  let verdictWord = criticalRows.length ? 'No' : overallScore >= 7 ? 'Yes' : overallScore >= 5 ? 'Note' : 'No';
+  if (disagreements.length) {
+    pmfStage = 'These two facts disagree';
+    verdictWord = 'No verdict';
+    pmfAnalysis = `These two facts disagree: ${disagreements.join('; ')}. Confirm which figure is right before reading any fit score.`;
+  } else if (!criticalRows.length && scoredDimensions.length < 3) {
+    pmfStage = 'Too early to call';
+    verdictWord = 'Too early to call';
+  } else if (!criticalRows.length && customerCount !== undefined && customerCount < 30) {
+    pmfStage = 'Too early to call';
+    verdictWord = 'Too early to call';
+    pmfAnalysis = `Too early to call: you gave ${customerCount} customers, and fewer than 30 is too few to show product-market fit. Treat the scores below as early signals.`;
   }
   
   // Build actionable recommendations (Run 20: each one is written from the figures and the feedback you gave, and from the business model)
@@ -180,7 +237,7 @@ export function generatePMFScorecard(args: {
   if (retentionScore.label === 'MISSING') {
     recommendations.push(`RETENTION: not given, so it is not scored. ${contract ? 'Give the share of contract value renewed over the last twelve months' : 'Give the share of customers (or of revenue) still with you after twelve months, and say which one it is'}.`);
   }
-  if (retentionScore.label === 'CRITICAL' || retentionScore.label === 'DEVELOPING') {
+  if (retentionScore.label === 'CRITICAL' || retentionScore.label === 'DEVELOPING' || retentionScore.label === 'BELOW 100%') {
     recommendations.push('RETENTION: Check the cohort and period, investigate lost customers or revenue, and assign an owner to the recovery plan. Confirm renewal evidence before scaling.');
   }
   const acvNote = metrics.acv !== undefined ? ` You gave an annual contract value of ${money('acv', metrics.acv)}: LTV is that value times your gross margin times the years a contract lasts, and CAC is your sales and marketing cost divided by the contracts won in the same period.` : '';
@@ -271,7 +328,7 @@ ${ctx.line}
 
 | Stage | Score | Status |
 |-------|-------|--------|
-| **${pmfStage}** | **${overallScore}/10** | ${criticalRows.length ? 'No' : overallScore >= 7 ? 'Yes' : overallScore >= 5 ? 'Note' : 'No'} |
+| **${pmfStage}** | **${overallScore}/10** | ${verdictWord} |
 
 ${basis}
 ${pmfAnalysis}
@@ -289,9 +346,9 @@ Each score and status compares your value with an example benchmark. ${rangeNote
 ### 1. Customer Retention (Churn)
 ${dimensionHeader}
 |--------|-----------|-------|-----------|--------|
-| ${churnLabel} | ${metrics.churn !== undefined ? pct(metrics.churn) + '%' + (months && months > 1 ? ` (${monthlyShown}% monthly equivalent)` : '') : 'NOT PROVIDED'} | ${churnScore.score}/10 | ${months ? `Monthly example: healthy up to ${pct(churnRange.medium)}%, excellent up to ${pct(churnRange.low)}%` : 'Period needed before comparison'} | ${churnScore.label} |
+| ${churnLabel} | ${metrics.churn !== undefined ? pct(metrics.churn) + '%' + (months && months > 1 ? ` (${monthlyShown}% monthly equivalent)` : months === 1 && yearlyChurn !== undefined ? ` (about ${yearlyChurn.toFixed(1)}% a year)` : '') : 'NOT PROVIDED'} | ${churnScore.score}/10 | ${months ? `Monthly example: healthy up to ${pct(churnRange.medium)}%, excellent up to ${pct(churnRange.low)}%` : 'Period needed before comparison'} | ${churnScore.label} |
 
-**Analysis:** ${churnPeriodNote || churnScore.analysis}
+**Analysis:** ${churnPeriodNote || churnScore.analysis}${yearlyChurnNote}
 
 ---
 
@@ -328,11 +385,11 @@ ${dimensionHeader}
 ### 4. ${retentionLabel}
 ${dimensionHeader}
 |--------|-----------|-------|-----------|--------|
-| ${retentionLabel} | ${metrics.retentionRate !== undefined ? pct(metrics.retentionRate) + '%' : 'NOT PROVIDED'} | ${retentionScore.score}/10 | healthy from ${b.retention.medium}%, excellent from ${b.retention.high}% | ${retentionScore.label} |
+| ${retentionLabel} | ${retentionValue !== undefined ? pct(retentionValue) + '%' : 'NOT PROVIDED'} | ${retentionScore.score}/10 | healthy from ${b.retention.medium}%, excellent from ${b.retention.high}% | ${retentionScore.label} |
 
 **Analysis:** ${retentionScore.analysis}
-
-This comparison uses the selected market's example retention ranges. Confirm a matching cohort, measurement period and ${reading.retentionBasis === 'logo' ? 'logo' : reading.retentionBasis === 'gross_revenue' ? 'gross revenue' : reading.retentionBasis === 'net_revenue' ? 'net revenue' : 'retention'} basis before treating the comparison as decision evidence.
+${netRetentionNote}
+This comparison uses the selected market's example retention ranges. Confirm a matching cohort, measurement period and ${useGross ? 'gross revenue' : reading.retentionBasis === 'logo' ? 'logo' : reading.retentionBasis === 'gross_revenue' ? 'gross revenue' : reading.retentionBasis === 'net_revenue' ? 'net revenue' : 'retention'} basis before treating the comparison as decision evidence.
 
 ---
 
@@ -366,7 +423,7 @@ ${[
   metrics.nps === undefined ? '- [ ] NPS score (survey customers)' : null,
   metrics.ltv === undefined ? '- [ ] Customer LTV calculation' : null,
   metrics.cac === undefined ? '- [ ] Customer Acquisition Cost' : null,
-  metrics.retentionRate === undefined ? '- [ ] Retention/renewal rate' : null,
+  retentionValue === undefined ? '- [ ] Retention/renewal rate' : null,
   activationApplies && metrics.activationRate === undefined ? '- [ ] Activation rate (the first action that shows a customer got value)' : null
 ].filter(Boolean).join('\n') || 'All scored metrics were provided. Their source and periods still need confirmation.'}
 
