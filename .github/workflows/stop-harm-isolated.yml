@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     env:
-      SOURCE_REF: 9f78b09640ca08bdeedeb181bab14253d6dfb191
+      SOURCE_REF: edde2ae9700ab9730c67610db8077dd419287e14
       HELIX_PROFILE: current
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
@@ -23,6 +23,8 @@ jobs:
       - name: Default current build
         run: |
           if [ -f scripts/build-profile.mjs ]; then npm run build; elif [ -f scripts/build-site.mjs ]; then node scripts/build-site.mjs; fi
+      - name: Committed current dist
+        run: npm run check:current-dist
       - name: Full suite
         shell: bash
         run: |
