@@ -1,15 +1,15 @@
 {
-  "base": "d603c4501380c8e2cbbeee317d9b56b312d1025d",
+  "base": "57690795e55f5064655dc99b88846cc4df7314b2",
   "tools": {
-    "pmf_scorecard": "1b2e6b6e38581e14df6aedab1df3225b8348882302f3ae71eebee7741c5d7682",
-    "launch_commander": "0a8e116d137333acdd54c29f65a3c2405100891e6ad2b2159f37e66e1d26bddd",
-    "customer_interview_kit": "c708ab9534e5b4cc73ea9441c48f4717718ef399d07fba339dfb1586ff4f17b4",
-    "retention_playbook": "add13ff0e31e542a9dd84859a076ce458eeb2742e23ab7f995a4509349a7ab5f",
-    "partner_architect": "3fa64ec1a14125cf16185f56b11dfb58da2301daba4cf9b31392a6c5237ae083",
-    "crisis_planner": "cef7518190fba84961a4b823753c06916bf54dbc052bc6a84ef9e521092cf493",
-    "competitive_intel": "c3ac12020fec7d0d261271630998f735c21de91d18a8454508ec15fe9c75ca0e",
-    "craft_gtm_analyzer": "bc2223092ca1356a6b45549c158767118f36c28e7dbeb1e3832546b4a599f23e",
-    "scale_paid_check": "01e303d1dbeb3149510d5e9d74967b17001bfdefa6eb1a067e23609c72b1cfd7",
-    "segment_and_seat_cut_check": "504711666432594a93fbb10052ed1b16657001309defb5ff09d3273a3aa638b0"
+    "pmf_scorecard": "51199da001df003267ed37b7330856bf7300ca0488cbcb03e6c4032841b43867",
+    "launch_commander": "1913012c989ccbe25acf49c140ad1ba92f4c3d6e1f719880e5e02b2b5164e515",
+    "customer_interview_kit": "832b1791eb6068b3c041df398cc467c1e1506c08b4e0e85a18c5fa41f9b6a52c",
+    "retention_playbook": "a1580166eb68c512341f21f22ceb77ab95e9831181ba605518e5309d9fbfe450",
+    "partner_architect": "5cb302a51dc65147229dfbdcfb84e542891a8bc17da1326ee67e9b4b20547fa0",
+    "crisis_planner": "1fd2b2f1732b58d076973712f2a30a91cefa812eda96b3a5538835b968de5761",
+    "competitive_intel": "f138c4dbcf5b8b9dffb1b4d0ac6e5dbd55c5ee8324019c34cafd4a1700fac27b",
+    "craft_gtm_analyzer": "571c01dd2b11a03022fff1f46f4f43a781656f90c9da4053a82933e5679d0d4c",
+    "scale_paid_check": "825b7bdd6d44b84479167a390426979d40ce75cd79598fd80e9c12d755a7c709",
+    "segment_and_seat_cut_check": "5107e6338ea4abb1de2cbef77870e783bab5db6cd332cd507f9969ba5a0a8804"
   }
 }

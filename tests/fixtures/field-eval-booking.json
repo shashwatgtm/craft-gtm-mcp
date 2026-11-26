@@ -1,5 +1,5 @@
 {
-  "base": "d603c4501380c8e2cbbeee317d9b56b312d1025d",
+  "base": "57690795e55f5064655dc99b88846cc4df7314b2",
   "source": "In process MCP response on the base revision, with internet sockets blocked.",
   "tool": "pmf_scorecard",
   "arguments": {
