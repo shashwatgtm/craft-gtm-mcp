@@ -1,0 +1,21 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.shashwatgtm/craft-gtm-mcp",
+  "description": "GTM planning, customer research, retention, partnerships and growth decisions.",
+  "websiteUrl": "https://tools.gtmhelix.com/connectors/",
+  "repository": {
+    "url": "https://github.com/shashwatgtm/craft-gtm-mcp",
+    "source": "github"
+  },
+  "version": "2.2.25",
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "@shashwatgtmalpha/craft-gtm-mcp",
+      "version": "2.2.25",
+      "transport": {
+        "type": "stdio"
+      }
+    }
+  ]
+}
