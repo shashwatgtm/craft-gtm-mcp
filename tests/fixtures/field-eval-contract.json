@@ -1,0 +1,15 @@
+{
+  "base": "57690795e55f5064655dc99b88846cc4df7314b2",
+  "tools": {
+    "pmf_scorecard": "51199da001df003267ed37b7330856bf7300ca0488cbcb03e6c4032841b43867",
+    "launch_commander": "1913012c989ccbe25acf49c140ad1ba92f4c3d6e1f719880e5e02b2b5164e515",
+    "customer_interview_kit": "832b1791eb6068b3c041df398cc467c1e1506c08b4e0e85a18c5fa41f9b6a52c",
+    "retention_playbook": "a1580166eb68c512341f21f22ceb77ab95e9831181ba605518e5309d9fbfe450",
+    "partner_architect": "5cb302a51dc65147229dfbdcfb84e542891a8bc17da1326ee67e9b4b20547fa0",
+    "crisis_planner": "1fd2b2f1732b58d076973712f2a30a91cefa812eda96b3a5538835b968de5761",
+    "competitive_intel": "f138c4dbcf5b8b9dffb1b4d0ac6e5dbd55c5ee8324019c34cafd4a1700fac27b",
+    "craft_gtm_analyzer": "571c01dd2b11a03022fff1f46f4f43a781656f90c9da4053a82933e5679d0d4c",
+    "scale_paid_check": "825b7bdd6d44b84479167a390426979d40ce75cd79598fd80e9c12d755a7c709",
+    "segment_and_seat_cut_check": "5107e6338ea4abb1de2cbef77870e783bab5db6cd332cd507f9969ba5a0a8804"
+  }
+}
